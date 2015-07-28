@@ -6,8 +6,7 @@ into automated planning. It also features execution and comes with an interface 
 # Featured Constraint Types & Solvers
 
 - Statements
-
--- State-variable assignment attached to flexible temporal interval
+  - State-variable assignment attached to flexible temporal interval
 
 - Goals
 - Domain constraints
@@ -18,14 +17,10 @@ into automated planning. It also features execution and comes with an interface 
 - Math constraints (simple calculations)
 - Set constraints (simple)
 - ROS
-
--- Publish variables to ROS
-
--- Subsribe to ROS topics
-
--- Make variables ROS goals (actionlib)
-
--- Use ROS service calls
+  - Publish variables to ROS
+  - Subsribe to ROS topics
+  - Make variables ROS goals (actionlib)
+  - Use ROS service calls
 
 # Dependencies & Requirements
 
