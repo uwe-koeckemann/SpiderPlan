@@ -1,0 +1,94 @@
+# What is SpiderPlan?
+
+SpiderPlan is a constraint-based planning framework that allows inclusion of many different types of knowledge 
+into automated planning. It also features execution and comes with an interface to the Robot Operating System (ROS).
+
+# Featured Constraint Types & Solvers
+
+- Statements
+-- State-variable assignment attached to flexible temporal interval
+- Goals
+- Domain constraints
+- Temporal constraints
+- Reusable resources
+- Prolog 
+- Costs
+- Math constraints (simple calculations)
+- Set constraints (simple)
+- ROS
+-- Publish variables to ROS
+-- Subsribe to ROS topics
+-- Make variables ROS goals (actionlib)
+-- Use ROS service calls
+
+# Dependencies & Requirements
+
+The following libraries will be fetched from maven when running gradle:
+
+- JUnit <a href="http://junit.org/">(link)</a>
+- Jung Graph Library <a href="http://jung.sourceforge.net/">(link)</a>
+
+Apart from that Python 2.x is required by some scripts (e.g. for ROS)
+and YAP Prolog <a href="http://www.dcc.fc.up.pt/~vsc/Yap/">(link)</a> is used to solve Prolog constraints.
+
+# Installation & Test
+
+1) Compile with gradle (will download all maven dependencies):
+
+'''
+...
+'''
+
+2) Run a basic example:
+
+'''
+...
+'''
+
+# Solving a problem
+
+To solve a problem three things need to be provided:
+
+- A domain definition (.uddl)
+- A problem definition (.uddl)
+- A planner definition (.spider)
+
+# License (MIT)
+
+Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Sponsors
+
+* <a href="http://www.oru.se/">&Ouml;rebro University</a>
+* <a href="http://www.vr.se/inenglish">The Swedish Research Council (Project: Human-aware task planning for mobile robots)</a> 
+* <a href="http://www.kk-stiftelsen.org/">The Swedish Knowledge Foundation (Project: ecare@home)</a>
+
+
+
+
+
+
+
+
+
+
+
