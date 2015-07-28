@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Spiderplan : ">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Spiderplan</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/Ewulution/SpiderPlan">View on GitHub</a>
+
+          <h1 id="project_title">Spiderplan</h1>
+          <h2 id="project_tagline"></h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/Ewulution/SpiderPlan/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/Ewulution/SpiderPlan/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="what-is-spiderplan" class="anchor" href="#what-is-spiderplan" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is SpiderPlan?</h1>
+
+<p>SpiderPlan is a constraint-based planning framework that allows inclusion of many different types of knowledge 
+into automated planning. It also features execution and comes with an interface to the Robot Operating System (ROS).</p>
+
+<h1>
+<a id="featured-constraint-types--solvers" class="anchor" href="#featured-constraint-types--solvers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Featured Constraint Types &amp; Solvers</h1>
+
+<ul>
+<li><p>Statements: State-variable assignment attached to flexible temporal interval</p></li>
+<li><p>Goals</p></li>
+<li>Domain constraints</li>
+<li>Temporal constraints</li>
+<li>Reusable resources</li>
+<li>Prolog </li>
+<li>Costs</li>
+<li>Math constraints (simple calculations)</li>
+<li>Set constraints (simple)</li>
+<li>ROS</li>
+</ul>
+
+<p>-- Publish variables to ROS</p>
+
+<p>-- Subsribe to ROS topics</p>
+
+<p>-- Make variables ROS goals (actionlib)</p>
+
+<p>-- Use ROS service calls</p>
+
+<h1>
+<a id="dependencies--requirements" class="anchor" href="#dependencies--requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dependencies &amp; Requirements</h1>
+
+<p>The following libraries will be fetched from maven when running gradle:</p>
+
+<ul>
+<li>JUnit <a href="http://junit.org/">(link)</a>
+</li>
+<li>Jung Graph Library <a href="http://jung.sourceforge.net/">(link)</a>
+</li>
+</ul>
+
+<p>Apart from that Python 2.x is required by some scripts (e.g. for ROS)
+and YAP Prolog <a href="http://www.dcc.fc.up.pt/~vsc/Yap/">(link)</a> is used to solve Prolog constraints.</p>
+
+<h1>
+<a id="installation--test" class="anchor" href="#installation--test" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation &amp; Test</h1>
+
+<p>1) Compile with gradle (will download all maven dependencies):</p>
+
+<p>'''
+...
+'''</p>
+
+<p>2) Run a basic example:</p>
+
+<p>'''
+...
+'''</p>
+
+<h1>
+<a id="solving-a-problem" class="anchor" href="#solving-a-problem" aria-hidden="true"><span class="octicon octicon-link"></span></a>Solving a problem</h1>
+
+<p>To solve a problem three things need to be provided:</p>
+
+<ul>
+<li>A domain definition (.uddl)</li>
+<li>A problem definition (.uddl)</li>
+<li>A planner definition (.spider)</li>
+</ul>
+
+<h1>
+<a id="sponsors" class="anchor" href="#sponsors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sponsors</h1>
+
+<ul>
+<li><a href="http://www.oru.se/">Örebro University</a></li>
+<li>
+<a href="http://www.vr.se/inenglish">The Swedish Research Council (Project: Human-aware task planning for mobile robots)</a> </li>
+<li><a href="http://www.kk-stiftelsen.org/">The Swedish Knowledge Foundation (Project: ecare@home)</a></li>
+</ul>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Spiderplan maintained by <a href="https://github.com/Ewulution">Ewulution</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
