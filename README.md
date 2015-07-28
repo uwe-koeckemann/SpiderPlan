@@ -7,7 +7,6 @@ into automated planning. It also features execution and comes with an interface 
 
 - Statements
   - State-variable assignment attached to flexible temporal interval
-
 - Goals
 - Domain constraints
 - Temporal constraints
