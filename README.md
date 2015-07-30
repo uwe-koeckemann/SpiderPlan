@@ -37,15 +37,15 @@ and YAP Prolog <a href="http://www.dcc.fc.up.pt/~vsc/Yap/">(link)</a> is used to
 
 1) Compile with gradle (will download all maven dependencies):
 
-´´´
+```
 gradle build
-´´´
+```
 
 2) Run a basic example:
 
-´´´
+```
 gradle run
-´´´
+```
 
 # Solving a problem
 
