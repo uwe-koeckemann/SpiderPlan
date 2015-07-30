@@ -15,6 +15,8 @@ into automated planning. It also features execution and comes with an interface 
 - Costs
 - Math constraints (simple calculations)
 - Set constraints (simple)
+- Interaction Constraints
+  - Used for social acceptability, proactivity and context-awareness in Human-aware Planning
 - ROS
   - Publish variables to ROS
   - Subsribe to ROS topics
