@@ -35,25 +35,24 @@ and YAP Prolog <a href="http://www.dcc.fc.up.pt/~vsc/Yap/">(link)</a> is used to
 
 # Installation & Test
 
-1) Compile with gradle (will download all maven dependencies):
+
+## Compile with gradlew (will download gradle and all maven dependencies):
 
 ```
-gradle build
+ ./gradlew build
 ```
 
-2) Run a basic example:
+## Run default test case:
 
 ```
-gradle run
+ ./gradlew run
 ```
 
-# Solving a problem
+## Run by specifying domain, problem and planner definitions:
 
-To solve a problem three things need to be provided:
-
-- A domain definition (.uddl)
-- A problem definition (.uddl)
-- A planner definition (.spider)
+```
+ ./gradlew run -Dexec.args='./domains/household/domain.uddl ./domains/household/test-cases/test02.uddl ./domains/household/planner.spider'
+```
 
 # Sponsors
 
