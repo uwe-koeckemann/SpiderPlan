@@ -1,0 +1,22 @@
+(initial-context
+	(domain
+		( enum task ( list t1 recharge1 ) )
+		( int intType ( interval 0 1000 ) )
+	)
+	(statement
+		( key1 ( at r1 ) robotRoom )
+		( key2 ( state t1 vaccuum bedroomParents ) waiting )
+		( key3 ( state recharge1 recharge_r1 robotRoom ) waiting )
+	)
+	(goal
+		( G1 ( state t1 vaccuum bedroomParents ) finished )
+		( G2 ( state recharge1 recharge_r1 robotRoom ) finished )
+	)
+	(temporal
+		( release key1 [0 0] )
+		( release key2 [0 0] )
+		( release key3 [0 0] )
+		( before G1 G2 [1 inf] )
+		( planning-interval [0 1440] )
+	)
+)

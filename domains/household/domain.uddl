@@ -1,0 +1,354 @@
+(operator
+	( Move ?R ?L1 ?L2 )
+	(preconditions
+		( ?P1 ( at ?R ) ?L1 )
+	)
+	(effects
+		( ?E1 ( at ?R ) ?L2 )
+	)
+	(constraints
+		(prolog kb
+			( adjacent ?L1 ?L2 )
+			( movingTime ?R ?L1 ?L2 ?T )
+		)
+		(temporal
+			( duration ?THIS [?T 1440] )
+			( meets ?P1 ?THIS )
+			( meets ?THIS ?E1 )
+			( duration ?E1 [1 1440] )
+		)
+	)
+)
+(operator
+	( SolveTask ?R ?Task ?TaskClass ?L )
+	(preconditions
+		( ?P1 ( at ?R ) ?L )
+		( ?P2 ( state ?Task ?TaskClass ?L ) waiting )
+	)
+	(effects
+		( ?E1 ( state ?Task ?TaskClass ?L ) beingAttended )
+		( ?E2 ( state ?Task ?TaskClass ?L ) finished )
+		( ?E3 ( busy ?R ) 1 )
+	)
+	(constraints
+		(prolog kb
+			( capability ?R ?TaskClass )
+			( executionTime ?R ?TaskClass ?T )
+		)
+		(temporal
+			( duration ?THIS [?T 1440] )
+			( during ?THIS ?P1 [1 1440] [1 1440] )
+			( equals ?THIS ?E1 )
+			( equals ?E1 ?E3 )
+			( meets ?P2 ?E1 )
+			( meets ?E1 ?E2 )
+		)
+	)
+)
+(initial-context
+	(domain
+		( sig ( at object ) location )
+		( sig ( state task taskClass location ) taskState )
+		( sig ( busy robot ) intType )
+		( sig ( goalBatchDivider intType ) boolean )
+		( sig ( hasProperty human property ) boolean )
+		( sig ( married human human ) boolean )
+		( sig ( locationType location locationType ) boolean )
+		( sig ( adjacent location location ) boolean )
+		( sig ( speed robot intType ) boolean )
+		( sig ( capability robot taskClass ) boolean )
+		( sig ( hasTaskClass task taskClass ) boolean )
+		( sig ( taskLocation task location ) boolean )
+		( sig ( executionTime robot taskClass intType ) boolean )
+		( sig ( movingTime robot location location intType ) boolean )
+		( sig ( humanActivity human location activity ) boolean )
+		( sig ( hasRole human role ) boolean )
+		( sig ( notEqual object object ) boolean )
+		( sig socialCost costRange )
+		( sig ( Move robot location location ) )
+		( sig ( SolveTask robot task taskClass location ) )
+		( enum robot ( list r1 r2 r3 r4 ) )
+		( enum location ( list robotRoom floor1 floor2 basement livingRoom kitchen diningRoom bedroomParents bedroomGrandparents1 bedroomGrandparents2 kidsRoom1 kidsRoom2 bathroom1 bathroom2 bathroom3 bathroom4 laundryRoom storage out study ) )
+		( enum locationType ( list bedroom bathroom kidsRoom ) )
+		( enum task )
+		( enum taskClass ( list vaccuum sortStuff assist collectTrash takeOutTrash collectLaundry laundry cleanRoom entertain recharge_r1 recharge_r2 recharge_r3 recharge_r4 ) )
+		( enum taskState ( list finished beingAttended waiting ) )
+		( enum human ( list mother father kid1 kid2 kid3 kid4 infant1 infant2 grandmother1 grandmother2 grandfather1 grandfather2 ) )
+		( enum property ( list lightSleeper normalSleeper heavySleeper easilyDistracted ) )
+		( enum role ( list parent grandparent kid infant ) )
+		( enum activity ( list idle out eating sleeping reading working cooking playing usingBathroom ) )
+		( enum object ( list human robot ) )
+		( int intType ( interval 0 2 ) )
+		( float costRange ( interval 0.0 200.0 ) )
+	)
+	(resource
+		( reusable ( busy robot )  1 )
+	)
+	
+	(conditional
+		( LightSleeper ?H ?L ?T ?C ?I1 ?I2 )
+		(condition
+			(statement
+				( ?I1 ( humanActivity ?H ?L sleeping ) true )
+				( ?I2 ( state ?T ?C ?L ) beingAttended )
+			)
+			(domain
+				( in ?C ( list vaccuum cleanRoom sortStuff ) )
+			)
+			(temporal
+				( possible-intersection {?I1 ?I2} )
+			)
+			(prolog kb
+				( hasProperty ?H lightSleeper )
+			)
+		)
+		(resolver
+			(temporal
+				( before ?I1 ?I2 [1 1440] )
+			)
+		)
+		(resolver
+			(temporal
+				( after ?I1 ?I2 [1 1440] )
+			)
+		)
+	)
+	(conditional
+		( NormalSleeper ?H ?L ?T ?I1 ?I2 )
+		(condition
+			(domain
+				( in ?C ( list vaccuum cleanRoom sortStuff ) )
+			)
+			(statement
+				( ?I1 ( humanActivity ?H ?L sleeping ) true )
+				( ?I2 ( state ?T ?C ?L ) beingAttended )
+			)
+			(temporal
+				( possible-intersection {?I1 ?I2} )
+			)
+			(prolog kb
+				( hasProperty ?H normalSleeper )
+			)
+		)
+		(resolver
+			(temporal
+				( before ?I1 ?I2 [1 1440] )
+			)
+		)
+		(resolver
+			(temporal
+				( after ?I1 ?I2 [1 1440] )
+			)
+		)
+		(resolver
+			(cost
+				( add socialCost 10 )
+			)
+		)
+	)
+	(conditional
+		( NoDistractions ?H ?L ?T ?C ?I1 ?I2 )
+		(condition
+			(statement
+				( ?I1 ( humanActivity ?H ?L working ) true )
+				( ?I2 ( state ?T ?C ?L ) beingAttended )
+			)
+			(temporal
+				( possible-intersection {?I1 ?I2} )
+			)
+			(prolog kb
+				( hasProperty ?H easilyDistracted )
+			)
+		)
+		(resolver
+			(temporal
+				( before ?I1 ?I2 [1 1440] )
+			)
+		)
+		(resolver
+			(temporal
+				( after ?I1 ?I2 [1 1440] )
+			)
+		)
+		(resolver
+			(cost
+				( add socialCost 20 )
+			)
+		)
+	)
+	(conditional
+		( Occupied ?H ?L ?R ?I1 ?I2 )
+		(condition
+			(statement
+				( ?I1 ( humanActivity ?H ?L usingBathroom ) true )
+				( ?I2 ( at ?R ) ?L )
+			)
+			(temporal
+				( possible-intersection {?I1 ?I2} )
+			)
+			(prolog kb
+				( locationType ?L bathroom )
+			)
+		)
+		(resolver
+			(temporal
+				( before ?I1 ?I2 [1 1440] )
+			)
+		)
+		(resolver
+			(temporal
+				( after ?I1 ?I2 [1 1440] )
+			)
+		)
+	)
+	(conditional
+		( HatesRobots ?H ?L ?R ?A ?I1 ?I2 )
+		(condition
+			(statement
+				( ?I1 ( humanActivity ?H ?L ?A ) true )
+				( ?I2 ( at ?R ) ?L )
+			)
+			(temporal
+				( possible-intersection {?I1 ?I2} )
+			)
+			(prolog kb
+				( hasProperty ?H hatesRobots )
+			)
+		)
+		(resolver
+			(temporal
+				( before ?I1 ?I2 [1 1440] )
+			)
+		)
+		(resolver
+			(temporal
+				( after ?I1 ?I2 [1 1440] )
+			)
+		)
+		(resolver
+			(cost
+				( add socialCost 5 )
+			)
+		)
+	)
+	(conditional
+		( LetMeEat ?H ?L ?T ?I1 ?I2 )
+		(condition
+			(statement
+				( ?I1 ( humanActivity ?H ?L eating ) true )
+				( ?I2 ( state ?T collectTrash ?L ) beingAttended )
+			)
+		)
+		(resolver
+			(temporal
+				( after ?I2 ?I1 [1 1440] )
+			)
+		)
+		(resolver
+			(temporal
+				( before ?I2 ?I1 [1 1440] )
+			)
+		)
+		(resolver
+			(cost
+				( add socialCost 10 )
+			)
+		)
+	)
+	(conditional
+		( AloneTime ?H1 ?H2 ?L ?R ?A ?I1 ?I2 )
+		(condition
+			(statement
+				( ?I1 ( humanActivity ?H1 ?L ?A ) true )
+				( ?C2 ( humanActivity ?H2 ?L ?A ) true )
+				( ?I2 ( at ?R ) ?L )
+			)
+			(temporal
+				( possible-intersection {?I1 ?C2 ?I2} )
+			)
+			(prolog kb
+				( married ?H1 ?H2 )
+				( locationType ?L bedroom )
+			)
+		)
+		(resolver
+			(temporal
+				( before ?I1 ?I2 [1 1440] )
+				( before ?C2 ?I2 [1 1440] )
+			)
+		)
+		(resolver
+			(temporal
+				( after ?I1 ?I2 [1 1440] )
+				( after ?C2 ?I2 [1 1440] )
+			)
+		)
+		(resolver
+			(cost
+				( add socialCost 50 )
+			)
+		)
+	)
+	(conditional
+		( LetMePlay ?H ?L ?T ?I1 ?I2 )
+		(condition
+			(domain
+				( in ?c ( list vaccuum sortStuff collectTrash takeOutTrash collectLaundry laundry cleanRoom ) )
+			)
+			(statement
+				( ?I1 ( humanActivity ?H ?L playing ) )
+				( ?I2 ( state ?T ?C ?L ) beingAttended )
+			)
+			(temporal
+				( possible-intersection {?I1 ?I2} )
+			)
+			(prolog kb
+				( hasRole ?H kid )
+				( locationType ?L kidsRoom )
+			)
+		)
+		(resolver
+			(temporal
+				( after ?I2 ?I1 [1 1440] )
+			)
+		)
+		(resolver
+			(temporal
+				( before ?I2 ?I1 [1 1440] )
+			)
+		)
+		(resolver
+			(cost
+				( add socialCost 5 )
+			)
+		)
+	)
+	(conditional
+		( LetMeRead ?H ?L ?T ?I1 ?I2 )
+		(condition
+			(statement
+				( ?I1 ( humanActivity ?H ?L reading ) )
+				( ?I2 ( state ?T vaccuum ?L ) beingAttended )
+			)
+			(temporal
+				( possible-intersection {?I1 ?I2} )
+			)
+		)
+		(resolver
+			(temporal
+				( after ?I1 ?I2 [1 1440] )
+			)
+		)
+		(resolver
+			(temporal
+				( before ?I1 ?I2 [1 1440] )
+			)
+		)
+		(resolver
+			(cost
+				( add socialCost 10 )
+			)
+		)
+	)
+	(include ( kb "/home/uwe/Work/Workspace/SpiderPlan/domains/household/kb.prolog"	) )
+)
