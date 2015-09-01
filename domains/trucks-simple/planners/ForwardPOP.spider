@@ -1,0 +1,39 @@
+FlowModule main:		
+	modules = "B,P,TR";
+	rules = { 
+		Start => B;
+		B => P;
+		P => P.Success => TR ; 
+		P => P.Fail 		 => Fail;
+				
+		TR => TR.Consistent , P.Success => Success ;
+		TR => TR.Inconsistent => P : NoGood ;	
+	};
+	verbose=true;
+	verbosity=1;
+
+	
+BackgroundKnowledgeConstraintsSolver B:
+	//failBehavior="Exit";
+	kbs="Prolog()";
+	verbose=true;
+	verbosity=1;
+
+ForwardPOP P:
+	queueStyle="MultiQueue";
+	heuristics="FastForward"; 
+	yahspLookahead=true;
+	verbose=true; 
+	verbosity=4;
+
+TemporalReasoner TR:
+	initNumActivities=300;
+	numActivitiesInc=100;
+	//useFrameConstraints=true;
+	symbolicValueScheduling=true;
+	verbose=true;
+	verbosity=0;
+
+
+
+
