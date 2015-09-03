@@ -45,6 +45,7 @@ import org.spiderplan.representation.constraints.TemporalIntervalQuery;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
+import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
@@ -297,12 +298,11 @@ public class STPSolver extends Module implements SolverInterface {
 //			System.out.println(stpSolver.isConsistent( cDB, core.getTypeManager()));
 //			System.out.println("=========================================");
 //
-//			if ( test && !isTemporalConsistent ) {
+//			if ( !isTemporalConsistent ) {
 //				System.out.println(cDB);
 //				IncrementalSTPSolver stpNewDebug = new IncrementalSTPSolver(0, 10000000);
 //				stpNewDebug.debug = true;
 //				System.out.println(stpNewDebug.isConsistent( cDB, core.getTypeManager()));
-//				
 //				Loop.start();
 //			}
 			

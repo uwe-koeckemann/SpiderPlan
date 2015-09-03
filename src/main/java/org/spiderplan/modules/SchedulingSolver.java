@@ -167,7 +167,8 @@ public class SchedulingSolver extends Module implements SolverInterface {
 		if ( isConsistent ) {
 			if ( verbose ) Logger.msg(getName(), "Scheduling statements..." , 1);
 			for ( Statement s : core.getContext().getConstraints().get(Statement.class)) {
-				if ( !scheduledVariables.contains(s.getVariable())) {
+				boolean hasNoVariables = s.getVariable().getVariableTerms().isEmpty() && s.getValue().getVariables().isEmpty();
+				if ( hasNoVariables && !scheduledVariables.contains(s.getVariable())) {
 					if ( verbose ) Logger.msg(getName(), "Testing: " + s.getVariable() , 2); 
 					scheduledVariables.add(s.getVariable());
 					

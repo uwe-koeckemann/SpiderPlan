@@ -113,6 +113,7 @@ public class Resolver {
 	 * @param r Resolver to be added to this one
 	 */
 	public void add( Resolver r ) {
+		System.out.println(this.s);
 		this.s.add(r.s);
 		this.cDB.add(r.cDB);
 	}

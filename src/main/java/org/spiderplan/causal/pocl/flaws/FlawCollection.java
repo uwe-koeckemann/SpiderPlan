@@ -35,7 +35,7 @@ import org.spiderplan.representation.logic.Substitution;
 public abstract class FlawCollection {
 	public abstract void add( OpenGoal openGoal );
 	
-	public abstract OpenGoal pop();
+	public abstract OpenGoal select();
 	
 	public abstract FlawCollection copy();
 	

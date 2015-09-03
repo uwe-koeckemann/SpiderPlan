@@ -322,8 +322,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			applyPlan = null;
 		}
 		
-		depth++;
-		planner.depth = depth;
+		Logger.depth++;
 		planner.success = false;
 		
 //		/**
@@ -539,7 +538,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		lastProposedResolver = r;
 		lastProposedPlan = p;
 				
-		depth--;
+		Logger.depth--;
 		return r;
 	}		
 	
@@ -897,14 +896,14 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			for ( Operator o : appNew ) {
 				boolean violatesVarDomRestriction = false;
 				for ( Statement s : o.getPreconditions() ) {
-					if ( !tM.isConsistentVariableTermAssignment(s)) {
+					if ( !tM.isConsistentVariableTermAssignment(s.getVariable(), s.getValue())) {
 						violatesVarDomRestriction = true;
 						break;
 					}
 				}
 				if ( !violatesVarDomRestriction ) {
 					for ( Statement s : o.getEffects() ) {
-						if ( !tM.isConsistentVariableTermAssignment(s)) {
+						if ( !tM.isConsistentVariableTermAssignment(s.getVariable(), s.getValue())) {
 							violatesVarDomRestriction = true;
 							break;
 						}
@@ -994,7 +993,6 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		planner.verbose = super.verbose;
 		planner.verbosity = super.verbosity;
 		planner.keepTimes = super.keepTimes;
-		planner.depth = depth;
 		planner.yahspLookahead = this.yahspLookahead;
 		
 		if ( !incremental ) {

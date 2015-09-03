@@ -42,7 +42,7 @@ public abstract class AbstractSearch {
 	public int verbosity = 0;
 	public boolean keepTimes = false;
 	
-	public int depth = 0;
+//	public int depth = 0;
 		
 	/**
 	 * Search failed if it is done and was not successful. 

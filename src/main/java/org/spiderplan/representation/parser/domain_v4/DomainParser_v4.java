@@ -28,7 +28,8 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         Core c;
         HashMap<Term,ArrayList<Term>> groupMapping;
         Map<String,String> includeMapping;
-        static public boolean verbose = true;
+                static public String sourceDirectory;
+                static public boolean verbose = true;
 
   final public void CompilationUnit(Core c, Map<String,String> includeMapping) throws ParseException {
   this.includeMapping = includeMapping;
@@ -917,6 +918,12 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
       jj_consume_token(CP);
                 try {
                         String fileName = includedProgramFile.image.substring(1,includedProgramFile.image.length()-1);
+
+                        if ( fileName.startsWith(".") ) {
+                                fileName = sourceDirectory + fileName;
+                                fileName = fileName.replace("/./", "/");
+                        }
+
                         String program = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
                         {if (true) return new IncludedProgram(name, program );}
                 } catch ( IOException e ) {
@@ -1319,16 +1326,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     finally { jj_save(23, xla); }
   }
 
-  private boolean jj_3R_52() {
-    if (jj_3R_62()) return true;
-    return false;
-  }
-
-  private boolean jj_3_22() {
-    if (jj_3R_63()) return true;
-    return false;
-  }
-
   private boolean jj_3R_58() {
     if (jj_scan_token(OP)) return true;
     if (jj_3R_68()) return true;
@@ -1448,11 +1445,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_51() {
-    if (jj_3R_58()) return true;
-    return false;
-  }
-
   private boolean jj_3R_79() {
     Token xsp;
     xsp = jj_scanpos;
@@ -1463,16 +1455,21 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_59() {
-    if (jj_3R_62()) return true;
-    return false;
-  }
-
   private boolean jj_3R_77() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_79()) jj_scanpos = xsp;
     if (jj_scan_token(UFLOAT)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_51() {
+    if (jj_3R_58()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_59() {
+    if (jj_3R_62()) return true;
     return false;
   }
 
@@ -1520,6 +1517,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3R_48() {
+    if (jj_3R_62()) return true;
+    return false;
+  }
+
   private boolean jj_3_15() {
     if (jj_3R_58()) return true;
     return false;
@@ -1535,11 +1537,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_48() {
-    if (jj_3R_62()) return true;
-    return false;
-  }
-
   private boolean jj_3_12() {
     if (jj_3R_55()) return true;
     return false;
@@ -1547,6 +1544,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3_11() {
     if (jj_3R_54()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_49() {
+    if (jj_3R_66()) return true;
     return false;
   }
 
@@ -1584,11 +1586,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3_6() {
     if (jj_3R_49()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_49() {
-    if (jj_3R_66()) return true;
     return false;
   }
 
@@ -1630,6 +1627,12 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3R_65() {
+    if (jj_scan_token(QPOINT)) return true;
+    if (jj_3R_29()) return true;
+    return false;
+  }
+
   private boolean jj_3R_44() {
     if (jj_scan_token(STATEMENT)) return true;
     return false;
@@ -1637,6 +1640,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3R_43() {
     if (jj_scan_token(INCLUDE)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_64() {
+    if (jj_3R_29()) return true;
     return false;
   }
 
@@ -1679,12 +1687,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_65() {
-    if (jj_scan_token(QPOINT)) return true;
-    if (jj_3R_29()) return true;
-    return false;
-  }
-
   private boolean jj_3R_38() {
     if (jj_scan_token(SET)) return true;
     return false;
@@ -1692,11 +1694,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3R_37() {
     if (jj_scan_token(MATH)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_64() {
-    if (jj_3R_29()) return true;
     return false;
   }
 
@@ -1730,8 +1727,24 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3_24() {
+    if (jj_scan_token(BAR)) return true;
+    if (jj_3R_29()) return true;
+    return false;
+  }
+
   private boolean jj_3R_30() {
     if (jj_scan_token(COST)) return true;
+    return false;
+  }
+
+  private boolean jj_3_23() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_64()) {
+    jj_scanpos = xsp;
+    if (jj_3R_65()) return true;
+    }
     return false;
   }
 
@@ -1746,18 +1759,13 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3_24() {
-    if (jj_scan_token(BAR)) return true;
-    if (jj_3R_29()) return true;
-    return false;
-  }
-
-  private boolean jj_3_23() {
+  private boolean jj_3R_68() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_64()) {
-    jj_scanpos = xsp;
-    if (jj_3R_65()) return true;
+    if (jj_3_23()) jj_scanpos = xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3_24()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
@@ -1826,17 +1834,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_68() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_23()) jj_scanpos = xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3_24()) { jj_scanpos = xsp; break; }
-    }
-    return false;
-  }
-
   private boolean jj_3R_27() {
     if (jj_scan_token(OP)) return true;
     if (jj_scan_token(INITIAL)) return true;
@@ -1845,6 +1842,16 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3_19() {
     if (jj_3R_61()) return true;
+    return false;
+  }
+
+  private boolean jj_3_22() {
+    if (jj_3R_63()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_52() {
+    if (jj_3R_62()) return true;
     return false;
   }
 

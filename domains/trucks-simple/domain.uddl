@@ -31,6 +31,7 @@ notEqual(A,B) :- A \== B.
 	(preconditions
 		( ?P1 ( at ?A ) ?L1 )
 		( ?P2 ( free ?L2 ) true )
+		( ?P3 ( free ?L1 ) false )
 	)
 	(effects
 		( ?E1 ( at ?A ) ?L2 )

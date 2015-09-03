@@ -625,14 +625,14 @@ public class TypeManager {
 	 * @param s A {@link Statement}
 	 * @return <code>true</code> if all assignments are consistent with their domains <code>false</code> otherwise.
 	 */
-	public boolean isConsistentVariableTermAssignment( Statement s ) {
-		for ( int i = 0 ; i < s.getVariable().getNumArgs(); i++ ) {
-			Term t = s.getVariable().getArg(i);
-			if ( t.isGround() && !this.getPredicateTypes(s.getVariable().getUniqueName(), i).contains(t)) {
+	public boolean isConsistentVariableTermAssignment( Atomic var, Term val ) {
+		for ( int i = 0 ; i < var.getNumArgs(); i++ ) {
+			Term t = var.getArg(i);
+			if ( t.isGround() && !this.getPredicateTypes(var.getUniqueName(), i).contains(t)) {
 				return false;
 			}
 		}
-		if ( s.getValue().isGround() && !this.getPredicateTypes(s.getVariable().getUniqueName(), -1).contains(s.getValue())) {
+		if ( val != null && val.isGround() && !this.getPredicateTypes(var.getUniqueName(), -1).contains(val)) {
 			return false;
 		}		
 		return true;

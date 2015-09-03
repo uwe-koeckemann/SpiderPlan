@@ -24,6 +24,8 @@ package org.spiderplan.causal.pocl.flaws;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Stack;
 
 import org.spiderplan.representation.constraints.OpenGoal;
@@ -31,7 +33,7 @@ import org.spiderplan.representation.logic.Substitution;
 
 public class AllFIFO extends FlawCollection {
 	
-	private Stack<OpenGoal> s = new Stack<OpenGoal>();
+	private Queue<OpenGoal> s = new LinkedList<OpenGoal>();
 
 	@Override
 	public void add(OpenGoal openGoal) {
@@ -39,8 +41,8 @@ public class AllFIFO extends FlawCollection {
 	}
 
 	@Override
-	public OpenGoal pop() {
-		return s.pop();
+	public OpenGoal select() {
+		return s.poll();
 	}
 
 	@Override

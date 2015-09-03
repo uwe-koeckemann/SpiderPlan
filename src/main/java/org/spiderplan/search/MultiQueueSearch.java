@@ -59,9 +59,6 @@ public abstract class MultiQueueSearch extends AbstractSearch {
 	public abstract boolean isGoal(MultiHeuristicNode n);
 	public abstract ArrayList<LinkedList<MultiHeuristicNode>> expand(MultiHeuristicNode n);
 	
-	
-	private boolean firstStep = true;
-	
 	public void init( MultiHeuristicNode initNode ) {
 		this.n = initNode;
 	}

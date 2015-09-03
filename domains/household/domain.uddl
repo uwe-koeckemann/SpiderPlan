@@ -350,5 +350,6 @@
 			)
 		)
 	)
-	(include ( kb "/home/uwe/Work/Workspace/SpiderPlan/domains/household/kb.prolog"	) )
+	(include ( kb "./kb.prolog"	) )
+	;;(include ( kb "/home/uwe/SpiderPlan/domains/household/kb.prolog"	) )
 )

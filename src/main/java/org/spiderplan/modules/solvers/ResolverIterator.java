@@ -55,7 +55,7 @@ public abstract class ResolverIterator {
 	
 	protected static boolean killFlag = false;
 	
-	protected static int depth = -1;
+//	protected static int depth = -1;
 	
 	protected static Statistics stats = new Statistics(); 
 	

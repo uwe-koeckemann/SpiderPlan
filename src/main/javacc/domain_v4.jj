@@ -36,7 +36,8 @@ public class DomainParser_v4
   	Core c;
   	HashMap<Term,ArrayList<Term>> groupMapping;
   	Map<String,String> includeMapping;
-	static public boolean verbose = true;
+		static public String sourceDirectory;
+		static public boolean verbose = true;
 }
 
 PARSER_END(DomainParser_v4)
@@ -710,6 +711,12 @@ Constraint IncludeProgram() :
 	 {
 	 	try {
 	 		String fileName = includedProgramFile.image.substring(1,includedProgramFile.image.length()-1);
+
+			if ( fileName.startsWith(".") ) {	
+				fileName = sourceDirectory + fileName;
+				fileName = fileName.replace("/./", "/");
+			}
+
 	 		String program = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
 	 		return new IncludedProgram(name, program );
 	 	} catch ( IOException e ) {

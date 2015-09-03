@@ -137,14 +137,25 @@ public class Compile {
 			
 			c.getTypeManager().addNewType(new IntervalType());
 			
+			File file = new File(domainFileName);
+			String path = file.getParentFile().getAbsolutePath().toString() + "/";
+			path = path.replace("/./", "/");
+			DomainParser_v4.sourceDirectory = path;
+			
 			if ( keepTimes || printTimes ) StopWatch.start("Compiling domain");
 			Compile.compileDomainAndProblem(domainFileName, c);
 			if ( keepTimes || printTimes ) StopWatch.stop("Compiling domain");
 			
+			
+			file = new File(domainFileName);
+			path = file.getParentFile().getAbsolutePath().toString() + "/";
+			path = path.replace("/./", "/");
+			DomainParser_v4.sourceDirectory = path;
+			
 			if ( keepTimes || printTimes ) StopWatch.start("Compiling problem");
 			Compile.compileDomainAndProblem(problemFileName, c);
 			if ( keepTimes || printTimes ) StopWatch.stop("Compiling problem");
-			
+						
 			if ( keepTimes || printTimes ) StopWatch.start("Updating type domains");
 			c.getTypeManager().updateTypeDomains();
 			if ( keepTimes || printTimes ) StopWatch.stop("Updating type domains");

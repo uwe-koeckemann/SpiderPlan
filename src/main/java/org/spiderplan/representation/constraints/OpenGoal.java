@@ -91,7 +91,7 @@ public class OpenGoal extends Constraint implements Substitutable, Mutable, Asse
 	}
 
 	@Override
-	public Constraint substitute(Substitution theta) {
+	public OpenGoal substitute(Substitution theta) {
 		goal = goal.substitute(theta);
 		return this;
 	};

@@ -202,9 +202,9 @@ public class Planning {
 //		String planner = "./data/domains/assisted-living/planner.spider";
 		
 		
-		String domain =  "./domains/household domain/domain.uddl";
-		String problem = "./domains/household domain/test-cases/test01.uddl";
-		String planner = "./domains/household domain/planner.spider";
+		String domain =  "./domains/household/domain.uddl";
+		String problem = "./domains/household/test-cases/test01.uddl";
+		String planner = "./domains/household/planner.spider";
 		
 		if ( args.length == 3 ) {
 			domain = args[0];

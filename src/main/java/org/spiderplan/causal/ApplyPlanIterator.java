@@ -48,6 +48,7 @@ import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.search.GenericSingleNodeSearch;
 import org.spiderplan.temporal.TemporalNetworkTools;
+import org.spiderplan.tools.logging.Logger;
  
 /**
  * Given a {@link Plan} and a {@link ConstraintDatabase} this class
@@ -490,7 +491,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 		} 		
 		 
 		firstTime = false;
-		depth--;
+		Logger.depth--;
 		return r;			
 	}
 }

@@ -179,7 +179,6 @@ public class SolverStack extends Module {
 					if ( keepTimes ) StopWatch.start(msg("Applying resolver"));
 					if ( verbose ) {
 						Logger.msg(getName(), "Applying resolver", 1);
-//						Logger.msg(getName(), "Resolver: " + r, 3);
 					}
 					if ( keepStats ) {
 						Module.stats.increment(msg("Applied resolvers"));
