@@ -29,10 +29,9 @@ The following libraries will be fetched from maven when running gradle:
 
 - JUnit <a href="http://junit.org/">(link)</a>
 - Jung Graph Library <a href="http://jung.sourceforge.net/">(link)</a>
-- ROS Hydro (only when using ROS) <a href="http://www.ros.org/">(link)</a>
+- 
 
-Apart from that Python 2.x is required by some scripts (e.g. for ROS)
-and YAP Prolog <a href="http://www.dcc.fc.up.pt/~vsc/Yap/">(link)</a> is used to solve Prolog constraints.
+Apart from that Python 2.x is required by some scripts. YAP Prolog <a href="http://www.dcc.fc.up.pt/~vsc/Yap/">(link)</a> is used to solve Prolog constraints. And ROS Hydro <a href="http://www.ros.org/">(link)</a> is required when ising ROS constraints.
 
 # Installation & Test
 
