@@ -17,7 +17,7 @@ into automated planning. It also features execution and comes with an interface 
 - Set constraints (simple)
 - Interaction Constraints
   - Used for social acceptability, proactivity and context-awareness in Human-aware Planning
-- ROS
+- ROS (Robot Operating System)
   - Publish variables to ROS
   - Subsribe to ROS topics
   - Make variables ROS goals (actionlib)
@@ -29,6 +29,7 @@ The following libraries will be fetched from maven when running gradle:
 
 - JUnit <a href="http://junit.org/">(link)</a>
 - Jung Graph Library <a href="http://jung.sourceforge.net/">(link)</a>
+- ROS Hydro (only when using ROS) <a href="http://www.ros.org/">(link)</a>
 
 Apart from that Python 2.x is required by some scripts (e.g. for ROS)
 and YAP Prolog <a href="http://www.dcc.fc.up.pt/~vsc/Yap/">(link)</a> is used to solve Prolog constraints.
@@ -51,14 +52,14 @@ and YAP Prolog <a href="http://www.dcc.fc.up.pt/~vsc/Yap/">(link)</a> is used to
 ## Run by specifying domain, problem and planner definitions:
 
 ```
- ./gradlew run -Dexec.args='./domains/household/domain.uddl ./domains/household/test-cases/test02.uddl ./domains/household/planner.spider'
+ ./gradlew run -Dexec.args='./domains/household/domain.uddl ./domains/household/test-cases/test01.uddl ./domains/household/planner.spider'
 ```
 
 # Sponsors
 
 * <a href="http://www.oru.se/">&Ouml;rebro University</a>
 * <a href="http://www.vr.se/inenglish">The Swedish Research Council (Project: Human-aware task planning for mobile robots)</a> 
-* <a href="http://www.kk-stiftelsen.org/">The Swedish Knowledge Foundation (Project: ecare@home)</a>
+* <a href="http://www.kk-stiftelsen.org/">The Swedish Knowledge Foundation (Project: Ecare@Home)</a>
 
 
 
