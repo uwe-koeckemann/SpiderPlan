@@ -51,7 +51,7 @@ public class TestPrologSolver extends TestCase {
 
 	@Override
 	public void setUp() throws Exception {
-		yapExists = (ExecuteSystemCommand.testIfCommandExists("/yap"));
+		yapExists = (ExecuteSystemCommand.testIfCommandExists("yap"));
 		if ( !yapExists ) {  
 			System.out.println("[Warning] Could not find yap binary in $PATH when testing Prolog constraints and solvers. Skipping some tests accordingly. To run these tests install yap (http://www.dcc.fc.up.pt/~vsc/Yap/) and make sure the binary is in $PATH. When using solvers that require yap it is also possible to set the path to the binary as part of the solver configuration.");
 		}
