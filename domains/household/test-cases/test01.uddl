@@ -1,6 +1,6 @@
 (initial-context
 	(domain
-		( enum task ( list t1 recharge1 ) )
+		( enum robotTask ( list t1 recharge1 ) )
 		( int intType ( interval 0 1000 ) )
 	)
 	(statement

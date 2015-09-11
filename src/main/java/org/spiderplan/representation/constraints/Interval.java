@@ -67,6 +67,8 @@ public class Interval {
 	public long getMin() {
 		if ( min.equals(infTerm) )
 			return Global.MaxTemporalHorizon;
+		else if ( min.isVariable()  ) 
+			return 0;
 		else
 			return ((IntegerTerm)min).getValue();
 		
@@ -74,6 +76,8 @@ public class Interval {
 	
 	public long getMax() {
 		if ( max.equals(infTerm) )
+			return Global.MaxTemporalHorizon;
+		else if ( min.isVariable()  ) 
 			return Global.MaxTemporalHorizon;
 		else
 			return ((IntegerTerm)max).getValue();
