@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.constraints.AllenConstraint;
@@ -761,12 +759,12 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 
 	@Override
 	public boolean isResourceConsistent() {
-		throw new NotImplementedException();
+		throw new IllegalAccessError("This is not implemented...");
 	}
 
 	@Override
 	public ArrayList<Constraint> getSchedulingDecisions() {
-		throw new NotImplementedException();
+		throw new IllegalAccessError("This is not implemented...");
 	}
 
 	@Override

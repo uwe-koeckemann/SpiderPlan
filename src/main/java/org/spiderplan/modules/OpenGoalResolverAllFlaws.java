@@ -26,9 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import sun.management.counter.Variability;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import org.spiderplan.causal.pocl.OpenGoalResolverIterator;
 import org.spiderplan.causal.pocl.flaws.AllFIFO;
 import org.spiderplan.modules.configuration.ConfigurationManager;
@@ -100,7 +97,7 @@ public class OpenGoalResolverAllFlaws extends Module implements SolverInterface 
 
 	@Override
 	public Core run(Core core) {
-		throw new NotImplementedException();
+		throw new IllegalAccessError("This is not implemented...");
 	}
 
 	@Override

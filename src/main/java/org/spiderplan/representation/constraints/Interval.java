@@ -71,8 +71,7 @@ public class Interval {
 			return 0;
 		else
 			return ((IntegerTerm)min).getValue();
-		
-	}
+	} 
 	
 	public long getMax() {
 		if ( max.equals(infTerm) )

@@ -25,6 +25,7 @@ package org.spiderplan;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+import org.spiderplan.tools.ExecuteSystemCommand;
 import org.spiderplan.tools.Global;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.modules.configuration.ConfigurationManager;
@@ -46,10 +47,13 @@ import org.spiderplan.representation.types.TypeManager;
 import junit.framework.TestCase;
 
 public class TestInteractionConstraints extends TestCase {
+	
+	boolean yapExists = true;
 
 	@Override
 	public void setUp() throws Exception {
-	}
+		yapExists = (ExecuteSystemCommand.testIfCommandExists("yap -?"));
+	}  
 
 	@Override
 	public void tearDown() throws Exception {
@@ -317,65 +321,69 @@ public class TestInteractionConstraints extends TestCase {
 	 * @throws UnknownThing
 	 */
 	public void testInteractionConstraint6() {
-		ConstraintDatabase s = new ConstraintDatabase();
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?C ?D ?E ?F ?S1 ?S2)"));
-		Term bkbName = Term.createConstant("prolog");
-		
-		s.add(new Statement("(s1 (p a b) c)"));
-		s.add(new Statement("(s2 (p d e) f)"));
-		s.add( new IncludedProgram(bkbName, "notEqual(A,B) :- A \\== B."));		
-		
-		ic.getCondition().add(new Statement("(?S1 (p ?A ?B) ?C)"));
-		ic.getCondition().add(new Statement("(?S2 (p ?D ?E) ?F)"));
-		ic.getCondition().add(new PrologConstraint(new Atomic("(notEqual ?S1 ?S2)"), bkbName)); // otherwise S1 == S2 will cause conflict
-		ConstraintDatabase r1 = new ConstraintDatabase();
-		r1.add(new AllenConstraint("?S1 Before ?S2 [1,10]"));
-		ic.addResolver(r1);
-		
-		ConstraintDatabase r2 = new ConstraintDatabase();
-		r2.add(new AllenConstraint("?S1 After ?S2 [1,10]"));
-		ic.addResolver(r2);
-		
-		ConstraintDatabase r3 = new ConstraintDatabase();
-		r3.add(new AllenConstraint("?S1 During ?S2 [1,10] [1,10]"));
-		ic.addResolver(r3);
-		
-		/**
-		 * Setup Modules
-		 */
-		ConfigurationManager cM = new ConfigurationManager();		
-		cM.set("T","class","STPSolver");
-		cM.set("T","verbose","true");
-		cM.set("T","verbosity","2");
-		cM.set("R","class","PrologSolver");
-		cM.set("R","verbose","true");
-		cM.set("R","verbosity","2");
-		cM.set("checker","class","FlowModule");
-		cM.set("checker","verbose","true");
-		cM.set("checker","modules","R,T");
-		cM.set("checker","verbosity","2");
-		cM.set("checker","rules","Start=>R;R=>R.Inconsistent=>Fail;R=>T;T=>T.Inconsistent=>Fail;T=>Success");
-		
-		cM.set("icResolver","class","InteractionConstraintSolver");
-		cM.set("icResolver","consistencyChecker","checker");
-		
-		Module icResolver = ModuleFactory.initModule("icResolver",cM);
-		
-		/**
-		 * Setup Core
-		 */
-		Core testCore = new Core();
-		testCore.setContext( s );
-		
-		testCore.getContext().add(ic);
-		TypeManager tM = new TypeManager();
-		tM.addSimpleEnumType("t","a,b,c,d,e,f,g");
-		tM.attachTypes("(p t t)=t");
-		testCore.setTypeManager(tM);
-		
-		testCore = icResolver.run(testCore);
-		
-		assertTrue( testCore.getResultingState("icResolver").equals(State.Consistent) );
+		if ( !yapExists ) {
+			System.out.println("[Warning] Skipping this because yap binary not in $PATH. To run this test install yap (http://www.dcc.fc.up.pt/~vsc/Yap/) and make sure the binary is in $PATH. When using solvers that require yap it is also possible to set the path to the binary as part of the solver configuration.");
+		} else {
+			ConstraintDatabase s = new ConstraintDatabase();
+			InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?C ?D ?E ?F ?S1 ?S2)"));
+			Term bkbName = Term.createConstant("prolog");
+			
+			s.add(new Statement("(s1 (p a b) c)"));
+			s.add(new Statement("(s2 (p d e) f)"));
+			s.add( new IncludedProgram(bkbName, "notEqual(A,B) :- A \\== B."));		
+			
+			ic.getCondition().add(new Statement("(?S1 (p ?A ?B) ?C)"));
+			ic.getCondition().add(new Statement("(?S2 (p ?D ?E) ?F)"));
+			ic.getCondition().add(new PrologConstraint(new Atomic("(notEqual ?S1 ?S2)"), bkbName)); // otherwise S1 == S2 will cause conflict
+			ConstraintDatabase r1 = new ConstraintDatabase();
+			r1.add(new AllenConstraint("?S1 Before ?S2 [1,10]"));
+			ic.addResolver(r1);
+			
+			ConstraintDatabase r2 = new ConstraintDatabase();
+			r2.add(new AllenConstraint("?S1 After ?S2 [1,10]"));
+			ic.addResolver(r2);
+			
+			ConstraintDatabase r3 = new ConstraintDatabase();
+			r3.add(new AllenConstraint("?S1 During ?S2 [1,10] [1,10]"));
+			ic.addResolver(r3);
+			
+			/**
+			 * Setup Modules
+			 */
+			ConfigurationManager cM = new ConfigurationManager();		
+			cM.set("T","class","STPSolver");
+			cM.set("T","verbose","true");
+			cM.set("T","verbosity","2");
+			cM.set("R","class","PrologSolver");
+			cM.set("R","verbose","true");
+			cM.set("R","verbosity","2");
+			cM.set("checker","class","FlowModule");
+			cM.set("checker","verbose","true");
+			cM.set("checker","modules","R,T");
+			cM.set("checker","verbosity","2");
+			cM.set("checker","rules","Start=>R;R=>R.Inconsistent=>Fail;R=>T;T=>T.Inconsistent=>Fail;T=>Success");
+			
+			cM.set("icResolver","class","InteractionConstraintSolver");
+			cM.set("icResolver","consistencyChecker","checker");
+			
+			Module icResolver = ModuleFactory.initModule("icResolver",cM);
+			
+			/**
+			 * Setup Core
+			 */
+			Core testCore = new Core();
+			testCore.setContext( s );
+			
+			testCore.getContext().add(ic);
+			TypeManager tM = new TypeManager();
+			tM.addSimpleEnumType("t","a,b,c,d,e,f,g");
+			tM.attachTypes("(p t t)=t");
+			testCore.setTypeManager(tM);
+			
+			testCore = icResolver.run(testCore);
+			
+			assertTrue( testCore.getResultingState("icResolver").equals(State.Consistent) );
+		}
 	}
 	
 	public void testInteractionConstraint7() {
@@ -751,67 +759,71 @@ public class TestInteractionConstraints extends TestCase {
 	 * condition.
 	 */
 	public void testInteractionConstraintModuleWithPrologConstraints() {
-		Term bkbName = Term.createConstant("prolog");
-		/**
-		 * Setup context
-		 */
-		ConstraintDatabase s = new ConstraintDatabase();
-		s.add(new Statement("(s1 p a)"));
-		s.add(new Statement("(s2 q b)"));
-		s.add(new Statement("(s3 p c)"));
-		s.add(new Statement("(s4 q d)"));
-		s.add( new AllenConstraint("s3 After s4 [1,10]"));
-		ConstraintCollection C = new ConstraintCollection();
-		C.add(new IncludedProgram(bkbName,"good(a)."));
-		C.add(new IncludedProgram(bkbName,"good(b)."));
-		
-		/**
-		 * Setup InteractionConstraint
-		 */
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic A B S1 S2)"));
-		ic.getCondition().add(new Statement("(?S1 p ?A)"));
-		ic.getCondition().add(new Statement("(?S2 q ?B)"));
-		ic.getCondition().add(new PrologConstraint(new Atomic("(good ?A)"), bkbName));
-		ic.getCondition().add(new PrologConstraint(new Atomic("(good ?B)"), bkbName));
-		ConstraintDatabase r1 = new ConstraintDatabase();
-		r1.add(new AllenConstraint("?S1 Before ?S2 [1,10]"));
-		ic.addResolver(r1);
-		
-		C.add(ic);
-		
-		/**
-		 * Setup Modules
-		 */
-		ConfigurationManager cM = new ConfigurationManager();
-		Global.resetStatics();
-		cM.set("T","class","STPSolver");
-		cM.set("R","class","PrologSolver");
-		cM.set("checker","class","FlowModule");
-		cM.set("checker","modules","R,T");
-		cM.set("checker","rules","Start=>R;R=>R.Inconsistent=>Fail;R=>T;T=>T.Inconsistent=>Fail;T=>Success");
-		
-		cM.set("icResolver","class","InteractionConstraintSolver");
-		cM.set("icResolver","consistencyChecker","checker");
-		
-		Module icResolver = ModuleFactory.initModule("icResolver",cM);
-		
-		/**
-		 * Setup Core
-		 */
-		Logger.init();
-		Core testCore = new Core();
-		testCore.setContext( s );
-		TypeManager tM = new TypeManager();
-		tM.addSimpleEnumType("t","a,b");
-		tM.attachTypes("p=t");
-		tM.attachTypes("q=t");
-		testCore.setTypeManager(tM);
-		testCore.getContext().addConstraints(C);
-		
-		testCore = icResolver.run(testCore);
-		
-
-		assertTrue( testCore.getResultingState("icResolver").equals(State.Consistent) );
+		if ( !yapExists ) {
+			System.out.println("[Warning] Skipping this because yap binary not in $PATH. To run this test install yap (http://www.dcc.fc.up.pt/~vsc/Yap/) and make sure the binary is in $PATH. When using solvers that require yap it is also possible to set the path to the binary as part of the solver configuration.");
+		} else {
+			Term bkbName = Term.createConstant("prolog");
+			/**
+			 * Setup context
+			 */
+			ConstraintDatabase s = new ConstraintDatabase();
+			s.add(new Statement("(s1 p a)"));
+			s.add(new Statement("(s2 q b)"));
+			s.add(new Statement("(s3 p c)"));
+			s.add(new Statement("(s4 q d)"));
+			s.add( new AllenConstraint("s3 After s4 [1,10]"));
+			ConstraintCollection C = new ConstraintCollection();
+			C.add(new IncludedProgram(bkbName,"good(a)."));
+			C.add(new IncludedProgram(bkbName,"good(b)."));
+			
+			/**
+			 * Setup InteractionConstraint
+			 */
+			InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic A B S1 S2)"));
+			ic.getCondition().add(new Statement("(?S1 p ?A)"));
+			ic.getCondition().add(new Statement("(?S2 q ?B)"));
+			ic.getCondition().add(new PrologConstraint(new Atomic("(good ?A)"), bkbName));
+			ic.getCondition().add(new PrologConstraint(new Atomic("(good ?B)"), bkbName));
+			ConstraintDatabase r1 = new ConstraintDatabase();
+			r1.add(new AllenConstraint("?S1 Before ?S2 [1,10]"));
+			ic.addResolver(r1);
+			
+			C.add(ic);
+			
+			/**
+			 * Setup Modules
+			 */
+			ConfigurationManager cM = new ConfigurationManager();
+			Global.resetStatics();
+			cM.set("T","class","STPSolver");
+			cM.set("R","class","PrologSolver");
+			cM.set("checker","class","FlowModule");
+			cM.set("checker","modules","R,T");
+			cM.set("checker","rules","Start=>R;R=>R.Inconsistent=>Fail;R=>T;T=>T.Inconsistent=>Fail;T=>Success");
+			
+			cM.set("icResolver","class","InteractionConstraintSolver");
+			cM.set("icResolver","consistencyChecker","checker");
+			
+			Module icResolver = ModuleFactory.initModule("icResolver",cM);
+			
+			/**
+			 * Setup Core
+			 */
+			Logger.init();
+			Core testCore = new Core();
+			testCore.setContext( s );
+			TypeManager tM = new TypeManager();
+			tM.addSimpleEnumType("t","a,b");
+			tM.attachTypes("p=t");
+			tM.attachTypes("q=t");
+			testCore.setTypeManager(tM);
+			testCore.getContext().addConstraints(C);
+			
+			testCore = icResolver.run(testCore);
+			
+	
+			assertTrue( testCore.getResultingState("icResolver").equals(State.Consistent) );
+		}
 	}
 	
 	/**
@@ -819,87 +831,91 @@ public class TestInteractionConstraints extends TestCase {
 	 * problem.
 	 */
 	public void testInteractionConstraintModuleWithPrologConstraintsInResolver() {
-		Term bkbName = Term.createConstant("prolog");
+		if ( !yapExists ) {
+			System.out.println("[Warning] Skipping this because yap binary not in $PATH. To run this test install yap (http://www.dcc.fc.up.pt/~vsc/Yap/) and make sure the binary is in $PATH. When using solvers that require yap it is also possible to set the path to the binary as part of the solver configuration.");
+		} else {
+			Term bkbName = Term.createConstant("prolog");
+			
+			/**
+			 * Setup context
+			 */
+			ConstraintDatabase s = new ConstraintDatabase();
+			s.add(new Statement("(s1 p ?X)"));
+			s.add(new Statement("(s2 q ?Y)"));
+			s.add(new Statement("(s3 p c)"));
+			s.add(new Statement("(s4 q d)"));
+			ConstraintCollection C = new ConstraintCollection();
+			C.add(new IncludedProgram(bkbName, "good(a)."));
+			C.add(new IncludedProgram(bkbName, "good(b)."));
+			
+			/**
+			 * Setup interaction constraint
+			 */
+			InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?S1 ?S2)"));
+			ic.getCondition().add(new Statement("(?S1 p ?A)"));
+			ic.getCondition().add(new Statement("(?S2 q ?B)"));
+			ConstraintDatabase r1 = new ConstraintDatabase();
+			r1.add(new AllenConstraint("?S1 Before ?S2 [1,10]"));
+			r1.add(new PrologConstraint(new Atomic("(good ?A)"), bkbName));
+			r1.add(new PrologConstraint(new Atomic("(good ?B)"), bkbName));
+			ic.addResolver(r1);
+			ConstraintDatabase r2 = new ConstraintDatabase();
+			r2.add(new AllenConstraint("?S1 After ?S2 [1,10]"));
+			r2.add(new PrologConstraint(new Atomic("(good ?A)"), bkbName));
+			r2.add(new PrologConstraint(new Atomic("(good ?B)"), bkbName));
+			ic.addResolver(r2);
+			
+			C.add(ic);
+			
+			/**
+			 * Setup Modules
+			 */
+			ConfigurationManager cM = new ConfigurationManager();		
+			cM.set("T","class","STPSolver");
+	//		cM.set("T","verbose","true");
+	//		cM.set("T","verbosity","2");
+			cM.set("R","class","PrologSolver");
+	//		cM.set("R","verbose","true");
+	//		cM.set("R","verbosity","2");
+			cM.set("checker","class","SolverStack");
+	//		cM.set("checker","verbose","true");
+			cM.set("checker","solvers","T,R");
+	//		cM.set("checker","verbosity","2");
+			
+			cM.set("main","class","SolverStack");
+	//		cM.set("main","verbose","true");
+			cM.set("main","solvers","T,R,icResolver");
+	//		cM.set("main","verbosity","2");
+			
+			cM.set("icResolver","class","InteractionConstraintSolver");
+			cM.set("icResolver","consistencyChecker","checker");
+			
+	//		cM.set("icResolver","verbose","true");
+	//		cM.set("icResolver","verbosity","5");
+			
+			Logger.addPrintStream("main", System.out);
+			Logger.addPrintStream("checker", System.out);
+			Logger.addPrintStream("icResolver", System.out);
+			
 		
-		/**
-		 * Setup context
-		 */
-		ConstraintDatabase s = new ConstraintDatabase();
-		s.add(new Statement("(s1 p ?X)"));
-		s.add(new Statement("(s2 q ?Y)"));
-		s.add(new Statement("(s3 p c)"));
-		s.add(new Statement("(s4 q d)"));
-		ConstraintCollection C = new ConstraintCollection();
-		C.add(new IncludedProgram(bkbName, "good(a)."));
-		C.add(new IncludedProgram(bkbName, "good(b)."));
-		
-		/**
-		 * Setup interaction constraint
-		 */
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?S1 ?S2)"));
-		ic.getCondition().add(new Statement("(?S1 p ?A)"));
-		ic.getCondition().add(new Statement("(?S2 q ?B)"));
-		ConstraintDatabase r1 = new ConstraintDatabase();
-		r1.add(new AllenConstraint("?S1 Before ?S2 [1,10]"));
-		r1.add(new PrologConstraint(new Atomic("(good ?A)"), bkbName));
-		r1.add(new PrologConstraint(new Atomic("(good ?B)"), bkbName));
-		ic.addResolver(r1);
-		ConstraintDatabase r2 = new ConstraintDatabase();
-		r2.add(new AllenConstraint("?S1 After ?S2 [1,10]"));
-		r2.add(new PrologConstraint(new Atomic("(good ?A)"), bkbName));
-		r2.add(new PrologConstraint(new Atomic("(good ?B)"), bkbName));
-		ic.addResolver(r2);
-		
-		C.add(ic);
-		
-		/**
-		 * Setup Modules
-		 */
-		ConfigurationManager cM = new ConfigurationManager();		
-		cM.set("T","class","STPSolver");
-//		cM.set("T","verbose","true");
-//		cM.set("T","verbosity","2");
-		cM.set("R","class","PrologSolver");
-//		cM.set("R","verbose","true");
-//		cM.set("R","verbosity","2");
-		cM.set("checker","class","SolverStack");
-//		cM.set("checker","verbose","true");
-		cM.set("checker","solvers","T,R");
-//		cM.set("checker","verbosity","2");
-		
-		cM.set("main","class","SolverStack");
-//		cM.set("main","verbose","true");
-		cM.set("main","solvers","T,R,icResolver");
-//		cM.set("main","verbosity","2");
-		
-		cM.set("icResolver","class","InteractionConstraintSolver");
-		cM.set("icResolver","consistencyChecker","checker");
-		
-//		cM.set("icResolver","verbose","true");
-//		cM.set("icResolver","verbosity","5");
-		
-		Logger.addPrintStream("main", System.out);
-		Logger.addPrintStream("checker", System.out);
-		Logger.addPrintStream("icResolver", System.out);
-		
+			Module icResolver = ModuleFactory.initModule("main",cM);
+			
+			/**
+			 * Setup Core
+			 */
+			Core testCore = new Core();
+			testCore.setContext( s );
+			TypeManager tM = new TypeManager();
+			tM.addSimpleEnumType("t","a,b");
+			tM.attachTypes("p=t");
+			tM.attachTypes("q=t");
+			testCore.setTypeManager(tM);
+			testCore.getContext().addConstraints(C);
+			
+			testCore = icResolver.run(testCore);
 	
-		Module icResolver = ModuleFactory.initModule("main",cM);
-		
-		/**
-		 * Setup Core
-		 */
-		Core testCore = new Core();
-		testCore.setContext( s );
-		TypeManager tM = new TypeManager();
-		tM.addSimpleEnumType("t","a,b");
-		tM.attachTypes("p=t");
-		tM.attachTypes("q=t");
-		testCore.setTypeManager(tM);
-		testCore.getContext().addConstraints(C);
-		
-		testCore = icResolver.run(testCore);
-
-		assertTrue( testCore.getResultingState("main").equals(State.Inconsistent) );
+			assertTrue( testCore.getResultingState("main").equals(State.Inconsistent) );
+		}
 	}
 }
 

@@ -44,12 +44,12 @@ public class TestMiniZinc extends TestCase {
 	public void setUp() throws Exception {
 		minizincExists = (ExecuteSystemCommand.testIfCommandExists("minizinc"));
 		if ( !minizincExists ) {  
-			System.out.println("[Warning] Could not find minizinc binary in $PATH. Skipping some tests accordingly. To run these tests download minizinc from http://www.minizinc.org/ and make sure the binary is in $PATH. When using solvers that require minizinc it is also possible to set the path to the binary as part of the solver configuration.");
+			System.out.println("[Warning] Skipping this because minizinc binary not in $PATH. To run this test install minizinc (http://www.minizinc.org/) and make sure the binary is in $PATH. When using solvers that require minizinc it is also possible to set the path to the binary as part of the solver configuration.");
 		}
 	}  
 
 	@Override
-	public void tearDown() throws Exception {
+	public void tearDown() throws Exception { 
 	}
 	
 	/**
