@@ -42,6 +42,12 @@ run {
     args System.getProperty("exec.args").split()    
 }
 
+test {
+	testLogging {
+		showStandardStreams = true
+	}
+}
+
 task wrapper(type: Wrapper) {
 	gradleVersion = '1.6'
 }

@@ -74,7 +74,6 @@ public class YapPrologAdapter {
 	public enum FailBehavior { Warning, Exit, Ignore };
 	public FailBehavior failBehavior = FailBehavior.Warning;
 	
-	
 	public String errorMessage = "";
 	public static String uniqueFileNamePart = "";
 	public boolean debug = false;
@@ -87,6 +86,16 @@ public class YapPrologAdapter {
 	private boolean verbose = false;
 	private int verbosity = 0;
 	private boolean keepTimes = false;
+	
+	private String yapBinaryLocation = "yap";
+	
+	public YapPrologAdapter() {
+		
+	}			
+	
+	public YapPrologAdapter( String binaryLocation ) {
+		this.yapBinaryLocation = binaryLocation;
+	}
 	
 	public Collection<Substitution> query( ConstraintCollection kbIn, Collection<PrologConstraint> q, Term programID , TypeManager tM ) {
 		prologCompatibilityMap = new HashMap<String, Term>();
@@ -459,7 +468,7 @@ public class YapPrologAdapter {
 			@SuppressWarnings("unused")
 			FileWriter fAnswer = new FileWriter(Global.workingDir+"answer"+uniqueFileNamePart+".prolog");
 
-			String cmd = Global.yapBinaryLocation + " -L "+Global.workingDir+"query"+uniqueFileNamePart+".prolog";
+			String cmd = yapBinaryLocation + " -L "+Global.workingDir+"query"+uniqueFileNamePart+".prolog";
 			
 			if ( keepTimes ) StopWatch.start("[Prolog] Running");
 			String[] r = ExecuteSystemCommand.call("/tmp/", cmd);

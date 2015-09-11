@@ -106,12 +106,12 @@ public class ConsistencyChecker {
 		}
 		if ( keepTimes ) StopWatch.stop("Checking operator intervals");
 		  
-		if ( keepTimes ) StopWatch.start("Checking operator relational consistency");
-		if ( !relationalConsistency( c.getOperators(), c.getContext(), c.getTypeManager() ) ) {
-			if ( keepTimes ) StopWatch.stop("Checking operator relational consistency");
-			return false;			
-		}
-		if ( keepTimes ) StopWatch.stop("Checking operator relational consistency");
+//		if ( keepTimes ) StopWatch.start("Checking operator relational consistency");
+//		if ( !relationalConsistency( c.getOperators(), c.getContext(), c.getTypeManager() ) ) {
+//			if ( keepTimes ) StopWatch.stop("Checking operator relational consistency");
+//			return false;			
+//		}
+//		if ( keepTimes ) StopWatch.stop("Checking operator relational consistency");
 		
 		if ( keepTimes ) StopWatch.start("Checking operator temporal consistency");
 		if ( !operatorTemporalConsistency( c.getOperators(), c.getContext(), c.getTypeManager() ) ) {
@@ -412,31 +412,7 @@ public class ConsistencyChecker {
 			}
 			
 			oCopy = o.copy();
-			
-			Map<Term,Collection<PrologConstraint>> query = PrologTools.getQueries(o);
-			Map<Term,ConstraintCollection> programs = context.getIncludedPrograms(query.keySet());
-			YapPrologAdapter yap = new YapPrologAdapter();
-			List<List<Resolver>> resolvers = new ArrayList<List<Resolver>>();
-			
-			for ( Term programID : query.keySet() ) {
-				Collection<Substitution> answer = yap.query(programs.get(programID), query.get(programID), programID, tM);
-				List<Resolver> answerRes = new ArrayList<Resolver>();
-				if ( answer != null ) {
-					for ( Substitution s : answer ) {
-						Resolver r = new Resolver(s);
-						answerRes.add(r);
-					}
-					resolvers.add(answerRes);
-				}
-			}
-			
-			if ( !resolvers.isEmpty() ) { 
-				ConfigurationManager cM = new ConfigurationManager();
-				cM.add("Combos");
-				ResolverCombination rC = new ResolverCombination(resolvers, "Combos", cM);
-				oCopy.substitute(rC.next().getSubstitution());									
-			}
-			
+					
 			boolean temporalConstraintsGround = true;
 			
 			ConstraintDatabase check = new ConstraintDatabase();
@@ -447,27 +423,27 @@ public class ConsistencyChecker {
 			check.add(oCopy.getNameStateVariable());
 
 			
-			for ( AllenConstraint tC : check.getConstraints().get(AllenConstraint.class) ) {
-				temporalConstraintsGround &= tC.isGround();
-			}
+//			for ( AllenConstraint tC : check.getConstraints().get(AllenConstraint.class) ) {
+//				temporalConstraintsGround &= tC.isGround();
+//			}
 			
-			if ( temporalConstraintsGround ) {
-				IncrementalSTPSolver csp = new IncrementalSTPSolver(0,Global.MaxTemporalHorizon);
-				boolean consistent;
-				consistent = csp.isConsistent(check, tM);
-				
-				if ( verbose && consistent ) {
-					System.out.println("[OK]");
-				} else if ( !consistent ) {
-					csp.debug = true;
-					csp.isConsistent(check, tM);
-					System.out.println("[FAIL]");
-				}
-			} else {
-				if ( !ignoreWarnings ) {
-					System.err.println("[WARNING] Substitution " + oCopy.getSubstitution() + " leaves non-ground temporal constraint (probably problem with backgorund knowledge).");
-				}
-			}				
+//			if ( temporalConstraintsGround ) {
+			IncrementalSTPSolver csp = new IncrementalSTPSolver(0,Global.MaxTemporalHorizon);
+			boolean consistent;
+			consistent = csp.isConsistent(check, tM);
+			
+			if ( verbose && consistent ) {
+				System.out.println("[OK]");
+			} else if ( !consistent ) {
+				csp.debug = true;
+				csp.isConsistent(check, tM);
+				System.out.println("[FAIL]");
+			}
+//			} else {
+//				if ( !ignoreWarnings ) {
+//					System.err.println("[WARNING] Substitution " + oCopy.getSubstitution() + " leaves non-ground temporal constraint (probably problem with backgorund knowledge).");
+//				}
+//			}				
 		}
 
 		
@@ -523,46 +499,46 @@ public class ConsistencyChecker {
 		return true;
 	}	
 	
-	private boolean relationalConsistency( Collection<Operator> O, ConstraintDatabase context, TypeManager tM ) {
-		if ( verbose ) {
-			System.out.println("Relational consistency:");
-		}
-				
-		for ( Operator o : O ) {
-			if ( verbose ) {
-				System.out.print(getDottedString(o.getName().toString(),numChars));
-			}
-			Map<Term,Collection<PrologConstraint>> query = PrologTools.getQueries(o);
-			
-			Map<Term,ConstraintCollection> programs = context.getIncludedPrograms(query.keySet());
-			
-			YapPrologAdapter yap = new YapPrologAdapter();
-			
-			for ( Term programID : query.keySet() ) {
-				Collection<Substitution> answer = yap.query(programs.get(programID), query.get(programID), programID, tM);
-				if ( answer == null ) {
-					if ( !yap.errorMessage.equals( "" )) {
-						if ( verbose ) {
-							System.out.println("[FAIL]");
-							System.err.println( "ERROR: Query '" + query + "' can not be satisfied. Calling YAP produced an error." );
-							System.err.println("YAP output:\n" + yap.errorMessage);
-						}
-						return false;
-					} else {
-						warnings++;
-						if ( ! ignoreWarnings ) {
-							System.err.println( "[WARNING] Query '" + query + "' can not be satisfied. This means the operator is never applicable given the background knowledge from domain and problem file. There was no error message by YAP prolog, so it may be the case that this is intentional.");
-						}
-					}
-				}
-			}
-			if ( verbose ) {
-				System.out.println("[OK]");
-			}
-		}
-		
-		return true;
-	}
+//	private boolean relationalConsistency( Collection<Operator> O, ConstraintDatabase context, TypeManager tM ) {
+//		if ( verbose ) {
+//			System.out.println("Relational consistency:");
+//		}
+//				
+//		for ( Operator o : O ) {
+//			if ( verbose ) {
+//				System.out.print(getDottedString(o.getName().toString(),numChars));
+//			}
+//			Map<Term,Collection<PrologConstraint>> query = PrologTools.getQueries(o);
+//			
+//			Map<Term,ConstraintCollection> programs = context.getIncludedPrograms(query.keySet());
+//			
+//			YapPrologAdapter yap = new YapPrologAdapter();
+//			
+//			for ( Term programID : query.keySet() ) {
+//				Collection<Substitution> answer = yap.query(programs.get(programID), query.get(programID), programID, tM);
+//				if ( answer == null ) {
+//					if ( !yap.errorMessage.equals( "" )) {
+//						if ( verbose ) {
+//							System.out.println("[FAIL]");
+//							System.err.println( "ERROR: Query '" + query + "' can not be satisfied. Calling YAP produced an error." );
+//							System.err.println("YAP output:\n" + yap.errorMessage);
+//						}
+//						return false;
+//					} else {
+//						warnings++;
+//						if ( ! ignoreWarnings ) {
+//							System.err.println( "[WARNING] Query '" + query + "' can not be satisfied. This means the operator is never applicable given the background knowledge from domain and problem file. There was no error message by YAP prolog, so it may be the case that this is intentional.");
+//						}
+//					}
+//				}
+//			}
+//			if ( verbose ) {
+//				System.out.println("[OK]");
+//			}
+//		}
+//		
+//		return true;
+//	}
 		
 	private String getDottedString(String s, int len) {
 		String r = s;

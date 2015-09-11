@@ -111,16 +111,35 @@ public class ExecuteSystemCommand {
 			ret[0] = stdout.toString();
 			ret[1] = stderr.toString();
 			return ret;
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			Loop.start();
 		} catch (IOException e) {
 			e.printStackTrace();
-			Loop.start();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			Loop.start();
 		}
 		return null;
+	}
+	
+	/**
+	 * Execute command <code>cmd</code> in directory <code>dir</code> 
+	 * @param dir Directory in which command will be executed.
+	 * @param cmd Command to be executed.
+	 * @return Array of type String where first element is STDOUT and second element STERR
+	 */
+	public static boolean testIfCommandExists( String cmd ) {
+
+		String s = null;
+		
+		try {
+			ProcessBuilder builder = new ProcessBuilder( cmd );
+			
+//			builder.redirectErrorStream(true);
+			Process process =  builder.start();
+	             
+			process.waitFor();
+			return true;
+		} catch (IOException e) {
+		} catch (InterruptedException e) {
+		}
+		return false;
 	}
 }

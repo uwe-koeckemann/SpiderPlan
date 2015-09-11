@@ -62,7 +62,7 @@ public class PrologPreprocessor extends Module {
 	 */
 	public FailBehavior failBehavior = FailBehavior.Ignore;
 	
-	
+	String YAPbinaryLocation = "yap";
 	
 	private boolean preprocessICs = true;
 	
@@ -76,7 +76,7 @@ public class PrologPreprocessor extends Module {
 	
 		super.parameterDesc.add( new ParameterDescription("failBehavior", "string", "Warning", "Determines what happens in case a query fails without error messages. Choices are \"Warning\", \"Exit\" and \"Ignore\".") );
 		super.parameterDesc.add( new ParameterDescription("preprocessICs", "boolean", "true", "If true interaction constraints are preprocessed and replaced by logical consistent ones.") );
-		super.parameterDesc.add( new ParameterDescription("yapPath", "string", Global.yapBinaryLocation, "Loction of YAP Prolog binary.") );
+		super.parameterDesc.add( new ParameterDescription("yapPath", "string", "yap", "Loction of YAP Prolog binary.") );
 							
 		if ( cM.hasAttribute(name, "failBehavior") ) {
 			failBehavior = FailBehavior.valueOf(cM.getString(name, "failBehavior"));
@@ -85,7 +85,7 @@ public class PrologPreprocessor extends Module {
 			preprocessICs = cM.getBoolean(name, "preprocessICs");
 		}
 		if ( cM.hasAttribute(name, "yapPath") ) {
-			Global.yapBinaryLocation = cM.getString(name, "yapPath");
+			YAPbinaryLocation = cM.getString(name, "yapPath");
 		}
 	}
 	
@@ -97,7 +97,7 @@ public class PrologPreprocessor extends Module {
 		}
 		if ( verbose ) Logger.depth++;
 
-		YapPrologAdapter yappy = new YapPrologAdapter();
+		YapPrologAdapter yappy = new YapPrologAdapter(YAPbinaryLocation);
 		yappy.setKeepTimes(this.keepTimes);
 		yappy.failBehavior = this.failBehavior;
 		

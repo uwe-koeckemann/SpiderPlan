@@ -59,6 +59,8 @@ public class PrologSolver extends Module implements SolverInterface {
 	private ResolverIterator resolverIterator = null;
 	private ConstraintDatabase originalContext = null;
 	
+	String YAPbinaryLocation = "yap";
+	
 	/**
 	 * Create new instance by providing name and configuration manager.
 	 * @param name The name of this {@link Module}
@@ -67,10 +69,10 @@ public class PrologSolver extends Module implements SolverInterface {
 	public PrologSolver( String name, ConfigurationManager cM ) {
 		super(name, cM);
 		
-		super.parameterDesc.add( new ParameterDescription("yapPath", "string", Global.yapBinaryLocation, "Loction of YAP Prolog binary.") );
+		super.parameterDesc.add( new ParameterDescription("yapPath", "string", YAPbinaryLocation, "Loction of YAP Prolog binary.") );
 		
 		if ( cM.hasAttribute(name, "yapPath") ) {
-			Global.yapBinaryLocation = cM.getString(name, "yapPath");
+			YAPbinaryLocation = cM.getString(name, "yapPath");
 		}
 	}
 	
@@ -130,7 +132,7 @@ public class PrologSolver extends Module implements SolverInterface {
 		
 		List<List<Resolver>> resolvers = new ArrayList<List<Resolver>>();
 		
-		YapPrologAdapter yappy = new YapPrologAdapter();
+		YapPrologAdapter yappy = new YapPrologAdapter(YAPbinaryLocation);
 		yappy.setKeepTimes(this.keepTimes);
 		
 		for ( PrologConstraint rC : core.getContext().getConstraints().get(PrologConstraint.class)) {

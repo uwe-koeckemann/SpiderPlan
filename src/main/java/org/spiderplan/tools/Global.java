@@ -33,9 +33,7 @@ import org.spiderplan.tools.stopWatch.StopWatch;
 public class Global {
 
 	public static final String workingDir = "/tmp/";
-	public static String yapBinaryLocation = "yap";
-	public static String miniZincBinaryLocation = "minizinc";
-
+//	public static String yapBinaryLocation = "yap";
 	public static final long MaxTemporalHorizon = 1000000000;
 	
 	public static ConstraintDatabase initialContext;
