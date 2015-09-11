@@ -93,7 +93,7 @@ public class TestMiniZinc extends TestCase {
 		
 //		System.out.println(program);
 		
-		Collection<Substitution> r = MiniZincAdapter.runMiniZinc(program,true);
+		Collection<Substitution> r = MiniZincAdapter.runMiniZinc("minizinc", program,true);
 		
 //		for ( Substitution theta : r ) {
 //			System.out.println(theta);

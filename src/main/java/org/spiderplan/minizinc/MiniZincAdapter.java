@@ -23,6 +23,7 @@
 package org.spiderplan.minizinc;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,18 +48,18 @@ public class MiniZincAdapter {
 	public static String uniqueFileNamePart = "";
 	private static boolean keepTimes = false;
 	
-	public static Collection<Substitution> runMiniZinc( String program, boolean allSolutions ) {
-		return runMiniZinc(program, null,allSolutions, -1);
+	public static Collection<Substitution> runMiniZinc( String minizincBinaryLocation, String program, boolean allSolutions ) {
+		return runMiniZinc(minizincBinaryLocation, program, null,allSolutions, -1);
 	}
 	
-	public static Collection<Substitution> runMiniZinc( String program, String data, boolean allSolutions ) {
-		return runMiniZinc(program, null,allSolutions, -1);
+	public static Collection<Substitution> runMiniZinc( String minizincBinaryLocation, String program, String data, boolean allSolutions ) {
+		return runMiniZinc(minizincBinaryLocation, program, null,allSolutions, -1);
 	}
 	
-	public static Collection<Substitution> runMiniZinc( String program, String data, boolean allSolutions, int nthSolution ) {		
+	public static Collection<Substitution> runMiniZinc( String minizincBinaryLocation, String program, String data, boolean allSolutions, int nthSolution ) {		
 		String problemFileName = Global.workingDir+"csp"+uniqueFileNamePart+".mzn";
 		String dataFileName = Global.workingDir+"csp"+uniqueFileNamePart+".dzn";
-		
+				
 		try {
 			FileWriter fstream = new FileWriter(problemFileName);
 			BufferedWriter out = new BufferedWriter(fstream);
@@ -74,7 +75,7 @@ public class MiniZincAdapter {
 				fstream.close();
 			}
 			
-			String cmd = Global.miniZincBinaryLocation + " ";
+			String cmd = minizincBinaryLocation + " ";
 			if ( allSolutions ) {
 				cmd += "--all-solutions ";
 			} else if ( nthSolution != -1 ) {
@@ -114,10 +115,8 @@ public class MiniZincAdapter {
 						
 		} catch (IOException e) {  
 			e.printStackTrace();  
-			Loop.start();
 		} catch (Exception e) {
 			e.printStackTrace();
-			Loop.start();
 		}
 		return null;
 	}

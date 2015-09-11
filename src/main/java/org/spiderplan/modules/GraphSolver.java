@@ -35,6 +35,7 @@ import edu.uci.ics.jung.graph.AbstractGraph;
 import edu.uci.ics.jung.graph.AbstractTypedGraph;
 import org.spiderplan.minizinc.MiniZincAdapter;
 import org.spiderplan.modules.configuration.ConfigurationManager;
+import org.spiderplan.modules.configuration.ParameterDescription;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Resolver;
@@ -69,6 +70,8 @@ public class GraphSolver extends Module implements SolverInterface {
 	private ResolverIterator resolverIterator = null;
 	private ConstraintDatabase originalContext = null;
 	
+	String minizincBinaryLocation = "minizinc"; 
+	
 	/**
 	 * Create new instance by providing name and configuration manager.
 	 * @param name The name of this {@link Module}
@@ -76,6 +79,13 @@ public class GraphSolver extends Module implements SolverInterface {
 	 */
 	public GraphSolver(String name, ConfigurationManager cM) {
 		super(name, cM);
+		
+		
+		super.parameterDesc.add( new ParameterDescription("binaryLocation", "string", "minizinc", "Set minizink binary location.") );
+		
+		if ( cM.hasAttribute(name, "binaryLocation")  ) {
+			minizincBinaryLocation = cM.getString(this.name, "binaryLocation");
+		}
 	}
 
 	@Override
@@ -541,7 +551,7 @@ public class GraphSolver extends Module implements SolverInterface {
 						Logger.msg(getName(),"Resulting program:\n"+ program, 4);
 					}
 					 
-					Collection<Substitution> subst = MiniZincAdapter.runMiniZinc(program,true);
+					Collection<Substitution> subst = MiniZincAdapter.runMiniZinc(minizincBinaryLocation,program,true);
 
 					if ( subst == null ) {
 						if ( verbose ) Logger.msg(getName(),"        Unsatisfiable."+ program, 1);

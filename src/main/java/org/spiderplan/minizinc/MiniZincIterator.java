@@ -35,16 +35,18 @@ public class MiniZincIterator extends ResolverIterator {
 	
 	private String program;
 	private String data;
+	private String minizincBinaryLocation;
 	
-	public MiniZincIterator( String program, String data, String name, ConfigurationManager cM) {
+	public MiniZincIterator( String minizincBinaryLocation, String program, String data, String name, ConfigurationManager cM) {
 		super(name, cM);
+		this.minizincBinaryLocation = minizincBinaryLocation;
 		this.program  = program;
 		this.data = data;
 	}
 
 	@Override
 	public Resolver next( ConstraintCollection C ) {
-		Collection<Substitution> solutions = MiniZincAdapter.runMiniZinc(program, data, false, solutionIndex++);
+		Collection<Substitution> solutions = MiniZincAdapter.runMiniZinc(minizincBinaryLocation, program, data, false, solutionIndex++);
 		if ( solutions != null ) {			
 			return new Resolver(solutions.iterator().next());
 		} else {

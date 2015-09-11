@@ -22,6 +22,7 @@
  *******************************************************************************/
 package org.spiderplan.modules;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +30,7 @@ import java.util.Set;
 
 import org.spiderplan.minizinc.MiniZincIterator;
 import org.spiderplan.modules.configuration.ConfigurationManager;
+import org.spiderplan.modules.configuration.ParameterDescription;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Resolver;
@@ -53,6 +55,8 @@ public class MiniZincSolver extends Module implements SolverInterface {
 	private ResolverIterator mzIterator = null;
 	private ConstraintDatabase originalContext;
 	
+	String minizincBinaryLocation = "minizinc"; 
+	
 	private final static Term MiniZincTerm = Term.createConstant("miniZinc");
 	
 	/**
@@ -62,6 +66,12 @@ public class MiniZincSolver extends Module implements SolverInterface {
 	 */
 	public MiniZincSolver(String name, ConfigurationManager cM) {
 		super(name, cM);
+		
+		super.parameterDesc.add( new ParameterDescription("binaryLocation", "string", "minizinc", "Set minizink binary location.") );
+		
+		if ( cM.hasAttribute(name, "binaryLocation")  ) {
+			minizincBinaryLocation = cM.getString(this.name, "binaryLocation");
+		}
 	}
 
 	@Override
@@ -150,7 +160,7 @@ public class MiniZincSolver extends Module implements SolverInterface {
 			state = State.Consistent;
 		} else {
 			state = State.Searching;
-			resolverIterator = new MiniZincIterator(csp, dataStr, this.getName(), cM);
+			resolverIterator = new MiniZincIterator(minizincBinaryLocation, csp, dataStr, this.getName(), cM);
 		}
 		return new SolverResult(state,resolverIterator);
 	}
