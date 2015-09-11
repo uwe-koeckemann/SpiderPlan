@@ -130,7 +130,7 @@ public class ExecuteSystemCommand {
 		String s = null;
 		
 		try {
-			ProcessBuilder builder = new ProcessBuilder( cmd );
+			ProcessBuilder builder = new ProcessBuilder( cmd.split(" ") );
 			
 //			builder.redirectErrorStream(true);
 			Process process =  builder.start();
