@@ -31,119 +31,121 @@ public interface DomainParser_v4Constants {
   /** RegularExpression Id. */
   int GOAL = 15;
   /** RegularExpression Id. */
-  int FINALLY = 16;
+  int TASK = 16;
   /** RegularExpression Id. */
-  int MINIZINC = 17;
+  int FINALLY = 17;
   /** RegularExpression Id. */
-  int RESOURCE = 18;
+  int MINIZINC = 18;
   /** RegularExpression Id. */
-  int CONDITIONAL = 19;
+  int RESOURCE = 19;
   /** RegularExpression Id. */
-  int CONDITION = 20;
+  int CONDITIONAL = 20;
   /** RegularExpression Id. */
-  int PROBABILISTIC = 21;
+  int CONDITION = 21;
   /** RegularExpression Id. */
-  int ROS = 22;
+  int PROBABILISTIC = 22;
   /** RegularExpression Id. */
-  int ROSPUBLISH = 23;
+  int ROS = 23;
   /** RegularExpression Id. */
-  int ROSSUBSCRIBE = 24;
+  int ROSPUBLISH = 24;
   /** RegularExpression Id. */
-  int ROSREGACTION = 25;
+  int ROSSUBSCRIBE = 25;
   /** RegularExpression Id. */
-  int ROSGOAL = 26;
+  int ROSREGACTION = 26;
   /** RegularExpression Id. */
-  int RESOLVER = 27;
+  int ROSGOAL = 27;
   /** RegularExpression Id. */
-  int CAPACITY = 28;
+  int RESOLVER = 28;
   /** RegularExpression Id. */
-  int REUSABLE = 29;
+  int CAPACITY = 29;
   /** RegularExpression Id. */
-  int CONSUMABLE = 30;
+  int REUSABLE = 30;
   /** RegularExpression Id. */
-  int INITIAL = 31;
+  int CONSUMABLE = 31;
   /** RegularExpression Id. */
-  int CUSTOM = 32;
+  int INITIAL = 32;
   /** RegularExpression Id. */
-  int SIMULATE = 33;
+  int CUSTOM = 33;
   /** RegularExpression Id. */
-  int STATEMENT = 34;
+  int SIMULATE = 34;
   /** RegularExpression Id. */
-  int OPERATOR = 35;
+  int STATEMENT = 35;
   /** RegularExpression Id. */
-  int PRECONDITIONS = 36;
+  int OPERATOR = 36;
   /** RegularExpression Id. */
-  int EFFECTS = 37;
+  int PRECONDITIONS = 37;
   /** RegularExpression Id. */
-  int CONSTRAINTS = 38;
+  int EFFECTS = 38;
   /** RegularExpression Id. */
-  int OP = 39;
+  int CONSTRAINTS = 39;
   /** RegularExpression Id. */
-  int CP = 40;
+  int OP = 40;
   /** RegularExpression Id. */
-  int OBRACKET = 41;
+  int CP = 41;
   /** RegularExpression Id. */
-  int CBRACKET = 42;
+  int OBRACKET = 42;
   /** RegularExpression Id. */
-  int OBRACE = 43;
+  int CBRACKET = 43;
   /** RegularExpression Id. */
-  int CBRACE = 44;
+  int OBRACE = 44;
   /** RegularExpression Id. */
-  int BAR = 45;
+  int CBRACE = 45;
   /** RegularExpression Id. */
-  int COMMA = 46;
+  int BAR = 46;
   /** RegularExpression Id. */
-  int DOT = 47;
+  int COMMA = 47;
   /** RegularExpression Id. */
-  int COLON = 48;
+  int DOT = 48;
   /** RegularExpression Id. */
-  int ASSIGNMENT = 49;
+  int COLON = 49;
   /** RegularExpression Id. */
-  int SEMICOLON = 50;
+  int ASSIGNMENT = 50;
   /** RegularExpression Id. */
-  int SLASH = 51;
+  int SEMICOLON = 51;
   /** RegularExpression Id. */
-  int TO = 52;
+  int SLASH = 52;
   /** RegularExpression Id. */
-  int PLUS = 53;
+  int TO = 53;
   /** RegularExpression Id. */
-  int MINUS = 54;
+  int PLUS = 54;
   /** RegularExpression Id. */
-  int TIMES = 55;
+  int MINUS = 55;
   /** RegularExpression Id. */
-  int DIVIDED = 56;
+  int TIMES = 56;
   /** RegularExpression Id. */
-  int QMARKS = 57;
+  int DIVIDED = 57;
   /** RegularExpression Id. */
-  int EQUALS = 58;
+  int QMARKS = 58;
   /** RegularExpression Id. */
-  int NEQUALS = 59;
+  int EQUALS = 59;
   /** RegularExpression Id. */
-  int NEG = 60;
+  int NEQUALS = 60;
   /** RegularExpression Id. */
-  int LESS = 61;
+  int NEG = 61;
   /** RegularExpression Id. */
-  int LESSEQ = 62;
+  int LESS = 62;
   /** RegularExpression Id. */
-  int GREATER = 63;
+  int LESSEQ = 63;
   /** RegularExpression Id. */
-  int GREATEREQ = 64;
+  int GREATER = 64;
   /** RegularExpression Id. */
-  int QPOINT = 65;
+  int GREATEREQ = 65;
   /** RegularExpression Id. */
-  int HASH = 66;
+  int QPOINT = 66;
   /** RegularExpression Id. */
-  int DOLLAR = 67;
+  int HASH = 67;
   /** RegularExpression Id. */
-  int UNDERSCORE = 68;
+  int DOLLAR = 68;
   /** RegularExpression Id. */
-  int PACKAGE = 69;
+  int UNDERSCORE = 69;
   /** RegularExpression Id. */
-  int NON_COMPLEX_TERM = 70;
+  int PACKAGE = 70;
   /** RegularExpression Id. */
-  int STRING = 71;
+  int NON_COMPLEX_TERM = 71;
   /** RegularExpression Id. */
-  int UFLOAT = 72;
+  int STRING = 72;
+  /** RegularExpression Id. */
+  int UFLOAT = 73;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -166,6 +168,7 @@ public interface DomainParser_v4Constants {
     "\"prolog\"",
     "\"domain\"",
     "\"goal\"",
+    "\"task\"",
     "\"finally\"",
     "\"minizinc\"",
     "\"resource\"",

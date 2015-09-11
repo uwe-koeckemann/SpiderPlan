@@ -28,6 +28,7 @@ import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.representation.parser.Compile;
 import org.spiderplan.representation.parser.Compile.DomainVersion;
 import org.spiderplan.representation.parser.pddl.ParseException;
+import org.spiderplan.tools.Global;
 import org.spiderplan.tools.profiler.Profiler;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
@@ -40,9 +41,6 @@ public class Planning {
 	 * @throws NonGroundThing 
 	 */
 	public static void main(String[] args) throws ParseException {	
-		
-		System.out.println(Arrays.toString(args));
-		
 
 //		String domain = "./data/domains/handling-future-events/domain.uddl";
 //		String problem = "./data/domains/handling-future-events/test-cases/test01-open_door.uddl";
@@ -225,18 +223,19 @@ public class Planning {
 		System.out.println("===========================================================");
 		System.out.println(StopWatch.allSums2Str());
 		
-		System.out.println("===========================================================");
-		System.out.println("= Profile");
-		System.out.println("===========================================================");
-		System.out.println(Profiler.getString());
+		String profileReport = Profiler.getString();
 		
-//		System.out.println("Variables: " + Term.poolVariable.size());
-//		System.out.println("Constants: " + Term.poolConstant.size());
-//		System.out.println("ConstantIDs: " + Term.poolID.size());
-//		
-//		System.out.println("Sum constrants: " + (Term.poolConstant.size() + Term.poolID.size()));
-//		
-
+		if ( !profileReport.isEmpty() ) {
+			System.out.println("===========================================================");
+			System.out.println("= Profile");
+			System.out.println("===========================================================");
+			System.out.println(Profiler.getString());
+		}
+		
+		System.out.println("===========================================================");
+		System.out.println("= Note");
+		System.out.println("===========================================================");
+		System.out.println("To generate a timeline plot with python and matplotlib use:\n\tpython ./src/main/python/PlotTimelines.py " + Global.workingDir + "stp.txt");
 	}
 }
 

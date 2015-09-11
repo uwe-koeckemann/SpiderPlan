@@ -73,6 +73,10 @@ public class Statistics {
 		doubleValues.get(key).add(val);
 	}
 	
+	public void creatCounter( String key ) {
+		counters.put(key,Long.valueOf(0));
+	}
+	
 	public void increment( String key ) {
 		if ( !counters.containsKey(key) ) {
 			counters.put(key,Long.valueOf(1));

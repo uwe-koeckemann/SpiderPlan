@@ -88,6 +88,9 @@ public class Substitution {
 	 * @param s Input {@link String}
 	 */
 	public void add(Term from, Term to) {
+		if ( from == null || to == null ) {
+			throw new IllegalArgumentException("Cannot add null arguments: " + from + "/" + to);
+		}
 		if (!addingWouldCauseLoop(from,to)) {
 			map.put(from, to);
 		}
@@ -330,6 +333,7 @@ public class Substitution {
 				} else {
 					firstIteration = false;
 				}
+				
 				r.append(from.toString());
 				r.append("/");
 				r.append(map.get(from).toString());

@@ -41,3 +41,7 @@ run {
     /* Need to split the space-delimited value in the exec.args */
     args System.getProperty("exec.args").split()    
 }
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '1.6'
+}

@@ -364,7 +364,7 @@ public class TestSmallClasses extends TestCase {
 	
 	
 	public void testComplieWithGroups() throws ParseException { 
-		Core c = Compile.compile("./data/domains/test-cases/test-groups.uddl");
+		Core c = Compile.compile("./domains/test-cases/test-groups.uddl");
 		
 //		System.out.println(c.getContext());
 		

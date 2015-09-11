@@ -99,7 +99,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		
 		if ( !debug ) {
 			if ( useLinearRevert ) {
-				if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (linear)");
+				// if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (linear)");
 				
 				revertToIndex = dHistory.size()-1;
 				List<Integer> beginIndex = null;
@@ -113,7 +113,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 						revertToIndex--;
 					}
 				}
-				if ( keepTimes ) StopWatch.stop("[incSTP] 1) Finding revert level (linear)");
+				// if ( keepTimes ) StopWatch.stop("[incSTP] 1) Finding revert level (linear)");
 				
 				if ( revertToIndex == -1 ) { // history does not contain suitable reverting point
 					if ( verbose ) Logger.msg(this.name, "Propagating from scratch...", 2);
@@ -129,10 +129,10 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 						if ( verbose ) Logger.msg(this.name, "Reverting to " + revertToIndex + "/" + (dHistory.size()-1), 2);
 						if ( verbose ) Logger.msg(this.name, "Begin index: " + beginIndex.toString(), 2);
 						
-						if ( keepTimes ) StopWatch.start("[incSTP] 1-a) Reverting");
+						// if ( keepTimes ) StopWatch.start("[incSTP] 1-a) Reverting");
 						this.revert(revertToIndex);
 						this.bookmark();
-						if ( keepTimes ) StopWatch.stop("[incSTP] 1-a) Reverting");
+						// if ( keepTimes ) StopWatch.stop("[incSTP] 1-a) Reverting");
 					}
 					if ( beginIndex.get(0) == addedStatements.size() && beginIndex.get(1) == addedAllenConstraints.size() ) {
 						propagationRequired = false;
@@ -142,7 +142,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 				newStatements = cDB.getConstraints().get(Statement.class).subList(beginIndex.get(0), cDB.getConstraints().get(Statement.class).size());
 				newAllenConstraints = cDB.getConstraints().get(AllenConstraint.class).subList(beginIndex.get(1), cDB.getConstraints().get(AllenConstraint.class).size());
 			} else {
-				if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (quadratic)");
+				// if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (quadratic)");
 				
 				List<Statement> cdbStatements = cDB.getConstraints().get(Statement.class);				
 				List<AllenConstraint> cdbAllenConstraints = cDB.getConstraints().get(AllenConstraint.class);
@@ -164,7 +164,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 						revertToIndex--;
 					}
 				}
-				if ( keepTimes ) StopWatch.stop("[incSTP] 1) Finding revert level (quadratic)");
+				// if ( keepTimes ) StopWatch.stop("[incSTP] 1) Finding revert level (quadratic)");
 				
 	//			System.out.println("Result: "  + revertToIndex);
 				
@@ -182,11 +182,11 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 					
 					if ( revertToIndex < dHistory.size()-1 ) {
 						if ( verbose ) Logger.msg(this.name, "Reverting to " + revertToIndex + "/" + (dHistory.size()-1), 2);
-						if ( keepTimes ) StopWatch.start("[incSTP] 1-a) Reverting");
+						// if ( keepTimes ) StopWatch.start("[incSTP] 1-a) Reverting");
 						this.revert(revertToIndex);
 						this.bookmark();
 										
-						if ( keepTimes ) StopWatch.stop("[incSTP] 1-a) Reverting");
+						// if ( keepTimes ) StopWatch.stop("[incSTP] 1-a) Reverting");
 					}
 					if ( cdbStatements.size() == addedStatementsHistory.get(revertToIndex).size() && cdbAllenConstraints.size() == addedAllenConstraintsHistory.get(revertToIndex).size() ) {
 						// nothing new
@@ -240,7 +240,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		}
 		
 		if ( needFromScratch ) {
-			if ( keepStats ) Module.getStats().increment("[incSTP] #FromScratch");
+//			if ( keepStats ) Module.getStats().increment("[incSTP] #FromScratch");
 			reset();
 			propagationRequired = true;
 		}
@@ -248,20 +248,20 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		List<Long[]> addedConstraints = new ArrayList<Long[]>();
 		
 //		if ( propagationRequired ) {			
-			if ( keepTimes ) StopWatch.start("[incSTP] Matrix setup");		
+			// if ( keepTimes ) StopWatch.start("[incSTP] Matrix setup");		
 			addedConstraints.addAll(setupDistanceMatrix(newStatements));
-			if ( keepTimes ) StopWatch.stop("[incSTP] Matrix setup");
+			// if ( keepTimes ) StopWatch.stop("[incSTP] Matrix setup");
 			
-			if ( keepTimes ) StopWatch.start("[incSTP] Generating simple distance constraints");
+			// if ( keepTimes ) StopWatch.start("[incSTP] Generating simple distance constraints");
 			addedConstraints.addAll(this.getNewDistanceConstraints(newAllenConstraints));
-			if ( keepTimes ) StopWatch.stop("[incSTP] Generating simple distance constraints");
+			// if ( keepTimes ) StopWatch.stop("[incSTP] Generating simple distance constraints");
 			
 			if ( !addedConstraints.isEmpty() ) {
 				propagationRequired = true;
 			} 
 //		}
 		
-		if ( keepTimes ) StopWatch.start("[incSTP] Propagation");
+		// if ( keepTimes ) StopWatch.start("[incSTP] Propagation");
 		boolean isConsistent = true;
 //		if ( propagationRequired ) {
 			for ( Long[] con : addedConstraints ) {
@@ -278,7 +278,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 				}
 			}
 //		}
-		if ( keepTimes ) StopWatch.stop("[incSTP] Propagation");
+		// if ( keepTimes ) StopWatch.stop("[incSTP] Propagation");
 		
 		if ( isConsistent && propagationRequired ) {
 			this.bookmark();

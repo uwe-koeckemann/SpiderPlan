@@ -70,11 +70,10 @@ public abstract class MultiQueueSearch extends AbstractSearch {
 	}
 	
 	public void step() {
-				
 		if ( keepTimes ) StopWatch.start("[MultiQueueSearch] Prune");
 		prune();
 		if ( keepTimes ) StopWatch.stop("[MultiQueueSearch] Prune");
-
+		
 		if ( expandAndSelect ) {	
 			if ( n != null ) {
 				expandedNodes++;

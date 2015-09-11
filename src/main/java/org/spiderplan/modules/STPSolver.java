@@ -151,7 +151,6 @@ public class STPSolver extends Module implements SolverInterface {
 			}
 		}
 	
-		if ( keepTimes ) StopWatch.start("["+this.getName()+"] Initializing");
 		ConstraintDatabase cDB = core.getContext();
 		Map<Class,Integer> cdbConCount = cDB.getConstraintCount();
 
@@ -161,22 +160,22 @@ public class STPSolver extends Module implements SolverInterface {
 		for ( OpenGoal og : cDB.getConstraints().get(OpenGoal.class) ) {
 			cDB.add(og.getStatement());
 		}
-		if ( keepTimes ) StopWatch.stop("["+this.getName()+"] Initializing");
+//		if ( keepTimes ) StopWatch.stop("["+this.getName()+"] Initializing");
 						
-		if ( keepStats ) {
-			HashMap<String,Long> cCount = new HashMap<String, Long>();
-
-			for( AllenConstraint c : core.getContext().getConstraints().get(AllenConstraint.class) ) {		
-				if ( !cCount.containsKey(c.getRelation().toString())) {
-					cCount.put(c.getRelation().toString(), new Long(0));
-				}
-				cCount.put(c.getRelation().toString(), new Long(cCount.get(c.getRelation().toString()).intValue() + 1));
-			}
-			for ( String k : cCount.keySet() ) {
-				stats.setLong(msg("Last #" + k), cCount.get(k));
-			}
-			stats.setLong(msg("Last #Statements"), Long.valueOf(core.getContext().getStatements().size()));
-		}
+//		if ( keepStats ) {
+//			HashMap<String,Long> cCount = new HashMap<String, Long>();
+//
+//			for( AllenConstraint c : core.getContext().getConstraints().get(AllenConstraint.class) ) {		
+//				if ( !cCount.containsKey(c.getRelation().toString())) {
+//					cCount.put(c.getRelation().toString(), new Long(0));
+//				}
+//				cCount.put(c.getRelation().toString(), new Long(cCount.get(c.getRelation().toString()).intValue() + 1));
+//			}
+//			for ( String k : cCount.keySet() ) {
+//				stats.setLong(msg("Last #" + k), cCount.get(k));
+//			}
+//			stats.setLong(msg("Last #Statements"), Long.valueOf(core.getContext().getStatements().size()));
+//		}
 		
 		
 		/** 
@@ -276,7 +275,7 @@ public class STPSolver extends Module implements SolverInterface {
 			if ( verbose ) Logger.depth--;
 		}
 	
-		if ( keepTimes ) StopWatch.start(msg("Finishing up"));
+//		if ( keepTimes ) StopWatch.start(msg("Finishing up"));
 		State state;
 		ResolverIterator resolverIterator = null;
 		if ( isConsistent ) {
@@ -320,7 +319,6 @@ public class STPSolver extends Module implements SolverInterface {
 			state = State.Inconsistent;
 		}
 		cDB.setToConstraintCount(cdbConCount);
-		if ( keepTimes ) StopWatch.stop(msg("Finishing up"));
 		return new SolverResult(state,resolverIterator);
 	}
 }

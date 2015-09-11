@@ -261,16 +261,16 @@ public class TestStackSolver extends TestCase {
 		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 2 Cost") == 8);
 		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 3 Prolog") == 1);
 		
-		assertTrue(Module.getStats().getCounter("[Solver] Level 1 peeking") == 2);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 1 pushing") == 1);
-		
-		assertTrue(Module.getStats().getCounter("[Solver] Level 2 peeking") == 5);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 2 pushing") == 2);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 2 popping") == 1);	
-		
-		assertTrue(Module.getStats().getCounter("[Solver] Level 3 peeking") == 11);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 3 pushing") == 4);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 3 popping") == 3);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 1 peeking") == 2);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 1 pushing") == 1);
+//		
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 peeking") == 5);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 pushing") == 2);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 popping") == 1);	
+//		
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 peeking") == 11);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 pushing") == 4);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 popping") == 3);
 	}
 	
 	/**
@@ -337,12 +337,12 @@ public class TestStackSolver extends TestCase {
 		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 2 Prolog") == 4);
 		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 3 IC") == 4);
 		
-		assertTrue(Module.getStats().getCounter("[Solver] Level 1 peeking") == 2);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 1 pushing") == 1);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 2 peeking") == 2);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 2 pushing") == 1);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 3 peeking") == 2);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 3 pushing") == 1);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 1 peeking") == 2);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 1 pushing") == 1);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 peeking") == 2);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 pushing") == 1);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 peeking") == 2);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 pushing") == 1);
 	}
 	
 	/**
@@ -474,12 +474,12 @@ public class TestStackSolver extends TestCase {
 		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 2 Prolog") == 5);
 		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 3 IC") == 5);
 		
-		assertTrue(Module.getStats().getCounter("[Solver] Level 1 peeking") == 2);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 1 pushing") == 1);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 2 peeking") == 2);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 2 pushing") == 1);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 3 peeking") == 2);
-		assertTrue(Module.getStats().getCounter("[Solver] Level 3 pushing") == 1);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 1 peeking") == 2);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 1 pushing") == 1);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 peeking") == 2);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 pushing") == 1);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 peeking") == 2);
+//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 pushing") == 1);
 	}
 }
 

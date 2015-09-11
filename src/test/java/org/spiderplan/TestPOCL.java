@@ -67,11 +67,11 @@ public class TestPOCL extends TestCase {
 		
 		cM.add("Stack");
 		cM.set("Stack", "class", "SolverStack");
-		cM.set("Stack", "solvers", "POCL");
+		cM.set("Stack", "solvers", "OpenGoalResolverSingleFlaw");
 //		cM.set("Stack", "verbose", "true");
 //		cM.set("Stack", "verbosity", "10");
-		cM.add("POCL");
-		cM.set("POCL", "class", "POCL");
+		cM.add("OpenGoalResolverSingleFlaw");
+		cM.set("OpenGoalResolverSingleFlaw", "class", "OpenGoalResolverSingleFlaw");
 //		cM.set("POCL", "verbose", "true");
 //		cM.set("POCL", "verbosity", "10");
 //		
@@ -128,11 +128,11 @@ public class TestPOCL extends TestCase {
 		
 		cM.add("Stack");
 		cM.set("Stack", "class", "SolverStack");
-		cM.set("Stack", "solvers", "POCL");
+		cM.set("Stack", "solvers", "OpenGoalResolverSingleFlaw");
 //		cM.set("Stack", "verbose", "true");
 //		cM.set("Stack", "verbosity", "10");
-		cM.add("POCL");
-		cM.set("POCL", "class", "POCL");
+		cM.add("OpenGoalResolverSingleFlaw");
+		cM.set("OpenGoalResolverSingleFlaw", "class", "OpenGoalResolverSingleFlaw");
 //		cM.set("POCL", "verbose", "true");
 //		cM.set("POCL", "verbosity", "10");
 		

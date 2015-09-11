@@ -91,13 +91,15 @@ public class SolverStack extends Module {
 		Stack<ResolverIterator> backtrackStack = new Stack<ResolverIterator>();
 		Stack<Core> coreStack = new Stack<Core>();
 
-		if ( keepTimes ) StopWatch.start(msg("Copy"));
+//		if ( keepTimes ) StopWatch.start(msg("Copy"));
 		Core currentCore = new Core();
 		currentCore.setContext(core.getContext());
 		currentCore.setPlan(core.getPlan());
 		currentCore.setOperators(core.getOperators());
 		currentCore.setTypeManager(core.getTypeManager());
-		if ( keepTimes ) StopWatch.stop(msg("Copy"));
+//		if ( keepTimes ) StopWatch.stop(msg("Copy"));
+		
+		if ( keepStats ) stats.creatCounter(msg("Backtracking"));
 		
 	
 		SolverResult result;
@@ -107,13 +109,13 @@ public class SolverStack extends Module {
 
 			if ( keepStats ) {
 				Module.stats.increment(msg("Calling solver " + i + " " +((Module)solvers.get(i)).getName()));
-				Module.stats.addLong(msg("Solver Sequence"), Long.valueOf(i));
+//				Module.stats.addLong(msg("Solver Sequence"), Long.valueOf(i));
 			}
 						
 			if ( verbose ) Logger.depth++;
-			if ( keepTimes ) StopWatch.start(msg("test: " + solverNames.get(i)));
+			if ( keepTimes ) StopWatch.start(msg("Test and find flaws " + solverNames.get(i)));
 			result = solvers.get(i).testAndResolve(currentCore);
-			if ( keepTimes ) StopWatch.stop(msg("test: " + solverNames.get(i)));
+			if ( keepTimes ) StopWatch.stop(msg("Test and find flaws " + solverNames.get(i)));
 			if ( verbose ) Logger.depth--;
 					
 			if ( verbose ) Logger.msg(getName(), ((Module)solvers.get(i)).getName() + " says -> " + result.getState().toString(), 0);
@@ -126,57 +128,57 @@ public class SolverStack extends Module {
 				 */
 				if ( result.getResolverIterator() != null ) {
 					if ( verbose ) Logger.msg(getName(), "Pushing resolvers on stack level "+(backtrackStack.size()+1)+" ("+result.getResolverIterator().getName()+")", 1);
-					if ( keepStats ) {
-						Module.stats.increment(msg("Level " +(backtrackStack.size()+1) + " pushing"));
-						Module.stats.addLong(msg("Pushing resolvers sequence"), Long.valueOf(i));
-					}
+//					if ( keepStats ) {
+//						Module.stats.increment(msg("Level " +(backtrackStack.size()+1) + " pushing"));
+//						Module.stats.addLong(msg("Pushing resolvers sequence"), Long.valueOf(i));
+//					}
 					
-					if ( keepTimes ) StopWatch.start(msg("Copy"));
+//					if ( keepTimes ) StopWatch.start(msg("Copy"));
 					Core stackedCore = new Core();
 					stackedCore.setContext(currentCore.getContext());
 					stackedCore.setPlan(currentCore.getPlan().copy());
 					stackedCore.setOperators(currentCore.getOperators());
 					stackedCore.setTypeManager(core.getTypeManager());
-					if ( keepTimes ) StopWatch.stop(msg("Copy"));
+//					if ( keepTimes ) StopWatch.stop(msg("Copy"));
 					
-					if ( keepTimes ) StopWatch.start(msg("Pushing resolver"));
+//					if ( keepTimes ) StopWatch.start(msg("Pushing resolver"));
 					coreStack.push(stackedCore);
 					backtrackStack.push(result.getResolverIterator());
-					if ( keepTimes ) StopWatch.stop(msg("Pushing resolver"));
+//					if ( keepTimes ) StopWatch.stop(msg("Pushing resolver"));
 				}
 				/**
 				 * Find next resolver (backtrack if needed)
 				 */				
 				if ( verbose ) Logger.msg(getName(), "Choosing next resolver...", 1);
-				if ( keepTimes ) StopWatch.start(msg("Choosing resolver"));
+//				if ( keepTimes ) StopWatch.start(msg("Choosing resolver"));
 				boolean usedBacktracking = false;
 				Resolver r = null;
 				while ( backtrackStack.size() > 0 && r == null ) {
 					if ( verbose ) Logger.msg(getName(), "... trying stack level " + backtrackStack.size() + ": "+ backtrackStack.peek().getName(), 1);
-					if ( keepStats ) Module.stats.increment(msg("Level " +(backtrackStack.size()) + " peeking"));
-					if ( keepTimes ) StopWatch.start(msg("next(): " + backtrackStack.peek().getName()));
+//					if ( keepStats ) Module.stats.increment(msg("Level " +(backtrackStack.size()) + " peeking"));
+					if ( keepTimes ) StopWatch.start(msg("Getting resolver " + backtrackStack.peek().getName()));
 					r = backtrackStack.peek().next();
-					if ( keepTimes ) StopWatch.stop(msg("next(): " + backtrackStack.peek().getName()));
+					if ( keepTimes ) StopWatch.stop(msg("Getting resolver " + backtrackStack.peek().getName()));
 					if ( r == null ) {
 						usedBacktracking = true;
 						if ( verbose ) Logger.msg(getName(), "Backtracking: No resolver found on stack level " + backtrackStack.size() + ": "+ backtrackStack.peek().getName(), 1);
 						if ( keepStats ) {
-							Module.stats.increment(msg("#Backtracking"));
-							Module.stats.increment(msg("Level " +(backtrackStack.size()) + " popping"));
+							Module.stats.increment(msg("Backtracking"));
+//							Module.stats.increment(msg("Level " +(backtrackStack.size()) + " popping"));
 						}
 						
-						if ( keepTimes ) StopWatch.start(msg("Popping resolver"));
+//						if ( keepTimes ) StopWatch.start(msg("Popping resolver"));
 						backtrackStack.pop();
 						coreStack.pop();
-						if ( keepTimes ) StopWatch.stop(msg("Popping resolver"));
+//						if ( keepTimes ) StopWatch.stop(msg("Popping resolver"));
 					}
 				}
-				if ( keepTimes ) StopWatch.stop(msg("Choosing resolver"));
+//				if ( keepTimes ) StopWatch.stop(msg("Choosing resolver"));
 				/**
 				 * Apply next resolver (if one exists)
 				 */	
 				if ( r != null ) {							// found resolver to try next
-					if ( keepTimes ) StopWatch.start(msg("Applying resolver"));
+//					if ( keepTimes ) StopWatch.start(msg("Applying resolver"));
 					if ( verbose ) {
 						Logger.msg(getName(), "Applying resolver", 1);
 					}
@@ -184,21 +186,21 @@ public class SolverStack extends Module {
 						Module.stats.increment(msg("Applied resolvers"));
 					}
 					
-					if ( keepTimes ) StopWatch.start(msg("Copy"));
+//					if ( keepTimes ) StopWatch.start(msg("Copy"));
 					currentCore = new Core();
 					currentCore.setContext(coreStack.peek().getContext().copy());
 					currentCore.setPlan(coreStack.peek().getPlan());
 					currentCore.setTypeManager(coreStack.peek().getTypeManager());
 					currentCore.setOperators(coreStack.peek().getOperators());
 					r.apply(currentCore.getContext());// this should be the only place in which currentCore.getContext() actually changes...
-					if ( keepTimes ) StopWatch.stop(msg("Copy"));
+//					if ( keepTimes ) StopWatch.stop(msg("Copy"));
 					
 					// TODO: this is a hack
 					Collection<AppliedPlan> plans = r.getConstraintDatabase().getConstraints().get(AppliedPlan.class);
 					if ( !plans.isEmpty() ) {
 						currentCore.setPlan(plans.iterator().next().getPlan());
 					}
-					if ( keepTimes ) StopWatch.stop(msg("Applying resolver"));
+//					if ( keepTimes ) StopWatch.stop(msg("Applying resolver"));
 					
 					// Consistent with resolver does not require resetting i to 0
 					// (we assume the resolver just added some information but

@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.spiderplan.causal.ApplyPlanIterator;
 import org.spiderplan.causal.ForwardPlanningIterator;
+import org.spiderplan.causal.ForwardPlanningNode;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Resolver;
 import org.spiderplan.representation.ConstraintDatabase;
@@ -49,6 +50,7 @@ public class TestPlan extends TestCase {
 	
 	@Override
 	public void setUp() throws Exception {
+
 	}
 
 	@Override
@@ -165,6 +167,8 @@ public class TestPlan extends TestCase {
 	}
 	
 	public void testPlanIterator() {
+		Global.resetStatics();
+		
 		TypeManager tM = new TypeManager();
 		tM.addSimpleEnumType("t", "a,b");
 		tM.attachTypes(new Atomic("x"), Term.createConstant("t")); 
@@ -203,22 +207,19 @@ public class TestPlan extends TestCase {
 		IncrementalSTPSolver stp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
 		stp.isConsistent(context, tM);
 		context.add(stp.getPropagatedTemporalIntervals());
-		
+				
 		ForwardPlanningIterator pI = new ForwardPlanningIterator(context, G, O, tM, cM, "Planner");
 		
 		Resolver r = pI.next();
-//		System.out.println("============================\n"+r);
 		assertTrue( r != null );
-		 r = pI.next();
-//		 System.out.println("============================\n"+r);
+		r = pI.next();
 		assertTrue( r != null );
-		 r = pI.next();
-//		 System.out.println("============================\n"+r);
+		r = pI.next();
 		assertTrue( r != null );
-		 r = pI.next();
-//		 System.out.println("============================\n"+r);
+		r = pI.next();
 		assertTrue( r != null );
 		assertTrue( pI.next() == null );
+		
 	}
 	
 	public void testPlanIteratorWithFutureEventConflict() {

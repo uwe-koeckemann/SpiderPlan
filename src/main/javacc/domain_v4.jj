@@ -71,6 +71,7 @@ TOKEN :
 |   < PROLOG : "prolog" >
 |   < DOMAIN : "domain" >
 |   < GOAL : "goal" >
+|   < TASK : "task" >
 |   < FINALLY : "finally" >
 |   < MINIZINC : "minizinc" >
 |   < RESOURCE : "resource" >
@@ -396,6 +397,7 @@ ConstraintDatabase ConstraintDatabase() :
 		| ( < RESOURCE >	( LOOKAHEAD(2) c = ResourceConstraint() 		{ cDB.add(c); } )+ )
 		| ( < GRAPH >		( LOOKAHEAD(2) c = GraphConstraint() 			{ cDB.add(c); } )+ )
 		| ( < GOAL > 		( LOOKAHEAD(2) c = GoalConstraint() 			{ cDB.add(c); } )+ )
+		| ( < TASK > 		( LOOKAHEAD(2) c = TaskConstraint() 			{ cDB.add(c); } )+ )
 		| ( < FINALLY > 	( 			   c = FinallyConstraint() 			{ cDB.add(c); } )  )
 		| ( < DOMAIN > 		( LOOKAHEAD(2) c = DomainConstraint() 			{ cDB.add(c); } )+ )
 		| ( < PROBABILISTIC > ( LOOKAHEAD(2) c = ProbabilisticConstraint()	{ cDB.add(c); } )+ )
@@ -469,6 +471,18 @@ Constraint GoalConstraint() :
 	{
 		if ( verbose ) { System.out.println("[Parser] Goal Constraint"); }
 		return new OpenGoal(g);
+	}
+}
+
+Constraint TaskConstraint() :
+{
+  	Statement task;
+}
+{
+	task = Statement()
+	{
+		if ( verbose ) { System.out.println("[Parser] Task Constraint"); }
+		return new Task(task);
 	}
 }
 

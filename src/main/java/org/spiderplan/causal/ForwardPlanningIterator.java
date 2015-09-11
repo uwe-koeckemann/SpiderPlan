@@ -34,6 +34,7 @@ import java.util.PriorityQueue;
 import java.util.Set; 
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
+import org.spiderplan.causal.ForwardPlanningNode.EqualityCriteria;
 import org.spiderplan.causal.goals.Goal;
 import org.spiderplan.causal.goals.SingleGoal;
 import org.spiderplan.modules.configuration.ConfigurationManager;
@@ -146,7 +147,9 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		super.parameterDesc.add( new ParameterDescription("heuristics", "string", "CausalGraph", "Comma-seperated list of heuristics (supported: FastDownward).") );
 		super.parameterDesc.add( new ParameterDescription("useHelpfulTransitions", "string", "", "Comma-seperated list of true/false indicating whether heuristics use helpful actions.") );
 		super.parameterDesc.add( new ParameterDescription("nodeEquality", "string", "PlanBased", "Determines when two nodes in the planner's search space are equal. In (\"PlanBased\") mode the sequence of actions has to be the same. In (\"StateBased\") mode state and actions have to be the same. In (\"ResultingStateBased\") result of applying action to state is taken for equality. While the second option will detect more loops it may throw away solutions in cases where the planner is under informed (i.e. states look the same to the causal reasoner, but are different in the constraint database).") );	
-				
+			
+		ForwardPlanningNode.eqCriteria = EqualityCriteria.PlanBased;
+		
 		if ( cManager.hasAttribute(name, "lookAhead") ) {
 			lookAhead = cManager.getInt(name, "lookAhead");
 		}
@@ -429,6 +432,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 				
 				ApplyPlanIterator aI = new ApplyPlanIterator(context, p, this.getName(), this.cM, false, tM);
 				
+				
 				Resolver applyResolver = aI.next(C); 
 					
 				boolean atLeastOneWorks = false;
@@ -487,6 +491,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 				if ( keepTimes ) StopWatch.stop(msg("Incremental consistency check"));
 			}
 		}
+		
 		Plan p = null;
 		Resolver r = null;
 		if ( planner.success ) {
@@ -512,9 +517,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			for ( OpenGoal og : context.getConstraints().get(OpenGoal.class) ) {
 				og.setAsserted(true);
 			}			
-			applyPlan = new ApplyPlanIterator(context,p,this.name,this.cM, true, tM);
-			
-
+			applyPlan = new ApplyPlanIterator(context,p,this.name,this.cM, true, tM);		
 			
 			r = applyPlan.next(C);
 			
@@ -543,12 +546,11 @@ public class ForwardPlanningIterator extends ResolverIterator {
 	}		
 	
 	private void initialize( ConstraintDatabase initDB, Collection<OpenGoal> G, Collection<Operator> O, TypeManager tM ) {
-				
 		this.tM = tM;
 		this.originalContext = initDB.copy();
 //		CSP = new MetaCSPAdapter( temporalHorizon );
 		ArrayList<Term> ignoredKeys = new ArrayList<Term>();
-		
+				
 		ArrayList<Statement> goalStatements = new ArrayList<Statement>();
 		for ( OpenGoal g : G ) {
 			if ( !g.isAsserted() ) {

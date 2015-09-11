@@ -33,8 +33,7 @@ import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 
 /**
- * Marks a list of intervals as goals to make clear
- * that they have to be achieved.
+ * Contains a {@link Statement} as a goal.
  * 
  * @author Uwe Köckemann
  *
