@@ -41,9 +41,7 @@ public class Planning {
 	 * @throws NonGroundThing 
 	 */
 	public static void main(String[] args) throws ParseException {			
-		if ( args.length >= 2 ) { 			// Single problem
-			System.out.println("aaa");
-			System.out.println(Arrays.toString(args));
+		if ( args.length >= 2 && !args[0].contains("[]")) { 			// Single problem
 			RunSingleProblem.run(args);		
 		} else if ( args.length == 1 ) {	// Experiment
 			RunExperiment.run(args[0]);	
