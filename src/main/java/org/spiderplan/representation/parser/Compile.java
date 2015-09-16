@@ -104,16 +104,11 @@ public class Compile {
 		bkbLookUp = new HashMap<String, String>();
 		Core c = new Core();
 		c.setTypeManager(new TypeManager());
-//		c.getTypeManager().addEnumType("boolean", "true,false");
 		Compile.compileDomainAndProblem(fileName, c);
 		return c;
 	}
 	 
-	public static void compile( String domainFileName, String problemFileName ) throws org.spiderplan.representation.parser.pddl.ParseException {
-		compile( domainFileName,  problemFileName, null ) ;
-	}
-	
-	public static void compile( String domainFileName, String problemFileName, String plannerFileName ) {
+	public static void compile( ArrayList<String> domainFilenames, String plannerFilename ) {
 		if ( keepTimes || printTimes ) StopWatch.start("Compiling");
 		try {
 				
@@ -137,34 +132,27 @@ public class Compile {
 			
 			c.getTypeManager().addNewType(new IntervalType());
 			
-			File file = new File(domainFileName);
-			String path = file.getParentFile().getAbsolutePath().toString() + "/";
-			path = path.replace("/./", "/");
-			DomainParser_v4.sourceDirectory = path;
+			for ( String filename : domainFilenames ) {
+				File file = new File(filename);
+				String path = file.getParentFile().getAbsolutePath().toString() + "/";
+				path = path.replace("/./", "/");
+				DomainParser_v4.sourceDirectory = path;
+				
+				if ( keepTimes || printTimes ) StopWatch.start("Compiling domain");
+				Compile.compileDomainAndProblem(filename, c);
+				if ( keepTimes || printTimes ) StopWatch.stop("Compiling domain");
+				
+				if ( filename.endsWith(".pddl") ) {
+					if ( keepTimes || printTimes ) StopWatch.start("PDDL post processing");
+					PDDLpostProcessing();
+					if ( keepTimes || printTimes ) StopWatch.stop("PDDL post processing");
+				}
+			}
 			
-			if ( keepTimes || printTimes ) StopWatch.start("Compiling domain");
-			Compile.compileDomainAndProblem(domainFileName, c);
-			if ( keepTimes || printTimes ) StopWatch.stop("Compiling domain");
-			
-			
-			file = new File(domainFileName);
-			path = file.getParentFile().getAbsolutePath().toString() + "/";
-			path = path.replace("/./", "/");
-			DomainParser_v4.sourceDirectory = path;
-			
-			if ( keepTimes || printTimes ) StopWatch.start("Compiling problem");
-			Compile.compileDomainAndProblem(problemFileName, c);
-			if ( keepTimes || printTimes ) StopWatch.stop("Compiling problem");
-						
 			if ( keepTimes || printTimes ) StopWatch.start("Updating type domains");
 			c.getTypeManager().updateTypeDomains();
 			if ( keepTimes || printTimes ) StopWatch.stop("Updating type domains");
 			
-			if ( domainFileName.endsWith(".pddl") ) {
-				if ( keepTimes || printTimes ) StopWatch.start("PDDL post processing");
-				PDDLpostProcessing();
-				if ( keepTimes || printTimes ) StopWatch.stop("PDDL post processing");
-			}
 			
 			/**
 			 * Make all keys in initial context ground
@@ -177,9 +165,7 @@ public class Compile {
 				}
 			}
 			c.getContext().substitute(theta);
-			
-			
-			
+					
 			if ( domainVersion.equals(DomainVersion.v4) ) {
 				c.getTypeManager().collectTypeInformation(c.getContext());
 			}
@@ -265,9 +251,7 @@ public class Compile {
 			if ( keepTimes || printTimes ) StopWatch.stop("Consistency check");
 		
 			if ( keepTimes || printTimes ) StopWatch.start("Compiling planner");
-			if ( plannerFileName != null ) {
-				Compile.compilePlanner(plannerFileName);
-			}
+			Compile.compilePlanner(plannerFilename);
 			if ( keepTimes || printTimes ) StopWatch.stop("Compiling planner");
 			
 			if ( verbose || printTimes ) {

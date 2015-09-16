@@ -1,0 +1,74 @@
+options
+{
+  JDK_VERSION = "1.7";
+  static = false;
+}
+
+PARSER_BEGIN(ExperimentParser)
+package org.spiderplan.representation.parser.experiment;
+
+import java.util.Map;
+
+
+public class ExperimentParser 
+{
+	Map<String,String> attValueMap;
+}
+PARSER_END(ExperimentParser)
+ 
+/* Skipping comments and white spaces */
+
+SKIP:
+{
+	<"#" (~["\n"])* "\n">
+}
+
+SKIP:
+{
+	<" ">
+| <"\r">
+| <"\t">
+| <"\n">
+}
+
+/* SEPARATORS */
+
+TOKEN :
+{
+	< EQUALS: "=" >
+| < SEMICOLON: ";" >
+| < QMARKS: "\"">
+}
+
+/* BUILDING BLOCKS */
+
+TOKEN :
+{
+  < NAME : (["a"-"z"]|["A"-"Z"])+ >
+|	< BOOLEAN : ("true" | "false" ) >
+| < INTEGER: (["0"-"9"])+ >
+| < STRING : <  QMARKS > (~["\""])* < QMARKS > >
+}
+
+void CompilationUnit( Map<String,String> map )  :
+{
+	this.attValueMap = map;
+}
+{	
+	(
+		Option()
+	)*
+}
+
+void Option() :
+{
+	Token att = null;
+	Token val = null;
+}
+{
+	att = < NAME > <EQUALS> ( val = <BOOLEAN> | val = <INTEGER> | val = <STRING> ) < SEMICOLON >
+	{
+		attValueMap.put(att.image.replace("\"","").trim(), val.image.replace("\"","").trim());
+	}
+} 
+ 

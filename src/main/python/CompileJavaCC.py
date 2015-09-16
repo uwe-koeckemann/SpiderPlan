@@ -34,7 +34,7 @@ def getAllJavafiles(dirName):
 			allJavaFiles.append(os.path.join(root, filename))
 	return allJavaFiles
 
-toCompile = ["domain_v4", "pddl", "planner"]
+toCompile = ["domain_v4", "pddl", "planner", "experiment"]
 
 for dirName in toCompile:
 	os.system("rm ../java/org/spiderplan/representation/parser/"+dirName+"/*.java")
