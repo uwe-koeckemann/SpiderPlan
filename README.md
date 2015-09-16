@@ -51,7 +51,7 @@ Apart from that Python 2.x is required by some scripts. YAP Prolog <a href="http
 ## Run by specifying domain, problem and planner definitions:
 
 ```
- ./gradlew run -Dexec.args='./domains/household/domain.uddl ./domains/household/test-cases/test01.uddl ./domains/household/planner.spider'
+ ./gradlew run -Dexec.args='./domains/household/planner.spider ./domains/household/domain.uddl ./domains/household/test-cases/test01.uddl' 
 ```
 
 # Sponsors

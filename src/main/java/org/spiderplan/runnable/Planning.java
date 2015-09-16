@@ -40,17 +40,17 @@ public class Planning {
 	 * @throws UnknownThing 
 	 * @throws NonGroundThing 
 	 */
-	public static void main(String[] args) throws ParseException {	
-				
-		if ( args.length >= 2 ) { 	// Single problem
+	public static void main(String[] args) throws ParseException {			
+		if ( args.length >= 2 ) { 			// Single problem
+			System.out.println("aaa");
+			System.out.println(Arrays.toString(args));
 			RunSingleProblem.run(args);		
-		} else {					// Experiment
-			RunExperiment.run(args[0]);
+		} else if ( args.length == 1 ) {	// Experiment
+			RunExperiment.run(args[0]);	
+		} else {								// Default demo problem
+			String[] defaultArgs = { "./domains/household/planner.spider", "./domains/household/domain.uddl", "./domains/household/test-cases/test01.uddl" };
+			RunSingleProblem.run(defaultArgs);
 		}
-		
-		//TODO: move the following into SolveProblem
-		
-	
 	}
 }
 
