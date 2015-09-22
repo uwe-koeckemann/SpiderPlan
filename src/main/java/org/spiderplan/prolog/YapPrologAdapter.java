@@ -37,11 +37,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.constraints.Asserted;
 import org.spiderplan.representation.constraints.IncludedProgram;
 import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.InteractionConstraint;
 import org.spiderplan.representation.constraints.PrologConstraint;
 import org.spiderplan.representation.logic.Atomic;
@@ -97,7 +97,7 @@ public class YapPrologAdapter {
 		this.yapBinaryLocation = binaryLocation;
 	}
 	
-	public Collection<Substitution> query( ConstraintCollection kbIn, Collection<PrologConstraint> q, Term programID , TypeManager tM ) {
+	public Collection<Substitution> query( ConstraintDatabase kbIn, Collection<PrologConstraint> q, Term programID , TypeManager tM ) {
 		prologCompatibilityMap = new HashMap<String, Term>();
 		if ( keepTimes ) StopWatch.start("[Prolog] Query");
 		if ( q.isEmpty() ) {
@@ -159,7 +159,7 @@ public class YapPrologAdapter {
 	 * @param B 
 	 * @param tM 
 	 */
-	public void saturateConstraints( Collection<Operator> O, ConstraintCollection B, Term programID, TypeManager tM ) {		
+	public void saturateConstraints( Collection<Operator> O, ConstraintDatabase B, Term programID, TypeManager tM ) {		
 		Set<Operator> remList = new HashSet<Operator>();
 		Set<Operator> addList = new HashSet<Operator>();
 
@@ -270,7 +270,7 @@ public class YapPrologAdapter {
 	 * Replace all {@link InteractionConstraint}s in <i>C</i> with partial ground versions
 	 * that are consistent with their relational constraints.
 	 */
-	public void saturateInteractionConstraints( ConstraintCollection C, ConstraintCollection B, Term programID, TypeManager tM ) {
+	public void saturateInteractionConstraints( ConstraintDatabase C, ConstraintDatabase B, Term programID, TypeManager tM ) {
 		ArrayList<InteractionConstraint> remList = new ArrayList<InteractionConstraint>();
 		ArrayList<InteractionConstraint> addList = new ArrayList<InteractionConstraint>();
 		
@@ -278,10 +278,8 @@ public class YapPrologAdapter {
 			remList.add(iC);
 			ArrayList<PrologConstraint> query = new ArrayList<PrologConstraint>();
 			
-			for ( Constraint c : iC.getCondition().getConstraints() ) {
-				if ( c instanceof PrologConstraint ) {	
-					query.add((PrologConstraint)c);
-				}
+			for ( PrologConstraint c : iC.getCondition().get(PrologConstraint.class) ) {
+					query.add(c);
 			}
 			
 			
@@ -315,7 +313,7 @@ public class YapPrologAdapter {
 	 * 
 	 * (Not yet working...)
 	 */
-	public void saturateOperatorConstraints( Collection<Operator> O, ConstraintCollection B, Term programID, TypeManager tM ) {
+	public void saturateOperatorConstraints( Collection<Operator> O, ConstraintDatabase B, Term programID, TypeManager tM ) {
 		ArrayList<Operator> remList = new ArrayList<Operator>();
 		ArrayList<Operator> addList = new ArrayList<Operator>();
 		

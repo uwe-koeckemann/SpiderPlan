@@ -22,15 +22,7 @@
  *******************************************************************************/
 package org.spiderplan.runnable;
 
-import java.util.Arrays;
-
-import org.spiderplan.modules.solvers.Module;
-import org.spiderplan.representation.parser.Compile;
-import org.spiderplan.representation.parser.Compile.DomainVersion;
 import org.spiderplan.representation.parser.pddl.ParseException;
-import org.spiderplan.tools.Global;
-import org.spiderplan.tools.profiler.Profiler;
-import org.spiderplan.tools.stopWatch.StopWatch;
 
 public class Planning {
 

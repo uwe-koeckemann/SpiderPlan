@@ -35,7 +35,6 @@ import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.constraints.IncludedProgram;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.InteractionConstraint;
 import org.spiderplan.representation.constraints.PrologConstraint;
 import org.spiderplan.representation.constraints.AllenConstraint;
@@ -335,6 +334,7 @@ public class TestInteractionConstraints extends TestCase {
 			ic.getCondition().add(new Statement("(?S1 (p ?A ?B) ?C)"));
 			ic.getCondition().add(new Statement("(?S2 (p ?D ?E) ?F)"));
 			ic.getCondition().add(new PrologConstraint(new Atomic("(notEqual ?S1 ?S2)"), bkbName)); // otherwise S1 == S2 will cause conflict
+			
 			ConstraintDatabase r1 = new ConstraintDatabase();
 			r1.add(new AllenConstraint("?S1 Before ?S2 [1,10]"));
 			ic.addResolver(r1);
@@ -366,6 +366,9 @@ public class TestInteractionConstraints extends TestCase {
 			cM.set("icResolver","class","InteractionConstraintSolver");
 			cM.set("icResolver","consistencyChecker","checker");
 			
+			cM.set("icResolver","verbose","true");
+			cM.set("icResolver","verbosity","4");
+					
 			Module icResolver = ModuleFactory.initModule("icResolver",cM);
 			
 			/**
@@ -772,7 +775,7 @@ public class TestInteractionConstraints extends TestCase {
 			s.add(new Statement("(s3 p c)"));
 			s.add(new Statement("(s4 q d)"));
 			s.add( new AllenConstraint("s3 After s4 [1,10]"));
-			ConstraintCollection C = new ConstraintCollection();
+			ConstraintDatabase C = new ConstraintDatabase();
 			C.add(new IncludedProgram(bkbName,"good(a)."));
 			C.add(new IncludedProgram(bkbName,"good(b)."));
 			
@@ -817,7 +820,7 @@ public class TestInteractionConstraints extends TestCase {
 			tM.attachTypes("p=t");
 			tM.attachTypes("q=t");
 			testCore.setTypeManager(tM);
-			testCore.getContext().addConstraints(C);
+			testCore.getContext().addAll(C);
 			
 			testCore = icResolver.run(testCore);
 			
@@ -844,7 +847,7 @@ public class TestInteractionConstraints extends TestCase {
 			s.add(new Statement("(s2 q ?Y)"));
 			s.add(new Statement("(s3 p c)"));
 			s.add(new Statement("(s4 q d)"));
-			ConstraintCollection C = new ConstraintCollection();
+			ConstraintDatabase C = new ConstraintDatabase();
 			C.add(new IncludedProgram(bkbName, "good(a)."));
 			C.add(new IncludedProgram(bkbName, "good(b)."));
 			
@@ -910,7 +913,7 @@ public class TestInteractionConstraints extends TestCase {
 			tM.attachTypes("p=t");
 			tM.attachTypes("q=t");
 			testCore.setTypeManager(tM);
-			testCore.getContext().addConstraints(C);
+			testCore.getContext().addAll(C);
 			
 			testCore = icResolver.run(testCore);
 	

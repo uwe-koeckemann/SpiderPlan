@@ -37,7 +37,6 @@ import org.spiderplan.prolog.YapPrologAdapter;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.CustomConstraint;
 import org.spiderplan.representation.constraints.GraphConstraint;
 import org.spiderplan.representation.constraints.Interval;
@@ -67,9 +66,9 @@ public class ConsistencyChecker {
 	public boolean check( Core c ) {
 		warnings = 0;
 		
-		ConstraintCollection allCons = new ConstraintCollection();
+		ConstraintDatabase allCons = new ConstraintDatabase();
 		//allCons.addAll(c.getConstraints());
-		allCons.addAll(c.getContext().getConstraints());
+		allCons.addAll(c.getContext());
 		
 		if ( keepTimes ) StopWatch.start("Checking types");
 		if ( !checkTypes( c.getTypeManager() ) ) {
@@ -137,7 +136,7 @@ public class ConsistencyChecker {
 		}
 
 		ArrayList<Statement> all = new ArrayList<Statement>();
-		all.addAll(init.getStatements());
+		all.addAll(init.get(Statement.class));
 
 		for ( Statement s : all ) {
 			for ( int i = 0 ; i < s.getVariable().getNumArgs(); i++ ) {
@@ -413,17 +412,23 @@ public class ConsistencyChecker {
 			
 			oCopy = o.copy();
 					
-			boolean temporalConstraintsGround = true;
+//			boolean temporalConstraintsGround = true;
 			
 			ConstraintDatabase check = new ConstraintDatabase();
 			
-			check.addStatements(oCopy.getPreconditions());
-			check.addStatements(oCopy.getEffects());
-			check.addConstraints(oCopy.getConstraints());
+			for ( Statement p : oCopy.getPreconditions() ) {
+				check.add(p);
+			}
+//			check.addConstraints(oCopy.getPreconditions());
+			for ( Statement e : oCopy.getEffects() ) {
+				check.add(e);
+			}
+//			check.addStatements(oCopy.getEffects());
+			check.addAll(oCopy.getConstraints());
 			check.add(oCopy.getNameStateVariable());
 
 			
-//			for ( AllenConstraint tC : check.getConstraints().get(AllenConstraint.class) ) {
+//			for ( AllenConstraint tC : check.get(AllenConstraint.class) ) {
 //				temporalConstraintsGround &= tC.isGround();
 //			}
 			

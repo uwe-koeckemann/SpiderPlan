@@ -148,8 +148,8 @@ public class TestConstraintDatabases extends TestCase {
 		
 		Substitution theta = new Substitution("{X/a,Y/b}");
 		
-		assertTrue( cDB1.difference(cDB2).getConstraints().size() == 2 );
-		assertTrue( cDB2.difference(cDB1).getConstraints().size() == 2 );
+		assertTrue( cDB1.difference(cDB2).size() == 2 );
+		assertTrue( cDB2.difference(cDB1).size() == 2 );
 				
 		cDB1.substitute(theta);		
 	}
@@ -169,7 +169,7 @@ public class TestConstraintDatabases extends TestCase {
 		
 		TemporalNetworkTools.compressTemporalConstraints(cDB);
 			
-		assertTrue(cDB.getStatements().size() == 3);
+		assertTrue(cDB.get(Statement.class).size() == 3);
 	}
 	
 	public void testCompression2()  {
@@ -188,7 +188,7 @@ public class TestConstraintDatabases extends TestCase {
 		
 		TemporalNetworkTools.compressTemporalConstraints(cDB);
 		
-		assertTrue(cDB.getConstraints().size() == 3);
+		assertTrue(cDB.size() == 3);
 	}	
 	
 	public void testCompression3()  {
@@ -206,7 +206,7 @@ public class TestConstraintDatabases extends TestCase {
 				
 		TemporalNetworkTools.compressTemporalConstraints(cDB);
 		
-		assertTrue(cDB.getConstraints().size() == 5);
+		assertTrue(cDB.size() == 5);
 	}
 	
 	public void testSetToCount()  {
@@ -220,7 +220,7 @@ public class TestConstraintDatabases extends TestCase {
 		Map<Class,Integer> cCount = cDB.getConstraintCount();
 		cDB.setToConstraintCount(cCount);
 		
-		assertTrue(cDB.getConstraints().size() == 4);
+		assertTrue(cDB.size() == 4);
 		
 		cDB.add(new Cost(new Atomic("(add c 10)")));
 		
@@ -229,11 +229,11 @@ public class TestConstraintDatabases extends TestCase {
 		cDB.add(new AllenConstraint("goal_30 Equals c3"));
 		cDB.add(new AllenConstraint("e1_20 Equals THIS_20_41"));
 		
-		assertTrue(cDB.getConstraints().size() == 9);
+		assertTrue(cDB.size() == 9);
 		
 		cDB.setToConstraintCount(cCount);
 						
-		assertTrue(cDB.getConstraints().size() == 4);
+		assertTrue(cDB.size() == 4);
 	}
 	
 }

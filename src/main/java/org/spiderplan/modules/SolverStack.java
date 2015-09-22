@@ -196,7 +196,7 @@ public class SolverStack extends Module {
 //					if ( keepTimes ) StopWatch.stop(msg("Copy"));
 					
 					// TODO: this is a hack
-					Collection<AppliedPlan> plans = r.getConstraintDatabase().getConstraints().get(AppliedPlan.class);
+					Collection<AppliedPlan> plans = r.getConstraintDatabase().get(AppliedPlan.class);
 					if ( !plans.isEmpty() ) {
 						currentCore.setPlan(plans.iterator().next().getPlan());
 					}

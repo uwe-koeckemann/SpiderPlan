@@ -141,7 +141,7 @@ public class GraphSolver extends Module implements SolverInterface {
 		
 		boolean isConsistent = true;
 		
-		Collection<GraphConstraint> C = core.getContext().getConstraints().get(GraphConstraint.class);
+		Collection<GraphConstraint> C = core.getContext().get(GraphConstraint.class);
 		
 		Collection<Term> directedGraphs = new HashSet<Term>();
 		Collection<Term> undirectedGraphs = new HashSet<Term>();

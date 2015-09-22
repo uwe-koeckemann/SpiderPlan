@@ -27,9 +27,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.PrologConstraint;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -72,12 +72,12 @@ public class PrologTools {
 	 * @return A {@link Collection} of {@link Substitution}s that satisfy
 	 * the {@link PrologConstraint}s of <i>o</i>. 
 	 */
-	public static Collection<Substitution> getSubstitutionsSatisfyingRelationalConstraints( Operator o, ConstraintCollection C ) {
+	public static Collection<Substitution> getSubstitutionsSatisfyingRelationalConstraints( Operator o, ConstraintDatabase C ) {
 		Collection<Substitution> r = new ArrayList<Substitution>();
 		
 		Collection<PrologConstraint> cRels = C.get(PrologConstraint.class);
 		
-		ConstraintCollection thisConstColl = new ConstraintCollection();
+		ConstraintDatabase thisConstColl = new ConstraintDatabase();
 		thisConstColl.addAll(o.getConstraints());
 		Collection<PrologConstraint> thisRels = thisConstColl.get(PrologConstraint.class);
 				

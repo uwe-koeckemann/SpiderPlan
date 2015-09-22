@@ -100,7 +100,7 @@ public class OpenGoalResolverSingleFlaw extends Module implements SolverInterfac
 	public SolverResult testAndResolve(Core core) {	
 		AllFIFO flawSelector = new AllFIFO(); // Variable ordering heuristic 
 	
-		for ( OpenGoal og : core.getContext().getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal og : core.getContext().get(OpenGoal.class) ) {
 			if ( !og.isAsserted() ) {
 				flawSelector.add(og);
 			}
@@ -154,7 +154,7 @@ public class OpenGoalResolverSingleFlaw extends Module implements SolverInterfac
 		 * 		Note: Using "temporal unification" (with EQUALS constraint),
 		 * 			  since the statements s and e already have ground keys.
 		 */
-		for ( Statement s : cDB.getConstraints().get(Statement.class) ) {
+		for ( Statement s : cDB.get(Statement.class) ) {
 			Substitution theta = g.getStatement().matchWithoutKey(s);
 			if ( theta != null ) {
 				AllenConstraint causalLink = new AllenConstraint(s.getKey(), g.getStatement().getKey(), TemporalRelation.Equals);
@@ -200,8 +200,11 @@ public class OpenGoalResolverSingleFlaw extends Module implements SolverInterfac
 						 * Add elements that operator provides (effects and constraints)
 						 */
 						resDB.add(resOp.getNameStateVariable());
-						resDB.addStatements(resOp.getEffects());
-						resDB.addConstraints(resOp.getConstraints());
+						for ( Statement eff : resOp.getEffects() ) {
+							resDB.add(eff);
+						}
+//						resDB.addStatements(resOp.getEffects());
+						resDB.addAll(resOp.getConstraints());
 						
 						/**
 						 * Preconditions become OpenGoals

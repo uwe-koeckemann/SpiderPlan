@@ -156,8 +156,8 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 //		
 //		if ( keepStats ) {
 //			ArrayList<InteractionConstraint> ICs = new ArrayList<InteractionConstraint>();
-//			//ICs.addAll(core.getConstraints().get(InteractionConstraint.class));		
-//			ICs.addAll(core.getContext().getConstraints().get(InteractionConstraint.class));
+//			//ICs.addAll(core.get(InteractionConstraint.class));		
+//			ICs.addAll(core.getContext().get(InteractionConstraint.class));
 //					
 //			for ( InteractionConstraint ic : ICs ) {
 //				for ( int i = 0 ; i < ic.getResolvers().size() ; i++ ) {
@@ -186,8 +186,8 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 //		
 //		if ( keepStats ) {
 //			ArrayList<InteractionConstraint> ICs = new ArrayList<InteractionConstraint>();
-////			ICs.addAll(core.getConstraints().get(InteractionConstraint.class));		
-//			ICs.addAll(core.getContext().getConstraints().get(InteractionConstraint.class));
+////			ICs.addAll(core.get(InteractionConstraint.class));		
+//			ICs.addAll(core.getContext().get(InteractionConstraint.class));
 //					
 //			for ( InteractionConstraint ic : ICs ) {
 //				if ( ic.isAsserted() ) {
@@ -211,10 +211,10 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 //	private Core resolveOneConflict(Core core) {
 //				
 //		ArrayList<InteractionConstraint> ICs = new ArrayList<InteractionConstraint>();
-//		ICs.addAll(core.getContext().getConstraints().get(InteractionConstraint.class));
+//		ICs.addAll(core.getContext().get(InteractionConstraint.class));
 //				
 //		ConstraintDatabase cdb = core.getContext().copy();
-//		for ( OpenGoal og : cdb.getConstraints().get(OpenGoal.class)) {
+//		for ( OpenGoal og : cdb.get(OpenGoal.class)) {
 //			cdb.add(og.getStatement());
 //		}
 //		TemporalNetworkTools.compressTemporalConstraints(cdb);				
@@ -249,12 +249,12 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 ////						ArrayList<InteractionConstraint> icsInCoreGlobal = new ArrayList<InteractionConstraint>();
 //						ArrayList<InteractionConstraint> icsInCoreContext = new ArrayList<InteractionConstraint>();
 //						
-////						for ( InteractionConstraint icIn : core.getConstraints().get(InteractionConstraint.class) ) {
+////						for ( InteractionConstraint icIn : core.get(InteractionConstraint.class) ) {
 ////							if ( !icIn.isAsserted() ) {
 ////								icsInCoreGlobal.add(icIn);
 ////							}
 ////						}
-//						for ( InteractionConstraint icIn : core.getContext().getConstraints().get(InteractionConstraint.class) ) {
+//						for ( InteractionConstraint icIn : core.getContext().get(InteractionConstraint.class) ) {
 //							if ( !icIn.isAsserted() ) {
 //								icsInCoreContext.add(icIn);
 //							}
@@ -374,24 +374,24 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 				
 		if ( keepTimes ) StopWatch.start(msg("1) Preparing"));
 		ArrayList<InteractionConstraint> ICs = new ArrayList<InteractionConstraint>();
-		ICs.addAll(core.getContext().getConstraints().get(InteractionConstraint.class));
+		ICs.addAll(core.getContext().get(InteractionConstraint.class));
 				
 		ConstraintDatabase cdb = core.getContext().copy();
-		for ( OpenGoal og : cdb.getConstraints().get(OpenGoal.class)) {
+		for ( OpenGoal og : cdb.get(OpenGoal.class)) {
 			cdb.add(og.getStatement());
 		}
 			
 //		TemporalNetworkTools.compressTemporalConstraints(cdb);
 				
 		ArrayList<InteractionConstraint> icsInCoreContext = new ArrayList<InteractionConstraint>();	
-		for ( InteractionConstraint icIn : core.getContext().getConstraints().get(InteractionConstraint.class) ) {
+		for ( InteractionConstraint icIn : core.getContext().get(InteractionConstraint.class) ) {
 			if ( !icIn.isAsserted() ) {
 				icsInCoreContext.add(icIn);
 			}
 		}
 		
 		ConstraintDatabase enabledDB = core.getContext().copy();
-		enabledDB.getConstraints().removeAll(icsInCoreContext);	// (a) We only consider ICs belonging to the tested condition
+		enabledDB.removeAll(icsInCoreContext);	// (a) We only consider ICs belonging to the tested condition
 		Map<Class,Integer> cCount = enabledDB.getConstraintCount();
 		
 		
@@ -440,7 +440,7 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 						icCopy.substitute(enabler);
 	
 						Asserted a = new Asserted(icCopy);
-						if ( cdb.getConstraints().contains(a) ) {
+						if ( cdb.contains(a) ) {
 							if ( keepTimes ) StopWatch.stop(msg("4) Preparing enabled IC"));
 							enablerSearch.advance(false);
 							continue;
@@ -465,17 +465,16 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 							if ( keepTimes ) StopWatch.start(msg("6) Preparing condition"));
 							
 							List<Statement> remList = new ArrayList<Statement>();
-							List<Statement> S = enabledDB.getConstraints().get(Statement.class);
+							List<Statement> S = enabledDB.get(Statement.class);
 							
-							for ( Statement s : icCopy.getCondition().getConstraints().get(Statement.class)){
+							for ( Statement s : icCopy.getCondition().get(Statement.class)){
 								if ( !S.contains(s)) {
 									remList.add(s);
 								}
 							}
-	
-							enabledDB.addConstraints(icCopy.getCondition().getConstraints());
-							enabledDB.getConstraints().removeAll(remList);
-							
+
+							enabledDB.addAll(icCopy.getCondition());
+							enabledDB.removeAll(remList);
 							
 							if ( verbose ) Logger.msg(getName() ,"Trying condition for " + icCopy.getName(), 2);
 							

@@ -156,8 +156,8 @@ public class InteractionConstraintSolverBruteForce extends Module implements Sol
 //		
 //		if ( keepStats ) {
 //			ArrayList<InteractionConstraint> ICs = new ArrayList<InteractionConstraint>();
-//			//ICs.addAll(core.getConstraints().get(InteractionConstraint.class));		
-//			ICs.addAll(core.getContext().getConstraints().get(InteractionConstraint.class));
+//			//ICs.addAll(core.get(InteractionConstraint.class));		
+//			ICs.addAll(core.getContext().get(InteractionConstraint.class));
 //					
 //			for ( InteractionConstraint ic : ICs ) {
 //				for ( int i = 0 ; i < ic.getResolvers().size() ; i++ ) {
@@ -186,8 +186,8 @@ public class InteractionConstraintSolverBruteForce extends Module implements Sol
 //		
 //		if ( keepStats ) {
 //			ArrayList<InteractionConstraint> ICs = new ArrayList<InteractionConstraint>();
-////			ICs.addAll(core.getConstraints().get(InteractionConstraint.class));		
-//			ICs.addAll(core.getContext().getConstraints().get(InteractionConstraint.class));
+////			ICs.addAll(core.get(InteractionConstraint.class));		
+//			ICs.addAll(core.getContext().get(InteractionConstraint.class));
 //					
 //			for ( InteractionConstraint ic : ICs ) {
 //				if ( ic.isAsserted() ) {
@@ -211,10 +211,10 @@ public class InteractionConstraintSolverBruteForce extends Module implements Sol
 //	private Core resolveOneConflict(Core core) {
 //				
 //		ArrayList<InteractionConstraint> ICs = new ArrayList<InteractionConstraint>();
-//		ICs.addAll(core.getContext().getConstraints().get(InteractionConstraint.class));
+//		ICs.addAll(core.getContext().get(InteractionConstraint.class));
 //				
 //		ConstraintDatabase cdb = core.getContext().copy();
-//		for ( OpenGoal og : cdb.getConstraints().get(OpenGoal.class)) {
+//		for ( OpenGoal og : cdb.get(OpenGoal.class)) {
 //			cdb.add(og.getStatement());
 //		}
 //		TemporalNetworkTools.compressTemporalConstraints(cdb);				
@@ -249,12 +249,12 @@ public class InteractionConstraintSolverBruteForce extends Module implements Sol
 ////						ArrayList<InteractionConstraint> icsInCoreGlobal = new ArrayList<InteractionConstraint>();
 //						ArrayList<InteractionConstraint> icsInCoreContext = new ArrayList<InteractionConstraint>();
 //						
-////						for ( InteractionConstraint icIn : core.getConstraints().get(InteractionConstraint.class) ) {
+////						for ( InteractionConstraint icIn : core.get(InteractionConstraint.class) ) {
 ////							if ( !icIn.isAsserted() ) {
 ////								icsInCoreGlobal.add(icIn);
 ////							}
 ////						}
-//						for ( InteractionConstraint icIn : core.getContext().getConstraints().get(InteractionConstraint.class) ) {
+//						for ( InteractionConstraint icIn : core.getContext().get(InteractionConstraint.class) ) {
 //							if ( !icIn.isAsserted() ) {
 //								icsInCoreContext.add(icIn);
 //							}
@@ -374,24 +374,24 @@ public class InteractionConstraintSolverBruteForce extends Module implements Sol
 				
 		if ( keepTimes ) StopWatch.start(msg("1) Preparing"));
 		ArrayList<InteractionConstraint> ICs = new ArrayList<InteractionConstraint>();
-		ICs.addAll(core.getContext().getConstraints().get(InteractionConstraint.class));
+		ICs.addAll(core.getContext().get(InteractionConstraint.class));
 				
 		ConstraintDatabase cdb = core.getContext().copy();
-		for ( OpenGoal og : cdb.getConstraints().get(OpenGoal.class)) {
+		for ( OpenGoal og : cdb.get(OpenGoal.class)) {
 			cdb.add(og.getStatement());
 		}
 			
 		TemporalNetworkTools.compressTemporalConstraints(cdb);
 				
 		ArrayList<InteractionConstraint> icsInCoreContext = new ArrayList<InteractionConstraint>();	
-		for ( InteractionConstraint icIn : core.getContext().getConstraints().get(InteractionConstraint.class) ) {
+		for ( InteractionConstraint icIn : core.getContext().get(InteractionConstraint.class) ) {
 			if ( !icIn.isAsserted() ) {
 				icsInCoreContext.add(icIn);
 			}
 		}
 		
 		ConstraintDatabase enabledDB = core.getContext().copy();
-		enabledDB.getConstraints().removeAll(icsInCoreContext);	// (a) We only consider ICs belonging to the tested condition
+		enabledDB.removeAll(icsInCoreContext);	// (a) We only consider ICs belonging to the tested condition
 		Map<Class,Integer> cCount = enabledDB.getConstraintCount();
 		
 		
@@ -439,7 +439,7 @@ public class InteractionConstraintSolverBruteForce extends Module implements Sol
 //					
 //					if ( keepTimes ) StopWatch.start(msg("4c) Preparing enabled IC (asserting)"));
 					Asserted a = new Asserted(icCopy);
-					if ( cdb.getConstraints().contains(a) ) {
+					if ( cdb.contains(a) ) {
 						if ( keepTimes ) StopWatch.stop(msg("4) Preparing enabled IC"));
 						continue;
 					}
@@ -468,18 +468,18 @@ public class InteractionConstraintSolverBruteForce extends Module implements Sol
 
 						
 						
-						enabledDB.addConstraints(icCopy.getCondition().getConstraints());
+						enabledDB.addAll(icCopy.getCondition());
 						
 //						if ( verbose ) Logger.msg(getName() ,"Enabler: " + enabler, 2);
 						if ( verbose ) Logger.msg(getName() ,"Trying condition for " + icCopy.getName(), 2);
 						
-//						for ( InteractionConstraint icEn : enabledDB.getConstraints().get(InteractionConstraint.class) ) {
+//						for ( InteractionConstraint icEn : enabledDB.get(InteractionConstraint.class) ) {
 //							if ( !icEn.isAsserted() ) {
 //								Logger.msg(getName() ,icEn.toString(), 2);
 //							}
 //						}
 //						
-//						for ( Statement s : enabledDB.getConstraints().get(Statement.class) ) {
+//						for ( Statement s : enabledDB.get(Statement.class) ) {
 //							Logger.msg(getName() ,s.toString(), 2);
 //						}
 						if ( verbose ) Logger.depth++;

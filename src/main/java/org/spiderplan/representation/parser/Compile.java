@@ -158,7 +158,7 @@ public class Compile {
 			 * Make all keys in initial context ground
 			 */
 			Substitution theta = new Substitution();
-			for ( Statement s : c.getContext().getStatements() ) {
+			for ( Statement s : c.getContext().get(Statement.class) ) {
 				if ( s.getKey().isVariable() ) {
 					Term newKey = s.getKey().makeConstant();
 					theta.add(s.getKey(),newKey);
@@ -419,10 +419,10 @@ public class Compile {
 	 private static void PDDLpostProcessing() {
 		 Term programID = Term.createConstant("pddlKB");
 		 ArrayList<Atomic> moveToBK = new ArrayList<Atomic>();
-		for ( Statement s : c.getContext().getStatements() ) {
+		for ( Statement s : c.getContext().get(Statement.class) ) {
 			boolean canChange = false;
 			
-			for ( Statement s2 : c.getContext().getStatements()) {
+			for ( Statement s2 : c.getContext().get(Statement.class) ) {
 				if ( !s.equals(s2) && s.getVariable().equals(s2.getVariable()) && !s.getValue().equals(s2.getValue())) {
 					canChange = true;
 				}
@@ -455,7 +455,7 @@ public class Compile {
 			 */
 			ArrayList<Statement> remList = new ArrayList<Statement>();
 			ArrayList<Term> remKeys = new ArrayList<Term>();
-			for ( Statement s : c.getContext().getStatements() ) {
+			for ( Statement s : c.getContext().get(Statement.class) ) {
 				if ( s.getVariable().equals(var) ) {
 					remList.add(s);
 					remKeys.add(s.getKey());
@@ -469,7 +469,7 @@ public class Compile {
 					}
 				}
 			}
-			c.getContext().getStatements().removeAll(remList);					
+			c.getContext().removeAll(remList);					
 			TemporalNetworkTools.removeTemporalConstraintsWithKeys(c.getContext(), remKeys);
 
 			/**
@@ -584,9 +584,9 @@ public class Compile {
 		}
 		
 		ArrayList<PrologConstraint> allRelCons = new ArrayList<PrologConstraint>();
-		allRelCons.addAll(c.getContext().getConstraints().get(PrologConstraint.class));
-//		allRelCons.addAll(c.getGoalContext().getConstraints().get(RelationalConstraint.class));
-		//allRelCons.addAll(c.getConstraints().get(RelationalConstraint.class));
+		allRelCons.addAll(c.getContext().get(PrologConstraint.class));
+//		allRelCons.addAll(c.getGoalContext().get(RelationalConstraint.class));
+		//allRelCons.addAll(c.get(RelationalConstraint.class));
 		for ( Operator o : c.getOperators() ) {
 			for ( Constraint con : o.getConstraints() ) {
 				if ( con instanceof PrologConstraint ) {
@@ -611,7 +611,7 @@ public class Compile {
 		}
 		
 		
-		for ( Statement s : c.getContext().getStatements() ) {
+		for ( Statement s : c.getContext().get(Statement.class) ) {
 			for ( int i = 0 ; i < s.getVariable().getNumArgs() ; i++ ) {
 				t = tM.getPredicateTypes(s.getVariable().getUniqueName(), i);
 				if ( allGroundOccurences.containsKey(t) ) { 

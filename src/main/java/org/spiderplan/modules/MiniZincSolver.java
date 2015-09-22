@@ -124,8 +124,8 @@ public class MiniZincSolver extends Module implements SolverInterface {
 
 	@Override
 	public SolverResult testAndResolve(Core core) {
-		Collection<MiniZincConstraint> C = core.getContext().getConstraints().get(MiniZincConstraint.class)	;
-		Collection<IncludedProgram> B = core.getContext().getConstraints().get(IncludedProgram.class);
+		Collection<MiniZincConstraint> C = core.getContext().get(MiniZincConstraint.class)	;
+		Collection<IncludedProgram> B = core.getContext().get(IncludedProgram.class);
 		
 		Set<Term> reqOutput = new HashSet<Term>();
 		

@@ -92,7 +92,7 @@ public class POCLNode extends MultiHeuristicNode {
 		
 	@Override
 	public int depth() {
-		return resolver.getConstraintDatabase().getConstraints().get(Operator.class).size();
+		return resolver.getConstraintDatabase().get(Operator.class).size();
 	}
 
 	@Override

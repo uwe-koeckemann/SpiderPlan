@@ -80,7 +80,7 @@ public class FinallySolver extends Module implements SolverInterface {
 		
 		ConstraintDatabase resDB = new ConstraintDatabase();
 		
-		for ( Finally finCon: core.getContext().getConstraints().get(Finally.class)) {
+		for ( Finally finCon: core.getContext().get(Finally.class)) {
 			if ( !finCon.isAsserted() ) {
 				finCon.apply(resDB);
 				resDB.add(new Asserted(finCon));

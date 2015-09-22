@@ -32,7 +32,6 @@ import org.spiderplan.prolog.PrologTools;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.OpenGoal;
 import org.spiderplan.representation.constraints.Statement;
 import org.spiderplan.representation.constraints.VariableDomainRestriction;
@@ -67,14 +66,14 @@ public class CausalReasoningTools {
 			}
 		}
 		
-		for ( OpenGoal g : cDB.getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal g : cDB.get(OpenGoal.class) ) {
 			usedVars.add(g.getStatement().getVariable().getUniqueName());
 		}
 		
 		return usedVars;
 	}
 	
-	public static Collection<Operator> getApplicableToMultiState( HashMap<Atomic,Collection<Term>> sReachableValues, Collection<Operator> O, ConstraintCollection C, Set<String> usedVars, TypeManager tM ) {
+	public static Collection<Operator> getApplicableToMultiState( HashMap<Atomic,Collection<Term>> sReachableValues, Collection<Operator> O, ConstraintDatabase C, Set<String> usedVars, TypeManager tM ) {
 		ArrayList<StateVariableOperatorMultiState> svOperators = new ArrayList<StateVariableOperatorMultiState>();
 		HashMap<StateVariableOperatorMultiState,Operator> origOperatorLookUp = new HashMap<StateVariableOperatorMultiState, Operator>();
 

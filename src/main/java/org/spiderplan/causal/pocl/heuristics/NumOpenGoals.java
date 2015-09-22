@@ -42,13 +42,13 @@ public class NumOpenGoals implements Heuristic {
 	@Override
 	public long calculateHeuristicValue( ConstraintDatabase cDB, Collection<Operator> O) {
 		int openGoals = 0;
-		for ( OpenGoal og : cDB.getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal og : cDB.get(OpenGoal.class) ) {
 			if ( !og.isAsserted() ) {
 				openGoals++;
 			}
 		}
 		
-		return openGoals + cDB.getConstraints().get(Operator.class).size();
+		return openGoals + cDB.get(Operator.class).size();
 	}
 
 }

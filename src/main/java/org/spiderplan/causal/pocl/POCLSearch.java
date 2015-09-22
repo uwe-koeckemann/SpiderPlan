@@ -94,7 +94,7 @@ public class POCLSearch extends MultiQueueSearch {
 		initPPlan.openGoals = new AllLIFO();
 		initPPlan.context = init.copy();
 		
-		for ( OpenGoal og : init.getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal og : init.get(OpenGoal.class) ) {
 			initPPlan.openGoals.add(og);
 		}
 		
@@ -143,7 +143,7 @@ public class POCLSearch extends MultiQueueSearch {
 			
 			if ( allSubst != null ) {
 				succ.openGoals = p.openGoals.copy();		
-				for ( OpenGoal newGoal : r.getConstraintDatabase().getConstraints().get(OpenGoal.class)) {
+				for ( OpenGoal newGoal : r.getConstraintDatabase().get(OpenGoal.class)) {
 					succ.openGoals.add(newGoal);
 				}
 				succ.pred = p;
@@ -158,7 +158,7 @@ public class POCLSearch extends MultiQueueSearch {
 				for ( int i = 0 ; i < heuristics.size() ; i++ ) {
 					long hVal = heuristics.get(i).calculateHeuristicValue(succ.context, O); 
 					
-					hVal += r.getConstraintDatabase().getConstraints().get(Operator.class).size(); // h(n) + g(n)
+					hVal += r.getConstraintDatabase().get(Operator.class).size(); // h(n) + g(n)
 					
 					if ( verbose ) Logger.msg(getName(), this.heuristics.get(i).getClass().getSimpleName() + " = " + hVal, 1);
 									
@@ -203,7 +203,7 @@ public class POCLSearch extends MultiQueueSearch {
 		 * 		Note: Using "temporal unification" (with EQUALS constraint),
 		 * 			  since the statements s and e already have ground keys.
 		 */
-		for ( Statement s : cDB.getConstraints().get(Statement.class) ) {
+		for ( Statement s : cDB.get(Statement.class) ) {
 			Substitution theta = g.getStatement().matchWithoutKey(s);
 			if ( theta != null ) {
 				ConstraintDatabase resDB = new ConstraintDatabase();
@@ -251,8 +251,11 @@ public class POCLSearch extends MultiQueueSearch {
 						 * Add elements that operator provides (effects and constraints)
 						 */
 						resDB.add(resOp.getNameStateVariable());
-						resDB.addStatements(resOp.getEffects());
-						resDB.addConstraints(resOp.getConstraints());
+						for ( Statement eff : resOp.getEffects() ) {
+							resDB.add(eff);
+						}
+//						resDB.addStatements(resOp.getEffects());
+						resDB.addAll(resOp.getConstraints());
 						
 						/**
 						 * Preconditions become OpenGoals

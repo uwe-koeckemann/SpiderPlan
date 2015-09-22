@@ -207,10 +207,10 @@ public class ExecutionModule  extends Module {
 		execDB = core.getContext().copy();
 		simDB = new ConstraintDatabase();
 		
-		for ( SimulationConstraint simCon : execDB.getConstraints().get(SimulationConstraint.class) ) {
+		for ( SimulationConstraint simCon : execDB.get(SimulationConstraint.class) ) {
 			if ( simCon.getDispatchTime().toString().equals("on-release")) {
 				simDB.add(simCon.getExecutionTimeDB());
-				for ( Statement s : simCon.getExecutionTimeDB().getConstraints().get(Statement.class) ) {
+				for ( Statement s : simCon.getExecutionTimeDB().get(Statement.class) ) {
 					simList.add(s);
 				}
 			} else {
@@ -232,7 +232,7 @@ public class ExecutionModule  extends Module {
 		/**
 		 * ROS subscriptions
 		 */
-		for ( ROSConstraint rosCon : execDB.getConstraints().get(ROSConstraint.class) ) {
+		for ( ROSConstraint rosCon : execDB.get(ROSConstraint.class) ) {
 			if ( rosCon.getRelation().equals(ROSRelation.PublishTo) ) {
 				ROSProxy.publishToTopic(rosCon.getTopic().toString(), rosCon.getMsg().getName());
 				this.ROSpubs.add(rosCon);
@@ -243,17 +243,17 @@ public class ExecutionModule  extends Module {
 			}
 		}
 		
-		for ( ROSRegisterAction regAction : execDB.getConstraints().get(ROSRegisterAction.class) ) {
+		for ( ROSRegisterAction regAction : execDB.get(ROSRegisterAction.class) ) {
 			ROSProxy.register_action(regAction.getServerID(), regAction.getActionName());
 		}
 		
 		/**
 		 * Reactors for speech
 		 */
-		for ( Statement s : execDB.getStatements() ) {
+		for ( Statement s : execDB.get(Statement.class) ) {
 			if ( s.getVariable().getUniqueName().equals("say/1")) {
 				String text = "";
-				for ( IncludedProgram ip : execDB.getConstraints().get(IncludedProgram.class) ) {
+				for ( IncludedProgram ip : execDB.get(IncludedProgram.class) ) {
 					if ( s.getVariable().getArg(0).equals(ip.getName())) {
 						text += ip.getCode();
 					}
@@ -273,8 +273,8 @@ public class ExecutionModule  extends Module {
 		/**
 		 * Reactors ROS goals
 		 */
-		for ( ROSGoal rosGoal :  execDB.getConstraints().get(ROSGoal.class) ) {
-			for ( Statement s : execDB.getStatements() ) {
+		for ( ROSGoal rosGoal :  execDB.get(ROSGoal.class) ) {
+			for ( Statement s : execDB.get(Statement.class) ) {
 				
 				
 				Substitution subst = rosGoal.getOperatorName().match(s.getVariable());
@@ -438,7 +438,7 @@ public class ExecutionModule  extends Module {
 //			needFromScratch = testCore.getResultingState(repairSolverName).equals(Core.State.Inconsistent);
 			
 			if ( !needFromScratch ) {
-				for ( OpenGoal og : testCore.getContext().getConstraints().get(OpenGoal.class) ) {
+				for ( OpenGoal og : testCore.getContext().get(OpenGoal.class) ) {
 					if ( !og.isAsserted() ) {
 						needFromScratch = true;
 						break;
@@ -510,7 +510,7 @@ public class ExecutionModule  extends Module {
 		 * TODO: set this up in a way that makes it work (keep checking ICs for contingencies and add new reactors)
 		 */
 		if ( !newInformationDispatched ) {
-			int numConstraintsBefore = execDB.getConstraints().size();
+			int numConstraintsBefore = execDB.size();
 			
 			Core core = new Core();
 			core.setTypeManager(tM);
@@ -521,7 +521,7 @@ public class ExecutionModule  extends Module {
 			
 			execDB = core.getContext();
 			
-			if ( execDB.getConstraints().size() != numConstraintsBefore ) {
+			if ( execDB.size() != numConstraintsBefore ) {
 				newInformationDispatched = true;
 			}
 		}
@@ -608,8 +608,8 @@ public class ExecutionModule  extends Module {
 			}
 			
 			/* ROS goals */
-			for ( ROSGoal rosGoal :  execDB.getConstraints().get(ROSGoal.class) ) {
-				for ( Statement s : execDB.getStatements() ) {
+			for ( ROSGoal rosGoal :  execDB.get(ROSGoal.class) ) {
+				for ( Statement s : execDB.get(Statement.class) ) {
 					if ( !execList.contains(s) && !doneList.contains(s) && !hasReactorList.contains(s) ) {
 						if ( hasReactorList.contains(s) ) {
 							throw new IllegalStateException("Statement " + s + " has multiple reactors... This cannot be good!");
@@ -714,11 +714,11 @@ public class ExecutionModule  extends Module {
 				}
 			}
 			/* Speech reactors */
-			for ( Statement s : execDB.getStatements() ) {
+			for ( Statement s : execDB.get(Statement.class) ) {
 				if ( s.getVariable().getUniqueName().equals("say/1")) {
 					if ( !execList.contains(s) && !doneList.contains(s) && !hasReactorList.contains(s) ) {
 						String text = "";
-						for ( IncludedProgram ip : execDB.getConstraints().get(IncludedProgram.class) ) {
+						for ( IncludedProgram ip : execDB.get(IncludedProgram.class) ) {
 							if ( s.getVariable().getArg(0).equals(ip.getName())) {
 								text += ip.getCode();
 							}
@@ -789,12 +789,12 @@ public class ExecutionModule  extends Module {
 				if ( simList.contains(r.target) ) {
 					if ( !addedCons.isEmpty() && !addedCons.equals(addedConstraints.get(r.target)) ) {
 						if ( addedConstraints.get(r.target) != null ) {
-							execDB.getConstraints().removeAll(addedConstraints.get(r.target));
-							addedOnReleaseDB.getConstraints().removeAll(addedConstraints.get(r.target));
+							execDB.removeAll(addedConstraints.get(r.target));
+							addedOnReleaseDB.removeAll(addedConstraints.get(r.target));
 						}
-						execDB.getConstraints().addAll(addedCons);
-						addedOnReleaseDB.getConstraints().addAll(addedCons);
-						if ( !execDB.getConstraints().contains(r.target) ) {
+						execDB.addAll(addedCons);
+						addedOnReleaseDB.addAll(addedCons);
+						if ( !execDB.contains(r.target) ) {
 							addedOnReleaseDB.add(r.target);
 							execDB.add(r.target);
 						}
@@ -826,7 +826,7 @@ public class ExecutionModule  extends Module {
 		}
 		if ( timeLineViewer != null ) {
 			
-			for ( Statement s : execDB.getStatements() ) {
+			for ( Statement s : execDB.get(Statement.class) ) {
 				try {
 					String tName = s.getVariable().toString();
 					String value = s.getValue().toString(); 
@@ -865,7 +865,7 @@ public class ExecutionModule  extends Module {
 	private ConstraintDatabase getFromScrathDB( ) {
 		fromScratchDBsCreated++;
 		
-		for ( OpenGoal og : execDB.getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal og : execDB.get(OpenGoal.class) ) {
 			execDB.add(og.getStatement());
 		}
 		
@@ -874,10 +874,10 @@ public class ExecutionModule  extends Module {
 			csp.debug = true;
 			csp.isConsistent(execDB, tM);
 			
-			for ( Statement s : execDB.getStatements() ) {
+			for ( Statement s : execDB.get(Statement.class) ) {
 				System.out.println("[S] " + s);
 			}
-			for ( AllenConstraint tc : execDB.getConstraints().get(AllenConstraint.class) ) {
+			for ( AllenConstraint tc : execDB.get(AllenConstraint.class) ) {
 				System.out.println("[T] " + tc);
 			}	
 			
@@ -925,7 +925,7 @@ public class ExecutionModule  extends Module {
 			Logger.msg(getName(), "Checking which statements to keep...", 2);
 			Logger.depth++;
 		}
-		for ( Statement s : execDB.getStatements() ) { 
+		for ( Statement s : execDB.get(Statement.class) ) { 
 
 			if ( !nonExecutedActionIntervals.contains(s.getKey()) &&  ((execCSP.getLST(s.getKey()) < t || execCSP.getLET(s.getKey()) < t)) ) {
 				long EST = execCSP.getEST(s.getKey());
@@ -949,10 +949,10 @@ public class ExecutionModule  extends Module {
 		}
 		
 		PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(fromScratchDB);
-		fromScratchDB.getConstraints().remove(pI);
+		fromScratchDB.remove(pI);
 		fromScratchDB.add(new PlanningInterval(t, tMax));
 		
-		for ( Statement s : fromScratchDB.getConstraints().get(Statement.class) ) {
+		for ( Statement s : fromScratchDB.get(Statement.class) ) {
 			actionIntervals.add(s.getKey());
 		}
 		
@@ -981,7 +981,7 @@ public class ExecutionModule  extends Module {
 			Logger.msg(getName(), "Checking open goals that have been achieved...", 2);
 			Logger.depth++;
 		}
-		for ( OpenGoal og : execDB.getConstraints().get(OpenGoal.class)) {
+		for ( OpenGoal og : execDB.get(OpenGoal.class)) {
 			System.out.println(og);
 			if ( execDB.hasKey(og.getStatement().getKey())) {
 				if ( verbose ) Logger.msg(getName(), "Goal " + og + " with " + og.getStatement().getKey() 
@@ -1020,7 +1020,7 @@ public class ExecutionModule  extends Module {
 				}
 			}
 		}
-		fromScratchDB.addConstraints(reachedGoals);
+		fromScratchDB.addAll(reachedGoals);
 		
 
 				
@@ -1043,10 +1043,16 @@ public class ExecutionModule  extends Module {
 				fromScratchDB.add(aC);
 				
 				fromScratchDB.add(a.getNameStateVariable());
-				fromScratchDB.addStatements(a.getPreconditions());
-				fromScratchDB.addStatements(a.getEffects());
-				fromScratchDB.addConstraints(a.getConstraints());
-				fromScratchDB.addConstraints(addedConstraints.get(a.getNameStateVariable()));
+				for ( Statement p : a.getPreconditions() ) {
+					fromScratchDB.add(p);	
+				}
+//				fromScratchDB.addStatements(a.getPreconditions());
+				for ( Statement e : a.getEffects() ) {
+					fromScratchDB.add(e);	
+				}
+//				fromScratchDB.addStatements(a.getEffects());
+				fromScratchDB.addAll(a.getConstraints());
+				fromScratchDB.addAll(addedConstraints.get(a.getNameStateVariable()));
 			} else {
 				oRemList.add(a);
 			}
@@ -1059,13 +1065,13 @@ public class ExecutionModule  extends Module {
 			Logger.msg(getName(), "Checking ICs that applied or have been resolved in the past", 2);
 			Logger.depth++;
 		}	
-		for ( InteractionConstraint ic : execDB.getConstraints().get(InteractionConstraint.class) ) {
+		for ( InteractionConstraint ic : execDB.get(InteractionConstraint.class) ) {
 			
 			/**
 			 * TODO: This is a hack to fix bug where the index is lost at some point...
 			 * If this is still a problem it has to be fixed in a different way now...
 			 */
-//			for ( Asserted c : execDB.getConstraints().get(Asserted.class) ) {
+//			for ( Asserted c : execDB.get(Asserted.class) ) {
 //				if ( c.appliesTo(ic) ) {
 //					InteractionConstraint ic2 = (InteractionConstraint)c.getConstraint();
 //					ic.setResolverIndex(ic2.getResolverIndex());
@@ -1075,7 +1081,7 @@ public class ExecutionModule  extends Module {
 			if ( ic.isAsserted() ) {
 				boolean allConditionStatementsInPast = true;
 				
-				for ( Statement s : ic.getCondition().getStatements() ) {
+				for ( Statement s : ic.getCondition().get(Statement.class) ) {
 					if ( !(execDB.hasKey(s.getKey()) && (execCSP.getLST(s.getKey()) < t || execCSP.getLET(s.getKey()) < t)) ) {
 						allConditionStatementsInPast = false;
 						break;
@@ -1083,7 +1089,7 @@ public class ExecutionModule  extends Module {
 				}
 				
 				boolean allResolverStatementsInPast = true;
-				for ( Statement s : ic.getResolvers().get(ic.getResolverIndex()).getStatements() ) {
+				for ( Statement s : ic.getResolvers().get(ic.getResolverIndex()).get(Statement.class) ) {
 					if ( !(execDB.hasKey(s.getKey()) && (execCSP.getLST(s.getKey()) < t || execCSP.getLET(s.getKey()) < t)) ) {
 						allResolverStatementsInPast = false;
 						break;
@@ -1100,13 +1106,13 @@ public class ExecutionModule  extends Module {
 		
 		for ( Constraint c : reachedGoals ) {
 			if ( c instanceof Asserted ) {
-				fromScratchDB.getConstraints().processAsserted((Asserted)c);			
+				fromScratchDB.processAsserted((Asserted)c);			
 			}
 		}
 				
 		if ( verbose ) Logger.depth--;
 		
-		fromScratchDB.addConstraints(executedLinks);
+		fromScratchDB.addAll(executedLinks);
 		fromScratchDB.add(addedSimDBs);
 		fromScratchDB.add(addedOnReleaseDB);
 		fromScratchDB.add(addedByROS);
@@ -1119,10 +1125,10 @@ public class ExecutionModule  extends Module {
 		fromScratchDB.add(dFuture);
 		
 		for ( Statement s : this.startedList ) {
-			fromScratchDB.addConstraints(addedConstraints.get(s));
+			fromScratchDB.addAll(addedConstraints.get(s));
 		}
 		for ( Statement s : this.doneList ) {
-			fromScratchDB.addConstraints(addedConstraints.get(s));
+			fromScratchDB.addAll(addedConstraints.get(s));
 		}
 		
 		for ( Term k : nonExecutedActionIntervals ) {
@@ -1137,10 +1143,10 @@ public class ExecutionModule  extends Module {
 //		for ( Statement s : Global.initialContext.getStatements() ) {
 //			System.out.println("[S] " + s);
 //		}
-//		for ( OpenGoal s : Global.initialContext.getConstraints().get(OpenGoal.class) ) {
+//		for ( OpenGoal s : Global.initialContext.get(OpenGoal.class) ) {
 //			System.out.println("[G] " + s);
 //		}
-//		for ( AllenConstraint tc : Global.initialContext.getConstraints().get(AllenConstraint.class) ) {
+//		for ( AllenConstraint tc : Global.initialContext.get(AllenConstraint.class) ) {
 //			System.out.println("[T] " + tc);
 //		}	
 //		System.out.println("==================================");
@@ -1149,10 +1155,10 @@ public class ExecutionModule  extends Module {
 //		for ( Statement s : fromScratchDB.getStatements() ) {
 //			System.out.println("[S] " + s);
 //		}
-//		for ( OpenGoal s : fromScratchDB.getConstraints().get(OpenGoal.class) ) {
+//		for ( OpenGoal s : fromScratchDB.get(OpenGoal.class) ) {
 //			System.out.println("[G] " + s);
 //		}
-//		for ( AllenConstraint tc : fromScratchDB.getConstraints().get(AllenConstraint.class) ) {
+//		for ( AllenConstraint tc : fromScratchDB.get(AllenConstraint.class) ) {
 //			System.out.println("[T] " + tc);
 //		}
 
@@ -1166,10 +1172,10 @@ public class ExecutionModule  extends Module {
 //		for ( Statement s : fromScratchDB.getStatements() ) {
 //			System.out.println("[S] " + s);
 //		}
-//		for ( OpenGoal s : fromScratchDB.getConstraints().get(OpenGoal.class) ) {
+//		for ( OpenGoal s : fromScratchDB.get(OpenGoal.class) ) {
 //			System.out.println("[G] " + s + " " + s.isAsserted());
 //		}
-//		for ( AllenConstraint tc : fromScratchDB.getConstraints().get(AllenConstraint.class) ) {
+//		for ( AllenConstraint tc : fromScratchDB.get(AllenConstraint.class) ) {
 //			System.out.println("[T] " + tc);
 //		}
 
@@ -1197,7 +1203,7 @@ public class ExecutionModule  extends Module {
 
 		Set<Constraint> writtenInStoneConstraints = new HashSet<Constraint>();
 		
-		for ( Statement s : execDB.getStatements() ) {
+		for ( Statement s : execDB.get(Statement.class) ) {
 			if ( execCSP.hasInterval(s.getKey()) && !doNotAdd.contains(s.getKey()) ) { //TODO: work-around 
 				long EST = execCSP.getEST(s.getKey());
 				long LST = execCSP.getLST(s.getKey());
@@ -1229,7 +1235,7 @@ public class ExecutionModule  extends Module {
 		 */
 
 		Set<Term> connectedToOutside = new HashSet<Term>();
-		for ( AllenConstraint ac : cdb.getConstraints().get(AllenConstraint.class)) {
+		for ( AllenConstraint ac : cdb.get(AllenConstraint.class)) {
 			if ( ac.isBinary() && writtenInStone.contains(ac.getFrom()) && writtenInStone.contains(ac.getTo()) ) {
 				remList.add(ac);
 			} else if ( ac.isUnary() && writtenInStone.contains(ac.getFrom()) ) {
@@ -1251,12 +1257,12 @@ public class ExecutionModule  extends Module {
 			Logger.msg(getName(),"The following statements will be removed...", 2);
 			Logger.depth++;
 		}
-		for ( Statement s : cdb.getStatements() ) {
+		for ( Statement s : cdb.get(Statement.class) ) {
 			if ( writtenInStone.contains(s.getKey()) && !connectedToOutside.contains(s.getKey()) ) {
 				if ( verbose ) Logger.msg(getName(), s.toString(), 2);
 				remList.add(s);
 				
-				for ( AllenConstraint ac : cdb.getConstraints().get(AllenConstraint.class)) {
+				for ( AllenConstraint ac : cdb.get(AllenConstraint.class)) {
 					if ( ac.getFrom().equals(s.getKey()) || (ac.isBinary() && ac.getTo().equals(s.getKey()))) {
 						remList.add(ac);
 						writtenInStoneConstraints.remove(ac);
@@ -1274,31 +1280,31 @@ public class ExecutionModule  extends Module {
 		
 
 		
-		int beforeAC =  (cdb.getConstraints().get(AllenConstraint.class).size());
-		int beforeStatements = (cdb.getConstraints().get(Statement.class).size());
+		int beforeAC =  (cdb.get(AllenConstraint.class).size());
+		int beforeStatements = (cdb.get(Statement.class).size());
 		if ( verbose ) Logger.msg(this.getName(), "Number of constraints (before removal) " + beforeAC, 2);		
 		if ( verbose ) Logger.msg(this.getName(), "Number of statements (before removal) " + beforeStatements, 2);
-		cdb.getConstraints().removeAll(remList);
-		cdb.addConstraints(writtenInStoneConstraints);
+		cdb.removeAll(remList);
+		cdb.addAll(writtenInStoneConstraints);
 		
 		remList.clear();
-		for ( AllenConstraint ac : cdb.getConstraints().get(AllenConstraint.class)) {
+		for ( AllenConstraint ac : cdb.get(AllenConstraint.class)) {
 			if ( !cdb.hasKey(ac.getFrom()) || (ac.isBinary() && !cdb.hasKey(ac.getTo())) ) {
 				remList.add(ac);
 			}
 		}				
-		cdb.getConstraints().removeAll(remList);
+		cdb.removeAll(remList);
 		
-		int afterAC =  (cdb.getConstraints().get(AllenConstraint.class).size());
-		int afterStatements = (cdb.getConstraints().get(Statement.class).size());		
+		int afterAC =  (cdb.get(AllenConstraint.class).size());
+		int afterStatements = (cdb.get(Statement.class).size());		
 				
 //		if ( keepStats ) Module.stats.addLong(msg("FromScratchDB #" +fromScratchDBsCreated+ " removed written in stone"), (long) (remList.size()-writtenInStoneConstraints.size()));
 		if ( verbose ) {
 			Logger.msg(this.getName(), "Removed " + (beforeAC-afterAC) + " temporal constraints whose intervals are fixed anyways." , 2);
 			Logger.msg(this.getName(), "Removed " + (beforeStatements-afterStatements) + " statements whose intervals are fixed anyways." , 2);
-			Logger.msg(this.getName(), "Final number of temporal constraints " + (long) (cdb.getConstraints().get(AllenConstraint.class).size())  , 2);
-			Logger.msg(this.getName(), "Final number of statements " + (cdb.getConstraints().get(Statement.class).size()) , 2);
-			Logger.msg(this.getName(), "Final number of constraints " + (long) (cdb.getConstraints().size()) , 2);
+			Logger.msg(this.getName(), "Final number of temporal constraints " + (long) (cdb.get(AllenConstraint.class).size())  , 2);
+			Logger.msg(this.getName(), "Final number of statements " + (cdb.get(Statement.class).size()) , 2);
+			Logger.msg(this.getName(), "Final number of constraints " + (long) (cdb.size()) , 2);
 			Logger.depth--;
 		}
 	}
@@ -1334,7 +1340,7 @@ public class ExecutionModule  extends Module {
 		ConstraintDatabase fromScratchDB = Global.initialContext.copy();
 		
 		if ( verbose ) Logger.msg(getName(), "Collecting achieved goals...", 3);
-		for ( OpenGoal og : execDB.getConstraints().get(OpenGoal.class)) {
+		for ( OpenGoal og : execDB.get(OpenGoal.class)) {
 			if ( verbose ) Logger.msg(getName(), "Setting goal " + og + " as asserted.", 3);
 			fromScratchDB.add(new Asserted(og.copy()));
 			fromScratchDB.add(og.getStatement());
@@ -1342,11 +1348,17 @@ public class ExecutionModule  extends Module {
 		
 		for ( Operator a : executedActions ) {
 			fromScratchDB.add(a.getNameStateVariable());
-			fromScratchDB.addStatements(a.getPreconditions());
-			fromScratchDB.addStatements(a.getEffects());
-			fromScratchDB.addConstraints(a.getConstraints());
+			for ( Statement p : a.getPreconditions() ) {
+				fromScratchDB.add(p);
+			}
+//			fromScratchDB.addStatements(a.getPreconditions());
+			for ( Statement e : a.getEffects() ) {
+				fromScratchDB.add(e);
+			}
+//			fromScratchDB.addStatements(a.getEffects());
+			fromScratchDB.addAll(a.getConstraints());
 		}
-		fromScratchDB.addConstraints(executedLinks);
+		fromScratchDB.addAll(executedLinks);
 		fromScratchDB.add(addedSimDBs);
 //		fromScratchDB.addConstraints(addedConstraints);
 		return fromScratchDB;
@@ -1445,7 +1457,7 @@ public class ExecutionModule  extends Module {
 		for ( ROSConstraint pub : ROSpubs ) {
 			variable = pub.getVariable(); 
 			Statement currentStatement = null;
-			for ( Statement s : execDB.getStatements() ) {
+			for ( Statement s : execDB.get(Statement.class) ) {
 				if ( variable.equals(s.getVariable()) && execCSP.getEST(s.getKey()) <= t && execCSP.getEET(s.getKey()) >= t ) {
 					currentStatement = s;
 					break;
@@ -1470,7 +1482,7 @@ public class ExecutionModule  extends Module {
 	 */
 	public void draw() {
 		timeLineViewer = new TimeLineViewer();
-		for ( Statement s : execDB.getStatements() ) {
+		for ( Statement s : execDB.get(Statement.class) ) {
 			String tName = s.getVariable().toString();
 			String value = s.getValue().toString(); 
 			Term id = s.getKey();

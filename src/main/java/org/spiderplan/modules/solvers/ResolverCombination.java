@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.search.GenericSingleNodeSearch;
 
@@ -60,7 +59,7 @@ public class ResolverCombination extends ResolverIterator {
 	}
 
 	@Override
-	public Resolver next( ConstraintCollection C ) {
+	public Resolver next( ConstraintDatabase C ) {
 		if ( failed ) {
 			return null;
 		}

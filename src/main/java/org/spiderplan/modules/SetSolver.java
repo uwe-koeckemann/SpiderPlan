@@ -74,7 +74,7 @@ public class SetSolver extends Module implements SolverInterface {
 	public SolverResult testAndResolve( Core core ) {
 		boolean isConsistent = true;
 		
-		Collection<SetConstraint> C = core.getContext().getConstraints().get(SetConstraint.class);
+		Collection<SetConstraint> C = core.getContext().get(SetConstraint.class);
 		
 		HashMap<Term,Set<Term>> sets = new HashMap<Term,Set<Term>>();
 		/**

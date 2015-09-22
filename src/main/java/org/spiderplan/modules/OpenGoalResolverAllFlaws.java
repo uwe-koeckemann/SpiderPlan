@@ -103,7 +103,7 @@ public class OpenGoalResolverAllFlaws extends Module implements SolverInterface 
 	@Override
 	public SolverResult testAndResolve(Core core) {	
 		boolean flawExists = false;
-		for ( OpenGoal og : core.getContext().getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal og : core.getContext().get(OpenGoal.class) ) {
 			if ( !og.isAsserted() ) {
 				flawExists = true;
 				break;

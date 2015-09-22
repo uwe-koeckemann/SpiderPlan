@@ -87,7 +87,7 @@ public class MathSolver extends Module implements SolverInterface {
 	public SolverResult testAndResolve(Core core) {
 		boolean isConsistent = true;
 		
-		Collection<MathConstraint> C = core.getContext().getConstraints().get(MathConstraint.class);
+		Collection<MathConstraint> C = core.getContext().get(MathConstraint.class);
 		
 		Substitution theta = new Substitution();
 		
@@ -222,7 +222,7 @@ public class MathSolver extends Module implements SolverInterface {
 		boolean atLeastOneViolation = false;
 		
 		if ( verbose ) Logger.msg(getName(), "Checking inequalities... ", 1);
-		for ( MathConstraint  mathCon : core.getContext().getConstraints().get(MathConstraint.class) ) {
+		for ( MathConstraint  mathCon : core.getContext().get(MathConstraint.class) ) {
 			Atomic relation = mathCon.getRelation();
 			String operator = mathCon.getRelation().name();
 			

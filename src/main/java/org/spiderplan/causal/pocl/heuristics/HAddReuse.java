@@ -43,18 +43,18 @@ public class HAddReuse implements Heuristic {
 	public long calculateHeuristicValue( ConstraintDatabase cDB, Collection<Operator> O ) {
 		long h = 0;
 		
-		for ( OpenGoal og : cDB.getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal og : cDB.get(OpenGoal.class) ) {
 			if ( !og.isAsserted() ) {
 				h += hAddStatement( og.getStatement(), cDB, O );
 			}
 		}
 				
-		return h + cDB.getConstraints().get(Operator.class).size();
+		return h + cDB.get(Operator.class).size();
 	}
 	
 	private long hAddStatement( Statement q, ConstraintDatabase cDB, Collection<Operator> O ) {
 		
-		for ( Statement s : cDB.getStatements() ) {
+		for ( Statement s : cDB.get(Statement.class) ) {
 			if ( q.matchWithoutKey(s) != null ) {
 				return 0;
 			}
@@ -66,7 +66,10 @@ public class HAddReuse implements Heuristic {
 			for ( Statement e : o.getEffects() ) {
 				if ( q.matchWithoutKey(e) != null ) {
 					ConstraintDatabase cdbCopy = cDB.copy();
-					cdbCopy.addStatements(o.copy().getEffects());
+					for ( Statement eff : o.getEffects() ) {
+						cdbCopy.add(eff);
+					}
+//					cdbCopy.addStatements(o.copy().getEffects());
 					long cost = hAddAction( o, cdbCopy, O );
 					if ( cost < minCost ) {
 						minCost = cost;

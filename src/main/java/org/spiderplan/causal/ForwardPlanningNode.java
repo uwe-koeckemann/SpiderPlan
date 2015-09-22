@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.spiderplan.causal.goals.GoalCNF;
-import org.spiderplan.representation.constraints.ConstraintCollection;
+import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.LayeredPlan;
@@ -52,7 +52,7 @@ public class ForwardPlanningNode extends MultiHeuristicNode {
 	public StateVariableOperatorMultiState a;
 	public GoalCNF g = new GoalCNF();
 	
-	public ConstraintCollection C = new ConstraintCollection();
+	public ConstraintDatabase C = new ConstraintDatabase();
 	
 	public ForwardPlanningNode( int numHeuristicValues ) {
 		super(numHeuristicValues);

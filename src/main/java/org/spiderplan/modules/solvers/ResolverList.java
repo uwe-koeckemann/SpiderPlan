@@ -26,7 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
-import org.spiderplan.representation.constraints.ConstraintCollection;
+import org.spiderplan.representation.ConstraintDatabase;
 
 /**
  * Simple extension of {@link ResolverIterator} that uses a {@link LinkedList}.
@@ -54,7 +54,7 @@ public class ResolverList extends ResolverIterator {
 	}
 
 	@Override
-	public Resolver next( ConstraintCollection C ) {
+	public Resolver next( ConstraintDatabase C ) {
 		if ( !R.isEmpty() ) {
 			Resolver r = R.get(0);
 			R.remove(0);

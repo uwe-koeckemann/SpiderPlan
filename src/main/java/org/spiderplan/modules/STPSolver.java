@@ -157,7 +157,7 @@ public class STPSolver extends Module implements SolverInterface {
 		/**
 		 * Add goals for the test
 		 */
-		for ( OpenGoal og : cDB.getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal og : cDB.get(OpenGoal.class) ) {
 			cDB.add(og.getStatement());
 		}
 //		if ( keepTimes ) StopWatch.stop("["+this.getName()+"] Initializing");
@@ -165,7 +165,7 @@ public class STPSolver extends Module implements SolverInterface {
 //		if ( keepStats ) {
 //			HashMap<String,Long> cCount = new HashMap<String, Long>();
 //
-//			for( AllenConstraint c : core.getContext().getConstraints().get(AllenConstraint.class) ) {		
+//			for( AllenConstraint c : core.getContext().get(AllenConstraint.class) ) {		
 //				if ( !cCount.containsKey(c.getRelation().toString())) {
 //					cCount.put(c.getRelation().toString(), new Long(0));
 //				}
@@ -193,7 +193,7 @@ public class STPSolver extends Module implements SolverInterface {
 				Logger.depth++;
 			}
 			if ( keepTimes ) StopWatch.start(msg("Intersection Tests"));
-			for ( PossibleIntersection pi : cDB.getConstraints().get(PossibleIntersection.class)) {
+			for ( PossibleIntersection pi : cDB.get(PossibleIntersection.class)) {
 				isIntersectionConsistent = stpSolver.possibleIntersection(pi);
 				if ( !isIntersectionConsistent ) {
 					if ( verbose )  Logger.msg(this.getName(), pi.toString() + " -> not satisfied", 3);
@@ -216,7 +216,7 @@ public class STPSolver extends Module implements SolverInterface {
 				Logger.depth++;
 			}
 			if ( keepTimes ) StopWatch.start(msg("Testing queries"));
-			for ( TemporalIntervalQuery tiq : cDB.getConstraints().get(TemporalIntervalQuery.class)) {
+			for ( TemporalIntervalQuery tiq : cDB.get(TemporalIntervalQuery.class)) {
 				if ( verbose ) Logger.msg(this.getName() , tiq.toString(), 1);
 				String relation = tiq.getRelation().getUniqueName();
 				

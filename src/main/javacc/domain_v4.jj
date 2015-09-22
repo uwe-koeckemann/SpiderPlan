@@ -415,7 +415,7 @@ ConstraintDatabase ConstraintDatabase() :
 	  <CP>
 	)*
    {
-   	  	TemporalNetworkTools.replaceGroupKeys(cDB.getConstraints(), groupMapping);
+   	  	TemporalNetworkTools.replaceGroupKeys(cDB, groupMapping);
 		return cDB;
    }
 }
@@ -776,7 +776,7 @@ void Operator()  :
 	<OP> < EFFECTS >      	(s = Statement() {   o.addEffect(s); 		} )* <CP>
   	<OP> < CONSTRAINTS > C = ConstraintDatabase() <CP>
   	{
-  	  o.addConstraints(C.getConstraints());
+  	  o.addConstraints(C);
   	  TemporalNetworkTools.replaceGroupKeys(o.getConstraints(), groupMapping);
   	  c.getOperators().add(o);
   	}

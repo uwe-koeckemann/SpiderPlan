@@ -95,7 +95,7 @@ public class FindConflictsWithFutureEvents extends Module {
 		if ( firstTime ) {
 			firstTime = false;
 			
-			for ( PlanningInterval pst : core.getContext().getConstraints().get(PlanningInterval.class)) {
+			for ( PlanningInterval pst : core.getContext().get(PlanningInterval.class)) {
 				t0 = pst.getStartTimeValue();
 			}
 			
@@ -105,7 +105,7 @@ public class FindConflictsWithFutureEvents extends Module {
 				initialStatements.put(s.getVariable(), s );					
 			}
 
-			for ( Statement sFuture : core.getContext().getStatements() ) {
+			for ( Statement sFuture : core.getContext().get(Statement.class) ) {
 				if ( !futureEvents.containsKey(sFuture.getVariable()) ) {
 					futureEvents.put(sFuture.getVariable(), new ArrayList<Statement>());
 				}
@@ -126,7 +126,7 @@ public class FindConflictsWithFutureEvents extends Module {
 				}
 			}
 			// Remove events that originated from goals
-			for ( OpenGoal og : core.getContext().getConstraints().get(OpenGoal.class) ) {
+			for ( OpenGoal og : core.getContext().get(OpenGoal.class) ) {
 				if ( futureEvents.containsKey(og.getStatement().getVariable()) ) {
 					futureEvents.get(og.getStatement().getVariable()).remove(og.getStatement());
 				}
@@ -225,7 +225,7 @@ public class FindConflictsWithFutureEvents extends Module {
 							}
 							
 							if ( svo != null ) {
-								core.getContext().getConstraints().add(svo);
+								core.getContext().add(svo);
 								if ( verbose ) Logger.msg(getName(),"Found conflict. Adding " + svo, 1);
 							} else {
 								if ( verbose ) Logger.msg(getName(),"Found conflict. No possible resolver.", 1);

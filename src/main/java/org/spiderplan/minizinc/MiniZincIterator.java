@@ -26,7 +26,7 @@ import java.util.Collection;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Resolver;
 import org.spiderplan.modules.solvers.ResolverIterator;
-import org.spiderplan.representation.constraints.ConstraintCollection;
+import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.logic.Substitution;
 
 public class MiniZincIterator extends ResolverIterator {
@@ -45,7 +45,7 @@ public class MiniZincIterator extends ResolverIterator {
 	}
 
 	@Override
-	public Resolver next( ConstraintCollection C ) {
+	public Resolver next( ConstraintDatabase C ) {
 		Collection<Substitution> solutions = MiniZincAdapter.runMiniZinc(minizincBinaryLocation, program, data, false, solutionIndex++);
 		if ( solutions != null ) {			
 			return new Resolver(solutions.iterator().next());

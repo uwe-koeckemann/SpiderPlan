@@ -102,7 +102,7 @@ public class DomainSolver extends Module implements SolverInterface {
 		
 		boolean isConsistent = true;
 		
-		for ( DomainConstraint dC : core.getContext().getConstraints().get(DomainConstraint.class) ) {
+		for ( DomainConstraint dC : core.getContext().get(DomainConstraint.class) ) {
 			Atomic r = dC.getRelation();
 			Term a = r.getArg(0);
 			Term b = r.getArg(1);
@@ -126,7 +126,7 @@ public class DomainSolver extends Module implements SolverInterface {
 
 			HashMap<Term,Set<Term>> domainLookUp = new HashMap<Term, Set<Term>>();
 			
-			for ( VariableDomainRestriction c : core.getContext().getConstraints().get(VariableDomainRestriction.class) ) {
+			for ( VariableDomainRestriction c : core.getContext().get(VariableDomainRestriction.class) ) {
 				if ( verbose ) Logger.msg(getName(), "Checking: " + c, 1);
 				if ( c.getVariable().isGround() ) {
 					isConsistent = c.isConsistent();
@@ -167,7 +167,7 @@ public class DomainSolver extends Module implements SolverInterface {
 			}
 		}
 		
-		Collection<NewObject> newObjects = core.getContext().getConstraints().get(NewObject.class);
+		Collection<NewObject> newObjects = core.getContext().get(NewObject.class);
 		
 		if ( isConsistent && !newObjects.isEmpty() ) {
 			Map<Term,Set<Term>> usedObjects = new HashMap<Term, Set<Term>>();

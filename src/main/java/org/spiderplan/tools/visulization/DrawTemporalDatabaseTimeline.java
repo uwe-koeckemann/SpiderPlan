@@ -38,7 +38,7 @@ public class DrawTemporalDatabaseTimeline {
 		csp.isConsistent(tDB, tM);
 	
 		TimeLineViewer timeLineViewer = new TimeLineViewer();
-		for ( Statement s : tDB.getStatements() ) {
+		for ( Statement s : tDB.get(Statement.class) ) {
 			String tName = s.getVariable().toString();
 			String value = s.getValue().toString(); 
 			Term id = s.getKey();

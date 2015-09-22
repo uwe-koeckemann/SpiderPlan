@@ -97,19 +97,19 @@ public class TestSmallClasses extends TestCase {
 		Cost cost = new Cost(new Atomic("(add c ?X)")); 
 		cDB.add(cost);
 		
-		assertTrue(cDB.getConstraints().size() == 3);
+		assertTrue(cDB.size() == 3);
 		
 		Delete d = new Delete(new PrologConstraint(new Atomic("(p x)"), Term.createConstant("pProg")));
 		
 		d.apply(cDB);
 		
-		assertTrue(cDB.getConstraints().size() == 2);
+		assertTrue(cDB.size() == 2);
 		
 		d = new Delete(cost.copy());
 		
 		d.apply(cDB);
 		
-		assertTrue(cDB.getConstraints().size() == 1);
+		assertTrue(cDB.size() == 1);
 		
 		d = new Delete(new AllenConstraint(new Atomic("(Meets a b)")));
 		ConstraintDatabase rcDB = new ConstraintDatabase();
@@ -118,7 +118,7 @@ public class TestSmallClasses extends TestCase {
 		
 		r.apply(cDB);
 			
-		assertTrue(cDB.getConstraints().size() == 1); // the Delete constraint is added
+		assertTrue(cDB.size() == 1); // the Delete constraint is added
 	}
 	
 	/**
@@ -368,7 +368,7 @@ public class TestSmallClasses extends TestCase {
 		
 //		System.out.println(c.getContext());
 		
-		assertTrue(c.getContext().getConstraints().get(AllenConstraint.class).size() == 12);
+		assertTrue(c.getContext().get(AllenConstraint.class).size() == 12);
 	}
 	
 	

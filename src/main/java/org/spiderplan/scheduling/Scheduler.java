@@ -64,9 +64,9 @@ public abstract class Scheduler {
 	public List<AllenConstraint> resolveFlaw( ConstraintDatabase cDB ) {
 		this.usages = new ArrayList<Statement>();
 		
-		this.tiLookup = cDB.getConstraints().get(TemporalIntervalLookup.class).get(0); 
+		this.tiLookup = cDB.get(TemporalIntervalLookup.class).get(0); 
 			
-		for ( Statement s : cDB.getConstraints().get(Statement.class) ) {
+		for ( Statement s : cDB.get(Statement.class) ) {
 //			if ( s.getVariable().equals(this.resourceVariable) ) { //TODO: 
 			if ( s.getVariable().match(this.resourceVariable) != null ) { //TODO:
 //				if ( resourceVariable.toString().contains("meetingRoom") ) System.out.println("Considering: " + s);

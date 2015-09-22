@@ -612,7 +612,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
       }
       jj_consume_token(CP);
     }
-                TemporalNetworkTools.replaceGroupKeys(cDB.getConstraints(), groupMapping);
+                TemporalNetworkTools.replaceGroupKeys(cDB, groupMapping);
                 {if (true) return cDB;}
     throw new Error("Missing return statement in function");
   }
@@ -1038,7 +1038,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     jj_consume_token(CONSTRAINTS);
     C = ConstraintDatabase();
     jj_consume_token(CP);
-          o.addConstraints(C.getConstraints());
+          o.addConstraints(C);
           TemporalNetworkTools.replaceGroupKeys(o.getConstraints(), groupMapping);
           c.getOperators().add(o);
     jj_consume_token(CP);

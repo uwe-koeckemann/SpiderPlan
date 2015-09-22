@@ -35,7 +35,6 @@ import org.spiderplan.modules.solvers.ResolverIterator;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.constraints.AppliedPlan;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.ConstraintTypes;
 import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
 import org.spiderplan.representation.constraints.OpenGoal;
@@ -126,7 +125,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 		 */
 		if ( verbose ) print("Collecting goal statements...",3);
 		ArrayList<Statement> goalStatements = new ArrayList<Statement>();
-		for ( OpenGoal og : cDB.getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal og : cDB.get(OpenGoal.class) ) {
 			
 			if ( verbose ) print (og.toString(), 3);
 //			if ( !og.isAsserted() ) {
@@ -334,7 +333,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 	}
 
 	@Override
-	public Resolver next( ConstraintCollection C ) {
+	public Resolver next( ConstraintDatabase C ) {
 		if ( !firstTime ) {
 			if ( verbose ) print("Last node was NoGood",0);
 			wasNoGood = true;	
@@ -397,7 +396,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 //					outPlan = originalPlan.copy();	
 //					outCDB = originalCDB.copy();
 //					
-//					for ( OpenGoal og : outCDB.getConstraints().get(OpenGoal.class) ) {
+//					for ( OpenGoal og : outCDB.get(OpenGoal.class) ) {
 //						og.setAsserted(true);
 //					}
 //					System.out.println(subst);
@@ -457,7 +456,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 //			outPlan.getConstraints().addAll(causalLinks); // Caused a problem when creating new operators from Plan
 //			outCDB = core.getInitialContext().copy();
 			outCDB = originalCDB.copy();
-			for ( OpenGoal og : outCDB.getConstraints().get(OpenGoal.class) ) {
+			for ( OpenGoal og : outCDB.get(OpenGoal.class) ) {
 				if ( !og.isAsserted() ) {
 					if ( verbose ) print("Adding goal statement: "+og.getStatement(),2);
 					outCDB.add(og.getStatement()); 
@@ -467,7 +466,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 			outCDB.substitute(subst);
 			outPlan.substitute(subst);
 			outCDB = outPlan.apply(outCDB);
-			outCDB.getConstraints().addAll(causalLinks);
+			outCDB.addAll(causalLinks);
 			outPlan.getConstraints().addAll(causalLinks); // TODO: Added this for NewGoalRes. 
 						
 			if ( verbose ) {

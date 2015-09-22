@@ -72,7 +72,8 @@ public class Operator extends Constraint implements Substitutable {
 	
 	private ArrayList<Statement> P = new ArrayList<Statement>();
 	private ArrayList<Statement> E = new ArrayList<Statement>();
-	private ArrayList<Constraint> C = new ArrayList<Constraint>();
+//	private ArrayList<Constraint> C = new ArrayList<Constraint>();
+	private ConstraintDatabase C = new ConstraintDatabase();
 	
 	public Operator() { super(ConstraintType); }
 	
@@ -186,7 +187,7 @@ public class Operator extends Constraint implements Substitutable {
 	 * @return A {@link Collection} of {@link Constraint} that have to be satisfied in order to apply
 	 * this {@link Operator}. 
 	 */
-	public ArrayList<Constraint> getConstraints( ) {
+	public ConstraintDatabase getConstraints( ) {
 		return this.C;
 	}
 	
@@ -637,14 +638,18 @@ public class Operator extends Constraint implements Substitutable {
 			}
 		}
 		
-		for ( int i = 0 ; i < this.getConstraints().size() ; i++ ) {
-			if ( this.getConstraints().get(i) instanceof Matchable ) {
-				Matchable mC = (Matchable)this.getConstraints().get(i);
-				if ( ! theta.add( mC.match( o.getConstraints().get(i))) ) {
+		ArrayList<Matchable> thisMatchable = new ArrayList<Matchable>();
+		ArrayList<Matchable> oMatchable = new ArrayList<Matchable>();
+		thisMatchable.addAll(this.C.getMatchable());
+		oMatchable.addAll(o.C.getMatchable());
+		
+		for ( int i = 0 ; i < thisMatchable.size() ; i++ ) {
+			if ( thisMatchable.get(i) instanceof Matchable ) {
+				if ( ! theta.add( thisMatchable.get(i).match( (Constraint)oMatchable.get(i))) ) {
 					return null;
 				}
 			} else {
-				if ( !this.getConstraints().get(i).equals( o.getConstraints().get(i)) ) {
+				if ( !thisMatchable.get(i).equals( oMatchable.get(i)) ) {
 					return null;
 				}
 			}
@@ -660,7 +665,7 @@ public class Operator extends Constraint implements Substitutable {
 	 */
 	public void setOpenVariablesToMostRelaxed( ConstraintDatabase cDB ) {
 		HashMap<Atomic,Integer> rrCapacities = new HashMap<Atomic,Integer>();
-		for ( ReusableResourceCapacity rrC : cDB.getConstraints().get(ReusableResourceCapacity.class)) {
+		for ( ReusableResourceCapacity rrC : cDB.get(ReusableResourceCapacity.class)) {
 			rrCapacities.put(rrC.getVariable(),rrC.getCapacity());
 		}
 		
@@ -729,19 +734,24 @@ public class Operator extends Constraint implements Substitutable {
 		 */
 		HashSet<Term> needToLift = new HashSet<Term>();
 		
+		ArrayList<PrologConstraint> oCons = new ArrayList<PrologConstraint>();
+		ArrayList<PrologConstraint> oCopyCons = new ArrayList<PrologConstraint>();
+		oCons.addAll(operator.getConstraints().get(PrologConstraint.class));
+		oCopyCons.addAll(oCopy.getConstraints().get(PrologConstraint.class));
+		
 		boolean change = true;
 		while ( change ) {
 			change = false;
 			
-			for ( int j = 0; j < oCopy.getConstraints().size(); j++ ) {
-				if ( oCopy.getConstraints().get(j) instanceof PrologConstraint ) {
-					PrologConstraint rc = (PrologConstraint)oCopy.getConstraints().get(j);
+			for ( int j = 0; j < oCopyCons.size(); j++ ) {
+				if ( oCopyCons.get(j) instanceof PrologConstraint ) {
+					PrologConstraint rc = oCopyCons.get(j);
 									
 					Atomic l = rc.getRelation();
 					
 					if ( !l.isGround() ) {
 						HashSet<Term> variables = new HashSet<Term>();
-						PrologConstraint rcOp = (PrologConstraint)operator.getConstraints().get(j);
+						PrologConstraint rcOp = oCons.get(j);
 						
 						variables.addAll(rcOp.getVariableTerms());
 						
@@ -845,13 +855,16 @@ public class Operator extends Constraint implements Substitutable {
 		for ( int i = 0 ; i < E.size() ; i++ ) {
 			E.set(i, E.get(i).substitute(theta));
 		}
-		for ( int i = 0 ; i < C.size() ; i++ ) {
-			Constraint c = C.get(i);
-			if ( c instanceof Substitutable ) {
-				Substitutable substC = (Substitutable)c;
-				C.set(i, substC.substitute(theta));
-			}
-		}	
+		
+		this.C.substitute(theta);
+		
+//		for ( int i = 0 ; i < C.size() ; i++ ) {
+//			Constraint c = C.get(i);
+//			if ( c instanceof Substitutable ) {
+//				Substitutable substC = (Substitutable)c;
+//				C.set(i, substC.substitute(theta));
+//			}
+//		}	
 		
 		if ( this.theta != null ) {
 			this.theta.add(theta);

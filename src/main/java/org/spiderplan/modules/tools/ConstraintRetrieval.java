@@ -50,9 +50,9 @@ public class ConstraintRetrieval {
 	 */
 	public static PlanningInterval getPlanningInterval( Core core ) {
 		ArrayList<PlanningInterval> pIcons = new ArrayList<PlanningInterval>();
-		//pIcons.addAll(core.getConstraints().get(PlanningInterval.class));
-		pIcons.addAll(core.getContext().getConstraints().get(PlanningInterval.class));
-		pIcons.addAll(core.getContext().getConstraints().get(PlanningInterval.class));
+		//pIcons.addAll(core.get(PlanningInterval.class));
+		pIcons.addAll(core.getContext().get(PlanningInterval.class));
+		pIcons.addAll(core.getContext().get(PlanningInterval.class));
 		if ( pIcons.size() == 1 ) {
 			return pIcons.get(0);
 		} else if ( pIcons.size() > 1 ) {
@@ -79,9 +79,9 @@ public class ConstraintRetrieval {
 	 */
 	public static PlanningInterval getPlanningInterval( ConstraintDatabase cDB ) {
 		ArrayList<PlanningInterval> pIcons = new ArrayList<PlanningInterval>();
-		//pIcons.addAll(core.getConstraints().get(PlanningInterval.class));
-		pIcons.addAll(cDB.getConstraints().get(PlanningInterval.class));
-		pIcons.addAll(cDB.getConstraints().get(PlanningInterval.class));
+		//pIcons.addAll(core.get(PlanningInterval.class));
+		pIcons.addAll(cDB.get(PlanningInterval.class));
+		pIcons.addAll(cDB.get(PlanningInterval.class));
 		if ( pIcons.size() == 1 ) {
 			return pIcons.get(0);
 		} else if ( pIcons.size() > 1 ) {
@@ -113,7 +113,7 @@ public class ConstraintRetrieval {
 		
 		if ( c instanceof Matchable ) {
 			Matchable mC = (Matchable)c;
-			for ( Constraint cIn : cdb.getConstraints().get(c.getClass()) ) {
+			for ( Constraint cIn : cdb.get(c.getClass()) ) {
 				Substitution s = mC.match(cIn); 
 				if ( s != null ) {
 					if ( ((Assertable)cIn).isAsserted() ) {
@@ -122,7 +122,7 @@ public class ConstraintRetrieval {
 				}
 			}
 		} else {
-			for ( Constraint cIn : cdb.getConstraints().get(c.getClass()) ) {
+			for ( Constraint cIn : cdb.get(c.getClass()) ) {
 				if ( c.equals(cIn) ) {
 					if ( ((Assertable)cIn).isAsserted() ) {
 						return false;
@@ -137,7 +137,7 @@ public class ConstraintRetrieval {
 		if ( ! (c instanceof Assertable) ) {
 			return true;
 		}
-		for ( Constraint cIn : cdb.getConstraints().get(c.getClass()) ) {
+		for ( Constraint cIn : cdb.get(c.getClass()) ) {
 			if ( c.equals(cIn) ) {
 				if ( ((Assertable)cIn).isAsserted() ) {
 					return false;

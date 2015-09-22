@@ -37,12 +37,12 @@ public class TaskResolverComparator implements Comparator<Resolver> {
 		int subTasksO1 = 0;
 		int subTasksO2 = 0;
 		
-		for ( Task c : o1.getConstraintDatabase().getConstraints().get(Task.class) ) {
+		for ( Task c : o1.getConstraintDatabase().get(Task.class) ) {
 			if ( !c.isAsserted() ) {
 				subTasksO1++;
 			}
 		}
-		for ( Task c : o2.getConstraintDatabase().getConstraints().get(Task.class) ) {
+		for ( Task c : o2.getConstraintDatabase().get(Task.class) ) {
 			if ( !c.isAsserted() ) {
 				subTasksO2++;
 			}

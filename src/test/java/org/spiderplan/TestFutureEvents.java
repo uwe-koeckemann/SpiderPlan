@@ -81,7 +81,7 @@ public class TestFutureEvents extends TestCase {
 		
 		testCore = futureEventsChecker.run(testCore);
 				
-		assertTrue( testCore.getContext().getConstraints().size() == 6 );
+		assertTrue( testCore.getContext().size() == 6 );
 		
 		ConstraintDatabase cDB2 = new ConstraintDatabase();
 		
@@ -145,7 +145,7 @@ public class TestFutureEvents extends TestCase {
 		
 		testCore = futureEventsChecker.run(testCore);
 				
-		assertTrue(testCore.getContext().getConstraints().size() == 12 );
+		assertTrue(testCore.getContext().size() == 12 );
 	}	
 	
 	public void testEffectConflictWithPlan() {
@@ -197,7 +197,7 @@ public class TestFutureEvents extends TestCase {
 		testCore = futureEventsChecker.run(testCore);
 				
 		ArrayList<StateVariableOverride> cList = new ArrayList<StateVariableOverride>();
-		cList.addAll( testCore.getContext().getConstraints().get(StateVariableOverride.class) );
+		cList.addAll( testCore.getContext().get(StateVariableOverride.class) );
 		
 		assertTrue( cList.size() == 1 );
 		assertTrue( cList.get(0).toString().equals("(s0 p a) -> (s1 p b)") );

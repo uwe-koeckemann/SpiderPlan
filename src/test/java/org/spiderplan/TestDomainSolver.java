@@ -142,11 +142,11 @@ public class TestDomainSolver extends TestCase {
 		
 		testCore = dSolver.run(testCore);
 		assertTrue(testCore.getResultingState("DomainSolver").equals(State.Searching));
-		assertTrue(context.getStatements().contains(new Statement("(k1 (q b) true)")));   // X was substituted by new object b
+		assertTrue(context.get(Statement.class).contains(new Statement("(k1 (q b) true)")));   // X was substituted by new object b
 		
 		testCore = dSolver.run(testCore);	// running test again should produce same result
 		assertTrue(testCore.getResultingState("DomainSolver").equals(State.Consistent)); 
-		assertTrue(context.getStatements().contains(new Statement("(k1 (q b) true)")));   
+		assertTrue(context.get(Statement.class).contains(new Statement("(k1 (q b) true)")));   
 		
 		
 		NewObject no2 = new NewObject(Term.createVariable("?Y"), Term.createConstant("t")); // Y is an unused object of type t (but no such object exists)
@@ -156,6 +156,7 @@ public class TestDomainSolver extends TestCase {
 				
 		testCore = dSolver.run(testCore);
 		assertTrue(testCore.getResultingState("DomainSolver").equals(State.Inconsistent));
+		
 		assertTrue(context.equals(cdbBefore)); // context should be unaltered after inconsistency		
 	}
 }

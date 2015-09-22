@@ -33,7 +33,6 @@ import java.util.Set;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.Interval;
 import org.spiderplan.representation.constraints.PrologConstraint;
 import org.spiderplan.representation.constraints.AllenConstraint;
@@ -53,7 +52,7 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 public class Plan {
 	
 	private ArrayList<Operator> A = new ArrayList<Operator>();	
-	private ConstraintCollection C = new ConstraintCollection();
+	private ConstraintDatabase C = new ConstraintDatabase();
 	
 	private final static Term THIS = Term.createVariable("THIS");
 	
@@ -67,7 +66,7 @@ public class Plan {
 		return A;
 	}
 	
-	public ConstraintCollection getConstraints() {
+	public ConstraintDatabase getConstraints() {
 		return C;
 	}
 	
@@ -215,12 +214,18 @@ public class Plan {
 	public ConstraintDatabase apply( ConstraintDatabase context ) {
 		ConstraintDatabase app = context.copy();
 		for ( Operator a : this.getActions() ) {
-			app.addStatements(a.getEffects());
-			app.addStatements(a.getPreconditions());
+			for ( Statement e : a.getEffects() ) {
+				app.add(e);
+			}
+//			app.addStatements(a.getEffects());
+			for ( Statement p : a.getPreconditions() ) {
+				app.add(p);
+			}
+//			app.addStatements(a.getPreconditions());
 			app.add(a.getNameStateVariable());
-			app.addConstraints(a.getConstraints());
+			app.addAll(a.getConstraints());
 		}
-		app.addConstraints(this.getConstraints());
+		app.addAll(this.getConstraints());
 		return app;
 	}
 	
@@ -376,7 +381,7 @@ public class Plan {
 		ArrayList<Operator> nongroundA = new ArrayList<Operator>();
 		Map<Term,Statement> nonGroundStatementMap = new HashMap<Term, Statement>();
 		
-		ConstraintCollection nongroundOpConstraints = new ConstraintCollection();
+		ConstraintDatabase nongroundOpConstraints = new ConstraintDatabase();
 		
 		/**
 		 *  - Create a lifted version of each action. 
@@ -722,10 +727,8 @@ public class Plan {
 			
 			o.addEffect(name);
 					
-			for ( int i = 0 ; i < a.getConstraints().size(); i++ ) {
-				Constraint groundC = a.getConstraints().get(i);
-				if ( groundC instanceof AllenConstraint )
-					o.getConstraints().add(groundC);
+			for ( AllenConstraint groundC : a.getConstraints().get(AllenConstraint.class) ) {
+				o.getConstraints().add(groundC);
 			}
 		}
 			
@@ -816,12 +819,10 @@ public class Plan {
 				edgeLabels.put(""+(c-1), "e");
 			}
 		}
-		for ( Constraint con : C ) {
-			if ( con instanceof AllenConstraint ) {
-				AllenConstraint tC = (AllenConstraint)con;
-				g.addEdge(""+(c++), getStatement(tC.getFrom()).toString(), getStatement(tC.getTo()).toString() ); 
-				edgeLabels.put(""+(c-1), tC.getRelation().toString());
-			}
+		for ( AllenConstraint con : C.get(AllenConstraint.class) ) {
+			AllenConstraint tC = (AllenConstraint)con;
+			g.addEdge(""+(c++), getStatement(tC.getFrom()).toString(), getStatement(tC.getTo()).toString() ); 
+			edgeLabels.put(""+(c-1), tC.getRelation().toString());
 		}
 		
 		new GraphFrame<String,String>(g, null,  "Plan", GraphFrame.LayoutClass.ISOM, edgeLabels);

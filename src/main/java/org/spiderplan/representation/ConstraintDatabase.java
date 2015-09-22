@@ -26,19 +26,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.spiderplan.modules.solvers.Resolver;
+import org.spiderplan.representation.constraints.Asserted;
 import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.ConstraintTypes;
 import org.spiderplan.representation.constraints.IncludedProgram;
 import org.spiderplan.representation.constraints.MiniZincConstraint;
 import org.spiderplan.representation.constraints.OpenGoal;
 import org.spiderplan.representation.constraints.PrologConstraint;
 import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.constraints.constraintInterfaces.Assertable;
+import org.spiderplan.representation.constraints.constraintInterfaces.Matchable;
+import org.spiderplan.representation.constraints.constraintInterfaces.Mutable;
+import org.spiderplan.representation.constraints.constraintInterfaces.Repeatable;
+import org.spiderplan.representation.constraints.constraintInterfaces.Substitutable;
+import org.spiderplan.representation.constraints.constraintInterfaces.Unique;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -49,114 +55,51 @@ import org.spiderplan.tools.GenericComboIterator;
 import org.spiderplan.tools.profiler.Profiler;
 
 /** 
- * Represents a set of Statements and TemporalConstraints between them.
  * 
- * Also has support for adding {@link OrderedPlan}s, taking graph snapshots of the current state of the {@link ConstraintDatabase}
- * and graph visualization of the {@link ConstraintDatabase} (including history of all snapshots)
+ * Stores all types of constraints.
+ * 
+ * TODO: usage of keySet() may lead to random behavior in {@link Operator} 
+ * since there is some matching code depending on the exact order of things. 
  * 
  * @author Uwe Köckemann
  *
  */
-public class ConstraintDatabase {
+public class ConstraintDatabase implements Collection<Constraint> {
 	
-//	private Set<Statement> F = new HashSet<Statement>();
-	private ConstraintCollection C = new ConstraintCollection();	
-//	private HashMap<Term,Statement> statementLookup = new HashMap<Term, Statement>();
+	private Map<Class,List<Constraint>> Cmap = new HashMap<Class, List<Constraint>>();
+	
+	private static ArrayList<Class> KeyList = new ArrayList<Class>();
 		
-	/**
-	 * Add a {@link Constraint}
-	 * @param c The {@link Constraint} to be added
-	 */
-	public void add( Constraint c ) {
-//		if ( !C.contains(c) ) {
-			C.add(c);
-//		}
-	}
-	
-	/**
-	 * Remove a {@link Constraint}
-	 * @param c The {@link Constraint} to be removed
-	 */
-	public void remove( Constraint c ) {
-		C.remove(c);
-	}
-	
-	/**
-	 * Add a {@link Collection} of {@link Statement}s S
-	 * @param S
-	 */
-	@Deprecated
-	public void addStatements( Collection<Statement> S ) {
-		for ( Statement s : S ) {
-			this.C.add(s);
-//			this.add(s);
-		}
-	}
-	
-	/**
-	 * Add a {@link Collection} of {@link Constraint}s C
-	 * @param C
-	 */
-	public void addConstraints( Collection<Constraint> C ) {
-		ArrayList<Constraint> newCons = new ArrayList<Constraint>();
-		for ( Constraint c : C ) {
-			if ( !this.C.contains(c) ) {
-				newCons.add(c);
-			}
-		}
-		this.C.addAll(newCons);
-	}
 	
 	/**
 	 * Add another {@link ConstraintDatabase} to this one. Does not re-add existing {@link Statement}s. 
 	 * @param cDB
 	 */
 	public void add( ConstraintDatabase cDB ) {
-		for ( Statement s1 : cDB.C.get(Statement.class) ) {
+		for ( Statement s1 : cDB.get(Statement.class) ) {
 			boolean old = false;
-			for ( Statement s2 : this.C.get(Statement.class) ) {
+			for ( Statement s2 : this.get(Statement.class) ) {
 				if ( s1.equals(s2) ) {
 					old = true;
 					break;
 				}
 			}
 			if ( !old ) {
-				this.C.add(s1);
+				this.add(s1);
 			}
 		}
-		for ( Constraint c : cDB.C )
+		for ( Constraint c : cDB )
 			this.add(c);
 	}
-	
-	/**
-	 * Apply {@link Resolver} to this {@link ConstraintDatabase}.
-	 * 
-	 * @param r The {@link Resolver} to be added.
-	 * @param theta A {@link Substitution}.
-	 * @return The result of adding {@link Resolver}'s {@link ConstraintDatabase} and applying
-	 * its substitution
-	 */
-	public void apply( Resolver r ) {
-		Profiler.probe(0);
-		r.apply(this);
-	}
-	
-	/**
-	 * Returns the {@link List} of {@link Statement}s in this {@link ConstraintDatabase}
-	 * @return
-	 */
-	@Deprecated
-	public Collection<Statement> getStatements() {
-		return this.C.get(Statement.class);
-	}
+		
 	
 	/**
 	 * Returns the {@link ConstraintCollection} of this {@link ConstraintDatabase}
 	 * @return
 	 */
-	public ConstraintCollection getConstraints() {
-		return this.C;
-	}
+//	public ConstraintCollection getConstraints() {
+//		return this.C;
+//	}
 				
 	/**
 	 * Get {@link Statement} using this unique key.
@@ -164,14 +107,8 @@ public class ConstraintDatabase {
 	 * @return The corresponding {@link Statement}
 	 * @throws MissingStatement In case {@link Statement} does not exist.
 	 */
-	public Statement getStatement( Term key ) {
-//		Statement r = statementLookup.get(key);
-		
-//		if ( r != null ) {
-//			return r;
-//		}
-		
-		for ( Statement s : this.C.get(Statement.class) ) {
+	public Statement getStatement( Term key ) {	
+		for ( Statement s : this.get(Statement.class) ) {
 			if ( key.equals(s.getKey()))  {
 //				statementLookup.put(key, s);
 				return s;
@@ -187,7 +124,7 @@ public class ConstraintDatabase {
 	 */
 	public ArrayList<Statement> getStatements( Term key ) {
 		ArrayList<Statement> r = new ArrayList<Statement>();
-		for ( Statement s : this.C.get(Statement.class)) {
+		for ( Statement s : this.get(Statement.class)) {
 			if ( key.equals(s.getKey() )  ) {
 				r.add(s);
 			} 
@@ -202,29 +139,19 @@ public class ConstraintDatabase {
 	 * {@link Term} <i>key</i>, false otherwise.
 	 */
 	public boolean hasKey( Term key ) {
-		for ( Statement s : this.C.get(Statement.class) ) {
+		for ( Statement s : this.get(Statement.class) ) {
 			if ( s.getKey().equals(key)) {
 				return true;
 			}
 		}
-		for ( OpenGoal og : this.C.get(OpenGoal.class) ) {
+		for ( OpenGoal og : this.get(OpenGoal.class) ) {
 			if ( og.getStatement().getKey().equals(key)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
-	/**
-	 * Checks if there are any {@link Constraint}s or {@link Statement}s
-	 * in <i>this</i> {@link ConstraintDatabase}.	
-	 * @return <i>true</i> if there are no {@link Constraint}s and no {@link Statement}s
-	 * in <i>this</i> {@link ConstraintDatabase}, <i>false</i> otherwise
-	 */
-	public boolean isEmpty() {
-		return C.isEmpty();
-	}
-	
+		
 	/**
 	 * Get all keys of {@link Statement}s in F that match {@link Statement} a
 	 * @param a
@@ -232,7 +159,7 @@ public class ConstraintDatabase {
 	 */
 	public ArrayList<Term> getMatchingKeys( Statement a ) {
 		ArrayList<Term> r = new ArrayList<Term>();
-		for ( Statement s : this.C.get(Statement.class) ) {
+		for ( Statement s : this.get(Statement.class) ) {
 			if ( a.match(s) != null ) {
 				r.add(s.getKey());
 			} 
@@ -246,7 +173,7 @@ public class ConstraintDatabase {
 	 */
 	public Collection<Term> getVariableTerms() {
 		Set<Term> r = new HashSet<Term>();
-		for ( Constraint c : C ) {
+		for ( Constraint c : this ) {
 			r.addAll(c.getVariableTerms());
 		}
 		return r;
@@ -257,7 +184,7 @@ public class ConstraintDatabase {
 	 */
 	public Collection<Term> getGroundTerms() {
 		Set<Term> r = new HashSet<Term>();
-		for ( Constraint c : C ) {
+		for ( Constraint c : this ) {
 			r.addAll(c.getGroundTerms());
 		}
 		return r;
@@ -268,7 +195,7 @@ public class ConstraintDatabase {
 	 */
 	public Collection<Atomic> getAtomics() {
 		Set<Atomic> r = new HashSet<Atomic>();
-		for ( Constraint c : C ) {
+		for ( Constraint c : this ) {
 			r.addAll(c.getAtomics());
 		}
 		return r;
@@ -288,7 +215,7 @@ public class ConstraintDatabase {
 		/**
 		 * No statements -> trivial substitution
 		 */
-		if ( cDB.C.get(Statement.class).isEmpty() ) {
+		if ( cDB.get(Statement.class).isEmpty() ) {
 			r.add( new Substitution() );
 			return r;
 		}
@@ -297,9 +224,9 @@ public class ConstraintDatabase {
 		 * Find all possible substitutions for each statement 
 		 */
 		ArrayList<ArrayList<Substitution>> statementSubstitutions = new ArrayList<ArrayList<Substitution>>();
-		for ( Statement s : cDB.C.get(Statement.class) ) {
+		for ( Statement s : cDB.get(Statement.class) ) {
 			ArrayList<Substitution> tmp = new ArrayList<Substitution>();
-			for ( Statement e : this.C.get(Statement.class) ) {
+			for ( Statement e : this.get(Statement.class) ) {
 				Substitution theta = s.match(e);
 				if ( theta != null ) {
 					tmp.add(theta);
@@ -352,7 +279,7 @@ public class ConstraintDatabase {
 		/**
 		 * No statements -> trivial substitution
 		 */
-		if ( cDB.C.get(Statement.class).isEmpty() ) {
+		if ( cDB.get(Statement.class).isEmpty() ) {
 			List<List<Substitution>> toCombine = new ArrayList<List<Substitution>>();
 			List<Substitution> r = new ArrayList<Substitution>();
 			r.add(new Substitution());
@@ -364,9 +291,9 @@ public class ConstraintDatabase {
 		 * Find all possible substitutions for each statement 
 		 */
 		List<List<Substitution>> statementSubstitutions = new ArrayList<List<Substitution>>();
-		for ( Statement s : cDB.C.get(Statement.class) ) {
+		for ( Statement s : cDB.get(Statement.class) ) {
 			List<Substitution> tmp = new ArrayList<Substitution>();
-			for ( Statement e : this.C.get(Statement.class) ) {
+			for ( Statement e : this.get(Statement.class) ) {
 				Substitution theta = s.match(e);
 				if ( theta != null ) {
 					tmp.add(theta);
@@ -389,7 +316,7 @@ public class ConstraintDatabase {
 		/**
 		 * No statements -> trivial substitution
 		 */
-		if ( cDB.C.get(Statement.class).isEmpty() ) {
+		if ( cDB.get(Statement.class).isEmpty() ) {
 			List<List<Substitution>> toCombine = new ArrayList<List<Substitution>>();
 			List<Substitution> r = new ArrayList<Substitution>();
 			r.add(new Substitution());
@@ -401,9 +328,9 @@ public class ConstraintDatabase {
 		 * Find all possible substitutions for each statement 
 		 */
 		List<List<Substitution>> statementSubstitutions = new ArrayList<List<Substitution>>();
-		for ( Statement s : cDB.C.get(Statement.class) ) {
+		for ( Statement s : cDB.get(Statement.class) ) {
 			List<Substitution> tmp = new ArrayList<Substitution>();
-			for ( Statement e : this.C.get(Statement.class) ) {
+			for ( Statement e : this.get(Statement.class) ) {
 				Substitution theta = s.match(e);
 				if ( theta != null ) {
 					tmp.add(theta);
@@ -428,8 +355,8 @@ public class ConstraintDatabase {
 	public ConstraintDatabase difference( ConstraintDatabase cDB ) {
 		ConstraintDatabase diff = new ConstraintDatabase();
 		
-		for ( Constraint c : this.C ) {
-			if ( !cDB.getConstraints().contains(c) ) {
+		for ( Constraint c : this ) {
+			if ( !cDB.contains(c) ) {
 				diff.add(c);
 			}
 		}
@@ -443,13 +370,13 @@ public class ConstraintDatabase {
 	 * @param programIDs The program IDs that we want to retriev from the {@link ConstraintDatabase}
 	 * @return A mapping from program IDs to a {@link ConstraintCollection} of {@link IncludedProgram}s.
 	 */
-	public Map<Term,ConstraintCollection> getIncludedPrograms( Collection<Term> programIDs ) {
-		Map<Term,ConstraintCollection> conCollection = new HashMap<Term, ConstraintCollection>();
-		for ( IncludedProgram pC : this.getConstraints().get( IncludedProgram.class ) ) {
+	public Map<Term,ConstraintDatabase> getIncludedPrograms( Collection<Term> programIDs ) {
+		Map<Term,ConstraintDatabase> conCollection = new HashMap<Term, ConstraintDatabase>();
+		for ( IncludedProgram pC : this.get( IncludedProgram.class ) ) {
 			Term programID = pC.getName();
 			if ( programIDs.contains(programID) ) {
 				if ( !conCollection.containsKey(programID) ) {
-					conCollection.put(programID, new ConstraintCollection());
+					conCollection.put(programID, new ConstraintDatabase());
 				}
 				conCollection.get(programID).add(pC);
 			}
@@ -464,13 +391,13 @@ public class ConstraintDatabase {
 	private void removeDuplicates() {
 		List<Statement> newF = new ArrayList<Statement>();
 		
-		for ( Statement s : this.C.get(Statement.class) ) {
+		for ( Statement s : this.get(Statement.class) ) {
 			if ( !newF.contains(s) ) {
 				newF.add(s);
 			}
 		}
-		this.C.get(Statement.class).clear();
-		this.C.addAll(newF);
+		this.get(Statement.class).clear();
+		this.addAll(newF);
 	}
 	
 	/**
@@ -481,11 +408,11 @@ public class ConstraintDatabase {
 	private void checkForMultipleUniqueKeys( Substitution theta ) {
 		Collection<Term> keys = new HashSet<Term>();
 		
-		for ( Statement s:  this.C.get(Statement.class) ){
+		for ( Statement s:  this.get(Statement.class) ){
 			if ( keys.contains( s.getKey()) ) {
 				
 				String message = "Substitution leads to duplicate unique keys for different instances! " + theta + "\n";
-				for ( Statement s1:  this.C.get(Statement.class) ){
+				for ( Statement s1:  this.get(Statement.class) ){
 					if ( s1.getKey().equals(s.getKey()) )
 					message += "\t" + s1 + "\n";
 				}	
@@ -495,68 +422,6 @@ public class ConstraintDatabase {
 			keys.add(s.getKey());
 		}
 	}
-	public Map<Class,Integer> getConstraintCount() {
-		return C.getConstraintCount();
-	}
-	
-	public void setToConstraintCount( Map<Class,Integer> cCount ) {
-		C.setToConstraintCount(cCount);
-	}
-	
-
-	/**
-	 * Return a copy of this {@link ConstraintDatabase}
-	 * @return The copy.
-	 */
-	public ConstraintDatabase copy() {
-//		Profiler.probe(0);
-		ConstraintDatabase cDB = new ConstraintDatabase();	
-		cDB.C = this.C.copy();
-		return cDB;
-	}
-	
-	public void substitute(Substitution theta) {
-		C.substitute(theta);
-		
-		/* Substitution may make 2 statements with variable terms equal... */
-		removeDuplicates();
-		/* Checks is substitution results in illegal state and may throw exception. */
-		checkForMultipleUniqueKeys(theta);
-	}
-	
-	@Override
-	public boolean equals( Object o ) {
-		if ( o instanceof ConstraintDatabase ) {
-			boolean r =  this.toString().equals(o.toString());
-			return r;
-		}
-		return false;
-	}
-	
-	@Override
-	public int hashCode() {
-		Profiler.probe(0);
-		return this.toString().hashCode(); //TODO: hack
-	}
-
-//	@Override
-//	public String toString() {
-//		String r = "";
-//		for ( Statement ta : F ) {
-//			r += "[" + ta.getClass().getSimpleName() + "] " + ta.toString() + "\n";
-//		}
-//		for ( Constraint c : C ) {
-//			String description = "";
-//			if ( !c.getDescription().equals("") ) {
-//				description = " ("+c.getDescription()+")";
-//			}
-//			r += "[" + c.getClass().getSimpleName() + "] " + c.toString() + description + "\n";
-//		}
-//		if ( r.isEmpty() ) {
-//			r = "Empty constraint database ";
-//		}
-//		return r.substring(0, r.length()-1);
-//	}
 	
 	@Override
 	public String toString() {
@@ -581,7 +446,7 @@ public class ConstraintDatabase {
 		Map<String,Collection<Constraint>> typeMap = new HashMap<String, Collection<Constraint>>();
 		
 		for ( Term conType : ordering ) {
-			for ( Constraint c : C ) {
+			for ( Constraint c : this ) {
 				if ( c.getType().equals(conType) ) {
 					String conTypeString = conType.toString();
 					if ( conType.equals(ConstraintTypes.Prolog) ) {
@@ -603,7 +468,7 @@ public class ConstraintDatabase {
 				}
 			}
 		}
-		for ( Constraint c : C ) {
+		for ( Constraint c : this ) {
 			Term conType = c.getType();
 			if ( !ordering.contains(conType) ) {
 				String conTypeString = conType.toString();
@@ -652,6 +517,279 @@ public class ConstraintDatabase {
 		}
 		
 		return r.toString();
+	}
+	
+	public Collection<Matchable> getMatchable() {
+		ArrayList<Matchable> r = new ArrayList<Matchable>();
+		
+		for ( Class cl : this.Cmap.keySet() ) {
+			for ( Constraint c : this.Cmap.get(cl) ) {
+				if ( c instanceof Matchable ) {
+					r.add( (Matchable)c);
+				}
+			}
+		}
+		return r;
+	}
+	
+	public <T extends Constraint> void removeType( Class<T> type ) {
+		this.Cmap.remove(type);
+	}
+	
+	/**
+	 * Get all constraints of Class T
+	 * @param type
+	 * @return
+	 */	
+	public <T extends Constraint> List<T> get( Class<T> type ) {
+		ArrayList<T> r = (ArrayList<T>) Cmap.get(type); 
+		if ( r == null ) {
+			r = new ArrayList<T>();
+		}
+		return r; 
+	}
+	
+	
+	public Map<Class,Integer> getConstraintCount() {
+		Map<Class,Integer> r = new HashMap<Class, Integer>();
+		
+		for ( Class cl : this.Cmap.keySet() ) {
+			r.put(cl,Cmap.get(cl).size());
+		}
+		return r;
+	}
+	
+	public void setToConstraintCount( Map<Class,Integer> cCount ) {
+	
+		for (  Class cl : cCount.keySet() ) {
+			List<Constraint> L = this.Cmap.get(cl);
+			for ( int i = L.size()-1 ; i >= cCount.get(cl) ; i-- ) {
+				L.remove(i);
+			}
+		}
+		
+		for ( Class cl : this.Cmap.keySet() ) {
+			if ( !cCount.keySet().contains(cl) ) {
+				this.Cmap.get(cl).clear();
+			}
+		}
+	}
+	
+	
+//	private static int copyDepth = 0;
+	
+	public ConstraintDatabase copy() {
+//		Profiler.probe(1);
+//		copyDepth++;
+		
+//		StopWatch.start("Copy Collection");
+		
+		ConstraintDatabase C = new ConstraintDatabase();
+		for ( Class cl : this.Cmap.keySet() ) {
+//			StopWatch.start(("Copy class " + copyDepth + " " + cl.toString()));
+			List<Constraint> thisC = Cmap.get(cl);
+	
+			ArrayList<Constraint> Col = new ArrayList<Constraint>(thisC.size());
+			C.Cmap.put(cl,Col);
+			
+			if ( !thisC.isEmpty() ) {
+//				StopWatch.start("instanceof");
+				boolean needCopy =  (thisC.get(0) instanceof Mutable);
+//				StopWatch.stop("instanceof");
+				
+				if ( needCopy ) { 
+					for ( Constraint c : thisC ) {
+//						StopWatch.stop(("Copy class " + copyDepth + " " + cl.toString()));
+						Col.add( ((Mutable)c).copy());
+//						StopWatch.start(("Copy class " + copyDepth + " " + cl.toString()));
+					}
+				} else {
+//					StopWatch.stop( ("Copy class " + copyDepth + " " + cl.toString()));
+					Col.addAll(thisC);
+//					StopWatch.start(("Copy class " + copyDepth + " " + cl.toString()));
+				}
+			} 
+			
+//			StopWatch.stop(("Copy class " + copyDepth + " " + cl.toString()));
+		}
+//		StopWatch.stop("Copy Collection");
+//		copyDepth--;
+		return C;
+	}
+
+	@Override
+	public boolean add(Constraint arg0) { 
+		List<Constraint> C = Cmap.get(arg0.getClass());
+		if ( C == null || (arg0 instanceof Unique ))  {
+			C = new ArrayList<Constraint>();
+			Cmap.put(arg0.getClass(), C);
+		}
+		if ( arg0 instanceof Repeatable ) {
+			return C.add(arg0);
+		}
+		if ( !C.contains(arg0) ) {
+			return C.add(arg0);  
+		} else {
+			return false;
+		}
+	}
+		
+	@Override
+	public boolean addAll(Collection<? extends Constraint> arg0) { 
+		boolean r = false;
+		boolean singleAddChange = false;
+		for ( Constraint c : arg0 ) {
+			singleAddChange = this.add(c); 
+			r = r || singleAddChange;
+		}
+		return r; 	
+	}
+
+	@Override
+	public void clear() {  Cmap.clear();  }
+
+	@Override
+	public boolean contains(Object arg0) {
+		List<Constraint> C = Cmap.get(arg0.getClass());
+		if ( C == null ) {
+			C = new ArrayList<Constraint>();
+			Cmap.put(arg0.getClass(), C);
+		}
+		return C.contains(arg0); 
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> arg0) {
+		for ( Object c : arg0 ) {
+			if ( !this.contains(c) ) {
+				return false;
+			}
+		}
+		return true; 	
+	}
+		
+	@Override
+	public boolean isEmpty() {
+		if ( Cmap.isEmpty() ) {
+			return true;
+		} 
+		for ( Class key : Cmap.keySet() ) {
+			if ( !Cmap.get(key).isEmpty() ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public boolean remove(Object arg0) {
+		List<Constraint> C = Cmap.get(arg0.getClass());
+		if ( C == null ) {
+			C = new ArrayList<Constraint>();
+			Cmap.put(arg0.getClass(), C);
+		}
+		return C.remove(arg0); 
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> arg0) {
+		boolean r = false;
+		boolean singleRemoveChange = false;
+		for ( Object c : arg0 ) {
+			singleRemoveChange = this.remove(c); 
+			r = r || singleRemoveChange;
+		}
+		return r; 	
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> arg0) {
+		boolean r = false;
+		boolean singleRemoveChange = false;
+		for ( Class cl : Cmap.keySet() ) {
+			singleRemoveChange = Cmap.get(cl).removeAll(arg0);
+			r = r || singleRemoveChange;
+		}
+		return r;  
+	}
+
+	@Override
+	public int size() { 
+		int size = 0;
+		for ( Class cl : Cmap.keySet() ) {
+			size += Cmap.get(cl).size();
+		}
+		return size;
+	}
+		
+	@Override
+	public Iterator<Constraint> iterator() {
+		ArrayList<Constraint> C = new ArrayList<Constraint>();
+		for ( Class cl : Cmap.keySet() ) {
+			C.addAll(Cmap.get(cl));
+		}
+		return C.iterator();
+	}
+
+	@Override
+	public Object[] toArray() {
+		ArrayList<Constraint> C = new ArrayList<Constraint>();
+		for ( Class cl : Cmap.keySet() ) {
+			C.addAll(Cmap.get(cl));
+		}
+		return C.toArray();
+	}
+
+	@Override
+	public <T> T[] toArray(T[] arg0) {
+		ArrayList<Constraint> C = new ArrayList<Constraint>();
+		for ( Class cl : Cmap.keySet() ) {
+			C.addAll(Cmap.get(cl));
+		}
+		return C.toArray(arg0);
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.Cmap.hashCode();
+	}
+	@Override
+	public boolean equals( Object o ) {
+		if ( o instanceof ConstraintDatabase ) {
+			ConstraintDatabase C = (ConstraintDatabase)o;
+			return this.Cmap.equals(C.Cmap);
+		}
+		return false;
+	}
+	
+	public void substitute(Substitution theta) {
+		for ( Class cl : this.Cmap.keySet() ) {
+			List<Constraint> C = Cmap.get(cl); 
+			for ( int i = 0 ; i < C.size() ;i++ ) {
+				if ( C.get(i) instanceof Substitutable ) {
+					C.set(i, ((Substitutable)C.get(i)).substitute(theta));
+				} else {
+					continue;
+				}
+			}
+		}
+	}
+	
+	public void processAsserted( Asserted a ) {
+//		StopWatch.start("processAsserted");
+		for ( Class cl : this.Cmap.keySet() ) {
+			List<Constraint> C = Cmap.get(cl); 
+			for ( int i = 0 ; i < C.size() ;i++ ) {
+				if ( C.get(i) instanceof Assertable ) {
+					if ( a.appliesTo(C.get(i))) {
+						C.set(i, ((Assertable)C.get(i)).setAsserted(true));
+					}
+				} else {
+					continue;
+				}
+			}
+		}
+//		StopWatch.stop("processAsserted");
 	}
 }
 

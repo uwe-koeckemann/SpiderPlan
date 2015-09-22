@@ -133,13 +133,13 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 				} 
 			}
 			
-			newStatements = cDB.getConstraints().get(Statement.class).subList(beginIndex.get(0), cDB.getConstraints().get(Statement.class).size());
-			newAllenConstraints = cDB.getConstraints().get(AllenConstraint.class).subList(beginIndex.get(1), cDB.getConstraints().get(AllenConstraint.class).size());
+			newStatements = cDB.get(Statement.class).subList(beginIndex.get(0), cDB.get(Statement.class).size());
+			newAllenConstraints = cDB.get(AllenConstraint.class).subList(beginIndex.get(1), cDB.get(AllenConstraint.class).size());
 		} else {
 			if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (quadratic)");
 			
-			List<Statement> cdbStatements = cDB.getConstraints().get(Statement.class);				
-			List<AllenConstraint> cdbAllenConstraints = cDB.getConstraints().get(AllenConstraint.class);
+			List<Statement> cdbStatements = cDB.get(Statement.class);				
+			List<AllenConstraint> cdbAllenConstraints = cDB.get(AllenConstraint.class);
 			
 			revertToIndex = distanceHistory.size()-1;
 	
@@ -673,7 +673,7 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 	private List<Integer> getFirstNewIndex( int n, ConstraintDatabase cdb ) {		
 		List<Integer> r = new ArrayList<Integer>();
 
-		List<Statement> S2 = cdb.getConstraints().get(Statement.class);
+		List<Statement> S2 = cdb.get(Statement.class);
 		
 		if ( addedStatementsHistory.get(n).size() > S2.size() ) {
 			return null;
@@ -685,7 +685,7 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 			}
 		}
 		
-		List<AllenConstraint> AC2 = cdb.getConstraints().get(AllenConstraint.class);
+		List<AllenConstraint> AC2 = cdb.get(AllenConstraint.class);
 		
 		if ( addedAllenConstraintsHistory.get(n).size() > AC2.size() ) {
 			return null;
@@ -859,7 +859,7 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 	public long getMakespan(ConstraintDatabase cDB, ArrayList<Statement> ignoredStatements) {
 		long maxEET = 0;
 		long EET;
-		for ( Statement s : cDB.getConstraints().get(Statement.class) ) {
+		for ( Statement s : cDB.get(Statement.class) ) {
 			if ( !ignoredStatements.contains(s) ) {
 				EET = this.getEET(s.getKey());
 				if (EET > maxEET) {

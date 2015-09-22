@@ -41,7 +41,6 @@ import org.spiderplan.prolog.YapPrologAdapter;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.constraints.Asserted;
 import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.PrologConstraint;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -127,7 +126,6 @@ public class PrologSolver extends Module implements SolverInterface {
 	@Override
 	public SolverResult testAndResolve( Core core ) {
 		
-
 		Map<Term,ArrayList<PrologConstraint>> queries = new HashMap<Term,ArrayList<PrologConstraint>>();
 		
 		List<List<Resolver>> resolvers = new ArrayList<List<Resolver>>();
@@ -135,7 +133,7 @@ public class PrologSolver extends Module implements SolverInterface {
 		YapPrologAdapter yappy = new YapPrologAdapter(YAPbinaryLocation);
 		yappy.setKeepTimes(this.keepTimes);
 		
-		for ( PrologConstraint rC : core.getContext().getConstraints().get(PrologConstraint.class)) {
+		for ( PrologConstraint rC : core.getContext().get(PrologConstraint.class)) {
 			if ( !rC.isAsserted() ) {
 				if ( !queries.containsKey(rC.getProgramID()) ) {
 					queries.put(rC.getProgramID(), new ArrayList<PrologConstraint>());
@@ -145,7 +143,7 @@ public class PrologSolver extends Module implements SolverInterface {
 		}		
 		
 		
-		Map<Term,ConstraintCollection> programs = core.getContext().getIncludedPrograms(queries.keySet());
+		Map<Term,ConstraintDatabase> programs = core.getContext().getIncludedPrograms(queries.keySet());
 		
 		boolean satisfiable = true;
 		

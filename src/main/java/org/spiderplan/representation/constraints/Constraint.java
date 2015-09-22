@@ -57,16 +57,12 @@ public abstract class Constraint {
 	private final Term type;
 	
 	protected  boolean simpleConsistency = false;
-	private boolean isAsserted = false;
 
 	public static Statistics stats = new Statistics();
 	
 	public Constraint( Term type ) { this.type = type; };
 
 	public Term getType() { return type; }
-	
-//	public boolean isAsserted() { return isAsserted; }
-//	public void setAsserted( boolean asserted ) { this.isAsserted = asserted; }
 	
 	/**
 	 * Get all variable {@link Term}s in this {@link Constraint}.

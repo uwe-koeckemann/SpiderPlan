@@ -49,7 +49,6 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.constraints.Asserted;
 import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
 import org.spiderplan.representation.constraints.DiscardedPlan;
 import org.spiderplan.representation.constraints.IgnoredByCausalReasoner;
@@ -60,7 +59,6 @@ import org.spiderplan.representation.constraints.AllenConstraint;
 import org.spiderplan.representation.constraints.Statement;
 import org.spiderplan.representation.constraints.TemporalIntervalLookup;
 import org.spiderplan.representation.constraints.VariableDomainRestriction;
-//import org.spiderplan.representation.constraints.TemporalConstraint.Type;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.OrderedPlan;
@@ -307,7 +305,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 	
 	
 	@Override
-	public Resolver next( ConstraintCollection C ) {
+	public Resolver next( ConstraintDatabase C ) {
 		if ( ResolverIterator.killFlag ) {
 			return null;
 		}
@@ -363,7 +361,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 				testCore = this.pruningModule.run(testCore);
 				if ( keepTimes ) StopWatch.stop(msg("Running pruning module"));
 				
-				prunablePlans.addAll(testCore.getContext().getConstraints().get(DiscardedPlan.class));
+				prunablePlans.addAll(testCore.getContext().get(DiscardedPlan.class));
 //				this.handleDiscardedPlans();
 			}
 			
@@ -440,7 +438,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 				while ( applyResolver != null ) {
 					Core checkCore = new Core();
 					ConstraintDatabase app = context.copy();
-//					for ( OpenGoal og : app.getConstraints().get(OpenGoal.class) ) {
+//					for ( OpenGoal og : app.get(OpenGoal.class) ) {
 //						app.add(og.getStatement());
 //					}
 					applyResolver.apply(app);
@@ -476,7 +474,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 						if ( keepTimes ) StopWatch.start(msg("Running pruning module"));
 						testCore = this.pruningModule.run(testCore);
 						if ( keepTimes ) StopWatch.stop(msg("Running pruning module"));
-						this.prunablePlans.addAll( testCore.getContext().getConstraints().get(DiscardedPlan.class) );
+						this.prunablePlans.addAll( testCore.getContext().get(DiscardedPlan.class) );
 //						this.handleDiscardedPlans();
 					}
 					
@@ -514,7 +512,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		
 //			if ( resetUniqueIDs ) UniqueID.restore();
 			ConstraintDatabase context = originalContext.copy();
-			for ( OpenGoal og : context.getConstraints().get(OpenGoal.class) ) {
+			for ( OpenGoal og : context.get(OpenGoal.class) ) {
 				og.setAsserted(true);
 			}			
 			applyPlan = new ApplyPlanIterator(context,p,this.name,this.cM, true, tM);		
@@ -566,10 +564,10 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		
 		usedVars = CausalReasoningTools.getRelevantVariables(initDB, O);
 				
-//			for ( IgnoredByCausalReasoner ignoreC : goalDB.getConstraints().get(IgnoredByCausalReasoner.class) ) {
+//			for ( IgnoredByCausalReasoner ignoreC : goalDB.get(IgnoredByCausalReasoner.class) ) {
 //				ignoredKeys.add(ignoreC.getKey());
 //			}
-		for ( IgnoredByCausalReasoner ignoreC : initDB.getConstraints().get(IgnoredByCausalReasoner.class) ) {
+		for ( IgnoredByCausalReasoner ignoreC : initDB.get(IgnoredByCausalReasoner.class) ) {
 			ignoredKeys.add(ignoreC.getKey());
 		}
 		
@@ -589,10 +587,10 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		Map<Atomic,String> sESTargmax = new HashMap<Atomic,String>();
 		Map<Atomic,Statement> argmax = new HashMap<Atomic,Statement>();
 		
-		TemporalIntervalLookup tiLookup = initDB.getConstraints().get(TemporalIntervalLookup.class).get(0); 
+		TemporalIntervalLookup tiLookup = initDB.get(TemporalIntervalLookup.class).get(0); 
 		
 		print("Getting latest changing statements for initial state...", 3);
-		for ( Statement s : initDB.getStatements() ) {
+		for ( Statement s : initDB.get(Statement.class) ) {
 			if ( usedVars.contains( s.getVariable().getUniqueName() ) && !goalStatements.contains(s) ) {
 				if ( !this.uniqueInitialState ) {
 					if ( !s0.containsKey(s.getVariable())) {
@@ -763,7 +761,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 										
 		HashMap<Atomic,Collection<Term>> sReachableValues = new HashMap<Atomic, Collection<Term>>();
 		
-		for ( Statement s : initDB.getStatements() ) {
+		for ( Statement s : initDB.get(Statement.class) ) {
 			if ( !goalStatements.contains(s) ) {
 				if ( !sReachableValues.containsKey(s.getVariable()) ) {
 					sReachableValues.put(s.getVariable(), new HashSet<Term>());
@@ -1021,7 +1019,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		
 		csp.isConsistent(cDB, tM);	
 					
-		for ( PlanningInterval pst : cDB.getConstraints().get(PlanningInterval.class)) {
+		for ( PlanningInterval pst : cDB.get(PlanningInterval.class)) {
 			t0 = pst.getStartTimeValue();
 		}
 		
@@ -1031,7 +1029,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			initialStatements.put(s.getVariable(), s );					
 		}
 
-		for ( Statement sFuture : cDB.getStatements() ) {
+		for ( Statement sFuture : cDB.get(Statement.class) ) {
 			if ( !futureEvents.containsKey(sFuture.getVariable()) ) {
 				futureEvents.put(sFuture.getVariable(), new ArrayList<Statement>());
 			}
@@ -1052,7 +1050,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			}
 		}
 		// Remove events that originated from goals
-		for ( OpenGoal og : cDB.getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal og : cDB.get(OpenGoal.class) ) {
 			if ( futureEvents.containsKey(og.getStatement().getVariable()) ) {
 				futureEvents.get(og.getStatement().getVariable()).remove(og.getStatement());
 			}
@@ -1338,7 +1336,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 					ForwardPlanningNode fpnNew = new ForwardPlanningNode(fpN.getHeuristicValues().length);
 
 					fpnNew.a = fpN.a;
-					fpnNew.C = new ConstraintCollection();
+					fpnNew.C = new ConstraintDatabase();
 					fpnNew.C.addAll(fpN.C);
 					fpnNew.g = fpN.g.copy();
 					fpnNew.prev = fpN.prev;
@@ -1373,7 +1371,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 					ForwardPlanningNode fpnWithTransition = new ForwardPlanningNode(fpN.getHeuristicValues().length);
 					
 					fpnWithTransition.a = transitionSVO;
-					fpnWithTransition.C = new ConstraintCollection();
+					fpnWithTransition.C = new ConstraintDatabase();
 					fpnWithTransition.C.addAll(fpN.C);
 					fpnWithTransition.C.addAll(svoList);
 					fpnWithTransition.g = fpN.g.copy();

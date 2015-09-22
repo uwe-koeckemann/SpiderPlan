@@ -774,7 +774,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 		testCore = solver.run(testCore);
 		
 		assertTrue( testCore.getResultingState("solver").equals(State.Consistent) );	
-		TemporalIntervalLookup ti = testCore.getContext().getConstraints().get(TemporalIntervalLookup.class).get(0);
+		TemporalIntervalLookup ti = testCore.getContext().get(TemporalIntervalLookup.class).get(0);
 		assertTrue( ti.getEST(Term.createConstant("e0")) == 300 );
 		assertTrue( ti.getEET(Term.createConstant("e0")) == 400 );
 		
@@ -792,7 +792,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 		assertTrue( testCore.getResultingState("solver").equals(State.Consistent) );	
 		
 		 // added scheduling decision to the two existing temporal constraints
-		assertTrue( testCore.getContext().getConstraints().get(AllenConstraint.class).size() == 3 );
+		assertTrue( testCore.getContext().get(AllenConstraint.class).size() == 3 );
 	}
 	
 	public void testPossibleIntersection() throws Exception {
@@ -823,7 +823,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 		// all intervals can be separated by StateVariable scheduling
 		assertTrue( testCore.getResultingState("solver").equals(State.Consistent) );
 		// 6 temporal constraints added for scheduling
-		assertTrue( testCore.getContext().getConstraints().get(AllenConstraint.class).size() == (4+6) );
+		assertTrue( testCore.getContext().get(AllenConstraint.class).size() == (4+6) );
 				
 		// after adding an intersection constraint the problem becomes inconsistent
 		context.add(piC);

@@ -24,7 +24,7 @@ package org.spiderplan.modules.solvers;
 
 import java.util.LinkedList;
 import org.spiderplan.modules.configuration.ConfigurationManager;
-import org.spiderplan.representation.constraints.ConstraintCollection;
+import org.spiderplan.representation.ConstraintDatabase;
 
 /**
  * Simple extension of {@link ResolverIterator} that uses a {@link LinkedList}.
@@ -52,7 +52,7 @@ public class SingleResolver extends ResolverIterator {
 	}
 
 	@Override
-	public Resolver next( ConstraintCollection C ) {
+	public Resolver next( ConstraintDatabase C ) {
 		if ( firstTime ) {
 			firstTime = false;
 			return res;

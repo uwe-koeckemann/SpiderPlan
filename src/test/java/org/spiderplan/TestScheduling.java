@@ -127,7 +127,7 @@ public class TestScheduling extends TestCase {
 		testCore = solver.run(testCore);
 		
 		assertTrue(testCore.getResultingState("solver").equals(State.Consistent));
-		assertTrue(testCore.getContext().getConstraints().size() == 9);
+		assertTrue(testCore.getContext().size() == 9);
 	}
 	
 	public void test2() {

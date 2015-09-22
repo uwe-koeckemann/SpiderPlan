@@ -130,7 +130,7 @@ public class SchedulingSolver extends Module implements SolverInterface {
 		
 		List<Resolver> resolverList = new ArrayList<Resolver>();
 		
-		Collection<ReusableResourceCapacity> RCs = core.getContext().getConstraints().get(ReusableResourceCapacity.class);
+		Collection<ReusableResourceCapacity> RCs = core.getContext().get(ReusableResourceCapacity.class);
 		
 		if ( verbose ) Logger.msg(getName(), "Found " + RCs.size() + " reusable resource constraints." , 1);
 		
@@ -166,7 +166,7 @@ public class SchedulingSolver extends Module implements SolverInterface {
 		
 		if ( isConsistent ) {
 			if ( verbose ) Logger.msg(getName(), "Scheduling statements..." , 1);
-			for ( Statement s : core.getContext().getConstraints().get(Statement.class)) {
+			for ( Statement s : core.getContext().get(Statement.class)) {
 				boolean hasNoVariables = s.getVariable().getVariableTerms().isEmpty() && s.getValue().getVariables().isEmpty();
 				if ( hasNoVariables && !scheduledVariables.contains(s.getVariable())) {
 					if ( verbose ) Logger.msg(getName(), "Testing: " + s.getVariable() , 2); 

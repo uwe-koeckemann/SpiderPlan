@@ -76,7 +76,7 @@ public class CreateSingleGoalOperators extends Module {
 		if ( verbose ) Logger.depth++;
 //		ConstraintDatabase goalDB = core.getGoalContext();
 		ArrayList<Statement> goalStatements = new ArrayList<Statement>();
-		for ( OpenGoal og : core.getContext().getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal og : core.getContext().get(OpenGoal.class) ) {
 			goalStatements.add(og.getStatement());
 		}
 		
@@ -87,7 +87,7 @@ public class CreateSingleGoalOperators extends Module {
 			if ( !checkList.contains(g.getVariable().getUniqueName()) ) {
 				
 				boolean trivial = false;				
-				for ( Statement s : core.getContext().getStatements() ) {
+				for ( Statement s : core.getContext().get(Statement.class) ) {
 					if ( s.getVariable().equals(g.getVariable()) && s.getValue().equals(g.getValue()) ) {
 						Logger.msg(this.getName(), "    Trivial: Reached in initial context.", 0);
 						trivial = true;
@@ -104,7 +104,7 @@ public class CreateSingleGoalOperators extends Module {
 					
 					Core singleGoalCore = core.copy();
 					
-					singleGoalCore.getContext().getConstraints().removeType(OpenGoal.class);
+					singleGoalCore.getContext().removeType(OpenGoal.class);
 					singleGoalCore.getContext().add(new OpenGoal(g));
 
 					Core solution = planningModule.run(singleGoalCore);

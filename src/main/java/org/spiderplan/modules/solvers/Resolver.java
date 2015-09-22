@@ -92,17 +92,17 @@ public class Resolver {
 		if ( s != null && !s.isEmpty() )
 			context.substitute(s);
 		
-		for ( Delete d : context.getConstraints().get(Delete.class) ) {
+		for ( Delete d : context.get(Delete.class) ) {
 			if ( !d.isAsserted() ) {
 				d.setAsserted(true);
 				d.apply(context);
 			}
 		}
 		
-		for ( Asserted a : context.getConstraints().get(Asserted.class) ) {
+		for ( Asserted a : context.get(Asserted.class) ) {
 			if ( !a.isAsserted() ) {
 				a.setAsserted(true);
-				context.getConstraints().processAsserted(a);
+				context.processAsserted(a);
 //				a.apply(context);
 			}
 		}

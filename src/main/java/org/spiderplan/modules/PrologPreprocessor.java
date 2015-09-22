@@ -34,9 +34,9 @@ import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.prolog.YapPrologAdapter;
 import org.spiderplan.prolog.YapPrologAdapter.FailBehavior;
+import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.constraints.IncludedProgram;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.InteractionConstraint;
 import org.spiderplan.representation.constraints.PrologConstraint;
 import org.spiderplan.representation.logic.Term;
@@ -102,15 +102,15 @@ public class PrologPreprocessor extends Module {
 		yappy.failBehavior = this.failBehavior;
 		
 		Set<Term> programIDs = new HashSet<Term>();
-		Map<Term,ConstraintCollection> conCollection = new HashMap<Term,ConstraintCollection>(); 
+		Map<Term,ConstraintDatabase> conCollection = new HashMap<Term,ConstraintDatabase>(); 
 		
 		if ( verbose ) {
 			Logger.msg(getName(), "Background knowledge (asserted Prolog constraint): ", 2);
 		}
-		for ( PrologConstraint rC : core.getContext().getConstraints().get(PrologConstraint.class)) {
+		for ( PrologConstraint rC : core.getContext().get(PrologConstraint.class)) {
 			if ( !programIDs.contains(rC.getProgramID())) {
 				programIDs.add(rC.getProgramID());
-				conCollection.put(rC.getProgramID(), new ConstraintCollection());
+				conCollection.put(rC.getProgramID(), new ConstraintDatabase());
 			}
 			if ( rC.isAsserted() ) {
 				conCollection.get(rC.getProgramID()).add(rC);
@@ -120,11 +120,11 @@ public class PrologPreprocessor extends Module {
 		/**
 		 * Add background knowledge that is used:
 		 */
-		for ( IncludedProgram pC : core.getContext().getConstraints().get( IncludedProgram.class ) ) {
+		for ( IncludedProgram pC : core.getContext().get( IncludedProgram.class ) ) {
 			Term programID = pC.getName();
 			if ( !programIDs.contains(programID)) {
 				programIDs.add(programID);
-				conCollection.put(programID, new ConstraintCollection());
+				conCollection.put(programID, new ConstraintDatabase());
 			}
 			conCollection.get(programID).add(pC);
 		}
@@ -153,15 +153,15 @@ public class PrologPreprocessor extends Module {
 //		yappy.saturateOperatorConstraints(core.getOperators(), conCollection, core.getTypeManager());
 				
 		if ( preprocessICs ) {
-			if ( verbose ) numBefore = core.getContext().getConstraints().get(InteractionConstraint.class).size();
+			if ( verbose ) numBefore = core.getContext().get(InteractionConstraint.class).size();
 			if ( keepTimes ) StopWatch.start(msg("Preprocessing interaction constraints"));
 			for ( Term programID : programIDs ) {
-				yappy.saturateInteractionConstraints(core.getContext().getConstraints(), conCollection.get(programID), programID, core.getTypeManager());
+				yappy.saturateInteractionConstraints(core.getContext(), conCollection.get(programID), programID, core.getTypeManager());
 			}
 			if ( keepTimes ) StopWatch.stop(msg("Preprocessing interaction constraints"));
 			if ( verbose ) {
-				Logger.msg(getName(), "ICs before: " + numBefore + " after: " + core.getContext().getConstraints().get(InteractionConstraint.class).size(), 1);
-				for ( InteractionConstraint ic : core.getContext().getConstraints().get(InteractionConstraint.class) ) {
+				Logger.msg(getName(), "ICs before: " + numBefore + " after: " + core.getContext().get(InteractionConstraint.class).size(), 1);
+				for ( InteractionConstraint ic : core.getContext().get(InteractionConstraint.class) ) {
 					Logger.msg(getName(), "    - " + ic.getName(), 2);
 				}
 			}

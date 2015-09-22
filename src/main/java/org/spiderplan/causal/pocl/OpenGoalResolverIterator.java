@@ -15,7 +15,6 @@ import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.constraints.Asserted;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.DiscardedPlan;
 import org.spiderplan.representation.constraints.OpenGoal;
 import org.spiderplan.representation.plans.OrderedPlan;
@@ -67,7 +66,7 @@ public class OpenGoalResolverIterator extends ResolverIterator {
 	}
 
 	@Override
-	public Resolver next( ConstraintCollection C ) {
+	public Resolver next( ConstraintDatabase C ) {
 		if ( ResolverIterator.killFlag ) {
 			return null;
 		}

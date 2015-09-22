@@ -63,7 +63,7 @@ public class TypeManager {
 	 * @param cDB A {@link ConstraintDatabase}.
 	 */
 	public void collectTypeInformation( ConstraintDatabase cDB ) {
-		for ( TypeDomainConstraint dC : cDB.getConstraints().get(TypeDomainConstraint.class) ) {
+		for ( TypeDomainConstraint dC : cDB.get(TypeDomainConstraint.class) ) {
 			Atomic r = dC.getRelation(); 
 			try {
 				if ( r.name().equals("enum") ) {
@@ -155,7 +155,7 @@ public class TypeManager {
 				throw new IllegalArgumentException(dC + " has invalid form.");
 			}
 		}
-		for ( TypeSignatureConstraint tsC : cDB.getConstraints().get(TypeSignatureConstraint.class) ) {
+		for ( TypeSignatureConstraint tsC : cDB.get(TypeSignatureConstraint.class) ) {
 			this.attachTypes(tsC.getVariableSignature(), tsC.getValueTypeName());
 		}
 		this.updateTypeDomains();
@@ -650,7 +650,7 @@ public class TypeManager {
 			return true;
 		}
 		
-		for ( ReusableResourceCapacity rrC : cdb.getConstraints().get(ReusableResourceCapacity.class) ) {
+		for ( ReusableResourceCapacity rrC : cdb.get(ReusableResourceCapacity.class) ) {
 			resourcesVars.add(rrC.getVariable().getUniqueName());			
 			if ( rrC.getVariable().getUniqueName().equals(s.getVariable().getUniqueName()) ) {
 				return true;

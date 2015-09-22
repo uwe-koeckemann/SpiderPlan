@@ -115,7 +115,7 @@ public class SamplingSolver extends Module implements SolverInterface {
 	public SolverResult testAndResolve( Core core ) {
 		boolean isConsistent = true;
 		
-		Collection<ProbabilisticConstraint> C = core.getContext().getConstraints().get(ProbabilisticConstraint.class);
+		Collection<ProbabilisticConstraint> C = core.getContext().get(ProbabilisticConstraint.class);
 		
 		Map<Term,List<Term>> domains = new HashMap<Term, List<Term>>();
 

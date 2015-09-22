@@ -120,7 +120,7 @@ public class ForwardPlanningModule extends Module implements SolverInterface {
 		}
 		
 		if ( planGenerator == null ) {
-			Collection<OpenGoal> G = core.getContext().getConstraints().get(OpenGoal.class);
+			Collection<OpenGoal> G = core.getContext().get(OpenGoal.class);
 			planGenerator = new ForwardPlanningIterator(core.getContext(), G, core.getOperators(), core.getTypeManager(), this.cM, this.getName());
 			originalContext = core.getContext().copy();
 		} 
@@ -134,7 +134,7 @@ public class ForwardPlanningModule extends Module implements SolverInterface {
 			
 			r.apply(cDB);
 			
-			Plan plan = r.getConstraintDatabase().getConstraints().get(AppliedPlan.class).iterator().next().getPlan();
+			Plan plan = r.getConstraintDatabase().get(AppliedPlan.class).iterator().next().getPlan();
 					
 			core.setPlan(plan); // TODO: Meh...
 									
@@ -150,7 +150,7 @@ public class ForwardPlanningModule extends Module implements SolverInterface {
 	public SolverResult testAndResolve( Core core ) {
 
 		G = new ArrayList<OpenGoal>();
-		for ( OpenGoal og : core.getContext().getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal og : core.getContext().get(OpenGoal.class) ) {
 			if ( !og.isAsserted() ) {
 				if ( verbose ) Logger.msg(this.getName(),"Open goal: " + og, 1);
 				G.add(og);

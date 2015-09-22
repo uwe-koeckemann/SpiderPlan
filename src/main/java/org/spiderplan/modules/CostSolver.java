@@ -71,7 +71,7 @@ public class CostSolver extends Module implements SolverInterface {
 
 //		this(Relation.valueOf(relForm.name()), relForm, relForm.getTerms()[1]);
 		
-		Collection<Cost> costCons = core.getContext().getConstraints().get(Cost.class);
+		Collection<Cost> costCons = core.getContext().get(Cost.class);
 		HashMap<Term,Double> costs = new HashMap<Term,Double>();
 		
 		Term costSymbol;
@@ -143,7 +143,7 @@ public class CostSolver extends Module implements SolverInterface {
 
 		if ( verbose ) Logger.msg(getName(), "Checking inequalities... ", 1);
 				
-		for ( Cost  cost : core.getContext().getConstraints().get(Cost.class) ) {
+		for ( Cost  cost : core.getContext().get(Cost.class) ) {
 			Atomic relation = cost.getRelation();
 			String operator = cost.getRelation().name();
 			

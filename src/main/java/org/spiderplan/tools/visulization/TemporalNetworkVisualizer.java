@@ -57,7 +57,7 @@ public class TemporalNetworkVisualizer {
 	 */
 	public void draw( ConstraintDatabase cdb ) {
 		ConstraintDatabase cdbCopy = cdb.copy();
-		for ( OpenGoal og : cdbCopy.getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal og : cdbCopy.get(OpenGoal.class) ) {
 			cdbCopy.add(og.getStatement());
 		}
 		this.takeSnapshot(cdbCopy);
@@ -87,39 +87,36 @@ public class TemporalNetworkVisualizer {
 		edgeLabels = new HashMap<String,String>(); 
 				
 				
-		for ( Constraint c : cdb.getConstraints() ) {
-			if ( c instanceof AllenConstraint ) {
-				AllenConstraint tC = (AllenConstraint)c;			
-				String rStr = tC.getRelation().toString();
-				
-				for ( int i = 0 ; i < tC.getNumBounds() ; i++) {
-					rStr += " " + tC.getBound(i).toString();
-				}
-				
-				String e =  "";
-				String v1 = "";
-				String v2 = "";
-				
-				if ( tC.isBinary() ) {
-					v1 = tC.getFrom().toString();
-					v2 = tC.getTo().toString();
-				
-					v1 = cdb.getStatement(tC.getFrom()).toString();
-					v2 = cdb.getStatement(tC.getTo()).toString();
-					e = tC.getRelation() + "(" + v1 +"," +v2+ ")";
-					edgeLabels.put(e, rStr);
-					g.addEdge(e,v1 ,v2 );
-	
-								
-				} else {
-					v1 = tC.getFrom().toString();
-					v2 = tC.getFrom().toString();
-					v1 = cdb.getStatement(tC.getFrom()).toString();
-					v2 = v1;
-					e = tC.getRelation() + "(" +v1+"," +v2+ ")";
-					edgeLabels.put(e, rStr);
-					g.addEdge(e,v1 ,v2 );
-				}
+		for ( AllenConstraint tC : cdb.get(AllenConstraint.class) ) {
+			String rStr = tC.getRelation().toString();
+			
+			for ( int i = 0 ; i < tC.getNumBounds() ; i++) {
+				rStr += " " + tC.getBound(i).toString();
+			}
+			
+			String e =  "";
+			String v1 = "";
+			String v2 = "";
+			
+			if ( tC.isBinary() ) {
+				v1 = tC.getFrom().toString();
+				v2 = tC.getTo().toString();
+			
+				v1 = cdb.getStatement(tC.getFrom()).toString();
+				v2 = cdb.getStatement(tC.getTo()).toString();
+				e = tC.getRelation() + "(" + v1 +"," +v2+ ")";
+				edgeLabels.put(e, rStr);
+				g.addEdge(e,v1 ,v2 );
+
+							
+			} else {
+				v1 = tC.getFrom().toString();
+				v2 = tC.getFrom().toString();
+				v1 = cdb.getStatement(tC.getFrom()).toString();
+				v2 = v1;
+				e = tC.getRelation() + "(" +v1+"," +v2+ ")";
+				edgeLabels.put(e, rStr);
+				g.addEdge(e,v1 ,v2 );
 			}
 		}
 		history.add(copyGraph.copyDirSparseMultiGraph(g));

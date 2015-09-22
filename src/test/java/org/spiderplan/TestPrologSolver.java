@@ -33,7 +33,6 @@ import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.prolog.YapPrologAdapter;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.constraints.IncludedProgram;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.PrologConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
@@ -88,7 +87,7 @@ public class TestPrologSolver extends TestCase {
 	
 	public void testYAPQueryPositive() {	
 		if ( yapExists ) {
-			ConstraintCollection kb = new ConstraintCollection();
+			ConstraintDatabase kb = new ConstraintDatabase();
 			ArrayList<PrologConstraint> q = new ArrayList<PrologConstraint>();
 			
 			kb.add(new IncludedProgram(bkbName, "t(a)."));
@@ -123,7 +122,7 @@ public class TestPrologSolver extends TestCase {
 	
 	public void testYAPQueryNegative() {	
 		if ( yapExists ) {
-			ConstraintCollection kb = new ConstraintCollection();
+			ConstraintDatabase kb = new ConstraintDatabase();
 			ArrayList<PrologConstraint> q = new ArrayList<PrologConstraint>();
 	
 			kb.add(new IncludedProgram(bkbName, "t(a)."));
@@ -144,7 +143,7 @@ public class TestPrologSolver extends TestCase {
 	
 	public void testYAPQueryOnlyConstantsPositive() {	
 		if ( yapExists ) {
-			ConstraintCollection kb = new ConstraintCollection();
+			ConstraintDatabase kb = new ConstraintDatabase();
 			ArrayList<PrologConstraint> q = new ArrayList<PrologConstraint>();
 	
 			kb.add(new IncludedProgram(bkbName, "t(a)."));
@@ -165,7 +164,7 @@ public class TestPrologSolver extends TestCase {
 	
 	public void testYAPQueryOnlyConstantsNegative() {	
 		if ( yapExists ) {
-			ConstraintCollection kb = new ConstraintCollection();
+			ConstraintDatabase kb = new ConstraintDatabase();
 			ArrayList<PrologConstraint> q = new ArrayList<PrologConstraint>();
 	
 			kb.add(new IncludedProgram(bkbName, "t(a)."));

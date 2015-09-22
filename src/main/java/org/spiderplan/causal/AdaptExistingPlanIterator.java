@@ -36,7 +36,6 @@ import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.constraints.AppliedPlan;
 import org.spiderplan.representation.constraints.Asserted;
 import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
 import org.spiderplan.representation.constraints.Delete;
 import org.spiderplan.representation.constraints.InteractionConstraint;
@@ -179,15 +178,15 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 //		newDB = cDB.difference(plannedContext); 
 //
 //		ArrayList<InteractionConstraint> ICs = new ArrayList<InteractionConstraint>();
-////				ICs.addAll(core.getConstraints().get(InteractionConstraint.class));		
-//		ICs.addAll(cDB.getConstraints().get(InteractionConstraint.class));
+////				ICs.addAll(core.get(InteractionConstraint.class));		
+//		ICs.addAll(cDB.get(InteractionConstraint.class));
 //					
 //		icResolvers = new ConstraintDatabase();
 //		
 //		for ( InteractionConstraint ic : ICs ) {
 //			if ( ic.isAsserted() ) {
 //				ArrayList<Term> newGoals = new ArrayList<Term>();
-//				for ( OpenGoal ngIC : ic.getResolvers().get(ic.getResolverIndex()).getConstraints().get(OpenGoal.class) ) {
+//				for ( OpenGoal ngIC : ic.getResolvers().get(ic.getResolverIndex()).get(OpenGoal.class) ) {
 //					newGoals.add(ngIC.getStatement().getKey());
 //				}						
 //				for ( Statement s : ic.getResolvers().get(ic.getResolverIndex()).getStatements() ) {
@@ -196,7 +195,7 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 //					} 
 //				}
 //				
-//				for ( AllenConstraint tC : ic.getResolvers().get(ic.getResolverIndex()).getConstraints().get(AllenConstraint.class) ) {
+//				for ( AllenConstraint tC : ic.getResolvers().get(ic.getResolverIndex()).get(AllenConstraint.class) ) {
 //					if ( ! ( goalIntervals.contains(tC.getFrom()) || goalIntervals.contains(tC.getTo()) ) ) {
 //						icResolvers.add(tC);
 //					}
@@ -249,7 +248,7 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 //		 * TODO: For some reason core.getContext() can be missing stuff here...
 //		 * (using plannedContext to get brokenLinkGoal as a workaround)
 //		 */
-//		for ( AllenConstraint tC : p.getConstraints().get(AllenConstraint.class) ) {
+//		for ( AllenConstraint tC : p.get(AllenConstraint.class) ) {
 //			if ( init.hasKey(tC.getFrom()) && !init.hasKey(tC.getTo()) ) { 	// Cut broke a link that needs to be re-achieved by plan
 //				deletedDB.add(tC);
 //				
@@ -297,13 +296,13 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 //		 */
 //		ArrayList<AllenConstraint> remConList = new ArrayList<AllenConstraint>();
 //		ConstraintDatabase initDB = init.copy();
-//		for ( AllenConstraint tC : initDB.getConstraints().get(AllenConstraint.class) ) {
+//		for ( AllenConstraint tC : initDB.get(AllenConstraint.class) ) {
 //			if ( !initDB.hasKey(tC.getFrom()) || !initDB.hasKey(tC.getTo()) ) {
 //				remConList.add(tC);
 //			}
 //		}
 //		initDB.getConstraints().removeAll(remConList);
-////			for ( OpenGoal og : initDB.getConstraints().get(OpenGoal.class)) { // open goals in initial context have been reached
+////			for ( OpenGoal og : initDB.get(OpenGoal.class)) { // open goals in initial context have been reached
 ////				og.setAsserted(true);
 ////			}
 //		
@@ -325,7 +324,7 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 	}
 	
 	@Override
-	public Resolver next( ConstraintCollection C ) {
+	public Resolver next( ConstraintDatabase C ) {
 		
 		Resolver r = planIterator.next();
 		
@@ -333,7 +332,7 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 			return null;
 		}
 		
-		Plan planForCut = r.getConstraintDatabase().getConstraints().get(AppliedPlan.class).iterator().next().getPlan();
+		Plan planForCut = r.getConstraintDatabase().get(AppliedPlan.class).iterator().next().getPlan();
 					
 		ConstraintDatabase context = new ConstraintDatabase();
 //		context.add(originalContext.copy());
@@ -390,7 +389,7 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 		for ( Operator a : planForCut.getActions() ) {
 			for ( Statement s : a.getPreconditions() ) {
 				if ( s.getKey().isVariable() ) {
-					for ( Statement initStatement : context.getStatements() ) {
+					for ( Statement initStatement : context.get(Statement.class) ) {
 						if ( s.getVariable().equals(initStatement.getVariable()) 
 								&& s.getValue().equals(initStatement.getValue())) {
 							
@@ -429,7 +428,7 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 		 */
 		//Find intended causal links for previously broken links
 		lastChangingStatement = new HashMap<Term,Term>();
-		for ( Statement s : originalContext.getStatements() ) {
+		for ( Statement s : originalContext.get(Statement.class) ) {
 			for ( OpenGoal brokenLinkGoal : brokenLinkGoals ) {
 				if ( s.getVariable().equals(brokenLinkGoal.getStatement().getVariable()) 
 					&& s.getValue().equals(brokenLinkGoal.getStatement().getValue())) {
@@ -478,7 +477,7 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 			context.add(og.getStatement());
 		}
 		
-		for ( InteractionConstraint ic : context.getConstraints().get(InteractionConstraint.class)) {
+		for ( InteractionConstraint ic : context.get(InteractionConstraint.class)) {
 			if ( ic.isAsserted() ) {
 				context.add(ic.getResolvers().get(ic.getResolverIndex()));
 			}
@@ -493,11 +492,11 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 		}
 		
 //		System.out.println("Asserted prev");
-//		for ( Asserted a : originalContext.getConstraints().get(Asserted.class)) {
+//		for ( Asserted a : originalContext.get(Asserted.class)) {
 //			System.out.println(a);
 //		}
 //		System.out.println("Asserted now");
-//		for ( Asserted a : context.getConstraints().get(Asserted.class)) {
+//		for ( Asserted a : context.get(Asserted.class)) {
 //			System.out.println(a);
 //		}
 		
@@ -523,13 +522,13 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 		/**
 		 * We also need to remove causal links that were broken and replaced by new ones
 		 */
-		for ( Constraint deletedCon : deletedDB.getConstraints() ) {
+		for ( Constraint deletedCon : deletedDB ) {
 			result.getConstraintDatabase().add( new Delete(deletedCon) );
 		}
 		/**
 		 * Remove old plan(s) from CDB
 		 */
-		for ( AppliedPlan plan : originalContext.getConstraints().get(AppliedPlan.class) ) {
+		for ( AppliedPlan plan : originalContext.get(AppliedPlan.class) ) {
 			result.getConstraintDatabase().add(new Delete(plan));	
 		}
 		

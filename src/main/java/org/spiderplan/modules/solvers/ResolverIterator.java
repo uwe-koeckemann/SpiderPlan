@@ -25,8 +25,8 @@ package org.spiderplan.modules.solvers;
 import java.util.ArrayList;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.configuration.ParameterDescription;
+import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintCollection;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.statistics.Statistics;
 
@@ -111,7 +111,7 @@ public abstract class ResolverIterator {
 	 * or <code>null</code>.
 	 * @return A {@link Resolver} that removes a flaw.
 	 */	
-	public abstract Resolver next( ConstraintCollection C );
+	public abstract Resolver next( ConstraintDatabase C );
 		
 	/**
 	 * Returns the name of this {@link ResolverIterator}

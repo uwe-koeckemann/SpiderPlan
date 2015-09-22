@@ -63,13 +63,13 @@ public class Delete extends Constraint implements Mutable, Assertable {
 	 */
 	public void apply( ConstraintDatabase cDB ) {
 		ArrayList<Constraint> remList = new ArrayList<Constraint>();
-		for ( Constraint c : cDB.getConstraints() ) {
+		for ( Constraint c : cDB ) {
 			if ( this.c.equals(c) ) {
 				remList.add(c);
 			}
 		}
 		this.setAsserted(true);
-		cDB.getConstraints().removeAll(remList);
+		cDB.removeAll(remList);
 	}
 	
 	@Override

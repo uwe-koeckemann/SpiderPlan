@@ -113,12 +113,12 @@ public class InteractionConstraint extends Constraint implements Substitutable, 
 	 */
 	public void makeKeysGround() {
 		Substitution sub = new Substitution();
-		for ( Statement s : this.getCondition().getConstraints().get(Statement.class) ) {
+		for ( Statement s : this.getCondition().get(Statement.class) ) {
 //			sub.add(s.getKey(), Term.createConstantID());
 			sub.add(s.getKey(), s.getKey().makeConstant());
 		}
 		for ( ConstraintDatabase resolver : this.getResolvers() ) {
-			for ( Statement s : resolver.getConstraints().get(Statement.class) ) {
+			for ( Statement s : resolver.get(Statement.class) ) {
 //				sub.add(s.getKey(), Term.createConstantID());
 				sub.add(s.getKey(), s.getKey().makeConstant());
 			}
@@ -129,26 +129,26 @@ public class InteractionConstraint extends Constraint implements Substitutable, 
 	public void makeUniqueGroundKeys() {
 		long ID = UniqueID.getID();
 		Substitution sub = new Substitution();
-		for ( Statement s : this.getCondition().getConstraints().get(Statement.class) ) {
+		for ( Statement s : this.getCondition().get(Statement.class) ) {
 			if ( s.getKey().isVariable() ) {
 //				sub.add(s.getKey(), Term.createConstantID());
 				sub.add(s.getKey(), Term.createConstant(s.getKey().toString().replace("?", "") + "#" + ID));
 			}
 		}
-		for ( OpenGoal s : this.getCondition().getConstraints().get(OpenGoal.class) ) {
+		for ( OpenGoal s : this.getCondition().get(OpenGoal.class) ) {
 			if ( s.getStatement().getKey().isVariable() ) {
 //				sub.add(s.getStatement().getKey(), Term.createConstantID());
 				sub.add(s.getStatement().getKey(), Term.createConstant(s.getStatement().getKey().toString().replace("?", "") + "#" + ID));
 			}
 		}
 		for ( ConstraintDatabase resolver : this.getResolvers() ) {
-			for ( Statement s : resolver.getConstraints().get(Statement.class) ) {
+			for ( Statement s : resolver.get(Statement.class) ) {
 				if ( s.getKey().isVariable() ) {
 //					sub.add(s.getKey(), Term.createConstantID());
 					sub.add(s.getKey(), Term.createConstant(s.getKey().toString().replace("?", "") + "#" + ID));
 				}
 			}
-			for ( OpenGoal s : resolver.getConstraints().get(OpenGoal.class) ) {
+			for ( OpenGoal s : resolver.get(OpenGoal.class) ) {
 				if ( s.getStatement().getKey().isVariable() ) {
 //					sub.add(s.getStatement().getKey(), Term.createConstantID());
 					sub.add(s.getStatement().getKey(), Term.createConstant(s.getStatement().getKey().toString().replace("?", "") + "#" + ID));

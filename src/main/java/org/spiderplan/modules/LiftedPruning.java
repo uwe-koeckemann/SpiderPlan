@@ -376,12 +376,9 @@ public class LiftedPruning extends Module {
 			if ( keepTimes ) StopWatch.stop("[LiftedPruning] copy remove add");
 			
 			HashSet<Constraint> remList = new HashSet<Constraint>();
-			for ( Constraint c : pCopy.getConstraints() ) {
-				if ( c instanceof AllenConstraint ) {
-					AllenConstraint tC = (AllenConstraint)c;
-					if ( needToDisconnect.contains(tC.getFrom()) || needToDisconnect.contains(tC.getTo())) {
-						remList.add(c);
-					}
+			for ( AllenConstraint tC : pCopy.getConstraints().get(AllenConstraint.class) ) {
+				if ( needToDisconnect.contains(tC.getFrom()) || needToDisconnect.contains(tC.getTo())) {
+					remList.add(tC);
 				}
 			}				
 			pCopy.getConstraints().removeAll(remList);
