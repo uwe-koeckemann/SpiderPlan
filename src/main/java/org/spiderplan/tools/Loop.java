@@ -22,8 +22,6 @@
  *******************************************************************************/
 package org.spiderplan.tools;
 
-import com.sun.istack.internal.logging.Logger;
-
 /**
  * 
  * @author Uwe Köckemann
