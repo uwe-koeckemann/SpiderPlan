@@ -24,8 +24,6 @@ package org.spiderplan;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Resolver;
@@ -36,15 +34,10 @@ import org.spiderplan.representation.constraints.Cost;
 import org.spiderplan.representation.constraints.Delete;
 import org.spiderplan.representation.constraints.PrologConstraint;
 import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Statement;
-import org.spiderplan.representation.constraints.TemporalConstraint;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.representation.parser.Compile;
 import org.spiderplan.representation.parser.pddl.ParseException;
-import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.search.GenericSingleNodeSearch;
-import org.spiderplan.temporal.TemporalNetworkTools;
-import org.spiderplan.tools.ExecuteSystemCommand;
 import org.spiderplan.tools.GenericComboBuilder;
 import org.spiderplan.tools.GenericComboIterator;
 import junit.framework.TestCase;
@@ -157,12 +150,12 @@ public class TestSmallClasses extends TestCase {
 		
 		GenericComboIterator<String> cB = new GenericComboIterator<String>(toCombine);
 		
-		int count = 0;
-		for ( List<String> combo : cB ) {
-			count++;
-		}
+//		int count = 0;
+//		for ( List<String> combo : cB ) {
+//			count++;
+//		}
 		
-		assertTrue( count == 16 );
+		assertTrue( cB.getNumCombos() == 16 );
 	}
 	
 	public void testComboIteratorEmptyArg()  {
@@ -172,12 +165,12 @@ public class TestSmallClasses extends TestCase {
 		
 		GenericComboIterator<String> cB = new GenericComboIterator<String>(toCombine);
 		
-		int count = 0;
-		for ( List<String> combo : cB ) {
-			count++;
-		}
+//		int count = 0;
+//		for ( List<String> combo : cB ) {
+//			count++;
+//		}
 		
-		assertTrue( count == 0 );
+		assertTrue( cB.getNumCombos() == 0 );
 	}
 	
 	public void testComboIteratorSingleElement()  {
@@ -188,12 +181,7 @@ public class TestSmallClasses extends TestCase {
 		
 		GenericComboIterator<String> cB = new GenericComboIterator<String>(toCombine);
 		
-		int count = 0;
-		for ( List<String> combo : cB ) {
-			count++;
-		}
-		
-		assertTrue( count == 1 );
+		assertTrue( cB.getNumCombos() == 1 );
 	}
 	
 	/**

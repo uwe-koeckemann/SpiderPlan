@@ -13,6 +13,7 @@ import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.tools.UniqueID;
+@SuppressWarnings("all")
 
 public class PDDLParser implements PDDLParserConstants {
         Core c;

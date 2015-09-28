@@ -104,7 +104,12 @@ public class ROSRegisterAction extends Constraint implements Substitutable, Muta
 	public boolean equals(Object o) {
 		if ( o instanceof ROSRegisterAction ) {
 			ROSRegisterAction c = (ROSRegisterAction)o;
-			return this.toString().equals(o.toString());
+			if ( !this.serverID.equals(c.serverID) ) {
+				return false;
+			} else if ( !this.actionName.equals(c.actionName) ) {
+				return false;
+			}
+			return true;
 		}
 		return false;
 	}

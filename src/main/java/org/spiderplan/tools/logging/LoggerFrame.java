@@ -75,10 +75,13 @@ public class LoggerFrame extends JFrame implements ListSelectionListener, Compon
 	JTextArea mainTextArea;
 	TextAreaPrintStream mainPrintStream;
 	
+	@SuppressWarnings("rawtypes")
 	DefaultListModel listModel;
+	@SuppressWarnings("rawtypes")
 	JList sourceList;
 	
-	JComboBox sourceComboBox;
+	@SuppressWarnings("rawtypes")
+	JComboBox sourceffComboBox;
 
 	ArrayList<JCheckBox> selectionBoxes = new ArrayList<JCheckBox>();
 	
@@ -107,6 +110,7 @@ public class LoggerFrame extends JFrame implements ListSelectionListener, Compon
 		this( "Logger", sources, false, 0, 0, 0, "" );
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public LoggerFrame( String title, ArrayList<String> sources, boolean staticFrame, int from, int to, int maxLevel, String filterStr ) {
 		super(title);
 		this.title = title;
@@ -162,7 +166,7 @@ public class LoggerFrame extends JFrame implements ListSelectionListener, Compon
 		availableSources = Logger.getAllSources();
 	
 		listModel = new DefaultListModel();
-		sourceList = new JList(listModel);
+		sourceList = new JList<DefaultListModel>(listModel);
 		sourceList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		sourceList.addListSelectionListener(this);
 		
@@ -288,6 +292,7 @@ public class LoggerFrame extends JFrame implements ListSelectionListener, Compon
 		this.setVisible(true);
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void updateListModel() {
 		listChangeLock = true;		// locks change listener, avoiding some side effects (e.g. loosing selection)
 		
@@ -331,6 +336,7 @@ public class LoggerFrame extends JFrame implements ListSelectionListener, Compon
 		Component source = (Component)e.getSource();
 		updateListModel();	
 		if  (source.getName().equals("SelectSource") ) {
+			@SuppressWarnings("rawtypes")
 			JComboBox box = (JComboBox)source;
 			
 			if ( selectedSources.contains(box.getSelectedItem()) ) {

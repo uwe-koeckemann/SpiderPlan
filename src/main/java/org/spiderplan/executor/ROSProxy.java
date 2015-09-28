@@ -33,7 +33,6 @@ import java.util.Map;
 
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.tools.ExecuteSystemCommand;
 import org.spiderplan.tools.Loop;
 
 public class ROSProxy {

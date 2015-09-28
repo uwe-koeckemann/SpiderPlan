@@ -273,8 +273,8 @@ public class StateVariableOperator {
 		}
 
 		GenericSingleNodeSearch<Substitution> search = new GenericSingleNodeSearch<Substitution>(matchingSubs);
-		int count = 0;
-		int countApp = 0;
+//		int count = 0;
+//		int countApp = 0;
 		while ( true ) {
 			Substitution theta = new Substitution();
 			boolean working = true;
@@ -306,12 +306,12 @@ public class StateVariableOperator {
 					
 					if ( working ) {
 						r.add(svoCopy);
-						countApp++;
+//						countApp++;
 						working = false;
 					}
 				}
 			}
-			count++;
+//			count++;
 			boolean done = search.advance(working);
 			
 			if ( done && search.failure() ) {

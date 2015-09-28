@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Constraint;
 import org.spiderplan.representation.constraints.OpenGoal;
 import org.spiderplan.representation.constraints.AllenConstraint;
 import org.spiderplan.representation.constraints.Statement;

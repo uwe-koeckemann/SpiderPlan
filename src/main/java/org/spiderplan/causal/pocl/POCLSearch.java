@@ -23,7 +23,6 @@
 package org.spiderplan.causal.pocl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,18 +30,14 @@ import java.util.List;
 import org.spiderplan.tools.UniqueID;
 import org.spiderplan.tools.logging.Logger;
 
-import org.spiderplan.search.MultiHeuristicNode;
-import org.spiderplan.search.MultiQueueSearch;
-import org.spiderplan.search.MultiHeuristicNode.CompareMethod;
+import org.spiderplan.search.MultiHeuristicSearch;
 import org.spiderplan.causal.pocl.flaws.AllLIFO;
 import org.spiderplan.causal.pocl.heuristics.Heuristic;
 import org.spiderplan.causal.pocl.heuristics.HeuristicFactory;
 import org.spiderplan.modules.solvers.Resolver;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.AllenConstraint;
 import org.spiderplan.representation.constraints.Asserted;
-import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
 import org.spiderplan.representation.constraints.OpenGoal;
 import org.spiderplan.representation.constraints.Statement;
 import org.spiderplan.representation.logic.Substitution;
@@ -50,12 +45,12 @@ import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 
 /**
-* Causal link plan search.
+* Plan-space search to reach open goals.
 * 
 * @author Uwe Köckemann
 *
 */
-public class POCLSearch extends MultiQueueSearch {
+public class POCLSearch extends MultiHeuristicSearch<POCLNode> {
 	private Collection<Operator> O;
 	private TypeManager tM;
 	
@@ -63,6 +58,17 @@ public class POCLSearch extends MultiQueueSearch {
 	
 	boolean multiQueue = true;
 	
+	/**
+	 * Constructor setting up a search to resolve open goals in plan-space planning style.
+	 * 
+	 * @param init initial context
+	 * @param O available operators
+	 * @param heuristicNames names of heuristics that are used
+	 * @param tM type manager
+	 * @param name name for the search
+	 * @param verbose <code>true</code> if logger is used
+	 * @param verbosity highest level of logger messages
+	 */
 	public POCLSearch( ConstraintDatabase init, Collection<Operator> O, List<String> heuristicNames, TypeManager tM, String name, boolean verbose, int verbosity ) {
 		super.name = name;
 		super.verbose = verbose;
@@ -80,7 +86,7 @@ public class POCLSearch extends MultiQueueSearch {
 		
 		for ( int i = 0 ; i < heuristics.size() ; i++ ) {
 			queueToHeuristicMap.add(i);
-			super.addNewQueue();
+			super.addNewQueue( new POCLNodeComparatorIndex(i) );
 		}
 		 
 		this.queueToHeuristicMap = new int[queueToHeuristicMap.size()];
@@ -102,18 +108,16 @@ public class POCLSearch extends MultiQueueSearch {
 	}
 	
 	@Override
-	public boolean isGoal(MultiHeuristicNode n) {
-		POCLNode p = (POCLNode)n;
-		return p.isSolution();
+	public boolean isGoal(POCLNode n) {
+		return n.isSolution();
 	}
 
 	@Override
-	public ArrayList<LinkedList<MultiHeuristicNode>> expand(MultiHeuristicNode n) {
-		POCLNode p = (POCLNode)n;		
-		
-		ArrayList<LinkedList<MultiHeuristicNode>> expansion = new ArrayList<LinkedList<MultiHeuristicNode>>();
+	public ArrayList<LinkedList<POCLNode>> expand(POCLNode p) {
+
+		ArrayList<LinkedList<POCLNode>> expansion = new ArrayList<LinkedList<POCLNode>>();
 		for ( int i = 0 ; i < this.heuristics.size(); i++ ) {
-			expansion.add( new LinkedList<MultiHeuristicNode>() );	
+			expansion.add( new LinkedList<POCLNode>() );	
 		}
 		
 		/**
@@ -172,7 +176,7 @@ public class POCLSearch extends MultiQueueSearch {
 				
 				if ( goalReachable ) {
 					if ( multiQueue ) {			// One queue per heuristic
-						succ.compareMethod = CompareMethod.Index;
+//						succ.compareMethod = CompareMethod.Index;
 						for ( int i = 0 ; i < heuristics.size() ; i++ ) {
 							expansion.get(i).add(succ);
 						}

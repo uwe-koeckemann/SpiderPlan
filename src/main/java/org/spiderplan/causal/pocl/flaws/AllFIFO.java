@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Stack;
-
 import org.spiderplan.representation.constraints.OpenGoal;
 import org.spiderplan.representation.logic.Substitution;
 

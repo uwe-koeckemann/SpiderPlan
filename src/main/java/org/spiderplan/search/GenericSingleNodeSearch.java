@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Simple generic class for backtracking over arbitrary lists of lists.
+ * Simple generic class for backtracking over an arbitrary list of lists.
  * Search is guided by user with method advance(), letting the search
  * know if the last node was approved.
  * Current assignment is returned by getAssignment().
@@ -50,6 +50,10 @@ public class GenericSingleNodeSearch<T> {
 	private boolean success = false;
 	private boolean failure = false;
 	
+	/**
+	 * Construct new search by using a list of lists to define a search space over possible choices (inner lists) for each variable (outer list).
+	 * @param space list of lists, where the outer list represents variables and the inner lists are choices for each variable
+	 */
 	public GenericSingleNodeSearch( List<List<T>> space ) {
 		if ( space.isEmpty() ) {
 			throw new IllegalArgumentException("No variables provided.");
@@ -139,6 +143,10 @@ public class GenericSingleNodeSearch<T> {
 		return false;
 	}
 	
+	/**
+	 * Returns current assignment. 
+	 * @return list of objects that are currently selected
+	 */
 	public List<T> getAssignment() {
 		ArrayList<T> a = new ArrayList<T>();
 		for ( int k = 0 ; k <= i ; k++ ) {
@@ -147,6 +155,10 @@ public class GenericSingleNodeSearch<T> {
 		return a;
 	}
 	
+	/**
+	 * Calculates and returns the size of the search space.
+	 * @return number of possible combinations of variables
+	 */
 	public int getNumCombos() {
 		int r = 1;
 		for ( int i = 0 ; i < numValues.length ; i++ ) {

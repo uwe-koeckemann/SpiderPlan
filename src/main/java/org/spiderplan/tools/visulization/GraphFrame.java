@@ -126,9 +126,6 @@ public class GraphFrame<V,E> extends JFrame implements Transformer<E,String>,Cha
 	
 	private int subGraphCounter = 0;
 	
-	private int w = 600;
-	private int h = 600;
-	
 	public GraphFrame( AbstractTypedGraph<V,E> graph, Vector<AbstractTypedGraph<V,E>> history, String title, LayoutClass lC , Map<E,String> edgeLabels ) {
 		this(graph, history, title, lC, edgeLabels, 600, 600);
 	}
@@ -137,6 +134,7 @@ public class GraphFrame<V,E> extends JFrame implements Transformer<E,String>,Cha
 		this(graph, history, title, lC, null, 600, 600);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public GraphFrame( AbstractTypedGraph<V,E> graph, Vector<AbstractTypedGraph<V,E>> history, String title, LayoutClass lC , Map<E,String> edgeLabels, int w, int h ) {
 		super(title);
 		this.edgeLabels = edgeLabels;
@@ -398,6 +396,7 @@ public class GraphFrame<V,E> extends JFrame implements Transformer<E,String>,Cha
 				subGraphCounter++;
 			}
 		} else if  (source.getName().equals("SelectLayout") ) {
+			@SuppressWarnings("rawtypes")
 			JComboBox box = (JComboBox)source;
 			
 			String selection = box.getSelectedItem().toString();

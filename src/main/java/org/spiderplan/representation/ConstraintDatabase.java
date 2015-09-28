@@ -48,28 +48,21 @@ import org.spiderplan.representation.constraints.constraintInterfaces.Unique;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.representation.plans.OrderedPlan;
 import org.spiderplan.search.GenericSingleNodeSearch;
 import org.spiderplan.tools.GenericComboBuilder;
 import org.spiderplan.tools.GenericComboIterator;
-import org.spiderplan.tools.profiler.Profiler;
 
 /** 
  * 
  * Stores all types of constraints.
- * 
- * TODO: usage of keySet() may lead to random behavior in {@link Operator} 
- * since there is some matching code depending on the exact order of things. 
  * 
  * @author Uwe Köckemann
  *
  */
 public class ConstraintDatabase implements Collection<Constraint> {
 	
-	private Map<Class,List<Constraint>> Cmap = new HashMap<Class, List<Constraint>>();
-	
-	private static ArrayList<Class> KeyList = new ArrayList<Class>();
-		
+	private Map<Class<? extends Constraint>,List<Constraint>> Cmap = new HashMap<Class<? extends Constraint>, List<Constraint>>();
+	private static ArrayList<Class<? extends Constraint>> KeyList = new ArrayList<Class<? extends Constraint>>();
 	
 	/**
 	 * Add another {@link ConstraintDatabase} to this one. Does not re-add existing {@link Statement}s. 
@@ -366,9 +359,9 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	
 	/**
 	 * Get all {@link IncludedProgram} constraints for a set of program IDs and return
-	 * a mapping from program IDs to a {@link ConstraintCollection} of {@link IncludedProgram}s.
-	 * @param programIDs The program IDs that we want to retriev from the {@link ConstraintDatabase}
-	 * @return A mapping from program IDs to a {@link ConstraintCollection} of {@link IncludedProgram}s.
+	 * a mapping from program IDs to a {@link ConstraintDatabase} of {@link IncludedProgram}s.
+	 * @param programIDs The program IDs that we want to retrieve from the {@link ConstraintDatabase}
+	 * @return A mapping from program IDs to a {@link ConstraintDatabase} of {@link IncludedProgram}s.
 	 */
 	public Map<Term,ConstraintDatabase> getIncludedPrograms( Collection<Term> programIDs ) {
 		Map<Term,ConstraintDatabase> conCollection = new HashMap<Term, ConstraintDatabase>();
@@ -384,44 +377,44 @@ public class ConstraintDatabase implements Collection<Constraint> {
 		return conCollection;
 	}
 	
-	/**
-	 * Remove duplicate {@link Statement}s which
-	 * can occur due to substitution.
-	 */
-	private void removeDuplicates() {
-		List<Statement> newF = new ArrayList<Statement>();
-		
-		for ( Statement s : this.get(Statement.class) ) {
-			if ( !newF.contains(s) ) {
-				newF.add(s);
-			}
-		}
-		this.get(Statement.class).clear();
-		this.addAll(newF);
-	}
-	
-	/**
-	 * Check if a unique key is used twice
-	 * which is an illegal state.
-	 * @return
-	 */
-	private void checkForMultipleUniqueKeys( Substitution theta ) {
-		Collection<Term> keys = new HashSet<Term>();
-		
-		for ( Statement s:  this.get(Statement.class) ){
-			if ( keys.contains( s.getKey()) ) {
-				
-				String message = "Substitution leads to duplicate unique keys for different instances! " + theta + "\n";
-				for ( Statement s1:  this.get(Statement.class) ){
-					if ( s1.getKey().equals(s.getKey()) )
-					message += "\t" + s1 + "\n";
-				}	
-				
-				throw new IllegalStateException(message);		
-			}
-			keys.add(s.getKey());
-		}
-	}
+//	/**
+//	 * Remove duplicate {@link Statement}s which
+//	 * can occur due to substitution.
+//	 */
+//	private void removeDuplicates() {
+//		List<Statement> newF = new ArrayList<Statement>();
+//		
+//		for ( Statement s : this.get(Statement.class) ) {
+//			if ( !newF.contains(s) ) {
+//				newF.add(s);
+//			}
+//		}
+//		this.get(Statement.class).clear();
+//		this.addAll(newF);
+//	}
+//	
+//	/**
+//	 * Check if a unique key is used twice
+//	 * which is an illegal state.
+//	 * @return
+//	 */
+//	private void checkForMultipleUniqueKeys( Substitution theta ) {
+//		Collection<Term> keys = new HashSet<Term>();
+//		
+//		for ( Statement s:  this.get(Statement.class) ){
+//			if ( keys.contains( s.getKey()) ) {
+//				
+//				String message = "Substitution leads to duplicate unique keys for different instances! " + theta + "\n";
+//				for ( Statement s1:  this.get(Statement.class) ){
+//					if ( s1.getKey().equals(s.getKey()) )
+//					message += "\t" + s1 + "\n";
+//				}	
+//				
+//				throw new IllegalStateException(message);		
+//			}
+//			keys.add(s.getKey());
+//		}
+//	}
 	
 	@Override
 	public String toString() {
@@ -522,10 +515,13 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	public Collection<Matchable> getMatchable() {
 		ArrayList<Matchable> r = new ArrayList<Matchable>();
 		
-		for ( Class cl : this.Cmap.keySet() ) {
-			for ( Constraint c : this.Cmap.get(cl) ) {
-				if ( c instanceof Matchable ) {
-					r.add( (Matchable)c);
+		for ( Class<? extends Constraint> cl : KeyList ) {
+			List<Constraint> C = this.Cmap.get(cl);
+			if ( C != null ) {
+				for ( Constraint c : C ) {
+					if ( c instanceof Matchable ) {
+						r.add( (Matchable)c);
+					}
 				}
 			}
 		}
@@ -542,7 +538,8 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	 * @return
 	 */	
 	public <T extends Constraint> List<T> get( Class<T> type ) {
-		ArrayList<T> r = (ArrayList<T>) Cmap.get(type); 
+		@SuppressWarnings("unchecked")
+		ArrayList<T> r = (ArrayList<T>)Cmap.get(type); 
 		if ( r == null ) {
 			r = new ArrayList<T>();
 		}
@@ -550,25 +547,25 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	}
 	
 	
-	public Map<Class,Integer> getConstraintCount() {
-		Map<Class,Integer> r = new HashMap<Class, Integer>();
+	public Map<Class<? extends Constraint>,Integer> getConstraintCount() {
+		Map<Class<? extends Constraint>,Integer> r = new HashMap<Class<? extends Constraint>, Integer>();
 		
-		for ( Class cl : this.Cmap.keySet() ) {
+		for ( Class<? extends Constraint> cl : Cmap.keySet() ) {
 			r.put(cl,Cmap.get(cl).size());
 		}
 		return r;
 	}
 	
-	public void setToConstraintCount( Map<Class,Integer> cCount ) {
+	public void setToConstraintCount( Map<Class<? extends Constraint>,Integer> cCount ) {
 	
-		for (  Class cl : cCount.keySet() ) {
+		for (  Class<? extends Constraint> cl : cCount.keySet() ) {
 			List<Constraint> L = this.Cmap.get(cl);
 			for ( int i = L.size()-1 ; i >= cCount.get(cl) ; i-- ) {
 				L.remove(i);
 			}
 		}
 		
-		for ( Class cl : this.Cmap.keySet() ) {
+		for ( Class<? extends Constraint> cl : this.Cmap.keySet() ) {
 			if ( !cCount.keySet().contains(cl) ) {
 				this.Cmap.get(cl).clear();
 			}
@@ -585,31 +582,31 @@ public class ConstraintDatabase implements Collection<Constraint> {
 //		StopWatch.start("Copy Collection");
 		
 		ConstraintDatabase C = new ConstraintDatabase();
-		for ( Class cl : this.Cmap.keySet() ) {
+		for ( Class<? extends Constraint> cl : KeyList ) {
 //			StopWatch.start(("Copy class " + copyDepth + " " + cl.toString()));
 			List<Constraint> thisC = Cmap.get(cl);
-	
-			ArrayList<Constraint> Col = new ArrayList<Constraint>(thisC.size());
-			C.Cmap.put(cl,Col);
-			
-			if ( !thisC.isEmpty() ) {
-//				StopWatch.start("instanceof");
-				boolean needCopy =  (thisC.get(0) instanceof Mutable);
-//				StopWatch.stop("instanceof");
+			if ( thisC != null ) {
+				ArrayList<Constraint> Col = new ArrayList<Constraint>(thisC.size());
+				C.Cmap.put(cl,Col);
 				
-				if ( needCopy ) { 
-					for ( Constraint c : thisC ) {
-//						StopWatch.stop(("Copy class " + copyDepth + " " + cl.toString()));
-						Col.add( ((Mutable)c).copy());
-//						StopWatch.start(("Copy class " + copyDepth + " " + cl.toString()));
+				if ( !thisC.isEmpty() ) {
+	//				StopWatch.start("instanceof");
+					boolean needCopy =  (thisC.get(0) instanceof Mutable);
+	//				StopWatch.stop("instanceof");
+					
+					if ( needCopy ) { 
+						for ( Constraint c : thisC ) {
+	//						StopWatch.stop(("Copy class " + copyDepth + " " + cl.toString()));
+							Col.add( ((Mutable)c).copy());
+	//						StopWatch.start(("Copy class " + copyDepth + " " + cl.toString()));
+						}
+					} else {
+	//					StopWatch.stop( ("Copy class " + copyDepth + " " + cl.toString()));
+						Col.addAll(thisC);
+	//					StopWatch.start(("Copy class " + copyDepth + " " + cl.toString()));
 					}
-				} else {
-//					StopWatch.stop( ("Copy class " + copyDepth + " " + cl.toString()));
-					Col.addAll(thisC);
-//					StopWatch.start(("Copy class " + copyDepth + " " + cl.toString()));
-				}
-			} 
-			
+				} 
+			}
 //			StopWatch.stop(("Copy class " + copyDepth + " " + cl.toString()));
 		}
 //		StopWatch.stop("Copy Collection");
@@ -621,6 +618,9 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	public boolean add(Constraint arg0) { 
 		List<Constraint> C = Cmap.get(arg0.getClass());
 		if ( C == null || (arg0 instanceof Unique ))  {
+			if ( !KeyList.contains(arg0.getClass()) ) {
+				KeyList.add(arg0.getClass());
+			}
 			C = new ArrayList<Constraint>();
 			Cmap.put(arg0.getClass(), C);
 		}
@@ -652,8 +652,9 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	public boolean contains(Object arg0) {
 		List<Constraint> C = Cmap.get(arg0.getClass());
 		if ( C == null ) {
-			C = new ArrayList<Constraint>();
-			Cmap.put(arg0.getClass(), C);
+//			C = new ArrayList<Constraint>();
+//			Cmap.put(arg0.getClass(), C);
+			return false;
 		}
 		return C.contains(arg0); 
 	}
@@ -673,9 +674,12 @@ public class ConstraintDatabase implements Collection<Constraint> {
 		if ( Cmap.isEmpty() ) {
 			return true;
 		} 
-		for ( Class key : Cmap.keySet() ) {
-			if ( !Cmap.get(key).isEmpty() ) {
-				return false;
+		for ( Class<? extends Constraint> key : KeyList ) {
+			List<Constraint> C = Cmap.get(key);
+			if ( C != null ) {
+				if ( !Cmap.get(key).isEmpty() ) {
+					return false;
+				}
 			}
 		}
 		return true;
@@ -685,8 +689,9 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	public boolean remove(Object arg0) {
 		List<Constraint> C = Cmap.get(arg0.getClass());
 		if ( C == null ) {
-			C = new ArrayList<Constraint>();
-			Cmap.put(arg0.getClass(), C);
+//			C = new ArrayList<Constraint>();
+//			Cmap.put(arg0.getClass(), C);
+			return false;
 		}
 		return C.remove(arg0); 
 	}
@@ -706,7 +711,7 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	public boolean retainAll(Collection<?> arg0) {
 		boolean r = false;
 		boolean singleRemoveChange = false;
-		for ( Class cl : Cmap.keySet() ) {
+		for ( Class<? extends Constraint> cl : KeyList ) {
 			singleRemoveChange = Cmap.get(cl).removeAll(arg0);
 			r = r || singleRemoveChange;
 		}
@@ -716,8 +721,11 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	@Override
 	public int size() { 
 		int size = 0;
-		for ( Class cl : Cmap.keySet() ) {
-			size += Cmap.get(cl).size();
+		for ( Class<? extends Constraint> cl : KeyList ) {
+			List<Constraint> C = Cmap.get(cl); 
+			if ( C != null ) {
+				size += Cmap.get(cl).size();
+			}
 		}
 		return size;
 	}
@@ -725,8 +733,10 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	@Override
 	public Iterator<Constraint> iterator() {
 		ArrayList<Constraint> C = new ArrayList<Constraint>();
-		for ( Class cl : Cmap.keySet() ) {
-			C.addAll(Cmap.get(cl));
+		for ( Class<? extends Constraint> cl : KeyList ) {
+			List<Constraint> C_cl = Cmap.get(cl); 
+			if ( C_cl != null )
+			C.addAll(C_cl);
 		}
 		return C.iterator();
 	}
@@ -734,7 +744,7 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	@Override
 	public Object[] toArray() {
 		ArrayList<Constraint> C = new ArrayList<Constraint>();
-		for ( Class cl : Cmap.keySet() ) {
+		for ( Class<? extends Constraint> cl : KeyList ) {
 			C.addAll(Cmap.get(cl));
 		}
 		return C.toArray();
@@ -743,7 +753,7 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	@Override
 	public <T> T[] toArray(T[] arg0) {
 		ArrayList<Constraint> C = new ArrayList<Constraint>();
-		for ( Class cl : Cmap.keySet() ) {
+		for ( Class<? extends Constraint> cl : KeyList ) {
 			C.addAll(Cmap.get(cl));
 		}
 		return C.toArray(arg0);
@@ -763,13 +773,15 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	}
 	
 	public void substitute(Substitution theta) {
-		for ( Class cl : this.Cmap.keySet() ) {
+		for ( Class<? extends Constraint> cl : KeyList ) {
 			List<Constraint> C = Cmap.get(cl); 
-			for ( int i = 0 ; i < C.size() ;i++ ) {
-				if ( C.get(i) instanceof Substitutable ) {
-					C.set(i, ((Substitutable)C.get(i)).substitute(theta));
-				} else {
-					continue;
+			if ( C != null ) {
+				for ( int i = 0 ; i < C.size() ;i++ ) {
+					if ( C.get(i) instanceof Substitutable ) {
+						C.set(i, ((Substitutable)C.get(i)).substitute(theta));
+					} else {
+						continue;
+					}
 				}
 			}
 		}
@@ -777,19 +789,25 @@ public class ConstraintDatabase implements Collection<Constraint> {
 	
 	public void processAsserted( Asserted a ) {
 //		StopWatch.start("processAsserted");
-		for ( Class cl : this.Cmap.keySet() ) {
-			List<Constraint> C = Cmap.get(cl); 
-			for ( int i = 0 ; i < C.size() ;i++ ) {
-				if ( C.get(i) instanceof Assertable ) {
-					if ( a.appliesTo(C.get(i))) {
-						C.set(i, ((Assertable)C.get(i)).setAsserted(true));
+		for ( Class<? extends Constraint> cl : KeyList ) {
+			List<Constraint> C = Cmap.get(cl);
+			if ( C != null ) {
+				for ( int i = 0 ; i < C.size() ;i++ ) {
+					if ( C.get(i) instanceof Assertable ) {
+						if ( a.appliesTo(C.get(i))) {
+							C.set(i, ((Assertable)C.get(i)).setAsserted(true));
+						}
+					} else {
+						continue;
 					}
-				} else {
-					continue;
 				}
 			}
 		}
 //		StopWatch.stop("processAsserted");
+	}
+	
+	public static void resetStatic() {
+		KeyList = new ArrayList<Class<? extends Constraint>>();
 	}
 }
 

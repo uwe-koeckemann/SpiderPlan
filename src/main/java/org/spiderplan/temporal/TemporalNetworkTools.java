@@ -28,11 +28,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.representation.ConstraintDatabase;
@@ -40,7 +38,6 @@ import org.spiderplan.representation.constraints.Constraint;
 import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
 import org.spiderplan.representation.constraints.Interval;
 import org.spiderplan.representation.constraints.PlanningInterval;
-import org.spiderplan.representation.constraints.PossibleIntersection;
 import org.spiderplan.representation.constraints.AllenConstraint;
 import org.spiderplan.representation.constraints.Statement;
 import org.spiderplan.representation.constraints.TemporalIntervalLookup;
@@ -51,9 +48,7 @@ import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.GenericComboBuilder;
 import org.spiderplan.tools.Global;
-import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.visulization.TemporalNetworkVisualizer;
-
 
 /**
  * Collection of static methods that manipulate
@@ -63,88 +58,12 @@ import org.spiderplan.tools.visulization.TemporalNetworkVisualizer;
  *
  */
 public class TemporalNetworkTools {
-	
-	/**
-	 * Check if this TemporalDatabase has Statements that use the Labels occurring in
-	 * the provided TemporalConstraint. Can be used for careful adding to avoid 
-	 * "Unknown Statement" errors during consistency checks. Also used to filter out
-	 * TemporalConstraints when creating databases from subsets of Statements in method
-	 * getSubsetDatabases( int n ).
-	 * @param tC
-	 * @return
-	 */
-	public static boolean hasFittingStatements( ConstraintDatabase cdb, AllenConstraint tC ) {
-		boolean foundFrom = false;
-		boolean foundTo = tC.getTo() == null; // if null we will not look for this one
-		for ( Statement s : cdb.get(Statement.class) ) {
 			
-			if ( !foundFrom ) {
-				foundFrom = s.getKey().equals(tC.getFrom() );
-			}
-			if ( !foundTo ) {
-				foundTo = s.getKey().equals(tC.getTo() );
-			}
-			if ( foundFrom && foundTo ) {
-				return true;
-			}
-		}
-		return false;
-	}
 	
 	/**
-	 * Returns true if there exists a TemporalConstraint which has a and b as interval keys.
-	 * @param a
-	 * @param b
-	 * @return
-	 */
-	public static  boolean hasTemporalConstraintBetween( ConstraintDatabase cdb, Term a, Term b ) {
-		for ( AllenConstraint tC : cdb.get(AllenConstraint.class) ) {
-			if ( tC.isBinary() && ( tC.getFrom().equals(a) && tC.getTo().equals(b) 
-				|| tC.getFrom().equals(b) && tC.getTo().equals(a) ) ) {
-				return true;
-			} 
-		}
-		return false;
-	}
-	
-	/**
-	 * Returns all temporal constraints between two intervals
-	 * @param a
-	 * @param b
-	 * @return
-	 */
-	public static  Collection<Constraint> getTemporalConstraintsBetween( ConstraintDatabase cdb, Term a, Term b ) {
-		ArrayList<Constraint> r = new ArrayList<Constraint>();
-		for ( AllenConstraint tC : cdb.get(AllenConstraint.class) ) {
-			if ( tC.isBinary() && ( tC.getFrom().equals(a) && tC.getTo().equals(b) 
-				|| tC.getFrom().equals(b) && tC.getTo().equals(a) ) ) {
-				r.add(tC);
-			} 
-		}
-		return r;
-	}
-	
-	/**
-	 * Returns Get all {@link Statement}s connected directly to <i>a</i> via a binary {@link AllenConstraint}.
-	 * @param a A {@link Term} representing an interval
-	 * @return A {@link Collection} of {@link Statement}s
-	 */
-	public static  Collection<Statement> directlyConnectedStatements( ConstraintDatabase cdb, Term a ) {
-		Set<Statement> r = new HashSet<Statement>();
-		for ( AllenConstraint tC : cdb.get(AllenConstraint.class) ) {
-			if ( tC.isBinary() && tC.getFrom().equals(a) ) {
-				r.add(cdb.getStatement(tC.getTo()));
-			}
-			if ( tC.isBinary() && tC.getTo().equals(a) ) {
-				r.add(cdb.getStatement(tC.getFrom()));
-			}
-		}
-		return r;
-	}
-	
-	/**
-	 * Compress temporal constraints by merging all intervals that have temporal
-	 * Equal constraint between them.
+	 * Merge all statements that use the same state variable and value and have an {@link AllenConstraint}
+	 * of type Equals between them.
+	 * @param cdb {@link ConstraintDatabase} whose {@link AllenConstraint}s should be compressed
 	 * @return {@link Substitution} that was applied to merge intervals.
 	 */
 	public static Substitution compressTemporalConstraints( ConstraintDatabase cdb ) {
@@ -200,229 +119,30 @@ public class TemporalNetworkTools {
 			equalTerms.add(included);
 		}
 		
-//		System.out.println(".-.............................");
 		Substitution theta = new Substitution();
 		for ( List<Term> allInts : equalTerms ) {			
-//			System.out.println(allInts);
 			Term keep = allInts.get(0);	
 			for ( int i = 1 ; i < allInts.size() ; i++ ) {
 				cdb.remove(statements.get(allInts.get(i)));
 				theta.add(allInts.get(i),keep);
 			}
 		}
-		
-//		System.out.println("=============================================================================");
-//		System.out.println("=============================================================================");
-//		for ( Statement s : cdb.get(Statement.class)){ 
-//			System.out.println(s);
-//		}
-//		for ( AllenConstraint s : cdb.get(AllenConstraint.class)){ 
-//			System.out.println(s);
-//		}
-//		System.out.println("=============================================================================");
-//		System.out.println("=============================================================================");
-		
 
 		Term.setAllowConstantSubstitution(true);
 		cdb.substitute(theta);
 		cdb.substitute(theta); //TODO: WTF
 		Term.setAllowConstantSubstitution(false);
 		
-//		System.out.println(theta);
-		
-//		System.out.println("=============================================================================");
-//		System.out.println("=============================================================================");
-//		for ( Statement s : cdb.get(Statement.class)){ 
-//			System.out.println(s);
-//		}
-//		for ( AllenConstraint s : cdb.get(AllenConstraint.class)){ 
-//			System.out.println(s);
-//		}
-//		System.out.println("=============================================================================");
-//		System.out.println("=============================================================================");
-		
 		return theta;
 	}
+			
 	
 	/**
-	 * Compress temporal constraints by merging all intervals that have temporal
-	 * Equal constraint between them.
+	 * Test if all {@link Statement}s and {@link AllenConstraint}s in one {@link ConstraintDatabase} are also in second {@link ConstraintDatabase}.
+	 * @param cdb1 First {@link ConstraintDatabase}
+	 * @param cdb2 Second {@link ConstraintDatabase}
+	 * @return <code>true</code> iff all {@link Statement} and {@link AllenConstraint} objects in <code>cdb1</code> are also in <code>cdb2</code>, <code>false</code> otherwise
 	 */
-	public static void compressAllTemporalConstraints( ConstraintDatabase cdb ) {
-		Statement from, to;
-		List<List<Term>> equalTerms = new ArrayList<List<Term>>();
-		LinkedList<AllenConstraint> workList = new LinkedList<AllenConstraint>();
-		Map<Term,Statement> statements = new HashMap<Term,Statement>();
-		
-	
-		for ( AllenConstraint tC : cdb.get(AllenConstraint.class) ) {
-			if ( tC.getRelation().equals(TemporalRelation.Equals) ) {
-				from = cdb.getStatement(tC.getFrom());
-				to = cdb.getStatement(tC.getTo());
-				statements.put(from.getKey(),from);
-				statements.put(to.getKey(),to);
-				workList.add(tC);
-			}
-		}
-		
-		while ( !workList.isEmpty() ) {
-			ArrayList<Term> included = new ArrayList<Term>();
-			AllenConstraint first = workList.get(0);
-			workList.remove(0);
-			
-			cdb.remove(first);
-
-			included.add(first.getFrom());
-			included.add(first.getTo());
-			
-			boolean changed = true;
-			while ( changed ) {
-				changed = false;
-				for ( int i = 0 ; i < workList.size() ; i++ ) {
-					AllenConstraint tC = workList.get(i);
-					if ( included.contains(tC.getFrom())  && !included.contains(tC.getTo()) ) {
-						included.add(tC.getTo());
-						workList.remove(i);
-						i--;
-						cdb.remove(tC);	
-						changed = true;
-					} else if ( included.contains(tC.getTo())  && !included.contains(tC.getFrom()) ) {
-						included.add(tC.getFrom());
-						workList.remove(i);
-						i--;
-						cdb.remove(tC);
-						changed = true;
-					} else if ( included.contains(tC.getTo())  && included.contains(tC.getFrom()) ) {
-						workList.remove(i);
-						i--;
-						cdb.remove(tC);
-						changed = true;
-					}
-				}
-			}
-			equalTerms.add(included);
-		}
-		
-		Substitution theta = new Substitution();
-		for ( List<Term> allInts : equalTerms ) {					
-			Term keep = allInts.get(0);	
-			for ( int i = 1 ; i < allInts.size() ; i++ ) {
-				cdb.remove(statements.get(allInts.get(i)));
-				theta.add(allInts.get(i),keep);
-			}
-		}
-		cdb.substitute(theta);
-	}
-		
-	/**
-	 * Remove {@link Statement}s that are not
-	 * connected to any other {@link Statement}
-	 * via {@link AllenConstraint}s.
-	 * This can reduce the workload of temporal reasoning.
-	 */
-	public static void removeDisconnectedTemporalConstraints( ConstraintDatabase cdb ) {
-		
-		HashMap<Term,Integer> countConnections = new HashMap<Term, Integer>();
-		HashMap<Term,HashSet<String>> usedUnaryRelations = new HashMap<Term, HashSet<String>>();
-		HashMap<Atomic,Integer> countAssignments = new HashMap<Atomic, Integer>();
-		
-		/**
-		 * To how many other intervals is each interval linked?
-		 */
-		for ( AllenConstraint tC : cdb.get(AllenConstraint.class) ) {		
-			if ( tC.getTo() != null ) {
-				if (  !countConnections.containsKey(tC.getFrom()) ) {
-					countConnections.put(tC.getFrom(), 0 );
-				}
-				countConnections.put(tC.getFrom(), countConnections.get(tC.getFrom()).intValue() + 1);
-				
-				if (  !countConnections.containsKey(tC.getTo()) ) {
-					countConnections.put(tC.getTo(), 0 );
-				}
-				countConnections.put(tC.getTo(), countConnections.get(tC.getTo()).intValue() + 1);
-			} else if ( !countConnections.containsKey(tC.getFrom()) || countConnections.get(tC.getFrom()).intValue() < 2 ) {	// If it has a connection to another interval we don't need another reason to keep it
-				if ( !usedUnaryRelations.containsKey(tC.getFrom()) ) {
-					usedUnaryRelations.put(tC.getFrom(), new HashSet<String>());
-				}
-				if ( usedUnaryRelations.get(tC.getFrom()).contains(tC.getRelation() ) ) {		// Same unary relation twice has to be checked
-					countConnections.put( tC.getFrom() ,  100);
-				} else {
-					usedUnaryRelations.get(tC.getFrom()).add(tC.getRelation().toString());
-				}
-				
-			}
-		}
-		
-		/**
-		 * How many assignments of same variable (s.x) exist?
-		 */
-		for ( Statement s : cdb.get(Statement.class) ) {
-			if ( !countAssignments.containsKey(s.getVariable()) ) {
-				countAssignments.put( s.getVariable(), 0 );
-			}
-			countAssignments.put( s.getVariable(), countAssignments.get(s.getVariable()).intValue()+1 );
-		}
-				
-		HashSet<Term> keeperKeys = new HashSet<Term>();
-		for ( Term k : countConnections.keySet() ) {
-			if ( countConnections.get(k).intValue() > 1 ) {
-				keeperKeys.add(k);
-			}
-		}
-		
-		HashSet<Term> remKeys = new HashSet<Term>();
-		ArrayList<Statement> remList = new ArrayList<Statement>(); 
-		for ( Statement s : cdb.get(Statement.class) ) {
-			boolean keep = false;
-			keep = (keeperKeys.contains(s.getKey())) || (countAssignments.get(s.getVariable()).intValue() > 1);
-			
-			if ( !keep ) {
-				remList.add(s);
-				remKeys.add(s.getKey());
-			}
-		}
-		
-		cdb.removeAll(remList);
-		TemporalNetworkTools.removeTemporalConstraintsWithKeys(cdb, remKeys);
-	}
-	
-	/**
-	 * Remove all {@link AllenConstraint}s using a given set of interval keys.
-	 * @param keys
-	 */
-	public static void removeTemporalConstraintsWithKeys( ConstraintDatabase cdb, Collection<Term> keys ) {
-		HashSet<Constraint> remSet = new HashSet<Constraint>();
-		for ( AllenConstraint tC : cdb.get(AllenConstraint.class) ) {
-			if ( keys.contains(tC.getFrom()) || keys.contains(tC.getTo()) ) {
-				remSet.add(tC);
-			}				
-		}
-		cdb.removeAll(remSet);
-	}
-		
-	/**
-	 * Specialized version of the difference function that only considers statements
-	 * and temporal constraints.
-	 * @param cdb
-	 * @return
-	 */
-//	public static ConstraintDatabase temporalDifference( ConstraintDatabase cdb1, ConstraintDatabase cdb2 ) {		
-//		ConstraintDatabase diff = new ConstraintDatabase();
-//		
-//		for ( Statement s : cdb1.get(Statement.class) ) {
-//			if ( !cdb2.get(Statement.class).contains(s) ) {
-//				diff.add(s);
-//			}
-//		}
-//		
-//		for ( AllenConstraint c : cdb1.get(AllenConstraint.class) ) {
-//			if ( !cdb2.contains(c) ) {
-//				diff.add(c);
-//			}
-//		}
-//
-//		return diff;
-//	}
 	public static boolean isContainedIn( ConstraintDatabase cdb1, ConstraintDatabase cdb2 ) {		
 //		StopWatch.start("isContainedIn");
 
@@ -456,83 +176,7 @@ public class TemporalNetworkTools {
 //		StopWatch.stop("isContainedIn");
 		return true;
 	}
-	
-
-	
-	/**
-	 * Specialized version of the difference function that only considers statements
-	 * and temporal constraints.
-	 * @param cdb
-	 * @return
-	 */
-	public static int temporalHash( ConstraintDatabase cdb ) {		
-		return 	cdb.get(Statement.class).hashCode() 
-				+ 3*cdb.get(AllenConstraint.class).hashCode();
-	}
-	
-	/**
-	 * Creates subsets of increasing size of this TemporalDatabase and checks their consistency until
-	 * an inconsistent TemporalDatabase is found. This inconsistent TemporalDatabase is then returned.
-	 * This can be useful for debugging, since it summarizes unwanted inconsistencies.
-	 * @param dM DomainManager is needed since it knows resource capacities. 
-	 * @return
-	 * @throws NonGroundThing
-	 * @throws UnknownThing
-	 */
-//	public static ConstraintDatabase getSmallestInconsistentSubDB( ConstraintDatabase cdb, TypeManager tM ) {
-//		IncrementalSTPSolver csp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
-//		
-//		for ( int i = 2 ; i <= cdb.get(Statement.class).size(); i++ ) {
-//			ArrayList<ConstraintDatabase> subs = TemporalNetworkTools.getSubsetDatabases(cdb, i);
-//			
-//			for ( ConstraintDatabase subDB : subs ) {
-//				if ( !csp.isConsistent(subDB, tM) ) {
-//					return subDB;
-//				}
-//			}
-//		}
-//		return null;
-//	}
-	
-	/**
-	 * Get all TemporalDatabases with n-size subsets of statements in F and 
-	 * and only constraints between Statements in the subsets. Only keeps
-	 * those TemporalDatabases that have at least one binary constraint.
-	 * @param n
-	 */
-	public static ArrayList<ConstraintDatabase> getSubsetDatabases( ConstraintDatabase cdb, int n ) {
-		ArrayList<ConstraintDatabase> r = new ArrayList<ConstraintDatabase>();
 		
-		GenericComboBuilder<Statement> cB = new GenericComboBuilder<Statement>();
-		
-		List<Statement> S = new ArrayList<Statement>();
-		S.addAll(cdb.get(Statement.class));
-		List<List<Statement>> combos = cB.getCombosSingleList(S, n, false);
-		
-		for ( List<Statement> c : combos ) {
-			ConstraintDatabase fC = new ConstraintDatabase();
-			fC.removeType(Statement.class);
-//			fC.getStatements().clear();
-			for ( Statement s : c ) {
-				fC.add(s);
-			}
-//			fC.addStatements(c);
-			int numBinConstraints = 0;
-			for ( AllenConstraint tC : cdb.get(AllenConstraint.class) ) {					
-				if ( TemporalNetworkTools.hasFittingStatements(fC,tC)) {
-					fC.add(tC);
-					if ( tC.getTo() != null ) {
-						numBinConstraints ++;
-					}
-				}
-			}
-			if ( numBinConstraints > 0 ) {
-				r.add(fC);
-			}
-		}		
-		return r;
-	}	
-	
 	/**
 	 * Remove all groups in from {@link AllenConstraint}s and add new {@link AllenConstraint}s for 
 	 * combinations of group members.
@@ -599,134 +243,42 @@ public class TemporalNetworkTools {
 		C.addAll(addList);
 	}
 	
-	/**
-	 * Check a set of {@link PossibleIntersection} constraints given their bounds.
-	 * This method is here so it can be used both for {@link MetaCSPAdapter} and
-	 * {@link MetaCSPAdapterWithHistory} who provide the input data.
-	 * <p>
-	 * Definition of intersection is taken from:
-	 * <p>
-	 * A. Cesta, A. Oddi, and S.F. Smith. 
-	 * A Constraint-Based Method for Project Scheduling with Time Windows. 
-	 * Journal of Heuristics, 8:109–136, 2002.
-	 * 
-	 * @param piCs
-	 * @param bounds
-	 * @return <i>true</i> iff all intersections are possible (using earliest timeline assumption), <i>false</i> otherwise
-	 */
-	public static boolean checkPossibleIntersectionConstraints( Collection<PossibleIntersection> piCs, Map<Term,ArrayList<Long>> bounds ) {
-
-		for ( PossibleIntersection piC : piCs ) {
-			long minEET = Long.MAX_VALUE;
-			long maxEST = 0;
-			
-			for ( Term interval : piC.getIntervals() ) {
-				long EST = bounds.get(interval).get(0).longValue();
-				long EET = bounds.get(interval).get(2).longValue();
-					
-				if ( EST > maxEST ) {
-					maxEST = EST;
-				}
-				if ( EET < minEET ) {
-					minEET = EET;
-				}
-			}
-			if ( !(minEET > maxEST) ) {
-				return false;
-			}
-		}
-		
-		return true;
-	}
+//	public static Map<Atomic,List<Term>> getSequencedValues( ConstraintDatabase cdb, TypeManager tM ) {
+//		TemporalNetworkTools tools = new TemporalNetworkTools();
+//		
+//		IncrementalSTPSolver csp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
+//		csp.isConsistent(cdb, tM);
+//		
+//		Map<Atomic,List<TermAndEST>> sequencedValues = new HashMap<Atomic, List<TermAndEST>>();
+//		
+//		for ( Statement s : cdb.get(Statement.class)) {
+//			if ( !sequencedValues.containsKey(s.getVariable()) ) {
+//				sequencedValues.put(s.getVariable(), new ArrayList<TermAndEST>());
+//			}
+//			TermAndEST x = tools.new TermAndEST(s.getValue(), csp.getEST(s.getKey()));
+//			sequencedValues.get(s.getVariable()).add(x);
+//		}
+//		
+//		Map<Atomic,List<Term>> r = new HashMap<Atomic, List<Term>>();
+//		for ( Atomic key : sequencedValues.keySet() ) {
+//			Collections.sort(sequencedValues.get(key));
+//			List<Term> l = new ArrayList<Term>();
+//			for ( TermAndEST v : sequencedValues.get(key) ) {
+//				l.add(v.value);
+//			}
+//			r.put(key, l);
+//		}
+//		return r;
+//	}
 	
 	/**
-	 * Returns a string with some compressed information about sizes and
-	 * {@link AllenConstraint} counts.
-	 * 
-	 * @return
+	 * Create a sequence of intervals for each state-variable containing all
+	 * intervals that change this state-variable. Each sequence is sorted by 
+	 * the earliest start time (EST) of its intervals.
+	 * @param cdb {@link ConstraintDatabase} which should be sequenced
+	 * @return Map from state-variables (represented by {@link Atomic}) to sequenced intervals (represented by {@link Term}).
 	 */
-	public static String getStatsString( ConstraintDatabase cdb ) {
-		String r = "";
-		r += "Num. statements: " + cdb.get(Statement.class).size() + "\n";
-		r += "Num. constraints: " + cdb.size() + "\n";
-		
-		HashMap<String,Integer> cCount = new HashMap<String, Integer>();
-		
-		for( AllenConstraint tC : cdb.get(AllenConstraint.class) ) {
-			if ( !cCount.containsKey(tC.getRelation().toString())) {
-				cCount.put(tC.getRelation().toString(), new Integer(0));
-			}	
-			cCount.put(tC.getRelation().toString(), new Integer(cCount.get(tC.getRelation().toString()).intValue() + 1));
-		}
-		
-		for ( String k : cCount.keySet() ) {
-			r += "Relation " + k + " -> " + cCount.get(k) + "\n";
-		}
-		return r;
-	}
-	
-	
-	public static ConstraintDatabase createSubNetwork( ConstraintDatabase cDB, Collection<Atomic> included, Collection<Atomic> excluded ) {
-		ArrayList<Atomic> in = new ArrayList<Atomic>();
-		ArrayList<Atomic> out = new ArrayList<Atomic>();
-		
-		if ( included != null ) {
-			in.addAll(included);
-		}
-		if ( excluded != null ) {
-			out.addAll(excluded);
-		}
-		
-		ConstraintDatabase r = new ConstraintDatabase();
-		for ( Statement s : cDB.get(Statement.class) ) {
-			if ( in.contains(s.getVariable()) && !out.contains(s.getVariable()) ) {
-				r.add(s);
-			}
-		}
-		ArrayList<Statement> S = new ArrayList<Statement>();
-		S.addAll(r.get(Statement.class));
-		for ( int i = 0 ; i < r.get(Statement.class).size()-1 ; i++ ) {
-			for ( int j = i+1 ; j < r.get(Statement.class).size() ; j++ ) {
-//				Term a = r.getStatements().get(i).getKey();
-//				Term b = r.getStatements().get(j).getKey();
-				Term a = S.get(i).getKey();
-				Term b = S.get(j).getKey();
-				r.addAll(getTemporalConstraintsBetween(cDB, a, b));
-			}
-		}		
-		return r;
-	}
-	
-
-	public static Map<Atomic,List<Term>> getSequencedValues( ConstraintDatabase cdb, TypeManager tM ) {
-		TemporalNetworkTools tools = new TemporalNetworkTools();
-		
-		IncrementalSTPSolver csp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
-		csp.isConsistent(cdb, tM);
-		
-		Map<Atomic,List<TermAndEST>> sequencedValues = new HashMap<Atomic, List<TermAndEST>>();
-		
-		for ( Statement s : cdb.get(Statement.class)) {
-			if ( !sequencedValues.containsKey(s.getVariable()) ) {
-				sequencedValues.put(s.getVariable(), new ArrayList<TermAndEST>());
-			}
-			TermAndEST x = tools.new TermAndEST(s.getValue(), csp.getEST(s.getKey()));
-			sequencedValues.get(s.getVariable()).add(x);
-		}
-		
-		Map<Atomic,List<Term>> r = new HashMap<Atomic, List<Term>>();
-		for ( Atomic key : sequencedValues.keySet() ) {
-			Collections.sort(sequencedValues.get(key));
-			List<Term> l = new ArrayList<Term>();
-			for ( TermAndEST v : sequencedValues.get(key) ) {
-				l.add(v.value);
-			}
-			r.put(key, l);
-		}
-		return r;
-	}
-	
-	public static Map<Atomic,List<Term>> getSequencedIntervals( ConstraintDatabase cdb, TypeManager tM ) {
+	public static Map<Atomic,List<Term>> getSequencedIntervals( ConstraintDatabase cdb ) {
 		TemporalNetworkTools tools = new TemporalNetworkTools();
 		TemporalIntervalLookup tiLookup = cdb.get(TemporalIntervalLookup.class).get(0);
 		
@@ -811,12 +363,15 @@ public class TemporalNetworkTools {
 	}
 	
 
-	
-	public static void inspect( ConstraintDatabase cDB, TypeManager tM ) {
+	/**
+	 * Solve STP of a {@link ConstraintDatabase} in debug mode. This will provide console output
+	 * about which constraints cannot be added.
+	 * @param cDB {@link ConstraintDatabase} to inspect. 
+	 */
+	public static void inspect( ConstraintDatabase cDB ) {
 		IncrementalSTPSolver csp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
 		csp.debug = true;
-		csp.isConsistent(cDB, tM);
-		Loop.start();
+		csp.isConsistent(cDB, new TypeManager());
 	}
 	
 	/**
@@ -831,6 +386,7 @@ public class TemporalNetworkTools {
 	 * Dump timeline data of CDB (after temporal propagation) so it can be visualized.
 	 * To create a figure from the dumped data use the script "PlotTimelines" in main.python
 	 * @param cDB {@link ConstraintDatabase} after temporal propagation
+	 * @param tiLookup Propagated earliest and latest start and end times of all intervals
 	 * @param fName Target filename
 	 */
 	public static void dumbTimeLineData( ConstraintDatabase cDB, TemporalIntervalLookup tiLookup, String fName ) {

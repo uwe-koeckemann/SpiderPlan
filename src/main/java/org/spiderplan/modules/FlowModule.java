@@ -35,6 +35,7 @@ import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.tools.logging.Logger;
+import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
 /**
@@ -127,8 +128,8 @@ public class FlowModule  extends Module {
 				throw new IllegalStateException("No FlowRule defined for module " + currentModule + " with out signals: " + core.getOutSignalsString());
 			}
 			
-			if ( keepStats ) stats.increment( msg("#Calls") );
-			if ( keepStats ) stats.increment( msg("#Calls (" + currentModule + ")"));
+			if ( keepStats ) Statistics.increment( msg("#Calls") );
+			if ( keepStats ) Statistics.increment( msg("#Calls (" + currentModule + ")"));
 			
 			if ( currentModule.equals("Fail") ) {
 				currentCore.setResultingState(this.getName(), State.Inconsistent);
@@ -159,7 +160,7 @@ public class FlowModule  extends Module {
 				currentCore = modules.get(currentModule).run( currentCore );
 			if ( keepTimes ) StopWatch.stop("[" + this.getName() +"] Running " + currentModule);
 				
-			if ( keepStats && keepTimes ) stats.setDouble(msg("Time "+currentModule+" [s]"), (StopWatch.getSum("[" + this.getName() +"] Running " + currentModule)/1000.0));
+			if ( keepStats && keepTimes ) Statistics.setDouble(msg("Time "+currentModule+" [s]"), (StopWatch.getSum("[" + this.getName() +"] Running " + currentModule)/1000.0));
 			
 			
 			if ( currentCore.getResultingState(currentModule) != null && currentCore.getResultingState(currentModule).equals("Killed")) {

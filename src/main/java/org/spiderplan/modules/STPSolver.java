@@ -22,7 +22,6 @@
  *******************************************************************************/
 package org.spiderplan.modules;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
@@ -37,15 +36,14 @@ import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.representation.ConstraintDatabase;
+import org.spiderplan.representation.constraints.Constraint;
 import org.spiderplan.representation.constraints.OpenGoal;
 import org.spiderplan.representation.constraints.PlanningInterval;
 import org.spiderplan.representation.constraints.PossibleIntersection;
-import org.spiderplan.representation.constraints.AllenConstraint;
 import org.spiderplan.representation.constraints.TemporalIntervalQuery;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
-import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
@@ -152,7 +150,7 @@ public class STPSolver extends Module implements SolverInterface {
 		}
 	
 		ConstraintDatabase cDB = core.getContext();
-		Map<Class,Integer> cdbConCount = cDB.getConstraintCount();
+		Map<Class<? extends Constraint>,Integer> cdbConCount = cDB.getConstraintCount();
 
 		/**
 		 * Add goals for the test

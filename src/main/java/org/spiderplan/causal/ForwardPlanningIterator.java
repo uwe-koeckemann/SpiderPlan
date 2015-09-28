@@ -23,16 +23,15 @@
 package org.spiderplan.causal;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.PriorityQueue;
 import java.util.Set; 
 import org.spiderplan.tools.logging.Logger;
+import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
 import org.spiderplan.causal.ForwardPlanningNode.EqualityCriteria;
 import org.spiderplan.causal.goals.Goal;
@@ -49,13 +48,9 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.constraints.Asserted;
 import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
 import org.spiderplan.representation.constraints.DiscardedPlan;
-import org.spiderplan.representation.constraints.IgnoredByCausalReasoner;
 import org.spiderplan.representation.constraints.OpenGoal;
 import org.spiderplan.representation.constraints.PlanningInterval;
-import org.spiderplan.representation.constraints.StateVariableOverride;
-import org.spiderplan.representation.constraints.AllenConstraint;
 import org.spiderplan.representation.constraints.Statement;
 import org.spiderplan.representation.constraints.TemporalIntervalLookup;
 import org.spiderplan.representation.constraints.VariableDomainRestriction;
@@ -65,12 +60,8 @@ import org.spiderplan.representation.plans.OrderedPlan;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.plans.SequentialPlan;
 import org.spiderplan.representation.types.TypeManager;
-import org.spiderplan.search.MultiHeuristicNode;
-import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
 import org.spiderplan.tools.UniqueID;
-
-
 
 public class ForwardPlanningIterator extends ResolverIterator {
 	
@@ -130,8 +121,8 @@ public class ForwardPlanningIterator extends ResolverIterator {
 	private boolean firstTime = true;
 	
 	private final static Term False = Term.createConstant("false");
-	private final static Term Executing = Term.createConstant("executing");
-	private final static Term TransitionOperatorLabel = Term.createConstant("transOp");
+//	private final static Term Executing = Term.createConstant("executing");
+//	private final static Term TransitionOperatorLabel = Term.createConstant("transOp");
 	
 	public ForwardPlanningIterator( ConstraintDatabase cDB, Collection<OpenGoal> G, Collection<Operator> O, TypeManager tM, ConfigurationManager cManager, String name ) {
 		super(name, cManager);
@@ -231,8 +222,8 @@ public class ForwardPlanningIterator extends ResolverIterator {
 	}
 		
 	private void recordStats() {
-		if ( keepStats ) stats.setLong("["+this.getName()+"] Pruned (by external)", Long.valueOf(prunedByExternalModules));
-		if ( keepStats ) stats.setLong("["+this.getName()+"] Pruned (total)", Long.valueOf(prunedNoGoods));	
+		if ( keepStats ) Statistics.setLong("["+this.getName()+"] Pruned (by external)", Long.valueOf(prunedByExternalModules));
+		if ( keepStats ) Statistics.setLong("["+this.getName()+"] Pruned (total)", Long.valueOf(prunedNoGoods));	
 	}
 	
 	private void printIterationInfo() {
@@ -245,7 +236,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		}
 		queueSizes += ")";
 		
-		if ( verbose ) super.print("Proposed/expanded nodes: " + +planner.proposedNodes +"/" + planner.expandedNodes + ", Queue size: " + queueSizes, 1);
+		if ( verbose ) super.print("Proposed/expanded nodes: " + +planner.getProposedNodeCount() +"/" + planner.getExpandedNodeCount() + ", Queue size: " + queueSizes, 1);
 		if ( verbose ) super.print("Pruned "+prunedNoGoods+" no goods, " + prunedThisTime + "/" + prunedByExternalModules + " pruned by external modules now/overall.", 1);
 	
 		ForwardPlanningNode fdn = (ForwardPlanningNode)planner.getCurrentNode();
@@ -324,7 +315,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		}
 		
 		Logger.depth++;
-		planner.success = false;
+//		planner.success = false;
 		
 //		/**
 //		 * The following lines handle external constraints that
@@ -341,7 +332,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		if ( !firstTime ) {
 			if ( verbose ) { 
 				print("Last node was no-good...", 1);
-				ForwardPlanningNode fpn = (ForwardPlanningNode) planner.n;
+				ForwardPlanningNode fpn = (ForwardPlanningNode) planner.getCurrentNode();
 				if ( fpn != null ) { 
 					if ( verbose ) print("Last plan length: " + fpn.depth(),1);
 					if ( verbose ) print("Last plan: " + fpn.getPlanList(),1);
@@ -366,15 +357,16 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			}
 			
 //			this.handleDiscardedPlans();
-			if ( keepStats ) stats.increment("["+getName()+"] NoGoods");
+			if ( keepStats ) Statistics.increment("["+getName()+"] NoGoods");
 			prune();
-			planner.done = false;
-			planner.success = false;	
+			planner.continueSearch();
+//			planner.done = false;
+//			planner.success = false;	
 		} else {
 			firstTime = false;
 		}
 
-		while ( !planner.done ) {
+		while ( !planner.isDone() ) {
 			if ( keepTimes ) StopWatch.start(msg("Stepping"));
 			planner.step();
 			if ( keepTimes ) StopWatch.stop(msg("Stepping"));			
@@ -479,12 +471,13 @@ public class ForwardPlanningIterator extends ResolverIterator {
 					}
 					
 					this.prune();
-					if ( planner.done )  {
-						planner.done = false;
-					}
-					if ( planner.success ) {
-						planner.success = false;
-					}
+					planner.continueSearch();
+//					if ( planner.isDone() )  {
+//						planner.done = false;
+//					}
+//					if ( planner.isSuccess() ) {
+//						planner.success = false;
+//					}
 				}
 				if ( keepTimes ) StopWatch.stop(msg("Incremental consistency check"));
 			}
@@ -492,7 +485,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		
 		Plan p = null;
 		Resolver r = null;
-		if ( planner.success ) {
+		if ( planner.isSuccess() ) {
 			/**
 			 * Setup ApplyPlanIterator to try different 
 			 * possible applications of the solution plan.
@@ -508,7 +501,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			
 			p = new Plan(pPlan, allOps, planID);
 						
-			if ( keepStats ) stats.setLong(msg("|\\pi|"), Long.valueOf(p.getActions().size())); 
+			if ( keepStats ) Statistics.setLong(msg("|\\pi|"), Long.valueOf(p.getActions().size())); 
 		
 //			if ( resetUniqueIDs ) UniqueID.restore();
 			ConstraintDatabase context = originalContext.copy();
@@ -532,7 +525,8 @@ public class ForwardPlanningIterator extends ResolverIterator {
 //				r.getConstraintDatabase().add(new AllenConstraint(a.getLabel(), TemporalRelation.Deadline, new Interval(new Term(0),new Term(temporalHorizon))));
 //			}
 			
-			planner.done = false;
+//			planner.done = false;
+			planner.continueSearch();
 		} else {
 			if ( verbose )  print("Fail", 0);
 		}
@@ -567,9 +561,9 @@ public class ForwardPlanningIterator extends ResolverIterator {
 //			for ( IgnoredByCausalReasoner ignoreC : goalDB.get(IgnoredByCausalReasoner.class) ) {
 //				ignoredKeys.add(ignoreC.getKey());
 //			}
-		for ( IgnoredByCausalReasoner ignoreC : initDB.get(IgnoredByCausalReasoner.class) ) {
-			ignoredKeys.add(ignoreC.getKey());
-		}
+//		for ( IgnoredByCausalReasoner ignoreC : initDB.get(IgnoredByCausalReasoner.class) ) {
+//			ignoredKeys.add(ignoreC.getKey());
+//		}
 		
 		if ( verbose ) {
 			print("Goals:", 1);
@@ -989,14 +983,13 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		planner = new ForwardPlanning();
 
 		planner.setLookAhead(lookAhead);
-		planner.name = super.getName();		
-		planner.verbose = super.verbose;
-		planner.verbosity = super.verbosity;
-		planner.keepTimes = super.keepTimes;
+		planner.setName(super.getName());
+		planner.setVerbose(super.verbose, super.verbosity);
+		planner.setKeepTimes(super.keepTimes);
 		planner.yahspLookahead = this.yahspLookahead;
 		
 		if ( !incremental ) {
-			planner.expandAndSelect = false;
+			planner.setDelayedExpansion(false);
 		}
 		
 		/**
@@ -1009,162 +1002,162 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		}
 	}
 	
-	private void findConflictsWithFutureEvents( ConstraintDatabase cDB, Plan p, TypeManager tM ) {
-		long t0 = 0;
-		
-		ArrayList<Statement> initStatementSlice = new ArrayList<Statement>();
-		Map<Atomic,Statement> initialStatements = new HashMap<Atomic, Statement>();
-		Map<Atomic,ArrayList<Statement>> futureEvents = new HashMap<Atomic,ArrayList<Statement>>();
-		IncrementalSTPSolver csp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
-		
-		csp.isConsistent(cDB, tM);	
-					
-		for ( PlanningInterval pst : cDB.get(PlanningInterval.class)) {
-			t0 = pst.getStartTimeValue();
-		}
-		
-		initStatementSlice = csp.getTemporalSnapshotWithFuture(t0);
-		
-		for ( Statement s : initStatementSlice ) {
-			initialStatements.put(s.getVariable(), s );					
-		}
-
-		for ( Statement sFuture : cDB.get(Statement.class) ) {
-			if ( !futureEvents.containsKey(sFuture.getVariable()) ) {
-				futureEvents.put(sFuture.getVariable(), new ArrayList<Statement>());
-			}
-			futureEvents.get(sFuture.getVariable()).add(sFuture);
-		}
-
-		// Remove initial Statements
-		for ( Statement initStatement : initStatementSlice ) {
-			futureEvents.get(initStatement.getVariable()).remove(initStatement);
-		}
-
-		// Remove effects that have already been added
-		for ( Operator a : p.getActions() ) {
-			for ( Statement e : a.getEffects() ) {
-				if ( futureEvents.containsKey(e.getVariable()) ) {
-					futureEvents.get(e.getVariable()).remove(e);
-				}
-			}
-		}
-		// Remove events that originated from goals
-		for ( OpenGoal og : cDB.get(OpenGoal.class) ) {
-			if ( futureEvents.containsKey(og.getStatement().getVariable()) ) {
-				futureEvents.get(og.getStatement().getVariable()).remove(og.getStatement());
-			}
-		}
-		
-		if ( verbose ) {
-			print("Init. statement slice:",3);
-			for ( Statement initStatement : initStatementSlice ) {
-				print(initStatement.toString(), 3);
-			}
-			print("Future events:",3);
-			for ( Atomic var: futureEvents.keySet() ) {
-				print(var.toString() + " -> " + futureEvents.get(var), 3);
-			}
-		}
-		
-						
-		/**
-		 * Apply all previous StateVariableOverrides so that we do not
-		 * discover them again.
-		 * 
-		 * Also make list of all effects so that we can exclude them from
-		 * future events.
-		 */
-		StopWatch.start("[" + this.getName() + "] Current statements and effect list");
-		Map<Atomic,Statement> currentStatements = new HashMap<Atomic,Statement>();
-		
-		Map<Atomic,ArrayList<Statement>> varHistory = new HashMap<Atomic,ArrayList<Statement>>();
-				
-		for ( Statement s : initStatementSlice ) {
-			if ( !varHistory.containsKey(s.getVariable()) ) {
-				varHistory.put( s.getVariable(), new ArrayList<Statement>() );
-			}
-			varHistory.get(s.getVariable()).add(s);
-		}
-		
-		currentStatements.putAll(initialStatements);
-		ArrayList<Statement> effectsOfLastAction = new ArrayList<Statement>();
-		ArrayList<Statement> effectList = new ArrayList<Statement>();
-		ArrayList<Statement> checkList = new ArrayList<Statement>();
-		for ( Operator a : p.getActions() ) {
-			effectsOfLastAction = a.getEffects();
-			for ( Statement e : a.getEffects() ) {
-				if ( !varHistory.containsKey(e.getVariable()) ) {
-					varHistory.put( e.getVariable(), new ArrayList<Statement>() );
-				}
-				varHistory.get(e.getVariable()).add(e);
-				
-				currentStatements.put(e.getVariable(), e);
-				effectList.add(e);
-				checkList.add(e);
-			}
-		}
-		
-		
-		checkList.addAll(initStatementSlice);
-	
-		StopWatch.stop("[" + this.getName() + "] Current statements and effect list");
-	
-		boolean atLeastOneConflict = false;
-		StopWatch.start("[" + this.getName() + "] Checking future events");
-
-		Collection<StateVariableOverride> returnedConstraints = new ArrayList<StateVariableOverride>();
-		
-		for ( Statement sCurrent : checkList ) {
-			Atomic var = sCurrent.getVariable();
-			
-			if ( futureEvents.containsKey(var) ) {				
-				
-				for ( Statement s : futureEvents.get(var) ) {
-						
-					if ( !s.equals(sCurrent) 
-							&& !s.getValue().equals(sCurrent.getValue()) 
-							&& !effectList.contains(s) 
-							&& (!varHistory.containsKey(var) || !varHistory.get(var).contains(s))  ) {
-						if ( verbose ) print("Checking " + sCurrent + " (current) VS " + s + " (future)" ,2);
-//						if ( verbose ) print(csp.getBounds(sCurrent.getKey()).toString() ,2);
-//						if ( verbose ) print(csp.getBounds(s.getKey()).toString() ,2);
-						long initEET = csp.getBoundsArray(sCurrent.getKey())[2];
-						long futureEST = csp.getBoundsArray(s.getKey())[0];
-					
-						if ( futureEST < initEET ) {
-							if ( verbose ) print("Found conflict between " + sCurrent + " (EET="+initEET+") and " + s + "(EST="+futureEST+")", 2);
-							
-							StateVariableOverride svo = null;
-							if ( !effectsOfLastAction.contains(sCurrent) ) { 
-								 svo = new StateVariableOverride(sCurrent, s);
-							} else {
-								int historySize = varHistory.get(sCurrent.getVariable()).size();
-								if ( historySize > 1 ) {
-									svo = new StateVariableOverride( varHistory.get(sCurrent.getVariable()).get(historySize-2), s );
-								} else {
-									
-								}
-							}
-							
-							if ( svo != null ) {
-								returnedConstraints.add(svo);
-								if ( verbose ) print("Found conflict. Adding " + svo,1);
-							} else {
-								if ( verbose ) print("Found conflict. No possible resolver.",1);
-							}
-							atLeastOneConflict = true;
-						} else {
-							if ( verbose ) print("No conflict." ,2);
-						}
-					}
-				}
-			}
-		}
-		StopWatch.stop("[" + this.getName() + "] Checking future events");
-		
-		handleStateVariableOverrides(returnedConstraints, tM);
-	}
+//	private void findConflictsWithFutureEvents( ConstraintDatabase cDB, Plan p, TypeManager tM ) {
+//		long t0 = 0;
+//		
+//		ArrayList<Statement> initStatementSlice = new ArrayList<Statement>();
+//		Map<Atomic,Statement> initialStatements = new HashMap<Atomic, Statement>();
+//		Map<Atomic,ArrayList<Statement>> futureEvents = new HashMap<Atomic,ArrayList<Statement>>();
+//		IncrementalSTPSolver csp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
+//		
+//		csp.isConsistent(cDB, tM);	
+//					
+//		for ( PlanningInterval pst : cDB.get(PlanningInterval.class)) {
+//			t0 = pst.getStartTimeValue();
+//		}
+//		
+//		initStatementSlice = csp.getTemporalSnapshotWithFuture(t0);
+//		
+//		for ( Statement s : initStatementSlice ) {
+//			initialStatements.put(s.getVariable(), s );					
+//		}
+//
+//		for ( Statement sFuture : cDB.get(Statement.class) ) {
+//			if ( !futureEvents.containsKey(sFuture.getVariable()) ) {
+//				futureEvents.put(sFuture.getVariable(), new ArrayList<Statement>());
+//			}
+//			futureEvents.get(sFuture.getVariable()).add(sFuture);
+//		}
+//
+//		// Remove initial Statements
+//		for ( Statement initStatement : initStatementSlice ) {
+//			futureEvents.get(initStatement.getVariable()).remove(initStatement);
+//		}
+//
+//		// Remove effects that have already been added
+//		for ( Operator a : p.getActions() ) {
+//			for ( Statement e : a.getEffects() ) {
+//				if ( futureEvents.containsKey(e.getVariable()) ) {
+//					futureEvents.get(e.getVariable()).remove(e);
+//				}
+//			}
+//		}
+//		// Remove events that originated from goals
+//		for ( OpenGoal og : cDB.get(OpenGoal.class) ) {
+//			if ( futureEvents.containsKey(og.getStatement().getVariable()) ) {
+//				futureEvents.get(og.getStatement().getVariable()).remove(og.getStatement());
+//			}
+//		}
+//		
+//		if ( verbose ) {
+//			print("Init. statement slice:",3);
+//			for ( Statement initStatement : initStatementSlice ) {
+//				print(initStatement.toString(), 3);
+//			}
+//			print("Future events:",3);
+//			for ( Atomic var: futureEvents.keySet() ) {
+//				print(var.toString() + " -> " + futureEvents.get(var), 3);
+//			}
+//		}
+//		
+//						
+//		/**
+//		 * Apply all previous StateVariableOverrides so that we do not
+//		 * discover them again.
+//		 * 
+//		 * Also make list of all effects so that we can exclude them from
+//		 * future events.
+//		 */
+//		StopWatch.start("[" + this.getName() + "] Current statements and effect list");
+//		Map<Atomic,Statement> currentStatements = new HashMap<Atomic,Statement>();
+//		
+//		Map<Atomic,ArrayList<Statement>> varHistory = new HashMap<Atomic,ArrayList<Statement>>();
+//				
+//		for ( Statement s : initStatementSlice ) {
+//			if ( !varHistory.containsKey(s.getVariable()) ) {
+//				varHistory.put( s.getVariable(), new ArrayList<Statement>() );
+//			}
+//			varHistory.get(s.getVariable()).add(s);
+//		}
+//		
+//		currentStatements.putAll(initialStatements);
+//		ArrayList<Statement> effectsOfLastAction = new ArrayList<Statement>();
+//		ArrayList<Statement> effectList = new ArrayList<Statement>();
+//		ArrayList<Statement> checkList = new ArrayList<Statement>();
+//		for ( Operator a : p.getActions() ) {
+//			effectsOfLastAction = a.getEffects();
+//			for ( Statement e : a.getEffects() ) {
+//				if ( !varHistory.containsKey(e.getVariable()) ) {
+//					varHistory.put( e.getVariable(), new ArrayList<Statement>() );
+//				}
+//				varHistory.get(e.getVariable()).add(e);
+//				
+//				currentStatements.put(e.getVariable(), e);
+//				effectList.add(e);
+//				checkList.add(e);
+//			}
+//		}
+//		
+//		
+//		checkList.addAll(initStatementSlice);
+//	
+//		StopWatch.stop("[" + this.getName() + "] Current statements and effect list");
+//	
+//		boolean atLeastOneConflict = false;
+//		StopWatch.start("[" + this.getName() + "] Checking future events");
+//
+//		Collection<StateVariableOverride> returnedConstraints = new ArrayList<StateVariableOverride>();
+//		
+//		for ( Statement sCurrent : checkList ) {
+//			Atomic var = sCurrent.getVariable();
+//			
+//			if ( futureEvents.containsKey(var) ) {				
+//				
+//				for ( Statement s : futureEvents.get(var) ) {
+//						
+//					if ( !s.equals(sCurrent) 
+//							&& !s.getValue().equals(sCurrent.getValue()) 
+//							&& !effectList.contains(s) 
+//							&& (!varHistory.containsKey(var) || !varHistory.get(var).contains(s))  ) {
+//						if ( verbose ) print("Checking " + sCurrent + " (current) VS " + s + " (future)" ,2);
+////						if ( verbose ) print(csp.getBounds(sCurrent.getKey()).toString() ,2);
+////						if ( verbose ) print(csp.getBounds(s.getKey()).toString() ,2);
+//						long initEET = csp.getBoundsArray(sCurrent.getKey())[2];
+//						long futureEST = csp.getBoundsArray(s.getKey())[0];
+//					
+//						if ( futureEST < initEET ) {
+//							if ( verbose ) print("Found conflict between " + sCurrent + " (EET="+initEET+") and " + s + "(EST="+futureEST+")", 2);
+//							
+//							StateVariableOverride svo = null;
+//							if ( !effectsOfLastAction.contains(sCurrent) ) { 
+//								 svo = new StateVariableOverride(sCurrent, s);
+//							} else {
+//								int historySize = varHistory.get(sCurrent.getVariable()).size();
+//								if ( historySize > 1 ) {
+//									svo = new StateVariableOverride( varHistory.get(sCurrent.getVariable()).get(historySize-2), s );
+//								} else {
+//									
+//								}
+//							}
+//							
+//							if ( svo != null ) {
+//								returnedConstraints.add(svo);
+//								if ( verbose ) print("Found conflict. Adding " + svo,1);
+//							} else {
+//								if ( verbose ) print("Found conflict. No possible resolver.",1);
+//							}
+//							atLeastOneConflict = true;
+//						} else {
+//							if ( verbose ) print("No conflict." ,2);
+//						}
+//					}
+//				}
+//			}
+//		}
+//		StopWatch.stop("[" + this.getName() + "] Checking future events");
+//		
+//		handleStateVariableOverrides(returnedConstraints, tM);
+//	}
 	
 	/**
 	 * Handles {@link DiscardedPlan} constraints that remove all plans
@@ -1206,92 +1199,92 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		return false;
 	}
 	
-	/**
-	 * Handles {@link DiscardedPlan} constraints that remove all plans
-	 * that match the (possibly non-ground) plans in these constraints. 
-	 * @param core
-	 */
-	private boolean handleDiscardedPlans( ) {
-		StopWatch.start("[ForwardPlanningModule] Pruning DiscardedPlans");
-		prunedThisTime = 0;
-		boolean currentPlanPrunable = false;
-//		ArrayList<DiscardedPlan> dpList = new ArrayList<DiscardedPlan>();
-//		dpList.addAll(C.get(DiscardedPlan.class));
-		if ( this.prunablePlans.size() > 0 ) {
-			if ( verbose ) print("Number of discarded plans: " + this.prunablePlans.size(), 2);  
-		}
-		for ( DiscardedPlan dP : this.prunablePlans ) {				
-			Plan pruned = dP.getPlan();
-			ForwardPlanningNode fdn;
-			SequentialPlan pSeq;
-			SequentialPlan pPrunedSeq = pruned.getSequentialPlan();
-//			Plan queuedPlan;
-			boolean matches;
-			
-			if ( planner.getCurrentNode() != null ) {
-				fdn = (ForwardPlanningNode)planner.getCurrentNode();
-				pSeq = fdn.getPlan();
-//				StopWatch.start("new Plan");
-//				queuedPlan = new Plan(pSeq, O);
-//				StopWatch.stop("new Plan");
-//				matches = pruned.isMatchingSubPlan(queuedPlan);
-				matches = pSeq.isMatchingSubPlan(pPrunedSeq);
-				
-				if ( verbose ) print("Matching:\n" + pSeq + "\n\nwith:\n\n" + pruned.getSequentialPlan(), 2);
-								
-				if ( matches ) {
-					if ( verbose ) print("Current plan prunable", 2);
-					this.prune();
-					currentPlanPrunable = true;
-				} else {
-					if ( verbose ) print("Current not prunable" + pSeq, 2);
-				}
-			}
-							
-//				SequentialPlan pPrunedSeq = pruned.getSequentialPlan();
-			for ( int i = 0 ; i < planner.getNumQueues() ; i++ ) {
-				for ( MultiHeuristicNode n : planner.getUnexploredNodes() ) { 
-					fdn = (ForwardPlanningNode)n;
-					pSeq = fdn.getPlan();
-					
-//					StopWatch.start("new Plan");
-//					queuedPlan = new Plan(pSeq, O);
-//					StopWatch.stop("new Plan");
-
-					matches = pSeq.isMatchingSubPlan(pPrunedSeq);
-					
-//					matches = pruned.isMatchingSubPlan(queuedPlan);
-						
-					if ( matches ) {
-						if ( verbose ) print("Pruning plan:\n" + pSeq, 2);
-						planner.removeSet.add(n);
-					}
-				}
-				for ( ArrayList<PriorityQueue<MultiHeuristicNode>> bQueue : planner.getBackUpQueues() ) {
-					for ( MultiHeuristicNode n : bQueue.get(i) ) {
-						fdn = (ForwardPlanningNode)n;
-						pSeq = fdn.getPlan();
-	
-//						StopWatch.start("new Plan");
-//						queuedPlan = new Plan(pSeq, O);
-//						StopWatch.stop("new Plan");
-						matches = pSeq.isMatchingSubPlan(pPrunedSeq);
-//						matches = pruned.isMatchingSubPlan(queuedPlan);
-						
-						if ( matches ) {
-							if ( verbose ) print("Pruning plan:\n" + pSeq, 2);
-							planner.removeSet.add(n);
-						}
-					}
-				}
-			}
-			prunedByExternalModules += planner.removeSet.size();
-			prunedThisTime += planner.removeSet.size();		
-			
-		}
-		StopWatch.stop("[ForwardPlanningModule] Pruning DiscardedPlans");
-		return currentPlanPrunable;
-	}
+//	/**
+//	 * Handles {@link DiscardedPlan} constraints that remove all plans
+//	 * that match the (possibly non-ground) plans in these constraints. 
+//	 * @param core
+//	 */
+//	private boolean handleDiscardedPlans( ) {
+//		StopWatch.start("[ForwardPlanningModule] Pruning DiscardedPlans");
+//		prunedThisTime = 0;
+//		boolean currentPlanPrunable = false;
+////		ArrayList<DiscardedPlan> dpList = new ArrayList<DiscardedPlan>();
+////		dpList.addAll(C.get(DiscardedPlan.class));
+//		if ( this.prunablePlans.size() > 0 ) {
+//			if ( verbose ) print("Number of discarded plans: " + this.prunablePlans.size(), 2);  
+//		}
+//		for ( DiscardedPlan dP : this.prunablePlans ) {				
+//			Plan pruned = dP.getPlan();
+//			ForwardPlanningNode fdn;
+//			SequentialPlan pSeq;
+//			SequentialPlan pPrunedSeq = pruned.getSequentialPlan();
+////			Plan queuedPlan;
+//			boolean matches;
+//			
+//			if ( planner.getCurrentNode() != null ) {
+//				fdn = (ForwardPlanningNode)planner.getCurrentNode();
+//				pSeq = fdn.getPlan();
+////				StopWatch.start("new Plan");
+////				queuedPlan = new Plan(pSeq, O);
+////				StopWatch.stop("new Plan");
+////				matches = pruned.isMatchingSubPlan(queuedPlan);
+//				matches = pSeq.isMatchingSubPlan(pPrunedSeq);
+//				
+//				if ( verbose ) print("Matching:\n" + pSeq + "\n\nwith:\n\n" + pruned.getSequentialPlan(), 2);
+//								
+//				if ( matches ) {
+//					if ( verbose ) print("Current plan prunable", 2);
+//					this.prune();
+//					currentPlanPrunable = true;
+//				} else {
+//					if ( verbose ) print("Current not prunable" + pSeq, 2);
+//				}
+//			}
+//							
+////				SequentialPlan pPrunedSeq = pruned.getSequentialPlan();
+//			for ( int i = 0 ; i < planner.getNumQueues() ; i++ ) {
+//				for ( MultiHeuristicNode n : planner.getUnexploredNodes() ) { 
+//					fdn = (ForwardPlanningNode)n;
+//					pSeq = fdn.getPlan();
+//					
+////					StopWatch.start("new Plan");
+////					queuedPlan = new Plan(pSeq, O);
+////					StopWatch.stop("new Plan");
+//
+//					matches = pSeq.isMatchingSubPlan(pPrunedSeq);
+//					
+////					matches = pruned.isMatchingSubPlan(queuedPlan);
+//						
+//					if ( matches ) {
+//						if ( verbose ) print("Pruning plan:\n" + pSeq, 2);
+//						planner.removeSet.add(n);
+//					}
+//				}
+//				for ( ArrayList<PriorityQueue<MultiHeuristicNode>> bQueue : planner.getBackUpQueues() ) {
+//					for ( MultiHeuristicNode n : bQueue.get(i) ) {
+//						fdn = (ForwardPlanningNode)n;
+//						pSeq = fdn.getPlan();
+//	
+////						StopWatch.start("new Plan");
+////						queuedPlan = new Plan(pSeq, O);
+////						StopWatch.stop("new Plan");
+//						matches = pSeq.isMatchingSubPlan(pPrunedSeq);
+////						matches = pruned.isMatchingSubPlan(queuedPlan);
+//						
+//						if ( matches ) {
+//							if ( verbose ) print("Pruning plan:\n" + pSeq, 2);
+//							planner.removeSet.add(n);
+//						}
+//					}
+//				}
+//			}
+//			prunedByExternalModules += planner.removeSet.size();
+//			prunedThisTime += planner.removeSet.size();		
+//			
+//		}
+//		StopWatch.stop("[ForwardPlanningModule] Pruning DiscardedPlans");
+//		return currentPlanPrunable;
+//	}
 	
 	/**
 	 * Handle {@link StateVariableOverride} constraints
@@ -1314,91 +1307,91 @@ public class ForwardPlanningIterator extends ResolverIterator {
 	 * 
 	 * @param core
 	 */
-	private void handleStateVariableOverrides( Collection<StateVariableOverride> svoList, TypeManager tM ) {
-
-		if ( !svoList.isEmpty() ) {
-			if ( !tM.hasVariable("transitionAction")) {
-				tM.attachTypes(new Atomic("transitionAction()") , Executing );
-			}
-			
-			ForwardPlanningNode fpN = (ForwardPlanningNode)planner.getCurrentNode();
-			
-			ArrayList<ForwardPlanningNode> newNodes = new ArrayList<ForwardPlanningNode>();
-			
-			if ( verbose ) super.print("Got future event conflict (depth " + fpN.depth() + ")", 1);
-			
-			while ( fpN != null ) {
-				if ( fpN.a != null && fpN.a.getName().toString().startsWith("transitionAction") ) {
-					break;
-				}
-				fpN = fpN.prev;
-				if ( fpN != null ) {
-					ForwardPlanningNode fpnNew = new ForwardPlanningNode(fpN.getHeuristicValues().length);
-
-					fpnNew.a = fpN.a;
-					fpnNew.C = new ConstraintDatabase();
-					fpnNew.C.addAll(fpN.C);
-					fpnNew.g = fpN.g.copy();
-					fpnNew.prev = fpN.prev;
-					fpnNew.s = new HashMap<Atomic, List<Term>>();
-					fpnNew.s.putAll(fpN.s);	
-					
-					Operator transitionActionOp = new Operator();
-					long ID = UniqueID.getID();
-					transitionActionOp.setName(new Atomic("transitionAction"+ID+"()"));
-					Term label = TransitionOperatorLabel;
-					label.makeUnique(ID);
-					transitionActionOp.setLabel(label);
-					tM.attachTypes(new Atomic("transitionAction"+ID+"()") , Executing );
-					for ( StateVariableOverride svo : svoList ) {
-						
-						transitionActionOp.getPreconditions().add(svo.getFrom());
-						transitionActionOp.getEffects().add(svo.getTo());		
-						transitionActionOp.addConstraint(new AllenConstraint( svo.getFrom().getKey(), svo.getTo().getKey(),TemporalRelation.Meets ) );
-					}
-									
-					this.transitionOperators.add(transitionActionOp);
-					
-//					StateVariableOperatorMultiState transitionSVO = transitionActionOp.getStateVariableBasedOperatorWithMultipleEffectValues();
-					
-					StateVariableOperatorMultiState transitionSVO;
-					if ( multiEffectSupport ) {
-						transitionSVO = transitionActionOp.getStateVariableBasedOperatorWithMultipleEffectValues(usedVars);
-					} else {
-						transitionSVO = transitionActionOp.getStateVariableBasedOperatorWithSingleEffectValue(usedVars);
-					}
-					
-					ForwardPlanningNode fpnWithTransition = new ForwardPlanningNode(fpN.getHeuristicValues().length);
-					
-					fpnWithTransition.a = transitionSVO;
-					fpnWithTransition.C = new ConstraintDatabase();
-					fpnWithTransition.C.addAll(fpN.C);
-					fpnWithTransition.C.addAll(svoList);
-					fpnWithTransition.g = fpN.g.copy();
-					
-					fpnWithTransition.prev = fpnNew;
-					
-					fpnWithTransition.s = new HashMap<Atomic, List<Term>>();
-					fpnWithTransition.s.putAll(fpnNew.s);
-					fpnWithTransition.s.putAll(transitionSVO.getEffects());
-										
-//					fpnWithTransition.setForceExploration(true);		// ignore visited list for this and child nodes
-//					fpnWithTransition.setOverrideHeuristicValue(true); // always return 0 as heuristic value
-					newNodes.add(fpnWithTransition);
-				}
-			}
-			
-			// Create new queue(s) and keep old ones to return to if this does not lead anywhere
-			planner.backupAndClearQueues();
-//			planner.clearVisited();
-			planner.addNewPlanningNodes(newNodes, true);
-			
-			for ( ForwardPlanningNode newNode : newNodes ) {
-				if ( verbose ) super.print("Created new node (depth "+newNode.depth()+")", 1);		
-				if ( verbose ) super.print("    h=" + Arrays.toString(newNode.getHeuristicValues()), 2);
-				if ( verbose ) super.print("    " + newNode.getPlan().toString().replace("\n", "\n    "), 2);
-			}
-		}
-	}
+//	private void handleStateVariableOverrides( Collection<StateVariableOverride> svoList, TypeManager tM ) {
+//
+//		if ( !svoList.isEmpty() ) {
+//			if ( !tM.hasVariable("transitionAction")) {
+//				tM.attachTypes(new Atomic("transitionAction()") , Executing );
+//			}
+//			
+//			ForwardPlanningNode fpN = (ForwardPlanningNode)planner.getCurrentNode();
+//			
+//			ArrayList<ForwardPlanningNode> newNodes = new ArrayList<ForwardPlanningNode>();
+//			
+//			if ( verbose ) super.print("Got future event conflict (depth " + fpN.depth() + ")", 1);
+//			
+//			while ( fpN != null ) {
+//				if ( fpN.a != null && fpN.a.getName().toString().startsWith("transitionAction") ) {
+//					break;
+//				}
+//				fpN = fpN.prev;
+//				if ( fpN != null ) {
+//					ForwardPlanningNode fpnNew = new ForwardPlanningNode(fpN.getHeuristicValues().length);
+//
+//					fpnNew.a = fpN.a;
+//					fpnNew.C = new ConstraintDatabase();
+//					fpnNew.C.addAll(fpN.C);
+//					fpnNew.g = fpN.g.copy();
+//					fpnNew.prev = fpN.prev;
+//					fpnNew.s = new HashMap<Atomic, List<Term>>();
+//					fpnNew.s.putAll(fpN.s);	
+//					
+//					Operator transitionActionOp = new Operator();
+//					long ID = UniqueID.getID();
+//					transitionActionOp.setName(new Atomic("transitionAction"+ID+"()"));
+//					Term label = TransitionOperatorLabel;
+//					label.makeUnique(ID);
+//					transitionActionOp.setLabel(label);
+//					tM.attachTypes(new Atomic("transitionAction"+ID+"()") , Executing );
+//					for ( StateVariableOverride svo : svoList ) {
+//						
+//						transitionActionOp.getPreconditions().add(svo.getFrom());
+//						transitionActionOp.getEffects().add(svo.getTo());		
+//						transitionActionOp.addConstraint(new AllenConstraint( svo.getFrom().getKey(), svo.getTo().getKey(),TemporalRelation.Meets ) );
+//					}
+//									
+//					this.transitionOperators.add(transitionActionOp);
+//					
+////					StateVariableOperatorMultiState transitionSVO = transitionActionOp.getStateVariableBasedOperatorWithMultipleEffectValues();
+//					
+//					StateVariableOperatorMultiState transitionSVO;
+//					if ( multiEffectSupport ) {
+//						transitionSVO = transitionActionOp.getStateVariableBasedOperatorWithMultipleEffectValues(usedVars);
+//					} else {
+//						transitionSVO = transitionActionOp.getStateVariableBasedOperatorWithSingleEffectValue(usedVars);
+//					}
+//					
+//					ForwardPlanningNode fpnWithTransition = new ForwardPlanningNode(fpN.getHeuristicValues().length);
+//					
+//					fpnWithTransition.a = transitionSVO;
+//					fpnWithTransition.C = new ConstraintDatabase();
+//					fpnWithTransition.C.addAll(fpN.C);
+//					fpnWithTransition.C.addAll(svoList);
+//					fpnWithTransition.g = fpN.g.copy();
+//					
+//					fpnWithTransition.prev = fpnNew;
+//					
+//					fpnWithTransition.s = new HashMap<Atomic, List<Term>>();
+//					fpnWithTransition.s.putAll(fpnNew.s);
+//					fpnWithTransition.s.putAll(transitionSVO.getEffects());
+//										
+////					fpnWithTransition.setForceExploration(true);		// ignore visited list for this and child nodes
+////					fpnWithTransition.setOverrideHeuristicValue(true); // always return 0 as heuristic value
+//					newNodes.add(fpnWithTransition);
+//				}
+//			}
+//			
+//			// Create new queue(s) and keep old ones to return to if this does not lead anywhere
+//			planner.backupAndClearQueues();
+////			planner.clearVisited();
+//			planner.addNewPlanningNodes(newNodes, true);
+//			
+//			for ( ForwardPlanningNode newNode : newNodes ) {
+//				if ( verbose ) super.print("Created new node (depth "+newNode.depth()+")", 1);		
+//				if ( verbose ) super.print("    h=" + Arrays.toString(newNode.getHeuristicValues()), 2);
+//				if ( verbose ) super.print("    " + newNode.getPlan().toString().replace("\n", "\n    "), 2);
+//			}
+//		}
+//	}
 
 }

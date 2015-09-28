@@ -50,9 +50,8 @@ public class TestCostSolver extends TestCase {
 	}
 	
 	/**
-	 * Basic test with a single {@link CostInequality} 
-	 * that becomes inconsistent after adding a second
-	 * {@link CostCalculation}.
+	 * Basic test with a single constraint that becomes 
+	 * inconsistent after adding to the cost.
 	 */
 	public void testCosts() {
 		ConstraintDatabase context = new ConstraintDatabase();

@@ -22,6 +22,8 @@
  *******************************************************************************/
 package org.spiderplan.tools;
 
+import com.sun.istack.internal.logging.Logger;
+
 /**
  * 
  * @author Uwe Köckemann
@@ -29,6 +31,10 @@ package org.spiderplan.tools;
  *	Friendly loop to keep JFrames alive, if no real main-loop is present.
  */
 public class Loop {
+	/**
+	 * Starts an endless loop. Used to keep application running, e.g., so 
+	 * that the {@link Logger} does not close.
+	 */
 	public static void start() {
 		while ( true ) {
 			try {

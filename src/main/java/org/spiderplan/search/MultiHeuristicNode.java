@@ -22,113 +22,58 @@
  *******************************************************************************/
 package org.spiderplan.search;
 
-public abstract class MultiHeuristicNode extends Node implements Comparable<MultiHeuristicNode> {
+/**
+ * Node for {@link MultiHeuristicSearch}
+ * 
+ * TODO: Implementing Comparable seems bad sinde it requires some static variables. Implement Comparator class instead and use it where needed.
+ * 
+ * @author Uwe Köckemann
+ *
+ */
+public abstract class MultiHeuristicNode extends AbstractNode { 
 
 	private long[] h;
-	private boolean forceExploration = false;
 	private boolean overrideHeuristicValue = false;;
 	
+	/**
+	 * Construct new node by providing the number of heuristics that it uses
+	 * @param numHeuristics the number of heuristics
+	 */
 	public MultiHeuristicNode( int numHeuristics ) {
 		h = new long[numHeuristics];
 	}
-	
-	public enum CompareMethod { Index, Lexicographic };
-	public CompareMethod compareMethod = CompareMethod.Index;
-	
-	private static int compareToIdx = 0; 
-	
+		
 	@Override
 	public abstract int depth();
 
 	@Override
 	public abstract String toString();
 	
-	public long setHeuristicValue( int i, long v ) {
-		return h[i] = v;
+	/**
+	 * Assign a value to one of the heuristics
+	 * @param i index of heuristic that is assigned
+	 * @param v heuristic value
+	 */
+	public void setHeuristicValue( int i, long v ) {
+		h[i] = v;
 	}
 	
+	/**
+	 * Get specific heuristic value.
+	 * @param i index of heuristic
+	 * @return value assigned to heuristic <code>i</code>
+	 */
 	public long getHeuristicValue( int i ) {
 		if ( overrideHeuristicValue ) 
 			return 0;
 		else
 			return h[i];
 	}
+	/**
+	 * Get all heuristic values.
+	 * @return array of heuristic values
+	 */
 	public long[] getHeuristicValues() {
 		return h;
-	}
-	
-	public void setOverrideHeuristicValue( boolean val ) {
-		this.overrideHeuristicValue = val;
-	}
-	
-	
-	
-	/**
-	 * Whether or not visited nodes are
-	 * considered before exploring this node.
-	 * @return
-	 */
-	public boolean forceExploration() {
-		return forceExploration;
-	}
-	
-	/**
-	 * True will fore node to be explored 
-	 * even if it is considered equal to a 
-	 * visited node.
-	 * @param val 
-	 */
-	public void setForceExploration( boolean val ) {
-		this.forceExploration = val;
-	}
-	
-	public long getCompareValue( ) {
-		return h[compareToIdx];
-	}
-	
-//	public void setCompareIdx( int i ) {
-//		if ( i >= 0 && i < h.length ) {
-//			compareToIdx = i;	
-//		} else {
-//			throw new IllegalArgumentException("Compare index out bounds (index: "+i+" max: "+h.length+").");
-//		}
-//	}
-	
-	public static void setCompareIdx( int i ) {
-		compareToIdx = i;
-	}
-
-//	@Override
-//	public int compareTo(MultiHeuristicNode arg0) {	
-//		if ( compareMethod.equals(CompareMethod.Index)) {
-//			return (int)((this.getCompareValue()+this.depth() - arg0.getCompareValue()+arg0.depth() ));
-//		} else {
-//			for ( int i = 0 ; i < h.length ; i++ ) {
-//				if ( this.h[i]+this.depth() < arg0.h[i]+arg0.depth() ) {
-//					return -1;
-//				}
-//				if ( this.h[i]+this.depth() > arg0.h[i]+arg0.depth() ) {
-//					return 1;
-//				}
-//			}
-//			return 0;
-//		}
-//	}
-	
-	@Override
-	public int compareTo(MultiHeuristicNode arg0) {	
-		if ( compareMethod.equals(CompareMethod.Index)) {
-			return (int)((this.getCompareValue() - arg0.getCompareValue()));
-		} else {
-			for ( int i = 0 ; i < h.length ; i++ ) {
-				if ( this.h[i] < arg0.h[i] ) {
-					return -1;
-				}
-				if ( this.h[i] > arg0.h[i] ) {
-					return 1;
-				}
-			}
-			return 0;
-		}
 	}
 }

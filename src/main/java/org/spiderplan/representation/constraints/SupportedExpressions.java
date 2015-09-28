@@ -47,7 +47,7 @@ public class SupportedExpressions {
 		supported.add(entry);
 	}
 	
-	public void add( String uniqueName, String exampleUsage, String helpText, Object relation, Class c ) {
+	public void add( String uniqueName, String exampleUsage, String helpText, Object relation, Class<? extends Constraint> c ) {
 		ArrayList<Object> entry = new ArrayList<Object>();
 		entry.add(uniqueName);
 		entry.add(exampleUsage);
@@ -61,7 +61,7 @@ public class SupportedExpressions {
 		this.generalHelpText = s;
 	}
 	
-	public void assertSupported( Atomic a, Class c ) {
+	public void assertSupported( Atomic a, Class<? extends Constraint> c ) {
 		this.assertSupported( a, c.getSimpleName() );	
 	}
 	

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.constraints.AllenConstraint;
 import org.spiderplan.representation.constraints.Constraint;
@@ -42,7 +41,6 @@ import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.temporal.TemporalReasoningInterface;
 import org.spiderplan.tools.logging.Logger;
-import org.spiderplan.tools.stopWatch.StopWatch;
 
 public class IncrementalSTPSolver implements TemporalReasoningInterface {
 	
@@ -71,7 +69,9 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 	private int tpOrigin = 0;
 		
 	private boolean needFromScratch = false;
+	@SuppressWarnings("unused")
 	private boolean keepTimes = false;
+	@SuppressWarnings("unused")
 	private boolean keepStats = false;
 	private boolean propagationRequired = false;
 	

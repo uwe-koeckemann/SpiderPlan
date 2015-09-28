@@ -8,6 +8,7 @@ import org.spiderplan.representation.types.*;
 import org.spiderplan.representation.constraints.*;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.modules.configuration.ConfigurationManager;
+@SuppressWarnings("all")
 
 public class PlannerParser implements PlannerParserConstants {
         static ConfigurationManager oM = new ConfigurationManager();
@@ -25,7 +26,7 @@ public class PlannerParser implements PlannerParserConstants {
         jj_la1[0] = jj_gen;
         break label_1;
       }
-          this.oM = oM;
+          PlannerParser.oM = oM;
       Module();
     }
   }

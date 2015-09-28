@@ -6,6 +6,7 @@ import org.spiderplan.representation.types.*;
 import org.spiderplan.representation.constraints.*;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.modules.configuration.ConfigurationManager;
+@SuppressWarnings("all")
 
 /** Token Manager. */
 public class PlannerParserTokenManager implements PlannerParserConstants

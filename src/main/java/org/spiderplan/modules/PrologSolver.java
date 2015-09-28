@@ -44,7 +44,6 @@ import org.spiderplan.representation.constraints.Constraint;
 import org.spiderplan.representation.constraints.PrologConstraint;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.tools.Global;
 import org.spiderplan.tools.logging.Logger;
 
 

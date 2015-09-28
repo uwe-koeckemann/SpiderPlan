@@ -161,8 +161,6 @@ public class TestCausalGraph extends TestCase {
 		CausalGraphHeuristic fdh = new CausalGraphHeuristic(DTGs, cg, tM);
 //		fdh.initializeHeuristic(s, g, A, tM);C
 						
-		CommonDataStructures dStructs = new CommonDataStructures();
-
 //		fdh.computeCost(s, v2, Term.Constant("c"));
 //		fdh.computeCost(s, v2, Term.Constant("d"));
 		
@@ -249,9 +247,7 @@ public class TestCausalGraph extends TestCase {
 		
 //		fdh.computeCost(s, v3, Term.Constant("e"));
 //		fdh.computeCost(s, v3, Term.Constant("f"));
-		
-		CommonDataStructures dStructs = new CommonDataStructures();
-		
+				
 		// staying is free:
 		assertTrue( fdh.computeCost(s, v1, Term.createConstant("a"), Term.createConstant("a")) == 0 );
 		assertTrue( fdh.computeCost(s, v1, Term.createConstant("b"), Term.createConstant("b")) == 0 );
@@ -338,9 +334,7 @@ public class TestCausalGraph extends TestCase {
 		s.put(v1, Term.createConstant("b"));
 		s.put(v2, Term.createConstant("c"));
 		s.put(v3, Term.createConstant("e"));
-		
-		CommonDataStructures dStructs = new CommonDataStructures();
-		
+
 //		computeCost.computeCost(s, v3, Term.Constant("e"));
 //		computeCost.computeCost(s, v3, Term.Constant("f"));
 				
@@ -414,8 +408,6 @@ public class TestCausalGraph extends TestCase {
 //		assertTrue( shortestPath.get(2).equals(Term.Constant("c")));
 //		assertTrue( shortestPath.get(3).equals(Term.Constant("d")));
 		
-		CommonDataStructures dStructs = new CommonDataStructures();
-		
 		assertTrue( fdh.computeCost(s, v1, Term.createConstant("a"), Term.createConstant("b")) == 1 );
 		assertTrue( fdh.computeCost(s, v1, Term.createConstant("a"), Term.createConstant("c")) == 2 );
 		assertTrue( fdh.computeCost(s, v1, Term.createConstant("a"), Term.createConstant("d")) == 3 );
@@ -484,9 +476,7 @@ public class TestCausalGraph extends TestCase {
 //		s.put(v1, Term.Constant("a"));
 		
 		CausalGraphHeuristic fdh = new CausalGraphHeuristic(DTGs, cg, tM);
-				
-		CommonDataStructures dStructs = new CommonDataStructures();
-		
+
 		assertTrue( fdh.computeCost(s, v1, Term.createConstant("unknown_value"), Term.createConstant("b")) == 1 );
 	}
 	

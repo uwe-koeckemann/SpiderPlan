@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Scanner;
 
 /**
  * Simple class to make system calls on a server. 
@@ -125,16 +124,11 @@ public class ExecuteSystemCommand {
 	 * @param cmd Command to be executed.
 	 * @return Array of type String where first element is STDOUT and second element STERR
 	 */
-	public static boolean testIfCommandExists( String cmd ) {
-
-		String s = null;
-		
+	public static boolean testIfCommandExists( String cmd ) {	
 		try {
 			ProcessBuilder builder = new ProcessBuilder( cmd.split(" ") );
-			
 //			builder.redirectErrorStream(true);
-			Process process =  builder.start();
-	             
+			Process process =  builder.start();   
 			process.waitFor();
 			return true;
 		} catch (IOException e) {

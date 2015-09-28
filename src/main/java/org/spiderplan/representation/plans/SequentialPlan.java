@@ -29,7 +29,7 @@ import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.tools.UniqueID;
 
 
-/*
+/**
  * Sequence of actions, where an action is an operator name 
  * and a substitution.
  * 

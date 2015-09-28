@@ -41,63 +41,65 @@ import java.util.Set;
  */
 public class Statistics {
 	
-	private int numEntries = 0;
+	private static int numEntries = 0;
 
-	private Map<String,ArrayList<Long>> longValues = new HashMap<String, ArrayList<Long>>();
-	private Map<String,ArrayList<Double>> doubleValues = new HashMap<String, ArrayList<Double>>();
-	private Map<String,Long> longValue = new HashMap<String, Long>();
-	private Map<String,Double> doubleValue = new HashMap<String, Double>();
-	private Map<String,Long> counters = new HashMap<String, Long>();
-	private Map<String,String> strings = new HashMap<String, String>();
+	private static Map<String,ArrayList<Long>> longValues = new HashMap<String, ArrayList<Long>>();
+	private static Map<String,ArrayList<Double>> doubleValues = new HashMap<String, ArrayList<Double>>();
+	private static Map<String,Long> longValue = new HashMap<String, Long>();
+	private static Map<String,Double> doubleValue = new HashMap<String, Double>();
+	private static Map<String,Long> counters = new HashMap<String, Long>();
+	private static Map<String,String> strings = new HashMap<String, String>();
 	
-	private ArrayList<Map<String,ArrayList<Long>>> allLongValues = new ArrayList<Map<String,ArrayList<Long>>>();
-	private ArrayList<Map<String,ArrayList<Double>>> allDoubleValues = new ArrayList<Map<String,ArrayList<Double>>>();
-	private ArrayList<Map<String,Long>> allLongValue = new ArrayList<Map<String,Long>>();
-	private ArrayList<Map<String,Double>> allDoubleValue = new ArrayList<Map<String,Double>>();
-	private ArrayList<Map<String,Long>> allCounters = new ArrayList<Map<String,Long>>();
-	private ArrayList<Map<String,String>> allStrings = new ArrayList<Map<String,String>>();
+	private static ArrayList<Map<String,ArrayList<Long>>> allLongValues = new ArrayList<Map<String,ArrayList<Long>>>();
+	private static ArrayList<Map<String,ArrayList<Double>>> allDoubleValues = new ArrayList<Map<String,ArrayList<Double>>>();
+	private static ArrayList<Map<String,Long>> allLongValue = new ArrayList<Map<String,Long>>();
+	private static ArrayList<Map<String,Double>> allDoubleValue = new ArrayList<Map<String,Double>>();
+	private static ArrayList<Map<String,Long>> allCounters = new ArrayList<Map<String,Long>>();
+	private static ArrayList<Map<String,String>> allStrings = new ArrayList<Map<String,String>>();
 	
-	private Map<String,String> renameRules = new HashMap<String, String>();
+	private static Map<String,String> renameRules = new HashMap<String, String>();
 	
-	public void addLong( String key, Long val ) {
+	private Statistics() {}
+	
+	public static void addLong( String key, Long val ) {
 		if ( !longValues.containsKey(key) ) {
 			longValues.put(key,new ArrayList<Long>());
 		}
 		longValues.get(key).add(val);
 	}
 	
-	public void addDouble( String key, Double val ) {
+	public static void addDouble( String key, Double val ) {
 		if ( !doubleValues.containsKey(key) ) {
 			doubleValues.put(key,new ArrayList<Double>());
 		}
 		doubleValues.get(key).add(val);
 	}
 	
-	public void creatCounter( String key ) {
+	public static void creatCounter( String key ) {
 		counters.put(key,Long.valueOf(0));
 	}
 	
-	public void increment( String key ) {
+	public static void increment( String key ) {
 		if ( !counters.containsKey(key) ) {
 			counters.put(key,Long.valueOf(1));
 		} else {
 			counters.put(key, Long.valueOf(counters.get(key).longValue()+1));
 		}
 	}
-	public void setLong( String key, Long val ) {
+	public static void setLong( String key, Long val ) {
 		longValue.put(key,val);
 	}
-	public void setDouble( String key, Double val ) {
+	public static void setDouble( String key, Double val ) {
 		doubleValue.put(key,val);
 	}
-	public void addToLong( String key, Long val ) {
+	public static void addToLong( String key, Long val ) {
 		if ( longValue.containsKey(key) ) {
 			longValue.put(key,Long.valueOf(longValue.get(key).longValue()+val));
 		} else {
 			longValue.put(key,val);
 		}
 	}
-	public void addToDouble( String key, Double val ) {
+	public static void addToDouble( String key, Double val ) {
 		if ( doubleValue.containsKey(key) ) {
 			doubleValue.put(key,Double.valueOf(doubleValue.get(key).doubleValue()+val));
 		} else {
@@ -105,28 +107,28 @@ public class Statistics {
 		}
 	}
 	
-	public void setString( String key, String val ) {
+	public static void setString( String key, String val ) {
 		strings.put(key,val);
 	}
 	
-	public List<Long> getAllLong( String key ) {
+	public static List<Long> getAllLong( String key ) {
 		return longValues.get(key);
 	}
 	
-	public List<Double> getAllDouble( String key ) {
+	public static List<Double> getAllDouble( String key ) {
 		return doubleValues.get(key);
 	}
 	
-	public Long getCounter( String key ) {
+	public static Long getCounter( String key ) {
 		return counters.get(key);
 	}
-	public Long getLong( String key ) {
+	public static Long getLong( String key ) {
 		return longValue.get(key);
 	}
-	public Double getDouble( String key ) {
+	public static Double getDouble( String key ) {
 		return doubleValue.get(key);
 	}
-	public String getString( String key ) {
+	public static String getString( String key ) {
 		return strings.get(key);
 	}
 	
@@ -135,11 +137,11 @@ public class Statistics {
 	 * @param from Name of an attribute.
 	 * @param to How <i>from</i> should appear in CSV file.
 	 */
-	public void renameKey( String from, String to ) {
+	public static void renameKey( String from, String to ) {
 		renameRules.put(from, to);
 	}
 	
-	public void store() {
+	public static void store() {
 		numEntries++;
 		
 		allLongValues.add(longValues);
@@ -157,7 +159,7 @@ public class Statistics {
 		strings = new HashMap<String, String>();
 	}
 	
-	public void reset() {
+	public static void reset() {
 		longValues.clear();
 		doubleValues.clear();
 		longValue.clear();
@@ -177,7 +179,7 @@ public class Statistics {
 		numEntries = 0;
 	}
 	
-	public void dumpCSVAllAtts( String fName, List<String> attOrder ) {
+	public static void dumpCSVAllAtts( String fName, List<String> attOrder ) {
 		Set<String> allAtts = new HashSet<String>();
 		for ( Map<String,?> m : allLongValue ) {
 			allAtts.addAll(m.keySet());
@@ -218,7 +220,7 @@ public class Statistics {
 		    for ( int i = 0 ; i < numEntries ; i++ ) {
 		    	ArrayList<String> dataLine = new ArrayList<String>();
 		    	for ( String att : usedAtts ) {
-		    		dataLine.add(this.getStringValue(att, i));
+		    		dataLine.add(Statistics.getStringValue(att, i));
 		    	}
 		    	
 		    	line = dataLine.toString();
@@ -236,7 +238,7 @@ public class Statistics {
 		
 	}
 	
-	public void dumpCSV( String fName, List<String> attOrder ) {
+	public static void dumpCSV( String fName, List<String> attOrder ) {
 		
 		BufferedWriter out = null;
 		try  {
@@ -261,7 +263,7 @@ public class Statistics {
 		    for ( int i = 0 ; i < numEntries ; i++ ) {
 		    	ArrayList<String> dataLine = new ArrayList<String>();
 		    	for ( String att : attOrder ) {
-		    		dataLine.add(this.getStringValue(att, i));
+		    		dataLine.add(Statistics.getStringValue(att, i));
 		    	}
 		    	
 		    	line = dataLine.toString();
@@ -279,7 +281,7 @@ public class Statistics {
 		
 	}
 	
-	private String getStringValue( String att, int index ) {
+	private static String getStringValue( String att, int index ) {
 		if ( allLongValue.get(index).containsKey(att) ) {
 			return allLongValue.get(index).get(att).toString();
 		}
@@ -301,8 +303,7 @@ public class Statistics {
 		return "?";
 	}
 	
-	@Override
-	public String toString() {
+	public static String getString() {
 		String r = "";
 		if ( !counters.isEmpty() ) {
 			ArrayList<String> keys = new ArrayList<String>();

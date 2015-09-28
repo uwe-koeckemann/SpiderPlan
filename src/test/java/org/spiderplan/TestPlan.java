@@ -28,7 +28,6 @@ import java.util.Set;
 
 import org.spiderplan.causal.ApplyPlanIterator;
 import org.spiderplan.causal.ForwardPlanningIterator;
-import org.spiderplan.causal.ForwardPlanningNode;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Resolver;
 import org.spiderplan.representation.ConstraintDatabase;

@@ -22,7 +22,6 @@
  *******************************************************************************/
 package org.spiderplan.modules;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;

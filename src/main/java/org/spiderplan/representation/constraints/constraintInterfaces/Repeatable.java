@@ -22,9 +22,10 @@
  *******************************************************************************/
 package org.spiderplan.representation.constraints.constraintInterfaces;
 
+import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.constraints.Cost;
 /**
- * Constraints using this interface may be added more than once to a {@link ConstraintCollection}. 
+ * Constraints using this interface may be added more than once to a {@link ConstraintDatabase}. 
  * <p>
  * Example: {@link Cost} constraints can add the same value to the same cost twice so {@link Cost} 
  * implements this interface to signal this fact.

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.logging.Level;
 
 /**
  * Simple Logger class that keeps history and allows to set landmarks. 
@@ -61,7 +62,6 @@ public class Logger {
 		
 	public static boolean keepAllLogs = true;
 	public static boolean stop = false;
-	
 	
 	private Logger() {}
 	

@@ -42,6 +42,7 @@ import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.temporal.TemporalReasoningInterface;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.profiler.Profiler;
+import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
 public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface {
@@ -221,7 +222,7 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 		System.out.println("newAllenConstraints " + newAllenConstraints.size());
 		
 		if ( needFromScratch ) {
-			if ( keepStats ) Module.getStats().increment("[incSTP] #FromScratch");
+			if ( keepStats ) Statistics.increment("[incSTP] #FromScratch");
 			reset();
 			propagationRequired = true;
 		}
@@ -383,7 +384,7 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 	public String getDistanceMatrixString() {
 		StringBuilder sb = new StringBuilder();
 		
-		for ( List r : this.distance ) {
+		for ( List<Long> r : this.distance ) {
 			sb.append(r.toString());
 			sb.append("\n");
 		}

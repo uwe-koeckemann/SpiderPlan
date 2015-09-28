@@ -23,34 +23,17 @@
 package org.spiderplan.modules;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.spiderplan.causal.pocl.OpenGoalResolverIterator;
-import org.spiderplan.causal.pocl.flaws.AllFIFO;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.configuration.ParameterDescription;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.solvers.Module;
-import org.spiderplan.modules.solvers.Resolver;
-import org.spiderplan.modules.solvers.ResolverList;
 import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
-import org.spiderplan.modules.tools.ModuleFactory;
-import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.Operator;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Asserted;
 import org.spiderplan.representation.constraints.OpenGoal;
-import org.spiderplan.representation.constraints.Statement;
-import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
-import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.Substitution;
-import org.spiderplan.representation.logic.Term;
-import org.spiderplan.representation.types.TypeManager;
-import org.spiderplan.tools.UniqueID;
-import org.spiderplan.tools.logging.Logger;
 
 /**
  * Select an {@link OpenGoal} flaw and create a list of resolvers for that flaw.
@@ -58,9 +41,7 @@ import org.spiderplan.tools.logging.Logger;
  * are left for temporal and resource constraints.
  * 
  * TODO:
- * - Heuristic selection should be option
  * - Easy integration of value selection heuristics
- * - Multi-heuristic support
  * 
  * <p>
  * Relevant papers:

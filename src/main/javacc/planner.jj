@@ -124,7 +124,7 @@ void CompilationUnit(ConfigurationManager oM)  :
 }
 {	(
   	{
-  	  this.oM = oM;
+  	  PlannerParser.oM = oM;
   	}
 	Module()
   	)*

@@ -25,6 +25,7 @@ package org.spiderplan.causal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,15 +45,16 @@ import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.SequentialPlan;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.search.MultiHeuristicNode;
-import org.spiderplan.search.MultiQueueSearch;
-import org.spiderplan.search.MultiHeuristicNode.CompareMethod;
+import org.spiderplan.search.MultiHeuristicNodeComparatorIndex;
+import org.spiderplan.search.MultiHeuristicNodeComparatorLexicographic;
+import org.spiderplan.search.MultiHeuristicSearch;
 import org.spiderplan.tools.GenericComboBuilder;
 
 /**
  * Implementation of heuristic forward planning
  * @author Uwe K&ouml;ckemann
  */
-public class ForwardPlanning extends MultiQueueSearch {
+public class ForwardPlanning extends MultiHeuristicSearch<ForwardPlanningNode> {
 	
 	private ArrayList<Heuristic> heuristics = new ArrayList<Heuristic>();
 	private boolean multiQueue;
@@ -197,13 +199,13 @@ public class ForwardPlanning extends MultiQueueSearch {
 		
 		for ( int i = 0 ; i < heuristics.size() ; i++ ) {
 			queueToHeuristicMap.add(i);
-			super.addNewQueue();
+			super.addNewQueue( new ForwardPlanningNodeComparator( new MultiHeuristicNodeComparatorIndex(i) ) );
 		}
 		
 		for ( int i = 0 ; i < heuristics.size() ; i++ ) {
 			if ( useHelpfulActions[i] ) {		// Same heuristic object used for helpful actions...
 				queueToHeuristicMap.add(i);
-				super.addNewQueue();
+				super.addNewQueue( new ForwardPlanningNodeComparator( new MultiHeuristicNodeComparatorIndex(i) ) );
 			}
 		}
 		 
@@ -231,8 +233,10 @@ public class ForwardPlanning extends MultiQueueSearch {
 				
 		for ( int i = 0 ; i < heuristics.size() ; i++ ) {
 			queueToHeuristicMap.add(i);
-			super.addNewQueue();
 		}
+		
+		Comparator<ForwardPlanningNode> comp = new ForwardPlanningNodeComparator( new MultiHeuristicNodeComparatorLexicographic() );
+		super.addNewQueue(comp) ;
 				 
 		this.queueToHeuristicMap = new int[queueToHeuristicMap.size()];
 		for ( int i = 0 ; i < queueToHeuristicMap.size() ; i++ ) {
@@ -252,9 +256,8 @@ public class ForwardPlanning extends MultiQueueSearch {
 	}
 		
 	@Override
-	public boolean isGoal(MultiHeuristicNode n) {
-		ForwardPlanningNode fdN = (ForwardPlanningNode)n;
-		for ( Goal g : fdN.g ) {
+	public boolean isGoal(ForwardPlanningNode n) {
+		for ( Goal g : n.g ) {
 			if ( !g.wasReached() ) {
 				return false;
 			}
@@ -263,10 +266,8 @@ public class ForwardPlanning extends MultiQueueSearch {
 	}
 
 	@Override
-	public ArrayList<LinkedList<MultiHeuristicNode>> expand( MultiHeuristicNode n ) {
-		
-		ForwardPlanningNode fpn = (ForwardPlanningNode)n;
-		
+	public ArrayList<LinkedList<ForwardPlanningNode>> expand( ForwardPlanningNode fpn ) {
+				
 		if ( verbose ) Logger.msg(getName(),"Expanding state:", 4);
 		if ( verbose ) {
 			for ( Atomic key : fpn.s.keySet() ) {
@@ -274,9 +275,9 @@ public class ForwardPlanning extends MultiQueueSearch {
 			}
 		}
 								
-		ArrayList<LinkedList<MultiHeuristicNode>> expansion = new ArrayList<LinkedList<MultiHeuristicNode>>(this.heuristics.size());
+		ArrayList<LinkedList<ForwardPlanningNode>> expansion = new ArrayList<LinkedList<ForwardPlanningNode>>(this.heuristics.size());
 		for ( int i = 0 ; i < super.getNumQueues() ; i++ ) {
-			expansion.add( new LinkedList<MultiHeuristicNode>() );	
+			expansion.add( new LinkedList<ForwardPlanningNode>() );	
 		}
 				
 		if ( keepTimes ) StopWatch.start("[ForwardPlanner] Expand (internal)");
@@ -296,8 +297,7 @@ public class ForwardPlanning extends MultiQueueSearch {
 			nNew.s = fpn.s;
 			nNew.s = SequentialStateFunctions.apply(fpn.s, a);	
 			nNew.g = fpn.g.copy();
-			nNew.setForceExploration(fpn.forceExploration());
-						
+	
 			boolean change = true;
 			while ( change ) {
 				change = false;
@@ -380,12 +380,12 @@ public class ForwardPlanning extends MultiQueueSearch {
 						
 						if ( goalReachable ) {
 							if ( multiQueue ) {			// One queue per heuristic
-								lookaheadNode.compareMethod = CompareMethod.Index;
+//								lookaheadNode.compareMethod = CompareMethod.Index;
 								for ( int i = 0 ; i < heuristics.size() ; i++ ) {
 									expansion.get(i).add(lookaheadNode);
 								}
 							} else {					// One queue for all, sorted lexicographically
-								lookaheadNode.compareMethod = CompareMethod.Lexicographic;
+//								lookaheadNode.compareMethod = CompareMethod.Lexicographic;
 								expansion.get(0).add(lookaheadNode);
 							}
 						}
@@ -395,12 +395,12 @@ public class ForwardPlanning extends MultiQueueSearch {
 				if ( keepTimes ) StopWatch.stop("[ForwardPlanner] YAHSP lookahead (total)");
 				
 				if ( multiQueue ) {			// One queue per heuristic
-					nNew.compareMethod = CompareMethod.Index;
+//					nNew.compareMethod = CompareMethod.Index;
 					for ( int i = 0 ; i < heuristics.size() ; i++ ) {
 						expansion.get(i).add(nNew);
 					}
 				} else {					// One queue for all, sorted lexicographically
-					nNew.compareMethod = CompareMethod.Lexicographic;
+//					nNew.compareMethod = CompareMethod.Lexicographic;
 					expansion.get(0).add(nNew);
 				}
 			}
@@ -414,14 +414,14 @@ public class ForwardPlanning extends MultiQueueSearch {
 	 * @param n
 	 * @return
 	 */
-	private MultiHeuristicNode getFromCollection( Collection<MultiHeuristicNode> C, MultiHeuristicNode n ) {
-		for ( MultiHeuristicNode n2 : C ) {
-			if ( n.equals(n2) ) {
-				return n2;
-			}
-		}
-		return null;
-	}
+//	private MultiHeuristicNode getFromCollection( Collection<MultiHeuristicNode> C, MultiHeuristicNode n ) {
+//		for ( MultiHeuristicNode n2 : C ) {
+//			if ( n.equals(n2) ) {
+//				return n2;
+//			}
+//		}
+//		return null;
+//	}
 		
 	
 	

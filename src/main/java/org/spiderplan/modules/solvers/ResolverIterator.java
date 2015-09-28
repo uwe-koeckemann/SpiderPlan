@@ -55,10 +55,6 @@ public abstract class ResolverIterator {
 	
 	protected static boolean killFlag = false;
 	
-//	protected static int depth = -1;
-	
-	protected static Statistics stats = new Statistics(); 
-	
 	/**
 	 * Create a new {@link ResolverIterator} given its name and a {@link ConfigurationManager}. 
 	 * @param name Name of the new iterator
@@ -191,13 +187,5 @@ public abstract class ResolverIterator {
 	 */
 	public static boolean getKillFlag() {
 		return killFlag;
-	}
-	
-	/**
-	 * Get {@link Statistics} collected.
-	 * @return The static {@link Statistics} object kept by {@link Module}. 
-	 */
-	public static Statistics getStats() {
-		return Module.stats;
 	}
 }

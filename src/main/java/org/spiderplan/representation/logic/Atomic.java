@@ -43,8 +43,33 @@ public class Atomic {
 	private String string;
 	private String uniqueName = null;
 	
-//	private boolean isGround;
+	/**
+	 * Constructor using name and list of argument {@link Term}s. 
+	 * @param name Name of the {@link Atomic}
+	 * @param terms Argument {@link Term}s
+	 */
+	public Atomic( String name, Term... terms ) {
+		this.p = name;
+		this.terms = terms;
+		if ( this.terms != null )
+			this.uniqueName = this.p + "/" + this.terms.length;
+		else
+			this.uniqueName = this.p + "/0";
+		this.update();
+	}
 			
+	/**
+	 * Parsing constructor using {@link String} (should be avoided). 
+	 * Possible formats:
+	 * <li>p
+	 * <li>(p)
+	 * <li>(p t1 t2)
+	 * <br>
+	 * <br>
+	 * where all <code>t</code> are parsed as {@link Term}s.
+	 * 
+	 * @param s String representation of {@link Atomic}
+	 */
 	public Atomic(String s) {		
 		if ( s.contains("(") && !s.startsWith("(") ) {
 			System.out.println("Old format. This should not happen!");
@@ -92,15 +117,7 @@ public class Atomic {
 		this.uniqueName = this.p + "/" + this.getNumArgs();
 	}
 	
-	public Atomic( String name, Term... terms ) {
-		this.p = name;
-		this.terms = terms;
-		if ( this.terms != null )
-			this.uniqueName = this.p + "/" + this.terms.length;
-		else
-			this.uniqueName = this.p + "/0";
-		this.update();
-	}
+
 		
 	/**
 	 * Matches this to another {@link Atomic}
@@ -156,10 +173,20 @@ public class Atomic {
 		return this.p;
 	}
 	
+	/**
+	 * Get the i-th argument of this {@link Atomic}
+	 * @param i Index of argument
+	 * @return The i-th argument
+	 */
 	public Term getArg( int i ) {
 		return terms[i];
 	}
 	
+	/**
+	 * Get all variable {@link Term}s used in the arguments of this {@link Atomic}.
+	 * (Variable {@link Term}s that are arguments of {@link ComplexTerm}s will also be returned.)
+	 * @return All variable {@link Term}s that appear in this {@link Atomic} 
+	 */
 	public Collection<Term> getVariableTerms() {
 		ArrayList<Term> r = new ArrayList<Term>();
 		for ( Term t: terms ) {
@@ -168,6 +195,10 @@ public class Atomic {
 		return r;		
 	}
 	
+	/**
+	 * Get all ground {@link Term}s used as arguments of this {@link Atomic}.
+	 * @return All ground {@link Term}s that appear as arguments in this {@link Atomic} 
+	 */
 	public Collection<Term> getGroundTerms() {
 		ArrayList<Term> r = new ArrayList<Term>();
 		for ( Term t: terms ) {
@@ -177,12 +208,20 @@ public class Atomic {
 		return r;		
 	}	
 			
+	/**
+	 * The unique name of this {@link Atomic} as a string of the form "p/n",
+	 * where <code>p</code> is the name of the {@link Atomic} and <code>n</code>
+	 * is its arity.
+	 * @return {@link String} representing the unique name of the {@link Atomic}
+	 */
 	public String getUniqueName() {
 		return uniqueName; //this.p + "/" + this.arity();
 	}
 
 	/**
 	 * Substitute all {@link Term}s of this {@link Atomic} by matching substitutions in <i>theta</i>.
+	 * @param theta Substitution that is to be applied
+	 * @return Substituted version of this {@link Atomic}
 	 */
 	public Atomic substitute(Substitution theta) {
 		if ( theta.isEmpty() ) {
@@ -219,6 +258,10 @@ public class Atomic {
 		}
 	}
 	
+	/**
+	 * Get a Prolog-style string representation of this {@link Atomic}
+	 * @return Prolog compatible string
+	 */
 	public String getPrologStyleString() {
 		StringBuilder r = new StringBuilder();
 		

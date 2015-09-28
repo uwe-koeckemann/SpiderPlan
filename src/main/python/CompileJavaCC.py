@@ -37,10 +37,11 @@ def getAllJavafiles(dirName):
 toCompile = ["domain_v4", "pddl", "planner", "experiment"]
 
 for dirName in toCompile:
+	print dirName
 	os.system("rm ../java/org/spiderplan/representation/parser/"+dirName+"/*.java")
 	os.system("javacc -OUTPUT_DIRECTORY='../java/org/spiderplan/representation/parser/"+dirName+"/' ../javacc/"+dirName+".jj")
 
-	allGenFiles = getAllJavafiles(dirName)
+	allGenFiles = getAllJavafiles('../java/org/spiderplan/representation/parser/' + dirName)
 	
 	for fName in allGenFiles:
 		f = open(fName, "r")
@@ -52,7 +53,6 @@ for dirName in toCompile:
 			if "import " in lines[i] or "package " in lines[i]:
 				argMax = i
 		
-		
 		f = open(fName, "w")
 		found = False
 		for i in range(len(lines)):
@@ -61,3 +61,10 @@ for dirName in toCompile:
 			else:
 				f.write(lines[i])
 		f.close()
+		
+		
+		
+		
+		
+		
+		

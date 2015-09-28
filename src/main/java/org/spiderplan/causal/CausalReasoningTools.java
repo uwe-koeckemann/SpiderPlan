@@ -86,15 +86,11 @@ public class CausalReasoningTools {
 			origOperatorLookUp.put(svo, o);
 		}
 
-		HashSet<Operator> app = new HashSet<Operator>();
 		HashSet<StateVariableOperatorMultiState> checkList = new HashSet<StateVariableOperatorMultiState>();
-		
-		
 		HashSet<Operator> appNew = new HashSet<Operator>();
 		
 		for ( StateVariableOperatorMultiState svo : svOperators ) {
 //			print("Working on:    " + svo.toString().replace("\n","\n    "), 4);
-			
 			/**
 			 * 1) (Partial) grounding based on preconditions
 			 */

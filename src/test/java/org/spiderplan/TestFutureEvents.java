@@ -23,8 +23,6 @@
 package org.spiderplan;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
-
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;

@@ -150,7 +150,7 @@ public class ConstantSymbolicTerm extends Term {
 	}
 	@Override
 	public Term substitute(Substitution theta) {
-		if ( !super.allowConstantSubstitutions ) {
+		if ( !Term.allowConstantSubstitutions ) {
 			return this;	
 		} 
 		Term newTerm = theta.substitute(this);

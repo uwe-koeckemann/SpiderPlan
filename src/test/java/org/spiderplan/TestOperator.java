@@ -27,8 +27,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.logging.Level;
-
 import org.spiderplan.causal.StateVariableOperator;
 import org.spiderplan.causal.StateVariableOperatorMultiState;
 import org.spiderplan.representation.Operator;

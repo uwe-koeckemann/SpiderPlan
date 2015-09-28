@@ -67,36 +67,54 @@ import org.spiderplan.tools.stopWatch.StopWatch;
  * 
  * Input: Set of prolog statements and set of queries.
  * Output: True/False & set of answer substitutions
+ * 
+ * TODO: make this one static?
  */
 public class YapPrologAdapter {
 
 	public String name = "YapPrologAdapter";
+
 	public enum FailBehavior { Warning, Exit, Ignore };
 	public FailBehavior failBehavior = FailBehavior.Warning;
 	
-	public String errorMessage = "";
-	public static String uniqueFileNamePart = "";
-	public boolean debug = false;
+	public String errorMessage = "";	
+	public static String uniqueFileNamePart = ""; //TODO: move to global so it can be used everywhere...
 
 	private ArrayList<String> qVars = new ArrayList<String> ();
 	private String qPred = "";
 		
 	private Map<String,Term> prologCompatibilityMap = new HashMap<String,Term>();
 	
+	@SuppressWarnings("unused")
 	private boolean verbose = false;
+	@SuppressWarnings("unused")
 	private int verbosity = 0;
 	private boolean keepTimes = false;
 	
 	private String yapBinaryLocation = "yap";
 	
+	/**
+	 * Constructor using default binary location (assuming yap is in PATH)
+	 */
 	public YapPrologAdapter() {
 		
 	}			
 	
+	/**
+	 * Constructor that changes binary location
+	 * @param binaryLocation Location to the yap binary
+	 */
 	public YapPrologAdapter( String binaryLocation ) {
 		this.yapBinaryLocation = binaryLocation;
 	}
 	
+	/**
+	 * @param kbIn Background knowledge base
+	 * @param q A query in form of {@link PrologConstraint}s that need to be satisfied
+	 * @param programID ID of the knowledge base that should be evaluated
+	 * @param tM {@link TypeManager} containing types and variable signatures
+	 * @return All {@link Substitution}s for which the query is satisfied given <code>kbIn</code>
+	 */
 	public Collection<Substitution> query( ConstraintDatabase kbIn, Collection<PrologConstraint> q, Term programID , TypeManager tM ) {
 		prologCompatibilityMap = new HashMap<String, Term>();
 		if ( keepTimes ) StopWatch.start("[Prolog] Query");
@@ -155,9 +173,10 @@ public class YapPrologAdapter {
 	 * 
 	 *  Add result to initial state of causal planner, so that it can
 	 *  work with relational constraints as preconditions.
-	 * @param O 
-	 * @param B 
-	 * @param tM 
+	 * @param O Set of {@link Operator}s
+	 * @param B Background knowledge base
+	 * @param programID ID of the knowledge base that should be evaluated
+	 * @param tM {@link TypeManager} containing types and variable signatures
 	 */
 	public void saturateConstraints( Collection<Operator> O, ConstraintDatabase B, Term programID, TypeManager tM ) {		
 		Set<Operator> remList = new HashSet<Operator>();
@@ -269,6 +288,10 @@ public class YapPrologAdapter {
 	/**
 	 * Replace all {@link InteractionConstraint}s in <i>C</i> with partial ground versions
 	 * that are consistent with their relational constraints.
+	 * @param C {@link ConstraintDatabase} whose {@link InteractionConstraint}s should be pre-processed.
+	 * @param B {@link ConstraintDatabase} containing background knowledge base
+	 * @param programID ID of the knowledge base that should be evaluated
+	 * @param tM {@link TypeManager} containing types and variable signatures
 	 */
 	public void saturateInteractionConstraints( ConstraintDatabase C, ConstraintDatabase B, Term programID, TypeManager tM ) {
 		ArrayList<InteractionConstraint> remList = new ArrayList<InteractionConstraint>();
@@ -303,7 +326,7 @@ public class YapPrologAdapter {
 		C.removeAll(remList);
 		
 		for ( InteractionConstraint ic : addList ) {
-			boolean r = C.add(ic);
+			C.add(ic);
 		}
 	}
 	
@@ -312,6 +335,10 @@ public class YapPrologAdapter {
 	 * that are consistent with their relational constraints.
 	 * 
 	 * (Not yet working...)
+	 * @param O Set of {@link Operator}s
+	 * @param B Background knowledge base
+	 * @param programID ID of the knowledge base that should be evaluated
+	 * @param tM {@link TypeManager} containing types and variable signatures
 	 */
 	public void saturateOperatorConstraints( Collection<Operator> O, ConstraintDatabase B, Term programID, TypeManager tM ) {
 		ArrayList<Operator> remList = new ArrayList<Operator>();

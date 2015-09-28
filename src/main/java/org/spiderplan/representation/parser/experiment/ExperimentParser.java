@@ -2,6 +2,7 @@
 package org.spiderplan.representation.parser.experiment;
 
 import java.util.Map;
+@SuppressWarnings("all")
 
 
 public class ExperimentParser implements ExperimentParserConstants {

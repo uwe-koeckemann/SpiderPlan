@@ -52,6 +52,7 @@ public class Global {
 		StopWatch.reset();
 //		Atomic.resetStatics();
 //		Module.getStats().reset();
+		ConstraintDatabase.resetStatic();
 		initialContext = null;
 	}
 }

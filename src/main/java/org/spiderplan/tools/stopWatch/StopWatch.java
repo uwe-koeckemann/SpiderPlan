@@ -30,7 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A static singleton class that allows to measure time
+ * A static singleton class that allows to measure time.
+ * 
  * @author Uwe Köckemann
  */
 public class StopWatch {
@@ -109,22 +110,7 @@ public class StopWatch {
 		r.addAll(recordedTimes.keySet());
 		return r;
 	}
-	/**
-	 * Checks if a timer exists
-	 * @param name Name of the timer
-	 * @return <code>true</code> if the timer exists, <code>false</code> otherwise.
-	 */
-	public static boolean hasKey( String name ) {
-		return recordedTimes.containsKey(name);
-	}
-	/**
-	 * Get the number of entries of a timer 
-	 * @param name Name of the timer
-	 * @return Number of times the timer was started and stopped
-	 */
-	public static int getCount(String name) {
-		return recordedTimes.get(name).size();		
-	}
+
 	/**
 	 * Get average time (in ms) of all records for a timer
 	 * @param name Name of the timer

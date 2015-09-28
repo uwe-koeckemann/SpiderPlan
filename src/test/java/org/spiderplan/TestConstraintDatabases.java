@@ -111,27 +111,7 @@ public class TestConstraintDatabases extends TestCase {
 		
 		assertTrue( s.size() == 0 );
 	}
-	
-	public void testConstraintDatabaseHasFittingStatement()  {
-		ConstraintDatabase tDB = new ConstraintDatabase();
 		
-		Statement sv1 = new Statement("(a (p x) y)");
-		Statement sv2 = new Statement("(b (q y) z)");
-		
-		tDB.add(sv1);
-		tDB.add(sv2);
-		
-		AllenConstraint tc1 = new AllenConstraint("a Duration [0,inf]");
-		AllenConstraint tc2 = new AllenConstraint("a Meets b");
-		AllenConstraint tc3 = new AllenConstraint("a Meets c");
-		AllenConstraint tc4 = new AllenConstraint("c Meets a");
-		
-		assertTrue ( TemporalNetworkTools.hasFittingStatements(tDB,tc1) );
-		assertTrue ( TemporalNetworkTools.hasFittingStatements(tDB,tc2) );
-		assertFalse ( TemporalNetworkTools.hasFittingStatements(tDB,tc3) );
-		assertFalse ( TemporalNetworkTools.hasFittingStatements(tDB,tc4) );
-	}
-	
 	/**
 	 * Test difference function. Added after a problem caused by using 
 	 * {@link HashSet} to store {@link Constraint}s and changing them
@@ -217,7 +197,7 @@ public class TestConstraintDatabases extends TestCase {
 		cDB.add(new AllenConstraint("goal_30 Equals c4"));
 		cDB.add(new AllenConstraint("e1_21 Equals goal_30"));
 		
-		Map<Class,Integer> cCount = cDB.getConstraintCount();
+		Map<Class<? extends Constraint>,Integer> cCount = cDB.getConstraintCount();
 		cDB.setToConstraintCount(cCount);
 		
 		assertTrue(cDB.size() == 4);

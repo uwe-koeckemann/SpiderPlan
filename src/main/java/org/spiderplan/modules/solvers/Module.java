@@ -51,9 +51,7 @@ public abstract class Module {
 	public int verbosity = 0;
 	
 	protected static boolean killFlag = false;
-		
-	protected static Statistics stats = new Statistics(); 
-	
+			
 	/**
 	 * Create new instance by providing name and configuration manager.
 	 * @param name The name of this {@link Module}
@@ -189,13 +187,5 @@ public abstract class Module {
 	 */
 	public static boolean getKillFlag() {
 		return killFlag;
-	}
-	
-	/**
-	 * Get {@link Statistics} collected.
-	 * @return The static {@link Statistics} object kept by {@link Module}. 
-	 */
-	public static Statistics getStats() {
-		return Module.stats;
 	}
 }

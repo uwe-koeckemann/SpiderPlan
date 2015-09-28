@@ -35,6 +35,7 @@ import org.spiderplan.representation.constraints.Cost;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.logging.Logger;
+import org.spiderplan.tools.statistics.Statistics;
 
 /**
  * Simple evaluation of {@link Cost} constraints.
@@ -128,7 +129,7 @@ public class CostSolver extends Module implements SolverInterface {
 		
 		if ( keepStats ) {
 			for ( Term costVar : costs.keySet() ) {
-				stats.setDouble(msg(costVar.toString()), costs.get(costVar));
+				Statistics.setDouble(msg(costVar.toString()), costs.get(costVar));
 			}
 		}
 		

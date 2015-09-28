@@ -56,6 +56,7 @@ public class HAdd implements Heuristic {
 	private Collection<StateVariableOperator> O;
 	private Set<Entry<Atomic,Term>> A;	
 	
+	@SuppressWarnings("unused")
 	private boolean keepTimes = false;
 	
 	@Override

@@ -11,6 +11,7 @@ import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.tools.UniqueID;
+@SuppressWarnings("all")
 
 /** Token Manager. */
 public class PDDLParserTokenManager implements PDDLParserConstants

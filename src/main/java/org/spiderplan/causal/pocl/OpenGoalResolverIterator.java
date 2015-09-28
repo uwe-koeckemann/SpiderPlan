@@ -3,8 +3,6 @@ package org.spiderplan.causal.pocl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spiderplan.causal.ApplyPlanIterator;
-import org.spiderplan.causal.ForwardPlanningNode;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.configuration.ParameterDescription;
 import org.spiderplan.modules.solvers.Core;
@@ -13,14 +11,9 @@ import org.spiderplan.modules.solvers.Resolver;
 import org.spiderplan.modules.solvers.ResolverIterator;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.Operator;
-import org.spiderplan.representation.constraints.Asserted;
-import org.spiderplan.representation.constraints.DiscardedPlan;
-import org.spiderplan.representation.constraints.OpenGoal;
-import org.spiderplan.representation.plans.OrderedPlan;
-import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.logging.Logger;
+import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
 public class OpenGoalResolverIterator extends ResolverIterator {
@@ -36,7 +29,7 @@ public class OpenGoalResolverIterator extends ResolverIterator {
 	private String consistencyCheckerName;
 	private Module consistencyChecker = null;
 	
-	private int prunedNoGoods = 0;
+//	private int prunedNoGoods = 0;
 
 	public OpenGoalResolverIterator(Core c, String name, ConfigurationManager cM) {
 		super(name, cM);
@@ -72,7 +65,7 @@ public class OpenGoalResolverIterator extends ResolverIterator {
 		}
 			
 		Logger.depth++;
-		search.success = false;
+//		search.success = false;
 				
 		/**
 		 * If we come back here after the first call 
@@ -81,22 +74,23 @@ public class OpenGoalResolverIterator extends ResolverIterator {
 		if ( !firstTime ) {
 			if ( verbose ) { 
 				print("Last node was no-good...", 1);
-				POCLNode fpn = (POCLNode) search.n;
+				POCLNode fpn = (POCLNode) search.getCurrentNode();
 				if ( fpn != null ) { 
 					if ( verbose ) print("Last plan length: " + fpn.depth(),1);
 //					if ( verbose ) print("Last plan: " + fpn.getPlanList(),1);
 				}
 			}
 						
-			if ( keepStats ) stats.increment("["+getName()+"] NoGoods");
+			if ( keepStats ) Statistics.increment("["+getName()+"] NoGoods");
 			prune();
-			search.done = false;
-			search.success = false;	
+			search.continueSearch();
+//			search.done = false;
+//			search.success = false;	
 		} else {
 			firstTime = false;
 		}
 
-		while ( !search.done ) {
+		while ( !search.isDone() ) {
 			if ( keepTimes ) StopWatch.start(msg("Stepping"));
 			search.step();
 			if ( keepTimes ) StopWatch.stop(msg("Stepping"));			
@@ -126,12 +120,13 @@ public class OpenGoalResolverIterator extends ResolverIterator {
 				if ( !consistent ) {				
 					if ( verbose ) print("Partial plan inconsistent.", 0);
 					this.prune();
-					if ( search.done )  {
-						search.done = false;
-					}
-					if ( search.success ) {
-						search.success = false;
-					}
+					search.continueSearch();
+//					if ( search.is )  {
+//						search.done = false;
+//					}
+//					if ( search.success ) {
+//						search.success = false;
+//					}
 				} else {
 					if ( verbose ) print("Partial plan consistent.", 0);
 				}
@@ -140,9 +135,9 @@ public class OpenGoalResolverIterator extends ResolverIterator {
 		}
 //		Plan p = null;
 		Resolver r = null;
-		if ( search.success ) {
+		if ( search.isSuccess() ) {
 			if ( verbose ) print("Success", 0);						
-//			if ( keepStats ) stats.setLong(msg("|\\pi|"), Long.valueOf(p.getActions().size())); 
+//			if ( keepStats ) Statistics.setLong(msg("|\\pi|"), Long.valueOf(p.getActions().size())); 
 		
 //			System.out.println("Getting combined resolver...");
 			
@@ -152,7 +147,8 @@ public class OpenGoalResolverIterator extends ResolverIterator {
 			
 //			System.out.println(r);
 		
-			search.done = false;
+//			search.done = false;
+			search.continueSearch();
 		} else {
 			if ( verbose )  print("Fail", 0);
 		}
@@ -162,7 +158,6 @@ public class OpenGoalResolverIterator extends ResolverIterator {
 	}
 	
 	public void prune() {
-		prunedNoGoods++;
 		search.setNoGood();	// Meaning: there is no need to expand the current node...
 	}
 

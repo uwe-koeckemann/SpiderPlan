@@ -39,6 +39,7 @@ import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.constraints.AppliedPlan;
 import org.spiderplan.tools.logging.Logger;
+import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
 /**
@@ -99,7 +100,7 @@ public class SolverStack extends Module {
 		currentCore.setTypeManager(core.getTypeManager());
 //		if ( keepTimes ) StopWatch.stop(msg("Copy"));
 		
-		if ( keepStats ) stats.creatCounter(msg("Backtracking"));
+		if ( keepStats ) Statistics.creatCounter(msg("Backtracking"));
 		
 	
 		SolverResult result;
@@ -108,8 +109,8 @@ public class SolverStack extends Module {
 			if ( verbose ) Logger.msg(getName(), "Running " + ((Module)solvers.get(i)).getName(), 0);
 
 			if ( keepStats ) {
-				Module.stats.increment(msg("Calling solver " + i + " " +((Module)solvers.get(i)).getName()));
-//				Module.stats.addLong(msg("Solver Sequence"), Long.valueOf(i));
+				Statistics.increment(msg("Calling solver " + i + " " +((Module)solvers.get(i)).getName()));
+//				Statistics.addLong(msg("Solver Sequence"), Long.valueOf(i));
 			}
 						
 			if ( verbose ) Logger.depth++;
@@ -129,8 +130,8 @@ public class SolverStack extends Module {
 				if ( result.getResolverIterator() != null ) {
 					if ( verbose ) Logger.msg(getName(), "Pushing resolvers on stack level "+(backtrackStack.size()+1)+" ("+result.getResolverIterator().getName()+")", 1);
 //					if ( keepStats ) {
-//						Module.stats.increment(msg("Level " +(backtrackStack.size()+1) + " pushing"));
-//						Module.stats.addLong(msg("Pushing resolvers sequence"), Long.valueOf(i));
+//						Statistics.increment(msg("Level " +(backtrackStack.size()+1) + " pushing"));
+//						Statistics.addLong(msg("Pushing resolvers sequence"), Long.valueOf(i));
 //					}
 					
 //					if ( keepTimes ) StopWatch.start(msg("Copy"));
@@ -155,7 +156,7 @@ public class SolverStack extends Module {
 				Resolver r = null;
 				while ( backtrackStack.size() > 0 && r == null ) {
 					if ( verbose ) Logger.msg(getName(), "... trying stack level " + backtrackStack.size() + ": "+ backtrackStack.peek().getName(), 1);
-//					if ( keepStats ) Module.stats.increment(msg("Level " +(backtrackStack.size()) + " peeking"));
+//					if ( keepStats ) Statistics.increment(msg("Level " +(backtrackStack.size()) + " peeking"));
 					if ( keepTimes ) StopWatch.start(msg("Getting resolver " + backtrackStack.peek().getName()));
 					r = backtrackStack.peek().next();
 					if ( keepTimes ) StopWatch.stop(msg("Getting resolver " + backtrackStack.peek().getName()));
@@ -163,8 +164,8 @@ public class SolverStack extends Module {
 						usedBacktracking = true;
 						if ( verbose ) Logger.msg(getName(), "Backtracking: No resolver found on stack level " + backtrackStack.size() + ": "+ backtrackStack.peek().getName(), 1);
 						if ( keepStats ) {
-							Module.stats.increment(msg("Backtracking"));
-//							Module.stats.increment(msg("Level " +(backtrackStack.size()) + " popping"));
+							Statistics.increment(msg("Backtracking"));
+//							Statistics.increment(msg("Level " +(backtrackStack.size()) + " popping"));
 						}
 						
 //						if ( keepTimes ) StopWatch.start(msg("Popping resolver"));
@@ -183,7 +184,7 @@ public class SolverStack extends Module {
 						Logger.msg(getName(), "Applying resolver", 1);
 					}
 					if ( keepStats ) {
-						Module.stats.increment(msg("Applied resolvers"));
+						Statistics.increment(msg("Applied resolvers"));
 					}
 					
 //					if ( keepTimes ) StopWatch.start(msg("Copy"));

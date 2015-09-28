@@ -287,7 +287,6 @@ public class YAHSPLookahead {
 			r.a = a;
 			r.prev = prev;
 			r.g = prev.g.copy();
-			r.setForceExploration(prev.forceExploration());
 			prev = r;
 		}
 		

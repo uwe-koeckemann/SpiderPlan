@@ -198,20 +198,20 @@ public class Substitution {
 		this.map.remove(from);
 	}
 	
-	/**
-	 * Removes trivial mappings where key equals value. Used after adding another {@link Substitution}.
-	 */
-	private void removeTrivial() {
-		ArrayList<Term> removeList = new ArrayList<Term>();
-		for ( Term from : map.keySet() ) {
-			if ( from.equals(map.get(from)) ) {
-				removeList.add(from);
-			} 			
-		}
-		for ( Term k : removeList ) {
-			map.remove(k);
-		}
-	}
+//	/**
+//	 * Removes trivial mappings where key equals value. Used after adding another {@link Substitution}.
+//	 */
+//	private void removeTrivial() {
+//		ArrayList<Term> removeList = new ArrayList<Term>();
+//		for ( Term from : map.keySet() ) {
+//			if ( from.equals(map.get(from)) ) {
+//				removeList.add(from);
+//			} 			
+//		}
+//		for ( Term k : removeList ) {
+//			map.remove(k);
+//		}
+//	}
 	/**
 	 * Checks if a <i>from</i> and <i>to</i> {@link Term} can be added to this {@link Substitution} without 
 	 * conflicting with any of its existing substitutions. 

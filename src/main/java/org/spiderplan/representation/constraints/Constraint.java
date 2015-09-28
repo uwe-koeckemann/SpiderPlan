@@ -58,18 +58,30 @@ public abstract class Constraint {
 	
 	protected  boolean simpleConsistency = false;
 
-	public static Statistics stats = new Statistics();
-	
+	/**
+	 * Create new constraint by providing its type.
+	 * @param type A {@link Term} representing the type.
+	 */
 	public Constraint( Term type ) { this.type = type; };
 
+	/**
+	 * Get the type of a constraint.
+	 * @return A {@link Term} representing the type of constraint.
+	 */
 	public Term getType() { return type; }
 	
 	/**
 	 * Get all variable {@link Term}s in this {@link Constraint}.
-	 * @return
+	 * @return 
 	 */
 	public abstract Collection<Term> getVariableTerms();
+	/**
+	 * @return
+	 */
 	public abstract Collection<Term> getGroundTerms();
+	/**
+	 * @return
+	 */
 	public abstract Collection<Atomic> getAtomics();
 	
 	/**

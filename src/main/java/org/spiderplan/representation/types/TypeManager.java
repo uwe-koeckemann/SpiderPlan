@@ -303,7 +303,6 @@ public class TypeManager {
 	 * Last element in the list is the return value (boolean in case of relations).
 	 * @param predID Predicate ID of the form p/4, where 4 is the arity.
 	 * @return List of {@link Type}s of the predicate including return type as last element.
-	 * @throws UnknownThing 
 	 */
 	public ArrayList<Type> getPredicateTypes( String predID ) {
 		if ( !typeLookUp.containsKey(predID) ) {

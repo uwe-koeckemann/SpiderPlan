@@ -52,8 +52,8 @@ public class MCSData implements Comparable<MCSData> {
 	/**
 	 * Create a new {@link MCSData} object.
 	 * @param pcmin The lowest FLEX(i,j) in the MCS associated to this {@link MCSData} object.
-	 * @param actFrom The i-th {@link Activity}.
-	 * @param actTo The j-th {@link Activity}.
+	 * @param actFrom The i-th interval.
+	 * @param actTo The j-th interval.
 	 * @param k The value of k of the MCS associated to this {@link MCSData} object.
 	 */
 	public MCSData(float pcmin, Term actFrom, Term actTo, float k) {

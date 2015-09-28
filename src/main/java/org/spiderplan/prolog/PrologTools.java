@@ -68,7 +68,7 @@ public class PrologTools {
 	 * Get all {@link Substitution} of an {@link Operator} that satisfy a set of
 	 * {@link PrologConstraint}s.
 	 * @param o An {@link Operator}.
-	 * @param C A {@link ConstraintCollection}.
+	 * @param C A {@link ConstraintDatabase}.
 	 * @return A {@link Collection} of {@link Substitution}s that satisfy
 	 * the {@link PrologConstraint}s of <i>o</i>. 
 	 */

@@ -34,7 +34,6 @@ import org.spiderplan.causal.goals.GoalCNF;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.representation.plans.LayeredPlan;
 import org.spiderplan.representation.plans.SequentialPlan;
 import org.spiderplan.search.MultiHeuristicNode;
 
@@ -85,37 +84,37 @@ public class ForwardPlanningNode extends MultiHeuristicNode {
 		return p;
 	}
 	
-	public LayeredPlan getLayerdPlan( ) {
-		ArrayList<StateVariableOperatorMultiState> pList = this.getPlanList();
-		ArrayList<Set<StateVariableOperatorMultiState>> pLayered = new ArrayList<Set<StateVariableOperatorMultiState>>();
-		int currentLayer = 0;
-		
-		LayeredPlan p = new LayeredPlan();
-		pLayered.add( new HashSet<StateVariableOperatorMultiState>() );
-		
-		for ( StateVariableOperatorMultiState a : pList ) {
-			boolean foundMutex = false; 
-			
-			for ( StateVariableOperatorMultiState aLast : pLayered.get(currentLayer) ) {
-				if ( a.isMutex(aLast) ) {
-					foundMutex = true;
-					break;
-				}
-			}
-			
-			if ( !foundMutex ) {
-				pLayered.get(currentLayer).add(a);
-				p.add(currentLayer, a.getName(), a.getSubstitution());
-			} else {
-				currentLayer++;
-				pLayered.add( new HashSet<StateVariableOperatorMultiState>() );
-				pLayered.get(currentLayer).add(a);
-				p.add(currentLayer, a.getName(), a.getSubstitution());
-			}
-		}
-		
-		return p;
-	}
+//	public LayeredPlan getLayerdPlan( ) {
+//		ArrayList<StateVariableOperatorMultiState> pList = this.getPlanList();
+//		ArrayList<Set<StateVariableOperatorMultiState>> pLayered = new ArrayList<Set<StateVariableOperatorMultiState>>();
+//		int currentLayer = 0;
+//		
+//		LayeredPlan p = new LayeredPlan();
+//		pLayered.add( new HashSet<StateVariableOperatorMultiState>() );
+//		
+//		for ( StateVariableOperatorMultiState a : pList ) {
+//			boolean foundMutex = false; 
+//			
+//			for ( StateVariableOperatorMultiState aLast : pLayered.get(currentLayer) ) {
+//				if ( a.isMutex(aLast) ) {
+//					foundMutex = true;
+//					break;
+//				}
+//			}
+//			
+//			if ( !foundMutex ) {
+//				pLayered.get(currentLayer).add(a);
+//				p.add(currentLayer, a.getName(), a.getSubstitution());
+//			} else {
+//				currentLayer++;
+//				pLayered.add( new HashSet<StateVariableOperatorMultiState>() );
+//				pLayered.get(currentLayer).add(a);
+//				p.add(currentLayer, a.getName(), a.getSubstitution());
+//			}
+//		}
+//		
+//		return p;
+//	}
 
 	@Override
 	public int depth() {
@@ -233,44 +232,44 @@ public class ForwardPlanningNode extends MultiHeuristicNode {
 //		return this.depth() - fdn.depth();
 //	}
 	
-	@Override
-	public int compareTo(MultiHeuristicNode arg0) {	
-		ForwardPlanningNode fdn = (ForwardPlanningNode)arg0;
-		
-		boolean equalGoals = this.g.size() == fdn.g.size();
-		int solvedThis = 0;
-		int solvedArg0 = 0;
-		
-		if ( equalGoals ) {
-			for ( int i = 0 ; i < this.g.size(); i++ ) {
-				if ( !this.g.get(i).equals(fdn.g.get(i)) ) {
-					equalGoals = false;
-					break;
-				}
-				if ( this.g.get(i).wasReached() ) { 
-					solvedThis++;
-				}
-				if ( fdn.g.get(i).wasReached() ) { 
-					solvedArg0++;
-				}
-			}
-		}
-		
-		if ( !equalGoals || (solvedThis - solvedArg0) == 0 ) {
-			int hCompare = super.compareTo(arg0);
-
-			if ( hCompare == 0 ) {
-				if ( this.depth() < arg0.depth() ) {
-					return -1;
-				} else if ( this.depth() > arg0.depth() ) {
-					return 1;
-				}
-				return 0;
-			}
-			return hCompare;
-		} else {
-			return solvedArg0 - solvedThis;
-		}
-	}
+//	@Override
+//	public int compareTo() {	
+//		ForwardPlanningNode fdn = (ForwardPlanningNode)arg0;
+//		
+//		boolean equalGoals = this.g.size() == fdn.g.size();
+//		int solvedThis = 0;
+//		int solvedArg0 = 0;
+//		
+//		if ( equalGoals ) {
+//			for ( int i = 0 ; i < this.g.size(); i++ ) {
+//				if ( !this.g.get(i).equals(fdn.g.get(i)) ) {
+//					equalGoals = false;
+//					break;
+//				}
+//				if ( this.g.get(i).wasReached() ) { 
+//					solvedThis++;
+//				}
+//				if ( fdn.g.get(i).wasReached() ) { 
+//					solvedArg0++;
+//				}
+//			}
+//		}
+//		
+//		if ( !equalGoals || (solvedThis - solvedArg0) == 0 ) {
+//			int hCompare = super.compareTo(arg0);
+//
+//			if ( hCompare == 0 ) {
+//				if ( this.depth() < arg0.depth() ) {
+//					return -1;
+//				} else if ( this.depth() > arg0.depth() ) {
+//					return 1;
+//				}
+//				return 0;
+//			}
+//			return hCompare;
+//		} else {
+//			return solvedArg0 - solvedThis;
+//		}
+//	}
 	
 }

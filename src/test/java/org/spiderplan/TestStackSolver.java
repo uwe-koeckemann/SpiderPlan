@@ -38,7 +38,8 @@ import org.spiderplan.representation.constraints.Statement;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
-import org.spiderplan.tools.logging.Logger;
+import org.spiderplan.tools.statistics.Statistics;
+
 import junit.framework.TestCase;
 
 /**
@@ -54,13 +55,13 @@ public class TestStackSolver extends TestCase {
 
 	@Override
 	public void tearDown() throws Exception {
-		Module.getStats().reset();
+		Statistics.reset();
 	}
 	
 	/**
 	 * Basic test with two solvers and no backtracking. 
 	 * It becomes inconsistent in the second module after 
-	 * adding a second {@link CostCalculation}.
+	 * adding to the cost.
 	 */
 	public void testWithoutBacktracking() {
 		/**
@@ -254,23 +255,23 @@ public class TestStackSolver extends TestCase {
 		testCore = solver.run(testCore);
 		assertTrue(testCore.getResultingState("Solver").equals(State.Consistent));
 		
-		assertTrue(Module.getStats().getCounter("[Solver] Applied resolvers") == 14);
+		assertTrue(Statistics.getCounter("[Solver] Applied resolvers") == 14);
 		
-		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 0 IC") == 15);
-		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 1 Domain") == 8);
-		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 2 Cost") == 8);
-		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 3 Prolog") == 1);
+		assertTrue(Statistics.getCounter("[Solver] Calling solver 0 IC") == 15);
+		assertTrue(Statistics.getCounter("[Solver] Calling solver 1 Domain") == 8);
+		assertTrue(Statistics.getCounter("[Solver] Calling solver 2 Cost") == 8);
+		assertTrue(Statistics.getCounter("[Solver] Calling solver 3 Prolog") == 1);
 		
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 1 peeking") == 2);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 1 pushing") == 1);
+//		assertTrue(Statistics.getCounter("[Solver] Level 1 peeking") == 2);
+//		assertTrue(Statistics.getCounter("[Solver] Level 1 pushing") == 1);
 //		
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 peeking") == 5);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 pushing") == 2);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 popping") == 1);	
+//		assertTrue(Statistics.getCounter("[Solver] Level 2 peeking") == 5);
+//		assertTrue(Statistics.getCounter("[Solver] Level 2 pushing") == 2);
+//		assertTrue(Statistics.getCounter("[Solver] Level 2 popping") == 1);	
 //		
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 peeking") == 11);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 pushing") == 4);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 popping") == 3);
+//		assertTrue(Statistics.getCounter("[Solver] Level 3 peeking") == 11);
+//		assertTrue(Statistics.getCounter("[Solver] Level 3 pushing") == 4);
+//		assertTrue(Statistics.getCounter("[Solver] Level 3 popping") == 3);
 	}
 	
 	/**
@@ -330,19 +331,19 @@ public class TestStackSolver extends TestCase {
 		testCore = solver.run(testCore);
 		assertTrue(testCore.getResultingState("Solver").equals(State.Consistent));
 
-		assertTrue(Module.getStats().getCounter("[Solver] Applied resolvers") == 6);
+		assertTrue(Statistics.getCounter("[Solver] Applied resolvers") == 6);
 		
-		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 0 Domain") == 7);
-		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 1 Cost") == 7);
-		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 2 Prolog") == 4);
-		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 3 IC") == 4);
+		assertTrue(Statistics.getCounter("[Solver] Calling solver 0 Domain") == 7);
+		assertTrue(Statistics.getCounter("[Solver] Calling solver 1 Cost") == 7);
+		assertTrue(Statistics.getCounter("[Solver] Calling solver 2 Prolog") == 4);
+		assertTrue(Statistics.getCounter("[Solver] Calling solver 3 IC") == 4);
 		
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 1 peeking") == 2);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 1 pushing") == 1);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 peeking") == 2);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 pushing") == 1);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 peeking") == 2);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 pushing") == 1);
+//		assertTrue(Statistics.getCounter("[Solver] Level 1 peeking") == 2);
+//		assertTrue(Statistics.getCounter("[Solver] Level 1 pushing") == 1);
+//		assertTrue(Statistics.getCounter("[Solver] Level 2 peeking") == 2);
+//		assertTrue(Statistics.getCounter("[Solver] Level 2 pushing") == 1);
+//		assertTrue(Statistics.getCounter("[Solver] Level 3 peeking") == 2);
+//		assertTrue(Statistics.getCounter("[Solver] Level 3 pushing") == 1);
 	}
 	
 	/**
@@ -465,21 +466,21 @@ public class TestStackSolver extends TestCase {
 		testCore = solver.run(testCore);
 						
 		assertTrue(testCore.getResultingState("Solver").equals(State.Consistent));	
-		assertTrue(Module.getStats().getCounter("[Solver] Applied resolvers") == 7);
+		assertTrue(Statistics.getCounter("[Solver] Applied resolvers") == 7);
 		
-//		System.out.println(Module.getStats().getCounter("[Solver] Calling solver 0 Domain"));
+//		System.out.println(Statistics.getCounter("[Solver] Calling solver 0 Domain"));
 		
-		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 0 Domain") == 8);
-		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 1 Cost") == 8);
-		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 2 Prolog") == 5);
-		assertTrue(Module.getStats().getCounter("[Solver] Calling solver 3 IC") == 5);
+		assertTrue(Statistics.getCounter("[Solver] Calling solver 0 Domain") == 8);
+		assertTrue(Statistics.getCounter("[Solver] Calling solver 1 Cost") == 8);
+		assertTrue(Statistics.getCounter("[Solver] Calling solver 2 Prolog") == 5);
+		assertTrue(Statistics.getCounter("[Solver] Calling solver 3 IC") == 5);
 		
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 1 peeking") == 2);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 1 pushing") == 1);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 peeking") == 2);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 2 pushing") == 1);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 peeking") == 2);
-//		assertTrue(Module.getStats().getCounter("[Solver] Level 3 pushing") == 1);
+//		assertTrue(Statistics.getCounter("[Solver] Level 1 peeking") == 2);
+//		assertTrue(Statistics.getCounter("[Solver] Level 1 pushing") == 1);
+//		assertTrue(Statistics.getCounter("[Solver] Level 2 peeking") == 2);
+//		assertTrue(Statistics.getCounter("[Solver] Level 2 pushing") == 1);
+//		assertTrue(Statistics.getCounter("[Solver] Level 3 peeking") == 2);
+//		assertTrue(Statistics.getCounter("[Solver] Level 3 pushing") == 1);
 	}
 }
 

@@ -23,6 +23,7 @@ import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.tools.UniqueID;
+@SuppressWarnings("all")
 
 public class DomainParser_v4 implements DomainParser_v4Constants {
         Core c;

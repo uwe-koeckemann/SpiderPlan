@@ -820,7 +820,7 @@ public class Plan {
 			}
 		}
 		for ( AllenConstraint con : C.get(AllenConstraint.class) ) {
-			AllenConstraint tC = (AllenConstraint)con;
+			AllenConstraint tC = con;
 			g.addEdge(""+(c++), getStatement(tC.getFrom()).toString(), getStatement(tC.getTo()).toString() ); 
 			edgeLabels.put(""+(c-1), tC.getRelation().toString());
 		}

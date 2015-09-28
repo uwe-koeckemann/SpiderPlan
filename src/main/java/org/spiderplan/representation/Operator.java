@@ -441,7 +441,6 @@ public class Operator extends Constraint implements Substitutable {
 	 */
 	public void makeKeysGround() {
 		Substitution sub = new Substitution();
-		Term ground;
 		if ( this.intervalKey.isVariable() ) {
 			sub.add(this.intervalKey, this.intervalKey.makeConstant());
 		}
@@ -640,6 +639,10 @@ public class Operator extends Constraint implements Substitutable {
 		
 		ArrayList<Matchable> thisMatchable = new ArrayList<Matchable>();
 		ArrayList<Matchable> oMatchable = new ArrayList<Matchable>();
+		
+		// TODO: getMatchable bugged because of ConstraintDatabase keySet() issue
+		// -> Random behavior if order in two keySets different for the two calls of getMatchable()
+	
 		thisMatchable.addAll(this.C.getMatchable());
 		oMatchable.addAll(o.C.getMatchable());
 		

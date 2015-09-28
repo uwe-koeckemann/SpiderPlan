@@ -146,7 +146,25 @@ public class ROSConstraint extends Constraint implements Substitutable, Mutable 
 	public boolean equals(Object o) {
 		if ( o instanceof ROSConstraint ) {
 			ROSConstraint c = (ROSConstraint)o;
-			return this.toString().equals(o.toString());
+			
+			if ( !this.relation.equals(c.relation) ) {
+				return false;
+			} else if ( !this.variable.equals(c.variable) ) {
+				return false;
+			} else if ( !this.value.equals(c.value) ) {
+				return false;
+			} else if ( !this.msg.equals(c.msg) ) {
+				return false;
+			} else if ( this.wrt != null ) {
+				if ( c.wrt == null ) {
+					return false;
+				} else {
+					if ( !this.wrt.equals(c.wrt) ) {
+						return false;
+					}
+				}
+			}
+			return true;
 		}
 		return false;
 	}

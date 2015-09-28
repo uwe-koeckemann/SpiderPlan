@@ -157,7 +157,26 @@ public class ROSGoal extends Constraint implements Substitutable, Mutable {
 	public boolean equals(Object o) {
 		if ( o instanceof ROSGoal ) {
 			ROSGoal c = (ROSGoal)o;
-			return this.toString().equals(o.toString());
+			if ( !this.operatorName.equals(c.operatorName) ) {
+				return false;
+			} else if ( !this.serverID.equals(c.serverID) ) {
+				return false;
+			} else if ( !this.actionName.equals(c.actionName) ) {
+				return false;
+			} else if ( !this.goalMsg.equals(c.goalMsg) ) {
+				return false;
+			} else if ( !this.resultMsg.equals(c.resultMsg) ) {
+				return false;
+			} else if ( this.wrt != null ) {
+				if ( c.wrt == null ) {
+					return false;
+				} else {
+					if ( !this.wrt.equals(c.wrt) ) {
+						return false;
+					}
+				}
+			}
+			return true;
 		}
 		return false;
 	}

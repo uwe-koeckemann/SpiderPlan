@@ -71,9 +71,6 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 	
 	ConstraintDatabase deletedDB = new ConstraintDatabase();
 	
-	final private static Term Time1 = Term.createInteger(1);
-	final private static Term TimeInf = Term.createConstant("inf");
-	
 	public AdaptExistingPlanIterator( ConstraintDatabase cDB, Collection<OpenGoal> G, Plan p, Collection<Operator> O, TypeManager tM, ConfigurationManager cManager, String name ) {
 		super(name, cManager);
 		

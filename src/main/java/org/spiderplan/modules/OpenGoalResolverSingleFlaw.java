@@ -43,7 +43,6 @@ import org.spiderplan.representation.constraints.Asserted;
 import org.spiderplan.representation.constraints.OpenGoal;
 import org.spiderplan.representation.constraints.Statement;
 import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;

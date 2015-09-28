@@ -50,6 +50,7 @@ import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.tools.Global;
 import org.spiderplan.tools.logging.Logger;
+import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
 /**
@@ -118,10 +119,10 @@ public class LiftedPruning extends Module {
 			prunedPlans.addAll(greedyPruning(core.getPlan(), core));
 		}
 		
-		if ( keepStats ) Module.stats.addLong(this.msg("#Discarded plans"), Long.valueOf(prunedPlans.size()));
+		if ( keepStats ) Statistics.addLong(this.msg("#Discarded plans"), Long.valueOf(prunedPlans.size()));
 		
 		for ( DiscardedPlan p : prunedPlans ) {
-			if ( keepStats ) Module.stats.increment(this.msg("#Discarded plans"));
+			if ( keepStats ) Statistics.increment(this.msg("#Discarded plans"));
 			if ( verbose ) Logger.msg(this.getName(), "Found " + prunedPlans.size() + " generalizations to discard.", 4);
 			if ( verbose ) Logger.msg(this.getName(), "Pruning plan:\n" + p, 4);
 			core.getContext().add(p);
@@ -132,7 +133,7 @@ public class LiftedPruning extends Module {
 	}
 	
 	private boolean satisfiableOnlyPlan( Plan plan, Core core ) {
-		if ( keepStats ) Module.stats.increment(msg("Satisfiability test (just plan)")); 
+		if ( keepStats ) Statistics.increment(msg("Satisfiability test (just plan)")); 
 		
 		ConstraintDatabase context = new ConstraintDatabase();
 		context = plan.apply(context);
@@ -150,7 +151,7 @@ public class LiftedPruning extends Module {
 	}
 	
 	private boolean satisfiable( Plan plan, Core core ) {
-		if ( keepStats ) Module.stats.increment(msg("Satisfiability test")); 
+		if ( keepStats ) Statistics.increment(msg("Satisfiability test")); 
 		ApplyPlanIterator aI = new ApplyPlanIterator(core.getContext(), plan, this.getName(), this.cM, false, core.getTypeManager());
 		boolean atLeastOneSatisfiable = false;
 		Resolver r = aI.next();
@@ -229,11 +230,11 @@ public class LiftedPruning extends Module {
 			queue.add(s);
 		}
 		
-		int numQueueElementsProcessed = 0;
+//		int numQueueElementsProcessed = 0;
 		
 		while ( !queue.isEmpty() ) {
-			if ( keepStats ) Module.stats.increment(this.msg("Candidates evaluated"));
-			numQueueElementsProcessed++;
+			if ( keepStats ) Statistics.increment(this.msg("Candidates evaluated"));
+//			numQueueElementsProcessed++;
 			
 			Set<Term> current = queue.pop();
 			

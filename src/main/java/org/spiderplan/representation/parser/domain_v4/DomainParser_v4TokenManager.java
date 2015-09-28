@@ -20,6 +20,7 @@ import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.tools.UniqueID;
+@SuppressWarnings("all")
 
 /** Token Manager. */
 public class DomainParser_v4TokenManager implements DomainParser_v4Constants

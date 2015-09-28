@@ -187,8 +187,8 @@ public class TimeLineViewer extends JFrame implements ChangeListener, ItemListen
 	}
 	
 	/**
-	 * Check if a {@link Values} with id exists
-	 * @param name ID of the Value
+	 * Check if a value with given id exists
+	 * @param id ID of the Value
 	 */
 	public boolean hasValue( String id ) {
 		for ( Track t : curState.tracks ) {

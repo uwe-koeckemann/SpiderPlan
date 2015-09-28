@@ -118,7 +118,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 //			this.checkingModule = ModuleFactory.initModule( this.consistencyChecker, cM );
 //		}
 		
-		Map<Atomic,List<Term>> sortedIntervals = TemporalNetworkTools.getSequencedIntervals(cDB, tM);
+		Map<Atomic,List<Term>> sortedIntervals = TemporalNetworkTools.getSequencedIntervals(cDB);
 
 		/**
 		 * Collect goal statements

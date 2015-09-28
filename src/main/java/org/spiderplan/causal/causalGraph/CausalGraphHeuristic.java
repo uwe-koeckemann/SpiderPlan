@@ -71,13 +71,13 @@ public class CausalGraphHeuristic implements Heuristic {
 		this.tM = tM;
 	}
 	
-	private String space(int n) {
-		String s = "";
-		for ( int i = 0 ; i < n ; i++ ) {
-			s += "    ";
-		}
-		return s;
-	}
+//	private String space(int n) {
+//		String s = "";
+//		for ( int i = 0 ; i < n ; i++ ) {
+//			s += "    ";
+//		}
+//		return s;
+//	}
 		
 	public long computeCost( Map<Atomic,Term> s , Atomic v, Term d, Term d_target ) {
 		if ( d.equals(d_target) ) {

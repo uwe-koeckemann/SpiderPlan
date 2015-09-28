@@ -29,8 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-
 import org.spiderplan.executor.ROSProxy;
 import org.spiderplan.executor.Reactor;
 import org.spiderplan.executor.ReactorObservation;
@@ -72,6 +70,7 @@ import org.spiderplan.tools.Global;
 import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.UniqueID;
 import org.spiderplan.tools.logging.Logger;
+import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
 import org.spiderplan.tools.visulization.timeLineViewer.TimeLineViewer;
 
@@ -136,8 +135,8 @@ public class ExecutionModule  extends Module {
 	boolean drawTimeLines = true;
 	TimeLineViewer timeLineViewer = null;
 		
-	private String repairSolverName;
-	private Module repairSolver = null;
+//	private String repairSolverName;
+//	private Module repairSolver = null;
 	
 	private String fromScratchSolverName;
 	private Module fromScratchSolver = null;
@@ -157,10 +156,10 @@ public class ExecutionModule  extends Module {
 	public ExecutionModule(String name, ConfigurationManager cM ) {
 		super(name, cM);
 		
-		if ( cM.hasAttribute(name, "repairSolver") ) {
-			this.repairSolverName = cM.getString(this.getName(), "repairSolver" );
-			this.repairSolver = ModuleFactory.initModule( this.repairSolverName , cM );
-		}
+//		if ( cM.hasAttribute(name, "repairSolver") ) {
+//			this.repairSolverName = cM.getString(this.getName(), "repairSolver" );
+//			this.repairSolver = ModuleFactory.initModule( this.repairSolverName , cM );
+//		}
 		
 		if ( cM.hasAttribute(name, "fromScratchSolver") ) {
 			this.fromScratchSolverName = cM.getString(this.getName(), "fromScratchSolver" );
@@ -369,7 +368,7 @@ public class ExecutionModule  extends Module {
 			if ( keepTimes ) StopWatch.start(msg("Update"));
 			this.update();			
 			if ( keepTimes ) StopWatch.stop(msg("Update"));
-			if( keepTimes && keepStats ) Module.stats.addLong(msg("Update"), (StopWatch.getLast(msg("Update"))-before));
+			if( keepTimes && keepStats ) Statistics.addLong(msg("Update"), (StopWatch.getLast(msg("Update"))-before));
 			
 
 		}
@@ -496,7 +495,7 @@ public class ExecutionModule  extends Module {
 				execCSP = new IncrementalSTPSolver(0,this.tMax);
 			}
 			if ( keepTimes ) StopWatch.stop(msg("Replanning"));
-			if( keepTimes && keepStats ) Module.stats.addLong(msg("Replanning"), (StopWatch.getLast(msg("Replanning"))-before));
+			if( keepTimes && keepStats ) Statistics.addLong(msg("Replanning"), (StopWatch.getLast(msg("Replanning"))-before));
 		}
 		
 		long before = 0;
@@ -593,7 +592,7 @@ public class ExecutionModule  extends Module {
 			throw new IllegalStateException("Execution failure: Temporal inconsistency in simulation CDB.");
 		}
 		if ( keepTimes ) StopWatch.stop(msg("Temporal propagation"));
-		if( keepTimes && keepStats ) Module.stats.addLong(msg("Temporal propagation"), (StopWatch.getLast(msg("Temporal propagation"))-before));
+		if( keepTimes && keepStats ) Statistics.addLong(msg("Temporal propagation"), (StopWatch.getLast(msg("Temporal propagation"))-before));
 		
 		/************************************************************************************************
 		 * Add reactors if needed
@@ -1298,7 +1297,7 @@ public class ExecutionModule  extends Module {
 		int afterAC =  (cdb.get(AllenConstraint.class).size());
 		int afterStatements = (cdb.get(Statement.class).size());		
 				
-//		if ( keepStats ) Module.stats.addLong(msg("FromScratchDB #" +fromScratchDBsCreated+ " removed written in stone"), (long) (remList.size()-writtenInStoneConstraints.size()));
+//		if ( keepStats ) Statistics.addLong(msg("FromScratchDB #" +fromScratchDBsCreated+ " removed written in stone"), (long) (remList.size()-writtenInStoneConstraints.size()));
 		if ( verbose ) {
 			Logger.msg(this.getName(), "Removed " + (beforeAC-afterAC) + " temporal constraints whose intervals are fixed anyways." , 2);
 			Logger.msg(this.getName(), "Removed " + (beforeStatements-afterStatements) + " statements whose intervals are fixed anyways." , 2);

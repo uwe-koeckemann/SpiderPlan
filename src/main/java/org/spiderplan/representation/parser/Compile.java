@@ -27,13 +27,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.tools.ModuleFactory;
+import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.constraints.Constraint;
 import org.spiderplan.representation.constraints.PrologConstraint;
@@ -469,8 +472,14 @@ public class Compile {
 					}
 				}
 			}
-			c.getContext().removeAll(remList);					
-			TemporalNetworkTools.removeTemporalConstraintsWithKeys(c.getContext(), remKeys);
+			c.getContext().removeAll(remList);			
+			HashSet<Constraint> remSet = new HashSet<Constraint>();
+			for ( AllenConstraint tC : c.getContext().get(AllenConstraint.class) ) {
+				if ( remKeys.contains(tC.getFrom()) || remKeys.contains(tC.getTo()) ) {
+					remSet.add(tC);
+				}				
+			}
+			c.getContext().removeAll(remSet);
 
 			/**
 			 * Move preconditions on static facts from preconditions to constraints

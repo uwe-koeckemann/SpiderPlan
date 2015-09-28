@@ -22,8 +22,6 @@
  *******************************************************************************/
 package org.spiderplan;
 
-import java.util.logging.Level;
-
 import org.spiderplan.modules.MathSolver;
 import org.spiderplan.modules.STPSolver;
 import org.spiderplan.modules.configuration.ConfigurationManager;

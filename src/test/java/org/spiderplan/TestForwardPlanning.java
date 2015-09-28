@@ -27,14 +27,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.spiderplan.causal.ForwardPlanningNode;
+import org.spiderplan.causal.ForwardPlanningNodeComparator;
 import org.spiderplan.causal.StateVariableOperatorMultiState;
 import org.spiderplan.causal.ForwardPlanningNode.EqualityCriteria;
 import org.spiderplan.causal.goals.Goal;
 import org.spiderplan.causal.goals.SingleGoal;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.search.MultiHeuristicNode;
-import org.spiderplan.search.MultiHeuristicNode.CompareMethod;
+import org.spiderplan.search.MultiHeuristicNodeComparatorIndex;
+import org.spiderplan.search.MultiHeuristicNodeComparatorLexicographic;
 
 
 import junit.framework.TestCase;
@@ -110,30 +111,27 @@ public class TestForwardPlanning extends TestCase {
 		ForwardPlanningNode a = new ForwardPlanningNode(2);
 		ForwardPlanningNode b = new ForwardPlanningNode(2);
 		
-		a.compareMethod = CompareMethod.Lexicographic;
-		b.compareMethod = CompareMethod.Lexicographic;
-		
 		a.setHeuristicValue(0, 1);
 		a.setHeuristicValue(1, 2);
 		
 		b.setHeuristicValue(0, 1);
 		b.setHeuristicValue(1, 2);
 		
-		assertTrue( a.compareTo(b) == 0 );
+		ForwardPlanningNodeComparator compLexicographic = new ForwardPlanningNodeComparator( new MultiHeuristicNodeComparatorLexicographic() );
+		
+		assertTrue( compLexicographic.compare(a,b) == 0 );
 		
 		a.setHeuristicValue(1, 1);
 		
-		assertTrue( a.compareTo(b) == -1 );
+		assertTrue( compLexicographic.compare(a,b) == -1 );
 		
-		a.compareMethod = CompareMethod.Index;
-		MultiHeuristicNode.setCompareIdx(0);
+		ForwardPlanningNodeComparator compIndex0 = new ForwardPlanningNodeComparator( new MultiHeuristicNodeComparatorIndex(0) );
+				
+		assertTrue( compIndex0.compare(a,b) == 0 );
 		
-		assertTrue( a.compareTo(b) == 0 );
-		
-		MultiHeuristicNode.setCompareIdx(1);
-		MultiHeuristicNode.setCompareIdx(1);
-		
-		assertTrue( a.compareTo(b) == -1 );
+		ForwardPlanningNodeComparator compIndex1 = new ForwardPlanningNodeComparator( new MultiHeuristicNodeComparatorIndex(1) );
+				
+		assertTrue( compIndex1.compare(a,b) == -1 );
 		
 		
 	}
@@ -142,13 +140,12 @@ public class TestForwardPlanning extends TestCase {
 		ForwardPlanningNode a = new ForwardPlanningNode(1);
 		ForwardPlanningNode b = new ForwardPlanningNode(1);
 		
-		a.compareMethod = CompareMethod.Lexicographic;
-		b.compareMethod = CompareMethod.Lexicographic;
-		
+		ForwardPlanningNodeComparator compLexicographic = new ForwardPlanningNodeComparator( new MultiHeuristicNodeComparatorLexicographic() );
+				
 		a.setHeuristicValue(0, 1);
 		b.setHeuristicValue(0, 5);
 		
-		assertTrue( a.compareTo(b) == -1 );			// a wins 
+		assertTrue( compLexicographic.compare(a,b) == -1 );			// a wins 
 		
 		Goal gA = new SingleGoal( new Atomic("sv"), Term.createConstant("val"));
 		Goal gB = gA.copy();
@@ -156,11 +153,11 @@ public class TestForwardPlanning extends TestCase {
 		a.g.add(gA);
 		b.g.add(gB);
 		
-		assertTrue( a.compareTo(b) == -1 );			// a still wins
+		assertTrue( compLexicographic.compare(a,b) == -1 );			// a still wins
 		
 		gB.setReached(true);
 		
-		assertTrue( a.compareTo(b) == 1 );			// b wins because ahead in solved goals and goals are the same
+		assertTrue( compLexicographic.compare(a,b) == 1 );			// b wins because ahead in solved goals and goals are the same
 	}
 	
 	public void testGoals() {

@@ -41,12 +41,14 @@ import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.constraints.Asserted;
+import org.spiderplan.representation.constraints.Constraint;
 import org.spiderplan.representation.constraints.InteractionConstraint;
 import org.spiderplan.representation.constraints.OpenGoal;
 import org.spiderplan.representation.constraints.Statement;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.search.GenericSingleNodeSearch;
 import org.spiderplan.tools.logging.Logger;
+import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
 
@@ -392,7 +394,7 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 		
 		ConstraintDatabase enabledDB = core.getContext().copy();
 		enabledDB.removeAll(icsInCoreContext);	// (a) We only consider ICs belonging to the tested condition
-		Map<Class,Integer> cCount = enabledDB.getConstraintCount();
+		Map<Class<? extends Constraint>,Integer> cCount = enabledDB.getConstraintCount();
 		
 		
 //		ConstraintDatabase focused = new ConstraintDatabase();
@@ -491,7 +493,7 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 							if ( keepTimes ) StopWatch.start(msg("7) Testing condition"));
 							checkCore = consistencyChecker.run(checkCore, this.verbose, this.verbosity);
 							if ( keepTimes ) StopWatch.stop(msg("7) Testing condition"));
-							if ( keepStats ) stats.increment(msg("Testing condition"));
+							if ( keepStats ) Statistics.increment(msg("Testing condition"));
 							
 							enabledDB.setToConstraintCount(cCount);
 							
@@ -504,7 +506,7 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 							if ( enablerSearch.success() && approvedSubstitution ) { // search successful -> needs resolving
 								if ( verbose ) Logger.msg(getName(), "Condition applies: " +  icCopy.getName()+")", 0);
 								if ( verbose ) Logger.msg(getName(), "Trying to find consistent resolver...", 2);
-								if ( keepStats ) stats.increment(msg("Satisfied Condition"));
+								if ( keepStats ) Statistics.increment(msg("Satisfied Condition"));
 								
 								if ( keepTimes ) StopWatch.start(msg("8) Setting up resolver iterator"));
 								List<Resolver> resolverList = new ArrayList<Resolver>();

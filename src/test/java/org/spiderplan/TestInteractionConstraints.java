@@ -23,8 +23,6 @@
 package org.spiderplan;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
-
 import org.spiderplan.tools.ExecuteSystemCommand;
 import org.spiderplan.tools.Global;
 import org.spiderplan.tools.logging.Logger;

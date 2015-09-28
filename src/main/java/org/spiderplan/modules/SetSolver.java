@@ -33,7 +33,6 @@ import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
-import org.spiderplan.representation.constraints.Constraint;
 import org.spiderplan.representation.constraints.SetConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;

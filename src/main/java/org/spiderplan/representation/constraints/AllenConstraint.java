@@ -423,29 +423,29 @@ public class AllenConstraint extends Constraint implements Matchable, Substituta
 		}
 	}
 	
-	private boolean checkLegalBounds() {
-		for ( Interval i : bounds ) {
-			if ( i != null ) {
-				if ( i.getMin() == 0 ) {
-					if ( this.relation.equals(TemporalRelation.After) 
-					   | this.relation.equals(TemporalRelation.Before)
-					   | this.relation.equals(TemporalRelation.Overlaps)
-					   | this.relation.equals(TemporalRelation.OverlappedBy)
-					   | this.relation.equals(TemporalRelation.Finishes)
-					   | this.relation.equals(TemporalRelation.FinishedBy)
-					   | this.relation.equals(TemporalRelation.Starts)
-					   | this.relation.equals(TemporalRelation.StartedBy)
-					   | this.relation.equals(TemporalRelation.During)
-					   | this.relation.equals(TemporalRelation.Contains)
-					   | this.relation.equals(TemporalRelation.OverlappedBy)
-					   | this.relation.equals(TemporalRelation.OverlappedBy) ) {
-						return false;	
-					} 
-				}
-			}
-		}
-		return true;
-	}
+//	private boolean checkLegalBounds() {
+//		for ( Interval i : bounds ) {
+//			if ( i != null ) {
+//				if ( i.getMin() == 0 ) {
+//					if ( this.relation.equals(TemporalRelation.After) 
+//					   | this.relation.equals(TemporalRelation.Before)
+//					   | this.relation.equals(TemporalRelation.Overlaps)
+//					   | this.relation.equals(TemporalRelation.OverlappedBy)
+//					   | this.relation.equals(TemporalRelation.Finishes)
+//					   | this.relation.equals(TemporalRelation.FinishedBy)
+//					   | this.relation.equals(TemporalRelation.Starts)
+//					   | this.relation.equals(TemporalRelation.StartedBy)
+//					   | this.relation.equals(TemporalRelation.During)
+//					   | this.relation.equals(TemporalRelation.Contains)
+//					   | this.relation.equals(TemporalRelation.OverlappedBy)
+//					   | this.relation.equals(TemporalRelation.OverlappedBy) ) {
+//						return false;	
+//					} 
+//				}
+//			}
+//		}
+//		return true;
+//	}
 	
 	@Override
 	public Collection<Term> getVariableTerms() {

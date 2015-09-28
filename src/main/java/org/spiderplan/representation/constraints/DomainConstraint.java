@@ -34,12 +34,6 @@ import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 
-
-/**
- * Supports several math operations for "on-the-fly" computations.
- * Output type (arg3) depends on input types (integer or float).
- * Input types must be the same. mod/3 only works for integers.
- */
 public class DomainConstraint extends Constraint implements Matchable, Substitutable, Mutable {
 		
 	private Atomic r;

@@ -48,6 +48,6 @@ public class TaskResolverComparator implements Comparator<Resolver> {
 			}
 		}
 		
-		return (int)(subTasksO1-subTasksO2);
+		return (subTasksO1-subTasksO2);
 	}
 }

@@ -122,7 +122,7 @@ public class MiniZincConstraint extends Constraint implements Matchable, Substit
 	
 	private String addQuotes( Term t ) {
 		try {
-			int i = Integer.valueOf(t.toString());
+			Integer.valueOf(t.toString());
 			return t.toString();
 		} catch ( NumberFormatException e ) {
 			return "\""+t+"\"";

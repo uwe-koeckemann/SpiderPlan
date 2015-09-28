@@ -34,6 +34,7 @@ import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
 import org.spiderplan.tools.logging.Logger;
+import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
 /**
@@ -86,7 +87,7 @@ public class FindShortestConflictingPlan extends Module {
 		while ( minPossible != maxPossible ) {
 			i = minPossible + (maxPossible-minPossible)/2;
 			
-			if ( keepStats ) stats.increment(msg("Tested partial plans"));
+			if ( keepStats ) Statistics.increment(msg("Tested partial plans"));
 			
 			partialPlan = inconsistentPlan.getSubPlan(i);
 			
