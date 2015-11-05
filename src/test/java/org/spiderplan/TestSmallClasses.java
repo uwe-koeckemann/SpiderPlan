@@ -29,11 +29,11 @@ import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Resolver;
 import org.spiderplan.modules.solvers.ResolverCombination;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Cost;
 
-import org.spiderplan.representation.constraints.Delete;
-import org.spiderplan.representation.constraints.PrologConstraint;
-import org.spiderplan.representation.constraints.AllenConstraint;
+import org.spiderplan.representation.expressions.cost.Cost;
+import org.spiderplan.representation.expressions.misc.Delete;
+import org.spiderplan.representation.expressions.prolog.PrologConstraint;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.representation.parser.Compile;
 import org.spiderplan.representation.parser.pddl.ParseException;
@@ -98,7 +98,7 @@ public class TestSmallClasses extends TestCase {
 		
 		assertTrue(cDB.size() == 2);
 		
-		d = new Delete(cost.copy());
+		d = new Delete(cost);
 		
 		d.apply(cDB);
 		
@@ -113,24 +113,7 @@ public class TestSmallClasses extends TestCase {
 			
 		assertTrue(cDB.size() == 1); // the Delete constraint is added
 	}
-	
-	/**
-	 * Test {@link GenericComboBuilder}
-	 */
-	public void testComboBuilderSingleList()  {
-		ArrayList<String> in = new ArrayList<String>();
-		in.add("A"); 
-		in.add("B");
-		in.add("C");
-		in.add("D");
 		
-		GenericComboBuilder<String> cB = new GenericComboBuilder<String>();
-		
-		List<List<String>> combos = cB.getCombosSingleList(in, 2, false);
-		
-		assertTrue( combos.size() == 12 );
-	}
-	
 	public void testComboIterator()  {
 		List<String> in1 = new ArrayList<String>();
 		in1.add("A"); 

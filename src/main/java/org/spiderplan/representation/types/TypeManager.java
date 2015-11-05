@@ -30,10 +30,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.ReusableResourceCapacity;
-import org.spiderplan.representation.constraints.Statement;
-import org.spiderplan.representation.constraints.TypeDomainConstraint;
-import org.spiderplan.representation.constraints.TypeSignatureConstraint;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.domain.TypeDomainConstraint;
+import org.spiderplan.representation.expressions.domain.TypeSignatureConstraint;
+import org.spiderplan.representation.expressions.resources.ReusableResourceCapacity;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -64,7 +64,7 @@ public class TypeManager {
 	 */
 	public void collectTypeInformation( ConstraintDatabase cDB ) {
 		for ( TypeDomainConstraint dC : cDB.get(TypeDomainConstraint.class) ) {
-			Atomic r = dC.getRelation(); 
+			Atomic r = dC.getConstraint(); 
 			try {
 				if ( r.name().equals("enum") ) {
 					Term typeName = r.getArg(0);

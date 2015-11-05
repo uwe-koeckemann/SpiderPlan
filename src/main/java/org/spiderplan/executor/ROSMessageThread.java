@@ -2,7 +2,12 @@ package org.spiderplan.executor;
 
 import org.spiderplan.representation.logic.Term;
 
-public class ROSMessageThread extends Thread {
+/**
+ * Thread that ready message from a ROS topic using ROSProxy.
+ * 
+ * @author Uwe Köckemann
+ */
+class ROSMessageThread extends Thread {
 
 	public String topicName;
 	public int numReqRepeats;

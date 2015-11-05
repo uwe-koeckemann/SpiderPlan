@@ -34,7 +34,8 @@ import org.spiderplan.modules.solvers.ResolverList;
 import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
-import org.spiderplan.representation.constraints.MathConstraint;
+import org.spiderplan.representation.expressions.ExpressionTypes.MathRelation;
+import org.spiderplan.representation.expressions.math.MathConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -90,7 +91,7 @@ public class MathSolver extends Module implements SolverInterface {
 		Substitution theta = new Substitution();
 		
 		for ( MathConstraint gC : C ) {
-			Atomic r = gC.getRelation().substitute(theta);			
+			Atomic r = gC.getConstraint().substitute(theta);			
 			if ( verbose ) Logger.msg(getName(),"Solving: " + r, 1);
 			
 			Term a = r.getArg(0);
@@ -160,7 +161,7 @@ public class MathSolver extends Module implements SolverInterface {
 			int rInt = -10000;
 			double rFloat = -1.0;
 			
-			if ( r.getUniqueName().equals("add/3") ) {
+			if ( gC.getRelation().equals(MathRelation.Addition) ) { //r.getUniqueName().equals("add/3") ) {
 				if ( integerInput ) {
 					rInt = aInt + bInt;
 				} else if ( floatInput ) {
@@ -168,7 +169,7 @@ public class MathSolver extends Module implements SolverInterface {
 				} else {
 					throw new IllegalStateException("MathConstraint " + r + " has type problems. This should never happen if types are tested correctly earlier in the same class.");
 				}
-			} else if ( r.getUniqueName().equals("sub/3") ) {
+			} else if ( gC.getRelation().equals(MathRelation.Subtraction) ) {
 				if ( integerInput ) {
 					rInt = aInt - bInt;
 				} else if ( floatInput ) {
@@ -176,7 +177,7 @@ public class MathSolver extends Module implements SolverInterface {
 				} else {
 					throw new IllegalStateException("MathConstraint " + r + " has type problems. This should never happen if types are tested correctly earlier in the same class.");
 				}
-			} else if ( r.getUniqueName().equals("mult/3") ) {
+			} else if ( gC.getRelation().equals(MathRelation.Multiplication) ) {
 				if ( integerInput ) {
 					rInt = aInt * bInt;
 				} else if ( floatInput ) {
@@ -184,7 +185,7 @@ public class MathSolver extends Module implements SolverInterface {
 				} else {
 					throw new IllegalStateException("MathConstraint " + r + " has type problems. This should never happen if types are tested correctly earlier in the same class.");
 				}
-			} if ( r.getUniqueName().equals("div/3") ) {
+			} if ( gC.getRelation().equals(MathRelation.Division) ) {
 				if ( integerInput ) {
 					rInt = aInt / bInt;
 				} else if ( floatInput ) {
@@ -192,7 +193,7 @@ public class MathSolver extends Module implements SolverInterface {
 				} else {
 					throw new IllegalStateException("MathConstraint " + r + " has type problems. This should never happen if types are tested correctly earlier in the same class.");
 				}
-			} else if ( r.getUniqueName().equals("mod/3") ) {
+			} else if ( gC.getRelation().equals(MathRelation.Modulo) ) {
 				if ( integerInput ) {
 					rInt = aInt % bInt;
 				} else {
@@ -221,14 +222,17 @@ public class MathSolver extends Module implements SolverInterface {
 		
 		if ( verbose ) Logger.msg(getName(), "Checking inequalities... ", 1);
 		for ( MathConstraint  mathCon : core.getContext().get(MathConstraint.class) ) {
-			Atomic relation = mathCon.getRelation();
-			String operator = mathCon.getRelation().name();
+			Atomic relation = mathCon.getConstraint();
+//			String operator = mathCon.getConstraint().name();
 			
-			if ( operator.equals("less-than")  
-			||   operator.equals("less-than-or-equals")
-			||   operator.equals("greater-than")
-			||   operator.equals("greater-than-or-equals") ) {
-									
+//			if ( operator.equals("less-than")  			||   operator.equals("less-than-or-equals")			||   operator.equals("greater-than")			||   operator.equals("greater-than-or-equals") ) {
+				
+			if ( mathCon.getRelation().equals(MathRelation.LessThan) 
+				|| mathCon.getRelation().equals(MathRelation.LessThanOrEquals) 
+				|| mathCon.getRelation().equals(MathRelation.GreaterThan)
+				|| mathCon.getRelation().equals(MathRelation.GreaterThanOrEquals) ) {
+				
+				
 				if ( verbose ) Logger.msg(getName(), "    " + mathCon, 1);
 						
 				Term xTerm = relation.getArg(0);
@@ -274,13 +278,13 @@ public class MathSolver extends Module implements SolverInterface {
 				}
 				
 				if ( !ignored ) {
-					if ( operator.equals("less-than") ) { 
+					if ( mathCon.getRelation().equals(MathRelation.LessThan) ) { 
 						atLeastOneViolation = !(xValue < yValue);
-					} else if ( operator.equals("less-than-or-equals") ) { 
+					} else if ( mathCon.getRelation().equals(MathRelation.LessThanOrEquals) ) { 
 						atLeastOneViolation = !(xValue <= yValue);
-					} else if ( operator.equals("greater-than") ) { 
+					} else if ( mathCon.getRelation().equals(MathRelation.GreaterThan) ) { 
 						atLeastOneViolation = !(xValue > yValue);
-					} else if ( operator.equals("greater-than-or-equals") ) { 
+					} else if ( mathCon.getRelation().equals(MathRelation.GreaterThanOrEquals) ) { 
 						atLeastOneViolation = !(xValue >= yValue);
 					}
 					if ( atLeastOneViolation ) {

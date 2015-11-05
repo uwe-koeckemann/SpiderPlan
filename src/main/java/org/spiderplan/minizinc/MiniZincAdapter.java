@@ -43,20 +43,46 @@ import org.spiderplan.tools.stopWatch.StopWatch;
  */
 public class MiniZincAdapter {
 
-	public static String uniqueFileNamePart = "";
 	private static boolean keepTimes = false;
 	
+	/**
+	 * Run minizinc.
+	 * 
+	 * @param minizincBinaryLocation location of minizinc binary (use "minizinc" when its in PATH)
+	 * @param program string representation of program to run
+	 * @param allSolutions if <code>true</code> all solutions will be generated
+	 * @return all substitutions that satisfy minizinc constraints
+	 */
 	public static Collection<Substitution> runMiniZinc( String minizincBinaryLocation, String program, boolean allSolutions ) {
 		return runMiniZinc(minizincBinaryLocation, program, null,allSolutions, -1);
 	}
 	
+	/**
+	 * Run minizinc.
+	 * 
+	 * @param minizincBinaryLocation location of minizinc binary (use "minizinc" when its in PATH)
+	 * @param program string representation of program to run
+	 * @param data string representation of data to use for program
+	 * @param allSolutions if <code>true</code> all solutions will be generated
+	 * @return all substitutions that satisfy minizinc constraints
+	 */
 	public static Collection<Substitution> runMiniZinc( String minizincBinaryLocation, String program, String data, boolean allSolutions ) {
 		return runMiniZinc(minizincBinaryLocation, program, null,allSolutions, -1);
 	}
 	
+	/**
+	 * Run minizinc.
+	 * 
+	 * @param minizincBinaryLocation location of minizinc binary (use "minizinc" when its in PATH)
+	 * @param program string representation of program to run
+	 * @param data string representation of data to use for program
+	 * @param allSolutions if <code>true</code> all solutions will be generated
+	 * @param nthSolution index of solution that should be returned
+	 * @return all substitutions that satisfy minizinc constraints
+	 */
 	public static Collection<Substitution> runMiniZinc( String minizincBinaryLocation, String program, String data, boolean allSolutions, int nthSolution ) {		
-		String problemFileName = Global.workingDir+"csp"+uniqueFileNamePart+".mzn";
-		String dataFileName = Global.workingDir+"csp"+uniqueFileNamePart+".dzn";
+		String problemFileName = Global.workingDir+"csp"+Global.UniqueFilenamePart+".mzn";
+		String dataFileName = Global.workingDir+"csp"+Global.UniqueFilenamePart+".dzn";
 				
 		try {
 			FileWriter fstream = new FileWriter(problemFileName);
@@ -119,6 +145,12 @@ public class MiniZincAdapter {
 		return null;
 	}
 	
+	/**
+	 * Make a term into a minizinc compatible string.
+	 * 
+	 * @param t term to convert
+	 * @return minizinc compatibly string
+	 */
 	public static String makeMiniZincCompatible( Term t ) {
 		return t.toString().replace("?", "");
 	}

@@ -28,15 +28,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.spiderplan.causal.CommonDataStructures;
-import org.spiderplan.causal.StateVariableOperator;
-import org.spiderplan.causal.causalGraph.CausalGraph;
-import org.spiderplan.causal.causalGraph.CausalGraphHeuristic;
-import org.spiderplan.causal.causalGraph.DomainTransitionEdge;
-import org.spiderplan.causal.causalGraph.DomainTransitionGraph;
-import org.spiderplan.causal.functions.Applicability;
-import org.spiderplan.causal.goals.Goal;
-import org.spiderplan.causal.goals.SingleGoal;
+import org.spiderplan.causal.forwardPlanning.CausalReasoningTools;
+import org.spiderplan.causal.forwardPlanning.CommonDataStructures;
+import org.spiderplan.causal.forwardPlanning.StateVariableOperator;
+import org.spiderplan.causal.forwardPlanning.causalGraph.CausalGraph;
+import org.spiderplan.causal.forwardPlanning.causalGraph.CausalGraphHeuristic;
+import org.spiderplan.causal.forwardPlanning.causalGraph.DomainTransitionEdge;
+import org.spiderplan.causal.forwardPlanning.causalGraph.DomainTransitionGraph;
+import org.spiderplan.causal.forwardPlanning.goals.Goal;
+import org.spiderplan.causal.forwardPlanning.goals.SingleGoal;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
@@ -87,29 +87,7 @@ public class TestCausalGraph extends TestCase {
 			assertTrue( e.getConditions().size() == 0 );
 		}		
 	}
-	
-	public void testCausalGraph() {	
-		tM.addSimpleEnumType("locations", "a,b,c,d");
 		
-		tM.attachTypes("(drive locations locations)");
-		tM.attachTypes("(at)=locations");
-		tM.attachTypes("(good)=locations");
-		
-		StateVariableOperator o = new StateVariableOperator();
-		o.setName(new Atomic("(drive ?A ?B)"));
-		o.getPreconditions().put(new Atomic("(good)"), Term.createVariable("?A"));
-		o.getPreconditions().put(new Atomic("(at)"), Term.createVariable("?A"));
-		o.getEffects().put(new Atomic("(at)"), Term.createVariable("?B"));
-		
-		ArrayList<StateVariableOperator> O = new ArrayList<StateVariableOperator>();
-		O.add(o);
-			
-		CausalGraph cg = new CausalGraph(o.getAllGround(tM));
-
-		assertTrue( cg.getGraph().getVertexCount() == 2 );
-		assertTrue( cg.getGraph().getEdgeCount() == 1 );
-	}
-	
 	public void testCost1() {
 		
 		Atomic v1 = new Atomic("(sv1)");
@@ -159,7 +137,7 @@ public class TestCausalGraph extends TestCase {
 		s.put(v2, Term.createConstant("c"));
 		
 		CausalGraphHeuristic fdh = new CausalGraphHeuristic(DTGs, cg, tM);
-//		fdh.initializeHeuristic(s, g, A, tM);C
+//		fdh.initializeHeuristic(s, g, A, tM);
 						
 //		fdh.computeCost(s, v2, Term.Constant("c"));
 //		fdh.computeCost(s, v2, Term.Constant("d"));
@@ -630,7 +608,7 @@ public class TestCausalGraph extends TestCase {
 			g.add( new SingleGoal( goal.getKey(), goal.getValue() ));
 		}
 		
-		Collection<StateVariableOperator> A = Applicability.getAllSVOActions(s0, O, tM);
+		Collection<StateVariableOperator> A = CausalReasoningTools.getAllSVOActions(s0, O, tM);
 				
 		CausalGraphHeuristic fdh = new CausalGraphHeuristic();
 		
@@ -688,7 +666,7 @@ public class TestCausalGraph extends TestCase {
 		O.add(o2);
 		O.add(o3);
 		
-		Collection<StateVariableOperator> A = Applicability.getAllSVOActions(s0, O, tM);
+		Collection<StateVariableOperator> A = CausalReasoningTools.getAllSVOActions(s0, O, tM);
 	
 		Map<Atomic,Term> gParsed = SimpleParsing.createMap(
 				"(passengerAt p1)<-f0");
@@ -758,7 +736,7 @@ public class TestCausalGraph extends TestCase {
 		O.add(o2);
 		O.add(o3);
 		
-		Collection<StateVariableOperator> A = Applicability.getAllSVOActions(s0, O, tM);
+		Collection<StateVariableOperator> A = CausalReasoningTools.getAllSVOActions(s0, O, tM);
 	
 		Map<Atomic,Term> gParsed = SimpleParsing.createMap(
 				"(passengerAt p1)<-f0");
@@ -830,7 +808,7 @@ public class TestCausalGraph extends TestCase {
 		O.add(o2);
 		O.add(o3);
 		
-		Collection<StateVariableOperator> A = Applicability.getAllSVOActions(s0, O, tM);
+		Collection<StateVariableOperator> A = CausalReasoningTools.getAllSVOActions(s0, O, tM);
 	
 		Map<Atomic,Term> gParsed = SimpleParsing.createMap("(passengerAt p1)<-f0");
 							
@@ -898,7 +876,7 @@ public class TestCausalGraph extends TestCase {
 		O.add(o2);
 		O.add(o3);
 		
-		Collection<StateVariableOperator> A = Applicability.getAllSVOActions(s0, O, tM);
+		Collection<StateVariableOperator> A = CausalReasoningTools.getAllSVOActions(s0, O, tM);
 			
 		Map<Atomic,Term> gParsed = SimpleParsing.createMap(
 				"(passengerAt p1)<-f0");

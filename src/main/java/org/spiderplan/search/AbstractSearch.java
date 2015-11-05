@@ -70,6 +70,14 @@ public abstract class AbstractSearch {
 	}
 	
 	/**
+	 * Return goal node.
+	 * @return node currently selected by search
+	 */
+	public AbstractNode getGoalNode() {
+		return solution;
+	}
+	
+	/**
 	 * Continue search after a solution was found.
 	 */
 	public void continueSearch() { this.done = false; this.success = false;	}

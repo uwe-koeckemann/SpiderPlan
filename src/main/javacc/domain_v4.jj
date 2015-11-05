@@ -23,9 +23,23 @@ import java.io.IOException;
 
 import org.spiderplan.representation.*;
 import org.spiderplan.representation.types.*;
-import org.spiderplan.representation.constraints.*;
-import org.spiderplan.representation.constraints.ros.*;
-import org.spiderplan.representation.constraints.VariableDomainRestriction.Relation;
+import org.spiderplan.representation.expressions.*;
+import org.spiderplan.representation.expressions.execution.ros.*;
+import org.spiderplan.representation.expressions.causal.*;
+import org.spiderplan.representation.expressions.cost.*;
+import org.spiderplan.representation.expressions.domain.*;
+import org.spiderplan.representation.expressions.execution.*;
+import org.spiderplan.representation.expressions.graph.*;
+import org.spiderplan.representation.expressions.interaction.*;
+import org.spiderplan.representation.expressions.math.*;
+import org.spiderplan.representation.expressions.minizinc.*;
+import org.spiderplan.representation.expressions.misc.*;
+import org.spiderplan.representation.expressions.programs.*;
+import org.spiderplan.representation.expressions.prolog.*;
+import org.spiderplan.representation.expressions.resources.*;
+import org.spiderplan.representation.expressions.sampling.*;
+import org.spiderplan.representation.expressions.set.*;
+import org.spiderplan.representation.expressions.temporal.*;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.temporal.TemporalNetworkTools;
@@ -77,7 +91,7 @@ TOKEN :
 |   < RESOURCE : "resource" >
 |   < CONDITIONAL : "conditional" >
 |   < CONDITION : "condition" >
-|   < PROBABILISTIC : "probabilistic" >
+|   < SAMPLING : "sampling" >
 |   < ROS : "ros" >
 |   < ROSPUBLISH : "publish-to" >
 |   < ROSSUBSCRIBE : "subscribe-to" >
@@ -111,26 +125,10 @@ TOKEN :
 | < COMMA: "," >
 | < DOT: "." >
 | < COLON: ":">
-| < ASSIGNMENT: ":=">
-| < SEMICOLON: ";">
-| < SLASH: "/">
-| < TO: "->">
 | < PLUS: "+">
 | < MINUS: "-">
-| < TIMES: "*">
-| < DIVIDED: "\\">
 | < QMARKS: "\"">
-| < EQUALS: "=">
-| < NEQUALS: "!=">
-| < NEG: "!">
-| < LESS: "<">
-| < LESSEQ: "<=">
-| < GREATER: ">">
-| < GREATEREQ: ">=">
 | < QPOINT: "?">
-| < HASH: "#">
-| < DOLLAR: "$" >
-| < UNDERSCORE: "_" >
 }
 
 
@@ -138,8 +136,8 @@ TOKEN :
 
 TOKEN :
 {
- 	< PACKAGE : (["a"-"z"]|["A"-"Z"])+ (< DOT > (["a"-"z"]|["A"-"Z"])+)+ >
-|   < NON_COMPLEX_TERM : (["a"-"z"]|["A"-"Z"]|["0"-"9"]|["_"]|["/"])(["a"-"z"]|["A"-"Z"]|["0"-"9"]|["_"]|["-"]|["/"])* >
+    < NON_COMPLEX_TERM : (["a"-"z"]|["A"-"Z"]|["0"-"9"]|["_"]|["/"])(["a"-"z"]|["A"-"Z"]|["0"-"9"]|["_"]|["-"]|["/"])* >
+		//< NON_COMPLEX_TERM : (["a"-"z"]|["A"-"Z"]|["0"-"9"]|["_"]|["-"]|["/"]|["+"]|["*"]|["<"]|[">"]|["="])+ >
 |   < STRING : <  QMARKS > (~["\""])* < QMARKS > >
 |   < UFLOAT :  (["0"-"9"])* < DOT > (["0"-"9"])+ > 
 }
@@ -382,7 +380,7 @@ Statement Statement() :
  */
 ConstraintDatabase ConstraintDatabase() :
 {
-  Constraint c;
+  Expression c;
   Term programID;
   ConstraintDatabase cDB = new ConstraintDatabase();
   groupMapping = new HashMap<Term,ArrayList<Term>>();
@@ -400,17 +398,17 @@ ConstraintDatabase ConstraintDatabase() :
 		| ( < TASK > 		( LOOKAHEAD(2) c = TaskConstraint() 			{ cDB.add(c); } )+ )
 		| ( < FINALLY > 	( 			   c = FinallyConstraint() 			{ cDB.add(c); } )  )
 		| ( < DOMAIN > 		( LOOKAHEAD(2) c = DomainConstraint() 			{ cDB.add(c); } )+ )
-		| ( < PROBABILISTIC > ( LOOKAHEAD(2) c = ProbabilisticConstraint()	{ cDB.add(c); } )+ )
+		| ( < SAMPLING > ( LOOKAHEAD(2) c = SamplingConstraint()	{ cDB.add(c); } )+ )
 		| ( < MATH > 		( LOOKAHEAD(2) c = MathConstraint() 			{ cDB.add(c); } )+ )
 		| ( < SET > 		( LOOKAHEAD(2) c = SetConstraint() 				{ cDB.add(c); } )+ )
 		| ( < CONDITIONAL > ( 			   c = ConditionalConstraint() 		{ cDB.add(c); } )  )
-		| ( < SIMULATE > 	( 			   c = SimulationConstraint() 		{ cDB.add(c); } )  )
+		| ( < SIMULATE > 	( 			   c = Simulation() 		{ cDB.add(c); } )  )
 		| ( < ROS > 		( 			   c = ROSConstraint() 				{ cDB.add(c); } )+ )
 		| ( < CUSTOM > 		( LOOKAHEAD(2) c = CustomConstraint() 			{ cDB.add(c); } )+ )
 		| ( < INCLUDE > 	( LOOKAHEAD(2) c = IncludeProgram() 			{ cDB.add(c); } )+ )
 		| ( < STATEMENT > 	( LOOKAHEAD(2) c = Statement()	 				{ cDB.add(c); } )+ ) 
 		| ( < PROLOG >	 programID = Term()  ( LOOKAHEAD(2) c = PrologConstraint(programID) 	{ cDB.add(c); } )+ )
-		| ( < MINIZINC > programID = Term()  ( LOOKAHEAD(2) c = MiniZincConstraint(programID) 	{ cDB.add(c); } )+ )
+		| ( < MINIZINC > programID = Term()  ( LOOKAHEAD(2) c = MiniZincInput(programID) 	{ cDB.add(c); } )+ )
 		)
 	  <CP>
 	)*
@@ -420,7 +418,7 @@ ConstraintDatabase ConstraintDatabase() :
    }
 }
 
-Constraint TemporalConstraint() :
+Expression TemporalConstraint() :
 {
 	Atomic constraint;
 }
@@ -450,7 +448,7 @@ Constraint TemporalConstraint() :
 	}
 }
 
-Constraint PrologConstraint( Term programID ) :
+Expression PrologConstraint( Term programID ) :
 {
 	Atomic constraint;
 }
@@ -462,7 +460,7 @@ Constraint PrologConstraint( Term programID ) :
 		}
 }
 
-Constraint GoalConstraint() :
+Expression GoalConstraint() :
 {
   	Statement g;
 }
@@ -474,7 +472,7 @@ Constraint GoalConstraint() :
 	}
 }
 
-Constraint TaskConstraint() :
+Expression TaskConstraint() :
 {
   	Statement task;
 }
@@ -486,7 +484,7 @@ Constraint TaskConstraint() :
 	}
 }
 
-Constraint MiniZincConstraint( Term programID ) :
+Expression MiniZincInput( Term programID ) :
 {
 	Atomic constraint;
 }
@@ -494,11 +492,11 @@ Constraint MiniZincConstraint( Term programID ) :
 	constraint = Atomic() 
 	{
 		if ( verbose ) { System.out.println("[Parser] MiniZinc Constraint"); }
-	   	return new MiniZincConstraint( constraint, programID ); 
+	   	return new MiniZincInput( constraint, programID ); 
 	}
 }
 
-Constraint GraphConstraint() :
+Expression GraphConstraint() :
 {
 	Atomic constraint;
 }
@@ -510,7 +508,7 @@ Constraint GraphConstraint() :
 	}
 }
 
-Constraint MathConstraint() :
+Expression MathConstraint() :
 {
 	Atomic constraint;
 }
@@ -521,7 +519,7 @@ Constraint MathConstraint() :
 	}
 }
 
-Constraint SetConstraint() :
+Expression SetConstraint() :
 {
 	Atomic constraint;
 }
@@ -533,7 +531,7 @@ Constraint SetConstraint() :
 	}
 }
 
-Constraint ProbabilisticConstraint() :
+Expression SamplingConstraint() :
 {
 	Atomic constraint;
 }
@@ -541,12 +539,12 @@ Constraint ProbabilisticConstraint() :
 	constraint = Atomic() 
 	{
 		if ( verbose ) { System.out.println("[Parser] Probabilistic Constraint"); }
-	   	return new ProbabilisticConstraint( constraint ); 
+	   	return new SamplingConstraint( constraint ); 
 	}
 }
 
 
-Constraint CustomConstraint() :
+Expression CustomConstraint() :
 {
 	Atomic constraint;
 	Token conType;
@@ -558,7 +556,7 @@ Constraint CustomConstraint() :
 	}
 }
 
-Constraint FinallyConstraint() :
+Expression FinallyConstraint() :
 {
 	ConstraintDatabase cDB;
 }
@@ -570,7 +568,7 @@ Constraint FinallyConstraint() :
 	}
 }
 
-Constraint DomainConstraint():
+Expression DomainConstraint():
 {
 	Atomic constraint;
 }
@@ -621,14 +619,14 @@ Constraint DomainConstraint():
 			
 			Atomic a = new Atomic(constraint.name(), constraint.getArg(0), list);
 			
-			return new DomainConstraint(a);
+			return new DomainMemberConstraint(a);
 		} else {
-			return new DomainConstraint(constraint);
+			return new DomainMemberConstraint(constraint);
 		}
 	}
 }
  
-Constraint ConditionalConstraint()  :
+Expression ConditionalConstraint()  :
 {
   	InteractionConstraint iC;
 	ConstraintDatabase tDB;
@@ -657,10 +655,9 @@ Constraint ConditionalConstraint()  :
 	}
 }
 
-Constraint ROSConstraint()  :
+Expression ROSConstraint()  :
 {
-  	Constraint rosCon;
-	ConstraintDatabase wrt = null;
+  	Expression rosCon;
 	Atomic variable;
 	Term value;
 	Term topic;
@@ -674,18 +671,22 @@ Constraint ROSConstraint()  :
 {
 	<OP>
 	( LOOKAHEAD(2)
-		( <ROSPUBLISH> variable = Atomic() value = Term() topic = Term() msgType = Term() [ <OP> <CONDITION> wrt = ConstraintDatabase() <CP> ]  { rosCon = new ROSConstraint(ConstraintTypes.ROSRelation.PublishTo,variable,value,topic,msgType,wrt); } )
-	|	( <ROSSUBSCRIBE> variable = Atomic() value = Term() topic = Term() msgType = Term() [ <OP> <CONDITION> wrt = ConstraintDatabase() <CP> ] { rosCon = new ROSConstraint(ConstraintTypes.ROSRelation.SubscribeTo,variable,value,topic,msgType,wrt); } )
-	|	( <ROSREGACTION> serverID = Term() actionName = Term() { rosCon = new ROSRegisterAction(serverID,actionName); } )
-	|	( <ROSGOAL> variable = Atomic() serverID = Term() actionName = Term() msgType = Term() [ LOOKAHEAD(2) resultMsg = Term() ] [ <OP> <CONDITION> wrt = ConstraintDatabase() <CP> ] { rosCon = new ROSGoal(variable,serverID,actionName,msgType,resultMsg,wrt); } )
+		( <ROSPUBLISH> variable = Atomic() value = Term() topic = Term() msgType = Term() 
+			{ rosCon = new ROSConstraint(ExpressionTypes.ROSRelation.PublishTo,variable,value,topic,msgType); } )
+	|	( <ROSSUBSCRIBE> variable = Atomic() value = Term() topic = Term() msgType = Term() 
+			{ rosCon = new ROSConstraint(ExpressionTypes.ROSRelation.SubscribeTo,variable,value,topic,msgType); } )
+	|	( <ROSREGACTION> serverID = Term() actionName = Term() 
+			{ rosCon = new ROSRegisterAction(serverID,actionName); } )
+	|	( <ROSGOAL> variable = Atomic() serverID = Term() actionName = Term() msgType = Term() [ LOOKAHEAD(2) resultMsg = Term() ] 
+			{ rosCon = new ROSGoal(variable,serverID,actionName,msgType,resultMsg); } )
 	)
 	<CP>
 	{ return rosCon; }
 }
 
-Constraint SimulationConstraint()  :
+Expression Simulation()  :
 {
-  	SimulationConstraint sC;
+  	Simulation sC;
   	Term dispatchTime;
 	ConstraintDatabase simDB;
 	Token type;
@@ -695,11 +696,11 @@ Constraint SimulationConstraint()  :
 	dispatchTime = Term()
   	simDB = ConstraintDatabase()
 	{
-		return new SimulationConstraint(dispatchTime,simDB);
+		return new Simulation(dispatchTime,simDB);
 	}
 }
 
-Constraint ReusableResourceCapacity()  :
+Expression ReusableResourceCapacity()  :
 {
   	Atomic name;
   	String cap;
@@ -712,7 +713,7 @@ Constraint ReusableResourceCapacity()  :
 	} 	   
 }
 
-Constraint IncludeProgram() :	
+Expression IncludeProgram() :	
 {
   	Term name;
     String includedProgramID;
@@ -824,15 +825,15 @@ Term IntervalTerm() :
  )
 }
 
-Constraint ResourceConstraint() :
+Expression ResourceConstraint() :
 {
-  	Constraint c;
+  	Expression c;
 }
 {
  	( c = ReusableResourceCapacity() ) { return c; }
 }
 
-Constraint CostConstraint() :
+Expression CostConstraint() :
 {
   	Atomic cRel;
 }

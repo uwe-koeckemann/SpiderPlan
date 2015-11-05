@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.spiderplan.causal.StateVariableOperator;
+import org.spiderplan.causal.forwardPlanning.StateVariableOperator;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 

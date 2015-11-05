@@ -25,11 +25,11 @@ package org.spiderplan;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.spiderplan.causal.CommonDataStructures;
-import org.spiderplan.causal.StateVariableOperator;
-import org.spiderplan.causal.fastForward.FastForwardHeuristic;
-import org.spiderplan.causal.goals.Goal;
-import org.spiderplan.causal.goals.SingleGoal;
+import org.spiderplan.causal.forwardPlanning.CommonDataStructures;
+import org.spiderplan.causal.forwardPlanning.StateVariableOperator;
+import org.spiderplan.causal.forwardPlanning.fastForward.FastForwardHeuristic;
+import org.spiderplan.causal.forwardPlanning.goals.Goal;
+import org.spiderplan.causal.forwardPlanning.goals.SingleGoal;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.representation.types.TypeManager;
 

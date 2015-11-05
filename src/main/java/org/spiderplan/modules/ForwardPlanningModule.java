@@ -25,8 +25,8 @@ package org.spiderplan.modules;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.spiderplan.tools.logging.Logger;
-import org.spiderplan.causal.AdaptExistingPlanIterator;
-import org.spiderplan.causal.ForwardPlanningIterator;
+import org.spiderplan.causal.forwardPlanning.AdaptExistingPlanIterator;
+import org.spiderplan.causal.forwardPlanning.ForwardPlanningIterator;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.configuration.ParameterDescription;
 import org.spiderplan.modules.solvers.Core;
@@ -37,8 +37,8 @@ import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.AppliedPlan;
-import org.spiderplan.representation.constraints.OpenGoal;
+import org.spiderplan.representation.expressions.causal.AppliedPlan;
+import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.plans.Plan;
 
 /**

@@ -22,17 +22,22 @@
  *******************************************************************************/
 package org.spiderplan.executor;
 
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Statement;
 
 /**
  * Extends reactor with a simple simulation of perfect start and end times 
- * (i.e. using earliest-time solution) 
+ * (i.e., it uses earliest-time solution). 
  * 
  * @author Uwe Koeckemann
  *
  */
 public class ReactorPerfectSimulation extends Reactor {
 	
+	/**
+	 * Default constructor.
+	 * 
+	 * @param target statement to be executed
+	 */
 	public ReactorPerfectSimulation(Statement target) {
 		super(target);
 	}

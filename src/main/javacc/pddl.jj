@@ -1,13 +1,1077 @@
-options{  JDK_VERSION = "1.5";  static = false;  }//LOOKAHEAD(10)PARSER_BEGIN(PDDLParser)package org.spiderplan.representation.parser.pddl;import java.util.ArrayList;import java.util.List;import java.util.Map;import java.util.HashMap;import org.spiderplan.representation.*;import org.spiderplan.representation.types.*;import org.spiderplan.representation.constraints.*;import org.spiderplan.modules.solvers.Core;import org.spiderplan.representation.logic.*;import org.spiderplan.temporal.TemporalNetworkTools;import org.spiderplan.tools.UniqueID;
-public class PDDLParser {  	Core c;  	Map<String,String> typeMapping;
-	static public boolean verbose = true;	private class StatementConstraintPair 	{	  	public Statement s;	  	public AllenConstraint c;		public StatementConstraintPair( Statement s, AllenConstraint c )		{		  this.s = s;		  this.c = c;		}	}}PARSER_END(PDDLParser)/* Skipping comments and while spaces */SKIP: { " " | "\r" | "\t" | "\n"}SKIP:{    <";" (~["\n"])* "\n">}
+options
+{
+  JDK_VERSION = "1.5";
+  static = false;
+  
+}
+
+//LOOKAHEAD(10)
+
+PARSER_BEGIN(PDDLParser)
+package org.spiderplan.representation.parser.pddl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.spiderplan.representation.*;
+import org.spiderplan.representation.types.*;
+import org.spiderplan.representation.expressions.*;
+import org.spiderplan.representation.expressions.execution.ros.*;
+import org.spiderplan.representation.expressions.causal.*;
+import org.spiderplan.representation.expressions.cost.*;
+import org.spiderplan.representation.expressions.domain.*;
+import org.spiderplan.representation.expressions.execution.*;
+import org.spiderplan.representation.expressions.graph.*;
+import org.spiderplan.representation.expressions.interaction.*;
+import org.spiderplan.representation.expressions.math.*;
+import org.spiderplan.representation.expressions.minizinc.*;
+import org.spiderplan.representation.expressions.misc.*;
+import org.spiderplan.representation.expressions.programs.*;
+import org.spiderplan.representation.expressions.prolog.*;
+import org.spiderplan.representation.expressions.resources.*;
+import org.spiderplan.representation.expressions.sampling.*;
+import org.spiderplan.representation.expressions.set.*;
+import org.spiderplan.representation.expressions.temporal.*;
+import org.spiderplan.modules.solvers.Core;
+import org.spiderplan.representation.logic.*;
+import org.spiderplan.temporal.TemporalNetworkTools;
+import org.spiderplan.tools.UniqueID;
+
+public class PDDLParser 
+{
+  	Core c;
+  	Map<String,String> typeMapping;
+	static public boolean verbose = true;
+
+	private class StatementConstraintPair 	{
+	  	public Statement s;
+	  	public AllenConstraint c;
+		public StatementConstraintPair( Statement s, AllenConstraint c )
+		{
+		  this.s = s;
+		  this.c = c;
+		}
+	}
+}
+
+
+
+PARSER_END(PDDLParser)
+
+/* Skipping comments and while spaces */
+
+
+SKIP: { " " | "\r" | "\t" | "\n"}
+
+SKIP:
+{
+    <";" (~["\n"])* "\n">
+}
+
+
+
+
 /* MAIN STRUCTURES */
 
 TOKEN :
-{	< DEFINE : "define" >|   < DOMAIN : "domain" >|   < COLDOMAIN : ":domain" >|   < PROBLEM : "problem" >|   < COLPROBLEM : ":problem" >|   < REQUIREMENTS : ":requirements" >|   < FUNCTIONS : ":functions" >|   < ACTIONCOSTS : ":action-costs" >|   < TYPING : ":typing" >| 	< STRIPS : ":strips" >|   < DURATIVE_ACTIONS : ":durative-actions" >|   < TIMED_INITIAL_LITERALS : ":timed-initial-literals" >|   < TYPES : ":types" >|   < PREDICATES : ":predicates" >|   < ACTION : ":action" >|   < DURATIVE_ACTION : ":durative-action" >|   < PARAMETERS : ":parameters" >|   < DURATION : ":duration" >|   < CONDITION : ":condition" >|   < PRECONDITION : ":precondition" >|   < EFFECT : ":effect" >|   < OBJECTS : ":objects" >|   < CONSTANTS : ":constants" >|   < INIT : ":init" >|   < GOAL : ":goal" >| 	< METRIC : ":metric" >|   < NOT : "not" >|   < OVER_ALL : "over all" >|   < AT_START : "at start" >|   < AT_END   : "at end" >|   < AT   : "at" >|   < MINIMIZE   : "minimize" >|   < MAXIMIZE   : "maximize" >|   < EITHER : "either" >|   < AND : "and" >|   < INCREASE : "increase" >|   < DECREASE : "decrease" >|   < ASSIGN : "assign" >|   < SCALEUP : "scale-up" >|   < SCALEDOWN : "scale-down" >
+{
+	< DEFINE : "define" >
+|   < DOMAIN : "domain" >
+|   < COLDOMAIN : ":domain" >
+|   < PROBLEM : "problem" >
+|   < COLPROBLEM : ":problem" >
+|   < REQUIREMENTS : ":requirements" >
+|   < FUNCTIONS : ":functions" >
+|   < ACTIONCOSTS : ":action-costs" >
+|   < TYPING : ":typing" >
+| 	< STRIPS : ":strips" >
+|   < DURATIVE_ACTIONS : ":durative-actions" >
+|   < TIMED_INITIAL_LITERALS : ":timed-initial-literals" >
+|   < TYPES : ":types" >
+|   < PREDICATES : ":predicates" >
+|   < ACTION : ":action" >
+|   < DURATIVE_ACTION : ":durative-action" >
+|   < PARAMETERS : ":parameters" >
+|   < DURATION : ":duration" >
+|   < CONDITION : ":condition" >
+|   < PRECONDITION : ":precondition" >
+|   < EFFECT : ":effect" >
+|   < OBJECTS : ":objects" >
+|   < CONSTANTS : ":constants" >
+|   < INIT : ":init" >
+|   < GOAL : ":goal" >
+| 	< METRIC : ":metric" >
+|   < NOT : "not" >
+|   < OVER_ALL : "over all" >
+|   < AT_START : "at start" >
+|   < AT_END   : "at end" >
+|   < AT   : "at" >
+|   < MINIMIZE   : "minimize" >
+|   < MAXIMIZE   : "maximize" >
+|   < EITHER : "either" >
+|   < AND : "and" >
+|   < INCREASE : "increase" >
+|   < DECREASE : "decrease" >
+|   < ASSIGN : "assign" >
+|   < SCALEUP : "scale-up" >
+|   < SCALEDOWN : "scale-down" >
 }
-/* SEPARATORS */TOKEN :{  < OP: "(" >| < CP: ")" >| < OBRACKET: "[" >| < CBRACKET: "]" >| < OBRACE: "{" >| < CBRACE: "}" >| < COMMA: "," >| < DOT: "." >| < ASSIGNMENT: ":=">| < SEMICOLON: ";">| < SLASH: "/">| < TO: "->">| < PLUS: "+">| < MINUS: "-">| < TIMES: "*">| < DIVIDED: "\\">| < QMARKS: "\"">| < EQUALS: "=">| < NEQUALS: "!=">| < NEG: "!">| < LESS: "<">| < LESSEQ: "<=">| < GREATER: ">">| < GREATEREQ: ">=">| < QM: "?">| < HASH: "#">| < DOLLAR: "$" >| < UNDERSCORE: "_" >}
+
+/* SEPARATORS */
+
+TOKEN :
+{
+  < OP: "(" >
+| < CP: ")" >
+| < OBRACKET: "[" >
+| < CBRACKET: "]" >
+| < OBRACE: "{" >
+| < CBRACE: "}" >
+| < COMMA: "," >
+| < DOT: "." >
+| < ASSIGNMENT: ":=">
+| < SEMICOLON: ";">
+| < SLASH: "/">
+| < TO: "->">
+| < PLUS: "+">
+| < MINUS: "-">
+| < TIMES: "*">
+| < DIVIDED: "\\">
+| < QMARKS: "\"">
+| < EQUALS: "=">
+| < NEQUALS: "!=">
+| < NEG: "!">
+| < LESS: "<">
+| < LESSEQ: "<=">
+| < GREATER: ">">
+| < GREATEREQ: ">=">
+| < QM: "?">
+| < HASH: "#">
+| < DOLLAR: "$" >
+| < UNDERSCORE: "_" >
+}
+
+
 /* BUILDING BLOCKS */
 
 TOKEN :
-{    < TERM : ((["a"-"z"]|["A"-"Z"]|["0"-"9"])(["a"-"z"]|["A"-"Z"]|["0"-"9"]|["_"]|["-"])* ) >|   < FLOAT : (["0"-"9"])* < DOT > (["0"-"9"])+ >|   < STRING : <  QMARKS > (~["\""])* < QMARKS > >|   < INTVALUE: (["0"-"9"])+ >|   < PROLOG_COMMAND : < DOLLAR > (~["."])+ < DOT > >		// any character except "."}void CompilationUnit( Core c ) :{  this.c = c;  this.typeMapping = new HashMap<String,String >();}{	< OP > < DEFINE >		( LOOKAHEAD(2) DomainDefinition() | ProblemDefinition() ) 	< CP >} void DomainDefinition() :{  	Token domainName;  	}{  		{			c.getContext().add(new PlanningInterval(Term.createInteger(0), Term.createConstant("inf")));  		}		< OP > < DOMAIN > domainName = < TERM > < CP >		Requirements()		Types()		[ LOOKAHEAD (2) Constants()]		Predicates()	  	[ LOOKAHEAD (2) Functions()]		( LOOKAHEAD (2)	  		DurativeAction()		)*		(	  		Action()		)* }void ProblemDefinition() :{  	Token problemName;  	Token domainName;  	}{		< OP > < PROBLEM > problemName = < TERM > < CP >		< OP > < COLDOMAIN > domainName = < TERM > < CP >		Objects()		Init()		Goal()		[Metric()]}void Init() :{	Atomic variable;	Term value;	Token termToken = null;	boolean isNegated = false;	boolean isFunctionAssignment = false;	int eventTime = 0;	Token eventTimeToken;	int litCounter = 0;}{	< OP >		< INIT >		 (		    {				isNegated = false;				isFunctionAssignment = false;				eventTime = 0;			}			( LOOKAHEAD(2)			  ( < OP > < EQUALS > variable = Relation() termToken = < TERM > < CP > )   {   isFunctionAssignment = true;  }			| ( LOOKAHEAD(2)     			    			  ( variable = Relation() )			| ( LOOKAHEAD(2)			  ( < OP > < NOT > variable = Relation() < CP >	 { isNegated = true; } ) 			| ( LOOKAHEAD(2)     		  ( < OP > "at" eventTimeToken = < TERM > < OP > < NOT > variable = Relation() < CP > < CP > { eventTime = Integer.valueOf(eventTimeToken.image).intValue();isNegated = true; } )     		| ( < OP > "at" eventTimeToken = < TERM > variable = Relation() < CP >	 { eventTime = Integer.valueOf(eventTimeToken.image).intValue(); } )			))))						{			  	if ( !isFunctionAssignment ) { 	  				  	if ( !isNegated )				  		{ value = Term.createConstant("true");  }				  	else				  		{ value = Term.createConstant("false");  }				  						 	Statement s = new Statement(Term.createConstant("s"+(litCounter++)), variable, value);					 	c.getContext().add(s);				 	c.getContext().add(new AllenConstraint(s.getKey() + " Release ["+eventTime+","+eventTime+"]"));				} else { // Function assignments are added to background knowledge (as asserted relational constraints)					String newAtomicStr;					if ( variable.getNumArgs() > 0 ) 				  		newAtomicStr = variable.toString().substring(0,variable.toString().length()-1)+","+termToken.image+")";				  	else				  		newAtomicStr = variable.toString().substring(0,variable.toString().length()-1)+termToken.image+")";				  					//if ( c.getTypeManager().getVariableClass(variable.getUniqueName()).equals("cost") ) {/*					if ( c.getTypeManager().getPredicateTypes(variable.getUniqueName(), -1).getClass().getSimpleName().equals("FloatType") ) {						c.getContext().add(new CostCalculation(variable, termToken.image));					}*/				  						Atomic r = new Atomic(newAtomicStr);					PrologConstraint rC = new PrologConstraint(r,Term.createConstant("pddlKB"));					rC.setAsserted(true);					c.getContext().add(rC);				}			}  		)*	< CP >}void Goal() :{	Atomic variable;	Term value;	boolean isNegated = false;	int eventTime = 0;	Token eventTimeToken;	int litCounter = 0;	ArrayList<Term > goalList = new ArrayList<Term >();}{	< OP >		< GOAL > < OP > < AND >		 (		    {				isNegated = false;				eventTime = 0;							}			( LOOKAHEAD(2)			  ( variable = Relation() )			| ( < OP > < NOT > variable = Relation() < CP >	 { isNegated = true; } )			//| ( < OP > < AT  > eventTimeToken = < TERM > variable = Relation() < CP >	 { eventTime = Integer.valueOf(eventTimeToken.image).intValue(); } )			//| ( < OP > < AT  > eventTimeToken = < TERM > < OP > < NOT > variable = Relation() < CP > < CP > { eventTime = Integer.valueOf(eventTimeToken.image).intValue();isNegated = true; } )			)			{			  	if ( !isNegated )			  		{ value = Term.createConstant("true");  }			  	else			  		{ value = Term.createConstant("false");  }			  					 	Statement s = new Statement(Term.createConstant("G"+(litCounter++)), variable, value);			 	c.getContext().add(s);	 				 	c.getContext().add(new OpenGoal(s));			 	goalList.add(s.getKey());			}  		)*		< CP >	< CP >	{		if ( goalList.size() > 1 )		{		 	Statement gSync = new Statement(Term.createConstant("sync"), new Atomic("sync"), Term.createConstant("true"));			c.getTypeManager().attachTypes(new Atomic("sync"), Term.createConstant("boolean") );		  				for ( Term i : goalList )			{				c.getContext().add(new AllenConstraint("sync During " + i + " [1,inf] [1,inf]"));			}			c.getContext().add(new AllenConstraint("sync Duration [1,1]"));			c.getContext().add(gSync);		  			} 	}}void Requirements() :{}{	< OP > < REQUIREMENTS >		(		  < TYPING > | < DURATIVE_ACTIONS > | < TIMED_INITIAL_LITERALS > | < STRIPS > | < ACTIONCOSTS >		)*			< CP >}void Types() :{  Token typeToken;  Token superTypeToken;  ArrayList<Token> typeList;}{	< OP > < TYPES >		(		  {		    	typeList = new ArrayList<Token>();				superTypeToken = null;		  }		  ( LOOKAHEAD(2)		    typeToken = < TERM >		    {				typeList.add(typeToken);		    }		  )+ [< MINUS > superTypeToken = < TERM >]			{			  for ( Token tToken : typeList )			  {				  EnumType t = new EnumType();				  Term tName = Term.createConstant(tToken.image);				  tName = tName.makeConstant();				 					  t.setName(tName.toString());				  if ( ! c.getTypeManager().hasTypeWithName(tName) )				  	c.getTypeManager().addNewType(t);					  if ( superTypeToken != null )				  {				    Term superTypeName = Term.createConstant(superTypeToken.image);					if ( !c.getTypeManager().hasTypeWithName(superTypeName) ) {					  						EnumType superType = new EnumType();						superType.setName(superTypeToken.image);						c.getTypeManager().addNewType(superType);					}				    				  	EnumType superType = (EnumType)c.getTypeManager().getTypeByName(superTypeName);				  	superType.getDomain().add(Term.createConstant(tToken.image));				  }			  }  	  		}		)*	< CP >}void Objects() :{  	Token typeToken;  	Token valueToken;	ArrayList<Term> values;}{	< OP > < OBJECTS >		(		    {				values = new ArrayList<Term>();		    }			(				valueToken = Term()				{				  valueToken.image = valueToken.image.substring(0, 1).toLowerCase() + valueToken.image.substring(1);					values.add(Term.createConstant(valueToken.image));				}			 				)+			< MINUS > typeToken = < TERM >			{			    Term tName = Term.createConstant(typeToken.image);				tName = tName.makeConstant();			  	c.getTypeManager().getTypeByName(tName).getDomain().addAll(values);			}					)*	< CP >	{	  	System.out.println(c.getTypeManager() + "\n===");		c.getTypeManager().updateTypeDomains();	}	}void Constants() :{  	Token typeToken;  	Token valueToken;	ArrayList<Term> values;}{	< OP > < CONSTANTS >		(		    {				values = new ArrayList<Term>();		    }			(				valueToken = Term()				{				  	valueToken.image = valueToken.image.substring(0, 1).toLowerCase() + valueToken.image.substring(1);					values.add(Term.createConstant(valueToken.image));				}			 				)+			< MINUS > typeToken = < TERM >			{			    Term tName = Term.createConstant(typeToken.image);				tName = tName.makeConstant();			  	c.getTypeManager().getTypeByName(tName).getDomain().addAll(values);			}					)*	< CP >}Atomic Relation() :{	Token nameToken;	Token argToken;	Atomic r;	ArrayList<Term> argList = new ArrayList<Term>();	}{	< OP >		(nameToken = < TERM > | nameToken = < AT > | nameToken = < AND > | nameToken = < MINIMIZE > | nameToken = < MAXIMIZE > )		(		  	{ boolean isVariable = false;	}			[< QM >	{ isVariable = true; }] argToken = Term()			{			  String argStr = argToken.image;			  if ( isVariable ) {				argStr = argStr.substring(0, 1).toUpperCase() + argStr.substring(1);			  } else {				argStr = argStr.substring(0, 1).toLowerCase() + argStr.substring(1);			  }			  Term arg = Term.createConstant(argStr);			  argList.add(arg);			}   			)*	< CP >	{		nameToken.image = nameToken.image.substring(0, 1).toLowerCase() + nameToken.image.substring(1);		String s = nameToken.image.replace("-","");		if ( !argList.isEmpty() )		{			s += "("+argList.get(0);			for ( int i = 1 ; i < argList.size(); i++ )			{				s += ","+argList.get(i);			}			s += ")";					}				r = new Atomic(s);		return r;	}}void Predicates() :{	Token nameToken;	ArrayList<String> typedList;	Token tmpArg;}{	< OP > < PREDICATES >		(			< OP >				(nameToken = < TERM > | nameToken = < AT > | nameToken = < AND > | nameToken = < MINIMIZE > | nameToken = < MAXIMIZE > )				typedList = TypedList()			< CP >			{			  	nameToken.image = nameToken.image.substring(0, 1).toLowerCase() + nameToken.image.substring(1);			  	nameToken.image = nameToken.image.replace("-","");			  	Atomic name = null;				if ( typedList.isEmpty() )				{				  name = new Atomic(nameToken.image);				} else {				  String tStr = typedList.get(0).split("/")[1].substring(0, 1).toLowerCase() + typedList.get(0).split("/")[1].substring(1);									  String s = nameToken.image + "(" + tStr;				  for ( int i = 1 ; i < typedList.size() ; i++ )				  {				    tStr = typedList.get(i).split("/")[1].substring(0, 1).toLowerCase() + typedList.get(i).split("/")[1].substring(1);											s += ","+tStr;				  }				  s += ")";				  				  name = new Atomic(s);				}			  					c.getTypeManager().attachTypes( name, Term.createConstant("boolean") );			}		)*	< CP >}ArrayList<String> TypedList() :{	ArrayList<String> r = new ArrayList<String>();	ArrayList<String> argList = new ArrayList<String>();	boolean isVariable;	Token argToken, typeToken;}{	(	  	{			argList = new ArrayList<String>();	  	}		(		  {  isVariable = false;  }		  [< QM > {  isVariable = true;  }] argToken = Term()		  {		    	String argStr = argToken.image;				if ( isVariable ) {					argStr = argStr.substring(0, 1).toUpperCase() + argStr.substring(1);				}  else {					argStr = argStr.substring(0, 1).toLowerCase() + argStr.substring(1);			  	} 				argList.add(argStr);		  }		)+		 < MINUS >		( LOOKAHEAD(2)		(		  typeToken = < TERM >			{			  	String tStr = typeToken.image.substring(0, 1).toLowerCase() + typeToken.image.substring(1);				for ( String s : argList )				{  						r.add(s+"/"+tStr);				}			}		)		|		(		< OP >			{				ArrayList<Term> tNames = new ArrayList<Term>();			}			< EITHER >			( typeToken = < TERM >				{					String tStr = typeToken.image.substring(0, 1).toLowerCase() + typeToken.image.substring(1);					tNames.add(Term.createConstant(tStr));				}			)+			{				String newSuperType = "either_" + tNames.get(0);				for ( int i = 1 ; i < tNames.size(); i++ ) {				  newSuperType += "_" + tNames.get(i); 				}				Term superTypeToken = Term.createConstant(newSuperType);				if ( !c.getTypeManager().hasTypeWithName(superTypeToken) ) {						EnumType superType = new EnumType();						superType.setName(superTypeToken);						superType.getDomain().addAll(tNames);						c.getTypeManager().addNewType(superType);				}				for ( String s : argList ) {  						r.add(s+"/"+newSuperType);				}			}		< CP >		)		)	)*	{		return r;	}}Token Term() :{ 	Token r; }{	r = < TERM >	{		r.image = r.image.replace("-","");		return r;	}}void Action() :{	Token nameToken;	Operator o = new Operator();	StatementConstraintPair p;	ArrayList<Term> argList = new ArrayList<Term>();	ArrayList<String> typedList;	Token argToken;	Token typeToken;		int conCounter = 0;	int effCounter = 0;	Token durToken;	Token durVarToken;	Atomic functionName;	Constraint costCon;}{	< OP >		< ACTION > nameToken = < TERM >		< PARAMETERS > < OP >			typedList = TypedList()			{			  	String sArgs = nameToken.image + "(";			  	String sTypes = nameToken.image + "(";			  					if ( !typedList.isEmpty() ) {					sArgs += typedList.get(0).split("/")[0];					sTypes += typedList.get(0).split("/")[1];					for ( int i = 1 ; i < typedList.size() ; i++ ) {					  	sArgs += "," + typedList.get(i).split("/")[0];						sTypes += "," + typedList.get(i).split("/")[1];					}									}				sArgs += ")";				sTypes += ")";	 				Atomic name = new Atomic(sArgs);				Atomic nameDef = new Atomic(sTypes);							o.setName(name);				c.getTypeManager().attachTypes( nameDef, Term.createConstant("boolean") );			}		< CP >			{				o.addConstraint(new AllenConstraint("THIS Duration [1,1]"));		  	}		[		  < PRECONDITION > ( LOOKAHEAD(2) ( < OP > < AND > 			(			  p = StatementConstraintPair("P", conCounter++)			  {			    o.addPrecondition(p.s);			    //o.addConstraint(new AllenConstraint(p.s.getKey() + " MeetsOrOverlapsOrFinishedByOrContains THIS [0,inf]"));			  }			)+		< CP >		)		|		(			p = StatementConstraintPair("P", conCounter++)			  {			    o.addPrecondition(p.s);			    //o.addConstraint(new AllenConstraint(p.s.getKey() + " MeetsOrOverlapsOrFinishedByOrContains THIS [0,inf]"));			  }		) 		)		]		< EFFECT > ( LOOKAHEAD(2) ( < OP > < AND > 			(			  ( LOOKAHEAD(2)			    (				    p = StatementConstraintPair("E", effCounter++)					{				  		o.addEffect(p.s);				  		o.addConstraint(new AllenConstraint("THIS Meets E"+(effCounter-1)));				    }			    )			  |			  	(			  	  	costCon = Cost()			  	  	{						o.addConstraint(costCon);			  	  	}			  	)			  )			)+		< CP > )			|			( 			( LOOKAHEAD(2)			    (				    p = StatementConstraintPair("E", effCounter++)					{				  		o.addEffect(p.s);				  		o.addConstraint(new AllenConstraint("THIS Meets E"+(effCounter-1)));				    }			    )			  |			  	(			  	  	costCon = Cost()			  	  	{						o.addConstraint(costCon);			  	  	}			  	)			  )			  			)) 	< CP >	{		c.getOperators().add(o);	}}void DurativeAction() :{	Token nameToken;	Operator o = new Operator();	StatementConstraintPair p;	ArrayList<Term> argList = new ArrayList<Term>();	ArrayList<String> typedList;	Token argToken;	Token typeToken;		int conCounter = 0;	int effCounter = 0;	Token durToken;	Token durVarToken;	Atomic functionName;}{	< OP >		< DURATIVE_ACTION > nameToken = < TERM >		< PARAMETERS > < OP >			typedList = TypedList()			{			  	String sArgs = nameToken.image + "(";			  	String sTypes = nameToken.image + "(";			  					if ( !typedList.isEmpty() ) {					sArgs += typedList.get(0).split("/")[0];					sTypes += typedList.get(0).split("/")[1];					for ( int i = 1 ; i < typedList.size() ; i++ ) {					  	sArgs += "," + typedList.get(i).split("/")[0];						sTypes += "," + typedList.get(i).split("/")[1];					}									}				sArgs += ")";				sTypes += ")";	 				Atomic name = new Atomic(sArgs);				Atomic nameDef = new Atomic(sTypes);				System.out.println(name);				System.out.println(nameDef);								o.setName(name);				c.getTypeManager().attachTypes( nameDef, Term.createConstant("boolean") );			}		< CP >		< DURATION > < OP > < EQUALS > < QM > durVarToken = < TERM > ( 		  	(		  	  durToken = < TERM >		  		{					Term durTerm = Term.createConstant(durToken.image);					o.addConstraint(new AllenConstraint("THIS Duration ["+durTerm+","+durTerm+"]"));		  		}		  	)		  |		  	(				functionName = Relation()				{				  					String relConStr = functionName.toString().substring(0,functionName.toString().length()-1);					Term durVarTerm = Term.createConstant(durVarToken.image);					durVarTerm = Term.createVariable(durVarTerm.getName());					relConStr += ","+durVarTerm + ")";					PrologConstraint durCon = new PrologConstraint(new Atomic(relConStr),Term.createConstant("pddlKB"));					o.addConstraint(new AllenConstraint("THIS Duration ["+durVarTerm+","+durVarTerm+"]"));					o.addConstraint(durCon);				}						  	)		) < CP >		[		  < CONDITION > ( LOOKAHEAD(2) ( < OP > < AND > 			(			  p = StatementConstraintPair("P", conCounter++)			  {			    o.addPrecondition(p.s);			    o.addConstraint(p.c);			  }			)+		< CP > )		|			(			  p = StatementConstraintPair("P", conCounter++)			  {			    o.addPrecondition(p.s);			    o.addConstraint(p.c);			  }			)		) 		]		< EFFECT > ( LOOKAHEAD(2) ( < OP > < AND > 			(			  p = StatementConstraintPair("E", effCounter++)			  {			  	o.addEffect(p.s);			  	/*if ( p.c.getRelation().equals(ConstraintTypes.TemporalRelation.MeetsOrOverlapsOrFinishedByOrContains) )			  	{			  		o.addConstraint(new AllenConstraint(p.c.getFrom() + " StartStart " + p.c.getTo() + " [0,0]"));			  	} else {					o.addConstraint(p.c);			  	}*/			  	o.addConstraint(new AllenConstraint("E"+(effCounter-1)+ " Duration " + " [1,inf]"));			  }			)+		< CP > )		|		(		   p = StatementConstraintPair("E", effCounter++)			  {			  	o.addEffect(p.s);			  /*	if ( p.c.getRelation().equals(ConstraintTypes.TemporalRelation.MeetsOrOverlapsOrFinishedByOrContains) )			  	{			  		o.addConstraint(new AllenConstraint(p.c.getFrom() + " StartStart " + p.c.getTo() + " [0,0]"));			  	} else {					o.addConstraint(p.c);			  	}*/			  	o.addConstraint(new AllenConstraint("E"+(effCounter-1)+ " Duration " + " [1,inf]"));			  }		)) 	< CP >	{		c.getOperators().add(o);	}}StatementConstraintPair StatementConstraintPair( String kBase, int i ) :{	StatementConstraintPair p;	Statement s;	AllenConstraint c = null;	Term sKey = Term.createConstant(kBase+i);	Term oKey = Term.createConstant("THIS");	boolean isNegated = false;	String tcType = null;	String boundsStr = "[UNDEF-BOUNDS]";	Atomic variable;}{	( LOOKAHEAD(2) (	  < OP >		(			(			  ( < AT_START > { tcType = "MeetsOrOverlapsOrFinishedByOrContains"; boundsStr = "[0,inf]"; } )	 		//| ( < AT_END >   { tcType = "ContainsOrStartedByOrOverlappedByOrMetBy"; boundsStr = "[0,inf]";} )	 		| ( < AT_END >   { tcType = "Meets"; boundsStr = "";} )	 		| ( < OVER_ALL >   { tcType = "DuringOrEquals"; boundsStr = "[0,inf] [0,inf]"; } )	 		)	 		(	 		  	LOOKAHEAD(2)				( variable = Relation() )				| ( < OP > < NOT > variable = Relation() < CP > { isNegated = true; })	 		)			   		)	< CP >	)	|	(		(	 		LOOKAHEAD(2)			( variable = Relation() )			| ( < OP > < NOT > variable = Relation() < CP > { isNegated = true; })	 	)			))  	{	  	if ( tcType != null )	  	{		  	if ( !tcType.equals("DuringOrEquals") && !tcType.equals("Meets") ) {				c = new AllenConstraint(sKey + " " + tcType + " THIS " + boundsStr);			} else {			  c = new AllenConstraint("THIS " + tcType + " " + sKey + " " + boundsStr);		  			}		}		Term value;		if ( !isNegated ) {		  value = Term.createConstant("true");		} else {		  value = Term.createConstant("false");		}		s = new Statement(sKey, variable, value);		p = new StatementConstraintPair(s,c);		return p;	}}void Metric() :{	Token optCritToken, dirToken;}{	< OP >		< METRIC > (dirToken = < MINIMIZE > | dirToken = < MAXIMIZE > ) < OP > optCritToken = < TERM > < CP >		{		  	String optCritStr = optCritToken.image;			if ( optCritStr.equals("total-time") )			{				optCritStr = "makeSpan";			}		  			  	OptimizationCriterium oC;			if ( dirToken.image.equals("minimize") ) {				oC = new OptimizationCriterium(new Atomic(optCritStr), OptimizationCriterium.OptDirection.Minimize);			} else {				oC = new OptimizationCriterium(new Atomic(optCritStr), OptimizationCriterium.OptDirection.Minimize);				}			c.getContext().add(oC);		}	< CP >}void Functions() :{	Token nameToken;	ArrayList<Token> args;	Token tmpArg;	Token valTypeToken;}	{	< OP > < FUNCTIONS >		(			<  OP >				nameToken = < TERM >				{					args = new ArrayList<Token>();				}				(				  < QM > <TERM > < MINUS > tmpArg = < TERM >				  {					args.add(tmpArg);				  }				)*			< CP > < MINUS > valTypeToken = < TERM >			{			  	Atomic name = null;				if ( args.isEmpty() )				{				  name = new Atomic(nameToken.image.replace("-","") + "(" + valTypeToken.image + ")");				} else {				  String s = nameToken.image.replace("-","") + "(" + args.get(0).image;				  for ( int i = 1 ; i < args.size() ; i++ )				  {					s += ","+args.get(i).image;				  }				  s += "," + valTypeToken.image + ")";				  name = new Atomic(s);				}			  	if ( !c.getTypeManager().hasTypeWithName( Term.createConstant(valTypeToken.image) ) )				{					 // max. will be automatically adopted to largest occurring value later					c.getTypeManager().addIntegerType(valTypeToken.image, 0, 1000);				}				c.getTypeManager().attachTypes( name, Term.createConstant(valTypeToken.image) );							} 		)*	< CP >}Constraint Cost() :{	Atomic var;	Token amountToken;	Token modToken;}{	< OP >		(			modToken = < INCREASE >			|			modToken = < DECREASE >			|			modToken = < ASSIGN >			|			modToken = < SCALEUP >			|			modToken = < SCALEDOWN > 		) var = Relation() amountToken = < TERM >	< CP >	{	  	/**	  	  *	Costs are functions in PDDL and will be relations (since often functions are	  	  * used for background knowledge. 	  	  * When used as a cost we take the definition of the relation and create	  	  * a cost definition from it.	  	  */	  	if ( c.getTypeManager().hasVariable(var.getUniqueName()) ) {			String relUniqueName = var.name() + "/" + (var.getNumArgs()+1);			Type t = c.getTypeManager().getPredicateTypes(relUniqueName,var.getNumArgs());			c.getTypeManager().attachTypes(var, Term.createConstant(t.getName().toString()) );		}	  	  	  	/*if ( modToken.image.equals("increase") ) {	  	  	return new CostCalculation(var, var + " + " + amountToken.image);	 	}	 	if ( modToken.image.equals("decrease") ) {	  	  	return new CostCalculation(var, var + " - " + amountToken.image);	 	}	 	if ( modToken.image.equals("scale-up") ) {	  	  	return new CostCalculation(var, var + " * " + amountToken.image);	 	}	 	if ( modToken.image.equals("scale-down") ) {	  	  	return new CostCalculation(var, var + " / " + amountToken.image);	 	}	 	if ( modToken.image.equals("assign") ) {	  	  	return new CostCalculation(var, amountToken.image);	 	}*/		 	return null;	}} 
+{
+    < TERM : ((["a"-"z"]|["A"-"Z"]|["0"-"9"])(["a"-"z"]|["A"-"Z"]|["0"-"9"]|["_"]|["-"])* ) >
+|   < FLOAT : (["0"-"9"])* < DOT > (["0"-"9"])+ >
+|   < STRING : <  QMARKS > (~["\""])* < QMARKS > >
+|   < INTVALUE: (["0"-"9"])+ >
+|   < PROLOG_COMMAND : < DOLLAR > (~["."])+ < DOT > >		// any character except "."
+}
+
+void CompilationUnit( Core c ) :
+{
+  this.c = c;
+  this.typeMapping = new HashMap<String,String >();
+}
+{	< OP > < DEFINE >
+		( LOOKAHEAD(2) DomainDefinition() | ProblemDefinition() )
+ 	< CP >
+} 
+
+void DomainDefinition() :
+{
+  	Token domainName;
+  	
+}
+{
+  		{
+			c.getContext().add(new PlanningInterval(Term.createInteger(0), Term.createConstant("inf")));
+  		}
+		< OP > < DOMAIN > domainName = < TERM > < CP >
+		Requirements()
+		Types()
+		[ LOOKAHEAD (2) Constants()]
+		Predicates()
+	  	[ LOOKAHEAD (2) Functions()]
+		( LOOKAHEAD (2)
+	  		DurativeAction()
+		)*
+		(
+	  		Action()
+		)* 
+}
+
+void ProblemDefinition() :
+{
+  	Token problemName;
+  	Token domainName;  	
+}
+{
+		< OP > < PROBLEM > problemName = < TERM > < CP >
+		< OP > < COLDOMAIN > domainName = < TERM > < CP >
+		Objects()
+		Init()
+		Goal()
+		[Metric()]
+}
+
+void Init() :
+{
+	Atomic variable;
+	Term value;
+	Token termToken = null;
+	boolean isNegated = false;
+	boolean isFunctionAssignment = false;
+	int eventTime = 0;
+	Token eventTimeToken;
+	int litCounter = 0;
+}
+{
+	< OP >
+		< INIT >
+		 (
+		    {
+				isNegated = false;
+				isFunctionAssignment = false;
+				eventTime = 0;
+			}
+			( LOOKAHEAD(2)
+			  ( < OP > < EQUALS > variable = Relation() termToken = < TERM > < CP > )   {   isFunctionAssignment = true;  }
+			| ( LOOKAHEAD(2)     			    
+			  ( variable = Relation() )
+			| ( LOOKAHEAD(2)
+			  ( < OP > < NOT > variable = Relation() < CP >	 { isNegated = true; } ) 
+			| ( LOOKAHEAD(2)
+     		  ( < OP > "at" eventTimeToken = < TERM > < OP > < NOT > variable = Relation() < CP > < CP > { eventTime = Integer.valueOf(eventTimeToken.image).intValue();isNegated = true; } )
+     		| ( < OP > "at" eventTimeToken = < TERM > variable = Relation() < CP >	 { eventTime = Integer.valueOf(eventTimeToken.image).intValue(); } )
+			))))
+			
+			{
+			  	if ( !isFunctionAssignment ) { 	  
+				  	if ( !isNegated )
+				  		{ value = Term.createConstant("true");  }
+				  	else
+				  		{ value = Term.createConstant("false");  }
+				  		
+				 	Statement s = new Statement(Term.createConstant("s"+(litCounter++)), variable, value);
+	
+				 	c.getContext().add(s);
+				 	c.getContext().add(new AllenConstraint(s.getKey() + " Release ["+eventTime+","+eventTime+"]"));
+				} else { // Function assignments are added to background knowledge (as asserted relational constraints)
+					String newAtomicStr;
+					if ( variable.getNumArgs() > 0 ) 
+				  		newAtomicStr = variable.toString().substring(0,variable.toString().length()-1)+","+termToken.image+")";
+				  	else
+				  		newAtomicStr = variable.toString().substring(0,variable.toString().length()-1)+termToken.image+")";
+				  
+					//if ( c.getTypeManager().getVariableClass(variable.getUniqueName()).equals("cost") ) {
+/*
+					if ( c.getTypeManager().getPredicateTypes(variable.getUniqueName(), -1).getClass().getSimpleName().equals("FloatType") ) {
+						c.getContext().add(new CostCalculation(variable, termToken.image));
+					}
+*/
+				  	
+					Atomic r = new Atomic(newAtomicStr);
+					PrologConstraint rC = new PrologConstraint(r,Term.createConstant("pddlKB"));
+					rC.setAsserted(true);
+					c.getContext().add(rC);
+				}
+			}  
+		)*
+	< CP >
+}
+
+void Goal() :
+{
+	Atomic variable;
+	Term value;
+	boolean isNegated = false;
+	int eventTime = 0;
+	Token eventTimeToken;
+	int litCounter = 0;
+	ArrayList<Term > goalList = new ArrayList<Term >();
+}
+{
+	< OP >
+		< GOAL > < OP > < AND >
+		 (
+		    {
+				isNegated = false;
+				eventTime = 0;
+				
+			}
+			( LOOKAHEAD(2)
+			  ( variable = Relation() )
+			| ( < OP > < NOT > variable = Relation() < CP >	 { isNegated = true; } )
+			//| ( < OP > < AT  > eventTimeToken = < TERM > variable = Relation() < CP >	 { eventTime = Integer.valueOf(eventTimeToken.image).intValue(); } )
+			//| ( < OP > < AT  > eventTimeToken = < TERM > < OP > < NOT > variable = Relation() < CP > < CP > { eventTime = Integer.valueOf(eventTimeToken.image).intValue();isNegated = true; } )
+			)
+			{
+			  	if ( !isNegated )
+			  		{ value = Term.createConstant("true");  }
+			  	else
+			  		{ value = Term.createConstant("false");  }
+			  		
+			 	Statement s = new Statement(Term.createConstant("G"+(litCounter++)), variable, value);
+
+			 	c.getContext().add(s);	 	
+			 	c.getContext().add(new OpenGoal(s));
+			 	goalList.add(s.getKey());
+			}  
+		)*
+		< CP >
+	< CP >
+	{
+		if ( goalList.size() > 1 )
+		{
+		 	Statement gSync = new Statement(Term.createConstant("sync"), new Atomic("sync"), Term.createConstant("true"));
+			c.getTypeManager().attachTypes(new Atomic("sync"), Term.createConstant("boolean") );
+		  	
+			for ( Term i : goalList )
+			{
+				c.getContext().add(new AllenConstraint("sync During " + i + " [1,inf] [1,inf]"));
+			}
+			c.getContext().add(new AllenConstraint("sync Duration [1,1]"));
+			c.getContext().add(gSync);
+		  	
+		} 
+	}
+}
+
+void Requirements() :
+{
+
+}
+{
+	< OP > < REQUIREMENTS >
+		(
+		  < TYPING > | < DURATIVE_ACTIONS > | < TIMED_INITIAL_LITERALS > | < STRIPS > | < ACTIONCOSTS >
+		)*		
+	< CP >
+}
+
+void Types() :
+{
+  Token typeToken;
+  Token superTypeToken;
+  ArrayList<Token> typeList;
+}
+{
+	< OP > < TYPES >
+		(
+		  {
+		    	typeList = new ArrayList<Token>();
+				superTypeToken = null;
+		  }
+		  ( LOOKAHEAD(2)
+		    typeToken = < TERM >
+		    {
+				typeList.add(typeToken);
+		    }
+		  )+ [< MINUS > superTypeToken = < TERM >]
+			{
+
+			  for ( Token tToken : typeList )
+			  {
+				  EnumType t = new EnumType();
+				  Term tName = Term.createConstant(tToken.image);
+				  tName = tName.makeConstant();
+				 	
+				  t.setName(tName.toString());
+
+				  if ( ! c.getTypeManager().hasTypeWithName(tName) )
+				  	c.getTypeManager().addNewType(t);
+	
+				  if ( superTypeToken != null )
+				  {
+				    Term superTypeName = Term.createConstant(superTypeToken.image);
+					if ( !c.getTypeManager().hasTypeWithName(superTypeName) ) {
+					  
+						EnumType superType = new EnumType();
+						superType.setName(superTypeToken.image);
+						c.getTypeManager().addNewType(superType);
+					}
+				    
+				  	EnumType superType = (EnumType)c.getTypeManager().getTypeByName(superTypeName);
+				  	superType.getDomain().add(Term.createConstant(tToken.image));
+				  }
+			  }
+  	  		}
+		)*
+	< CP >
+}
+
+void Objects() :
+{
+  	Token typeToken;
+  	Token valueToken;
+	ArrayList<Term> values;
+
+}
+{
+	< OP > < OBJECTS >
+		(
+		    {
+				values = new ArrayList<Term>();
+		    }
+			(
+				valueToken = Term()
+				{
+				  valueToken.image = valueToken.image.substring(0, 1).toLowerCase() + valueToken.image.substring(1);
+					values.add(Term.createConstant(valueToken.image));
+				}			 	
+			)+
+			< MINUS > typeToken = < TERM >
+			{
+			    Term tName = Term.createConstant(typeToken.image);
+				tName = tName.makeConstant();
+			  	c.getTypeManager().getTypeByName(tName).getDomain().addAll(values);
+			}			
+		)*
+	< CP >
+	{
+	  	System.out.println(c.getTypeManager() + "\n===");
+		c.getTypeManager().updateTypeDomains();
+	}	
+}
+
+void Constants() :
+{
+  	Token typeToken;
+  	Token valueToken;
+	ArrayList<Term> values;
+
+}
+{
+	< OP > < CONSTANTS >
+		(
+		    {
+				values = new ArrayList<Term>();
+		    }
+			(
+				valueToken = Term()
+				{
+				  	valueToken.image = valueToken.image.substring(0, 1).toLowerCase() + valueToken.image.substring(1);
+					values.add(Term.createConstant(valueToken.image));
+				}			 	
+			)+
+			< MINUS > typeToken = < TERM >
+			{
+			    Term tName = Term.createConstant(typeToken.image);
+				tName = tName.makeConstant();
+			  	c.getTypeManager().getTypeByName(tName).getDomain().addAll(values);
+			}			
+		)*
+	< CP >
+
+}
+
+
+Atomic Relation() :
+{
+	Token nameToken;
+	Token argToken;
+	Atomic r;
+	ArrayList<Term> argList = new ArrayList<Term>();
+	
+}
+{
+	< OP >
+		(nameToken = < TERM > | nameToken = < AT > | nameToken = < AND > | nameToken = < MINIMIZE > | nameToken = < MAXIMIZE > )
+		(
+		  	{ boolean isVariable = false;	}
+			[< QM >	{ isVariable = true; }] argToken = Term()
+			{
+			  String argStr = argToken.image;
+			  if ( isVariable ) {
+				argStr = argStr.substring(0, 1).toUpperCase() + argStr.substring(1);
+			  } else {
+				argStr = argStr.substring(0, 1).toLowerCase() + argStr.substring(1);
+			  }
+			  Term arg = Term.createConstant(argStr);
+			  argList.add(arg);
+			}   	
+		)*
+	< CP >
+	{
+		nameToken.image = nameToken.image.substring(0, 1).toLowerCase() + nameToken.image.substring(1);
+		String s = nameToken.image.replace("-","");
+		if ( !argList.isEmpty() )
+		{
+			s += "("+argList.get(0);
+			for ( int i = 1 ; i < argList.size(); i++ )
+			{
+				s += ","+argList.get(i);
+			}
+			s += ")";
+			
+		}
+		
+		r = new Atomic(s);
+		return r;
+	}
+}
+
+void Predicates() :
+{
+	Token nameToken;
+	ArrayList<String> typedList;
+	Token tmpArg;
+}
+{
+	< OP > < PREDICATES >
+		(
+			< OP >
+				(nameToken = < TERM > | nameToken = < AT > | nameToken = < AND > | nameToken = < MINIMIZE > | nameToken = < MAXIMIZE > )
+				typedList = TypedList()
+			< CP >
+			{
+			  	nameToken.image = nameToken.image.substring(0, 1).toLowerCase() + nameToken.image.substring(1);
+			  	nameToken.image = nameToken.image.replace("-","");
+			  	Atomic name = null;
+				if ( typedList.isEmpty() )
+				{
+				  name = new Atomic(nameToken.image);
+				} else {
+				  String tStr = typedList.get(0).split("/")[1].substring(0, 1).toLowerCase() + typedList.get(0).split("/")[1].substring(1);
+					
+				  String s = nameToken.image + "(" + tStr;
+				  for ( int i = 1 ; i < typedList.size() ; i++ )
+				  {
+				    tStr = typedList.get(i).split("/")[1].substring(0, 1).toLowerCase() + typedList.get(i).split("/")[1].substring(1);
+						
+					s += ","+tStr;
+				  }
+				  s += ")";
+				  
+				  name = new Atomic(s);
+				}
+			  	
+				c.getTypeManager().attachTypes( name, Term.createConstant("boolean") );
+			}
+		)*
+	< CP >
+}
+
+ArrayList<String> TypedList() :
+{
+	ArrayList<String> r = new ArrayList<String>();
+	ArrayList<String> argList = new ArrayList<String>();
+	boolean isVariable;
+	Token argToken, typeToken;
+}
+{
+	(
+	  	{
+			argList = new ArrayList<String>();
+	  	}
+		(
+		  {  isVariable = false;  }
+		  [< QM > {  isVariable = true;  }] argToken = Term()
+		  {
+		    	String argStr = argToken.image;
+				if ( isVariable ) {
+					argStr = argStr.substring(0, 1).toUpperCase() + argStr.substring(1);
+				}  else {
+					argStr = argStr.substring(0, 1).toLowerCase() + argStr.substring(1);
+			  	} 
+				argList.add(argStr);
+		  }
+		)+
+		 < MINUS >
+		( LOOKAHEAD(2)
+		(
+		  typeToken = < TERM >
+			{
+			  	String tStr = typeToken.image.substring(0, 1).toLowerCase() + typeToken.image.substring(1);
+				for ( String s : argList )
+				{  	
+					r.add(s+"/"+tStr);
+				}
+			}
+		)
+		|
+		(
+		< OP >
+			{
+				ArrayList<Term> tNames = new ArrayList<Term>();
+			}
+			< EITHER >
+			( typeToken = < TERM >
+				{
+					String tStr = typeToken.image.substring(0, 1).toLowerCase() + typeToken.image.substring(1);
+					tNames.add(Term.createConstant(tStr));
+				}
+			)+
+			{
+				String newSuperType = "either_" + tNames.get(0);
+				for ( int i = 1 ; i < tNames.size(); i++ ) {
+				  newSuperType += "_" + tNames.get(i); 
+				}
+				Term superTypeToken = Term.createConstant(newSuperType);
+
+				if ( !c.getTypeManager().hasTypeWithName(superTypeToken) ) {
+						EnumType superType = new EnumType();
+						superType.setName(superTypeToken);
+						superType.getDomain().addAll(tNames);
+						c.getTypeManager().addNewType(superType);
+				}
+
+				for ( String s : argList ) {  	
+					r.add(s+"/"+newSuperType);
+				}
+			}
+		< CP >
+		)
+		)
+	)*
+	{
+		return r;
+	}
+}
+
+Token Term() :
+{
+ 	Token r; 
+}
+{
+	r = < TERM >
+	{
+		r.image = r.image.replace("-","");
+		return r;
+	}
+}
+
+void Action() :
+{
+	Token nameToken;
+	Operator o = new Operator();
+	StatementConstraintPair p;
+
+	ArrayList<Term> argList = new ArrayList<Term>();
+	ArrayList<String> typedList;
+	Token argToken;
+	Token typeToken;
+	
+	int conCounter = 0;
+	int effCounter = 0;
+
+	Token durToken;
+	Token durVarToken;
+	Atomic functionName;
+
+	Expression costCon;
+}
+{
+	< OP >
+		< ACTION > nameToken = < TERM >
+		< PARAMETERS > < OP >
+			typedList = TypedList()
+			{
+			  	String sArgs = nameToken.image + "(";
+			  	String sTypes = nameToken.image + "(";
+			  	
+				if ( !typedList.isEmpty() ) {
+					sArgs += typedList.get(0).split("/")[0];
+					sTypes += typedList.get(0).split("/")[1];
+
+					for ( int i = 1 ; i < typedList.size() ; i++ ) {
+					  	sArgs += "," + typedList.get(i).split("/")[0];
+						sTypes += "," + typedList.get(i).split("/")[1];
+					}
+					
+				}
+				sArgs += ")";
+				sTypes += ")";	 
+
+				Atomic name = new Atomic(sArgs);
+				Atomic nameDef = new Atomic(sTypes);
+			
+				o.setName(name);
+
+				c.getTypeManager().attachTypes( nameDef, Term.createConstant("boolean") );
+			}
+		< CP >
+			{
+				o.addConstraint(new AllenConstraint("THIS Duration [1,1]"));
+		  	}
+		[
+		  < PRECONDITION > ( LOOKAHEAD(2) ( < OP > < AND > 
+			(
+			  p = StatementConstraintPair("P", conCounter++)
+			  {
+			    o.addPrecondition(p.s);
+			    //o.addConstraint(new AllenConstraint(p.s.getKey() + " MeetsOrOverlapsOrFinishedByOrContains THIS [0,inf]"));
+			  }
+			)+
+		< CP >
+		)
+		|
+		(
+			p = StatementConstraintPair("P", conCounter++)
+			  {
+			    o.addPrecondition(p.s);
+			    //o.addConstraint(new AllenConstraint(p.s.getKey() + " MeetsOrOverlapsOrFinishedByOrContains THIS [0,inf]"));
+			  }
+		) 
+		)
+		]
+		< EFFECT > ( LOOKAHEAD(2) ( < OP > < AND > 
+			(
+			  ( LOOKAHEAD(2)
+			    (
+				    p = StatementConstraintPair("E", effCounter++)
+					{
+				  		o.addEffect(p.s);
+				  		o.addConstraint(new AllenConstraint("THIS Meets E"+(effCounter-1)));
+				    }
+			    )
+			  |
+			  	(
+			  	  	costCon = Cost()
+			  	  	{
+						o.addConstraint(costCon);
+			  	  	}
+			  	)
+			  )
+			)+
+		< CP > )
+			|
+			(
+ 			( LOOKAHEAD(2)
+			    (
+				    p = StatementConstraintPair("E", effCounter++)
+					{
+				  		o.addEffect(p.s);
+				  		o.addConstraint(new AllenConstraint("THIS Meets E"+(effCounter-1)));
+				    }
+			    )
+			  |
+			  	(
+			  	  	costCon = Cost()
+			  	  	{
+						o.addConstraint(costCon);
+			  	  	}
+			  	)
+			  )
+			  
+			)) 
+	< CP >
+	{
+		c.getOperators().add(o);
+	}
+}
+
+void DurativeAction() :
+{
+	Token nameToken;
+	Operator o = new Operator();
+	StatementConstraintPair p;
+
+	ArrayList<Term> argList = new ArrayList<Term>();
+	ArrayList<String> typedList;
+	Token argToken;
+	Token typeToken;
+	
+	int conCounter = 0;
+	int effCounter = 0;
+
+	Token durToken;
+	Token durVarToken;
+	Atomic functionName;
+}
+{
+	< OP >
+		< DURATIVE_ACTION > nameToken = < TERM >
+		< PARAMETERS > < OP >
+			typedList = TypedList()
+			{
+			  	String sArgs = nameToken.image + "(";
+			  	String sTypes = nameToken.image + "(";
+			  	
+				if ( !typedList.isEmpty() ) {
+					sArgs += typedList.get(0).split("/")[0];
+					sTypes += typedList.get(0).split("/")[1];
+
+					for ( int i = 1 ; i < typedList.size() ; i++ ) {
+					  	sArgs += "," + typedList.get(i).split("/")[0];
+						sTypes += "," + typedList.get(i).split("/")[1];
+					}
+					
+				}
+				sArgs += ")";
+				sTypes += ")";	 
+
+				Atomic name = new Atomic(sArgs);
+				Atomic nameDef = new Atomic(sTypes);
+
+				System.out.println(name);
+				System.out.println(nameDef);
+				
+				o.setName(name);
+
+				c.getTypeManager().attachTypes( nameDef, Term.createConstant("boolean") );
+			}
+		< CP >
+		< DURATION > < OP > < EQUALS > < QM > durVarToken = < TERM > ( 
+		  	(
+		  	  durToken = < TERM >
+		  		{
+					Term durTerm = Term.createConstant(durToken.image);
+					o.addConstraint(new AllenConstraint("THIS Duration ["+durTerm+","+durTerm+"]"));
+		  		}
+		  	)
+		  |
+		  	(
+				functionName = Relation()
+				{
+				  
+					String relConStr = functionName.toString().substring(0,functionName.toString().length()-1);
+					Term durVarTerm = Term.createConstant(durVarToken.image);
+					durVarTerm = Term.createVariable(durVarTerm.getName());
+					relConStr += ","+durVarTerm + ")";
+					PrologConstraint durCon = new PrologConstraint(new Atomic(relConStr),Term.createConstant("pddlKB"));
+					o.addConstraint(new AllenConstraint("THIS Duration ["+durVarTerm+","+durVarTerm+"]"));
+					o.addConstraint(durCon);
+				}				
+		  	)
+		) < CP >
+		[
+		  < CONDITION > ( LOOKAHEAD(2) ( < OP > < AND > 
+			(
+			  p = StatementConstraintPair("P", conCounter++)
+			  {
+			    o.addPrecondition(p.s);
+			    o.addConstraint(p.c);
+			  }
+			)+
+		< CP > )
+		|
+			(
+			  p = StatementConstraintPair("P", conCounter++)
+			  {
+			    o.addPrecondition(p.s);
+			    o.addConstraint(p.c);
+			  }
+			)
+		) 
+		]
+		< EFFECT > ( LOOKAHEAD(2) ( < OP > < AND > 
+			(
+			  p = StatementConstraintPair("E", effCounter++)
+			  {
+			  	o.addEffect(p.s);
+			  	/*if ( p.c.getRelation().equals(ConstraintTypes.TemporalRelation.MeetsOrOverlapsOrFinishedByOrContains) )
+			  	{
+			  		o.addConstraint(new AllenConstraint(p.c.getFrom() + " StartStart " + p.c.getTo() + " [0,0]"));
+			  	} else {
+					o.addConstraint(p.c);
+			  	}*/
+			  	o.addConstraint(new AllenConstraint("E"+(effCounter-1)+ " Duration " + " [1,inf]"));
+			  }
+			)+
+		< CP > )
+		|
+		(
+		   p = StatementConstraintPair("E", effCounter++)
+			  {
+			  	o.addEffect(p.s);
+			  /*	if ( p.c.getRelation().equals(ConstraintTypes.TemporalRelation.MeetsOrOverlapsOrFinishedByOrContains) )
+			  	{
+			  		o.addConstraint(new AllenConstraint(p.c.getFrom() + " StartStart " + p.c.getTo() + " [0,0]"));
+			  	} else {
+					o.addConstraint(p.c);
+			  	}*/
+			  	o.addConstraint(new AllenConstraint("E"+(effCounter-1)+ " Duration " + " [1,inf]"));
+			  }
+		)) 
+	< CP >
+	{
+		c.getOperators().add(o);
+	}
+}
+
+StatementConstraintPair StatementConstraintPair( String kBase, int i ) :
+{
+	StatementConstraintPair p;
+	Statement s;
+	AllenConstraint c = null;
+	Term sKey = Term.createConstant(kBase+i);
+	Term oKey = Term.createConstant("THIS");
+	boolean isNegated = false;
+	String tcType = null;
+	String boundsStr = "[UNDEF-BOUNDS]";
+	Atomic variable;
+}
+{
+	( LOOKAHEAD(2) (
+	  < OP >
+		(
+			(
+			  ( < AT_START > { tcType = "MeetsOrOverlapsOrFinishedByOrContains"; boundsStr = "[0,inf]"; } )
+	 		//| ( < AT_END >   { tcType = "ContainsOrStartedByOrOverlappedByOrMetBy"; boundsStr = "[0,inf]";} )
+	 		| ( < AT_END >   { tcType = "Meets"; boundsStr = "";} )
+	 		| ( < OVER_ALL >   { tcType = "DuringOrEquals"; boundsStr = "[0,inf] [0,inf]"; } )
+	 		)
+	 		(
+	 		  	LOOKAHEAD(2)
+				( variable = Relation() )
+				| ( < OP > < NOT > variable = Relation() < CP > { isNegated = true; })
+	 		)			   
+		)
+	< CP >
+	)
+	|
+	(
+		(
+	 		LOOKAHEAD(2)
+			( variable = Relation() )
+			| ( < OP > < NOT > variable = Relation() < CP > { isNegated = true; })
+	 	)		
+	))
+  
+	{
+	  	if ( tcType != null )
+	  	{
+		  	if ( !tcType.equals("DuringOrEquals") && !tcType.equals("Meets") ) {
+				c = new AllenConstraint(sKey + " " + tcType + " THIS " + boundsStr);
+			} else {
+			  c = new AllenConstraint("THIS " + tcType + " " + sKey + " " + boundsStr);		  
+			}
+		}
+		Term value;
+		if ( !isNegated ) {
+		  value = Term.createConstant("true");
+		} else {
+		  value = Term.createConstant("false");
+		}
+
+		s = new Statement(sKey, variable, value);
+		p = new StatementConstraintPair(s,c);
+		return p;
+	}
+}
+
+void Metric() :
+{
+	Token optCritToken, dirToken;
+}
+{
+	< OP >
+		< METRIC > (dirToken = < MINIMIZE > | dirToken = < MAXIMIZE > ) < OP > optCritToken = < TERM > < CP >
+		{
+			throw new UnsupportedOperationException();
+		  //String optCritStr = optCritToken.image;
+			//
+			//if ( optCritStr.equals("total-time") )
+			//{
+			//	optCritStr = "makeSpan";
+			//}
+		  //OptimizationCriterium oC;
+			//if ( dirToken.image.equals("minimize") ) {
+			//	oC = new OptimizationCriterium(new Atomic(optCritStr), OptimizationCriterium.OptDirection.Minimize);
+			//} else {
+			//	oC = new OptimizationCriterium(new Atomic(optCritStr), OptimizationCriterium.OptDirection.Minimize);	
+			//}
+			//c.getContext().add(oC);
+		}
+	< CP >
+}
+
+void Functions() :
+{
+	Token nameToken;
+	ArrayList<Token> args;
+	Token tmpArg;
+	Token valTypeToken;
+}	
+{
+	< OP > < FUNCTIONS >
+		(
+			<  OP >
+				nameToken = < TERM >
+				{
+					args = new ArrayList<Token>();
+				}
+				(
+				  < QM > <TERM > < MINUS > tmpArg = < TERM >
+				  {
+					args.add(tmpArg);
+				  }
+				)*
+			< CP > < MINUS > valTypeToken = < TERM >
+			{
+			  	Atomic name = null;
+				if ( args.isEmpty() )
+				{
+				  name = new Atomic(nameToken.image.replace("-","") + "(" + valTypeToken.image + ")");
+				} else {
+				  String s = nameToken.image.replace("-","") + "(" + args.get(0).image;
+				  for ( int i = 1 ; i < args.size() ; i++ )
+				  {
+					s += ","+args.get(i).image;
+				  }
+				  s += "," + valTypeToken.image + ")";
+				  name = new Atomic(s);
+				}
+			  	if ( !c.getTypeManager().hasTypeWithName( Term.createConstant(valTypeToken.image) ) )
+				{
+					 // max. will be automatically adopted to largest occurring value later
+					c.getTypeManager().addIntegerType(valTypeToken.image, 0, 1000);
+				}
+				c.getTypeManager().attachTypes( name, Term.createConstant(valTypeToken.image) );				
+			} 
+		)*
+	< CP >
+}
+
+Expression Cost() :
+{
+	Atomic var;
+	Token amountToken;
+	Token modToken;
+}
+{
+	< OP >
+		(
+			modToken = < INCREASE >
+			|
+			modToken = < DECREASE >
+			|
+			modToken = < ASSIGN >
+			|
+			modToken = < SCALEUP >
+			|
+			modToken = < SCALEDOWN > 
+		) var = Relation() amountToken = < TERM >
+	< CP >
+	{
+	  	/**
+	  	  *	Costs are functions in PDDL and will be relations (since often functions are
+	  	  * used for background knowledge. 
+	  	  * When used as a cost we take the definition of the relation and create
+	  	  * a cost definition from it.
+	  	  */
+	  	if ( c.getTypeManager().hasVariable(var.getUniqueName()) ) {
+			String relUniqueName = var.name() + "/" + (var.getNumArgs()+1);
+			Type t = c.getTypeManager().getPredicateTypes(relUniqueName,var.getNumArgs());
+
+			c.getTypeManager().attachTypes(var, Term.createConstant(t.getName().toString()) );
+		}	  	  
+	  	/*if ( modToken.image.equals("increase") ) {
+	  	  	return new CostCalculation(var, var + " + " + amountToken.image);
+	 	}
+	 	if ( modToken.image.equals("decrease") ) {
+	  	  	return new CostCalculation(var, var + " - " + amountToken.image);
+	 	}
+	 	if ( modToken.image.equals("scale-up") ) {
+	  	  	return new CostCalculation(var, var + " * " + amountToken.image);
+	 	}
+	 	if ( modToken.image.equals("scale-down") ) {
+	  	  	return new CostCalculation(var, var + " / " + amountToken.image);
+	 	}
+	 	if ( modToken.image.equals("assign") ) {
+	  	  	return new CostCalculation(var, amountToken.image);
+	 	}*/	
+	 	return null;
+	}
+}
+
+ 

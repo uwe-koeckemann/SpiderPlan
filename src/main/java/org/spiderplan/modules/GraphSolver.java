@@ -45,8 +45,9 @@ import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.GraphConstraint;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.ExpressionTypes.GraphRelation;
+import org.spiderplan.representation.expressions.graph.GraphConstraint;
 import org.spiderplan.representation.graph.DirectedGraph;
 import org.spiderplan.representation.graph.UndirectedGraph;
 import org.spiderplan.representation.logic.Atomic;
@@ -56,7 +57,7 @@ import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.visulization.GraphFrame;
 
 /**
- * Handles {@link Constraint}s of type {@link GraphConstraint}.
+ * Handles {@link Expression}s of type {@link GraphConstraint}.
  * 
  * Does not yet support backtracking over its decisions.
  * This will become much easier after a general overhaul of the way
@@ -65,7 +66,7 @@ import org.spiderplan.tools.visulization.GraphFrame;
  * @author Uwe Köckemann
  *
  */
-public class GraphSolver extends Module implements SolverInterface {
+public class GraphSolver extends Module implements SolverInterface { //TODO: stop using strings to test relations
 	
 	private ResolverIterator resolverIterator = null;
 	private ConstraintDatabase originalContext = null;
@@ -159,20 +160,20 @@ public class GraphSolver extends Module implements SolverInterface {
 		Atomic r;
 		if ( verbose ) Logger.msg(getName(), "Creating graphs...", 1);
 		for ( GraphConstraint gC : C ) {
-			r = gC.getRelation();
-			if ( r.getUniqueName().equals("directed/1") ) {
+			r = gC.getConstraint();
+			if ( gC.getRelation().equals(GraphRelation.Directed) ) { //r.getUniqueName().equals("directed/1") ) {
 				if ( verbose ) Logger.msg(getName(), "    " + gC, 2);
 				directedGraphs.add(r.getArg(0));
 				graphs.put(r.getArg(0), new DirectedGraph<Term, String>());
 				edgeIDcounter.put(r.getArg(0), 0);
 				varCapacities.put(r.getArg(0), new HashMap<Term, Integer>());
-			}  else if ( r.getUniqueName().equals("undirected/1") ) {
+			}  else if ( gC.getRelation().equals(GraphRelation.Undirected) ) {
 				if ( verbose ) Logger.msg(getName(), "    " + gC, 2);
 				undirectedGraphs.add(r.getArg(0));
 				graphs.put(r.getArg(0), new UndirectedGraph<Term, String>());
 				edgeIDcounter.put(r.getArg(0), 0);
 				varCapacities.put(r.getArg(0), new HashMap<Term, Integer>());
-			} else if ( r.getUniqueName().equals("cap/3")) {
+			} else if ( gC.getRelation().equals(GraphRelation.Capacity) ) {
 				if ( verbose ) Logger.msg(getName(), "    " + gC, 2);
 				varCapacities.get(r.getArg(0)).put(r.getArg(1), Integer.valueOf(r.getArg(2).toString()));
 			}
@@ -181,7 +182,7 @@ public class GraphSolver extends Module implements SolverInterface {
 		 * Add edges and vertices
 		 */
 		for ( GraphConstraint gC : C ) {
-			r = gC.getRelation();
+			r = gC.getConstraint();
 			Term graph = r.getArg(0);
 			AbstractGraph<Term, String> G;
 			
@@ -190,10 +191,10 @@ public class GraphSolver extends Module implements SolverInterface {
 				throw new IllegalStateException("Graph " + graph + " not declared as a graph: Use (directed "+ graph + ") or (undirected " + graph + ") to fix this.");
 			}
 			
-			if ( gC.getRelation().getUniqueName().equals("vertex/2") ) {
+			if ( gC.getRelation().equals(GraphRelation.Vertex) ) {
 				if ( verbose ) Logger.msg(getName(), "    Adding: " + gC, 2);
 				G.addVertex(r.getArg(1));
-			}  else if ( gC.getRelation().getUniqueName().equals("edge/4") ) {
+			}  else if (gC.getRelation().equals(GraphRelation.Edge) ) {
 				if ( verbose ) Logger.msg(getName(), "    Adding: " + gC, 2);
 				int edgeID = edgeIDcounter.get(graph).intValue();
 				G.addEdge("["+edgeID+"] " + r.getArg(3).toString(), r.getArg(1), r.getArg(2));
@@ -202,9 +203,9 @@ public class GraphSolver extends Module implements SolverInterface {
 		}
 		
 		for ( GraphConstraint gC : C ) {
-			if ( gC.getRelation().getUniqueName().equals("draw/1") ) {
+			if ( gC.getRelation().equals(GraphRelation.Draw) ) {
 				
-				AbstractTypedGraph<Term, String> G = (AbstractTypedGraph<Term, String>)graphs.get(gC.getRelation().getArg(0));
+				AbstractTypedGraph<Term, String> G = (AbstractTypedGraph<Term, String>)graphs.get(gC.getConstraint().getArg(0));
 				
 				Map<String,String> edgeLabels = new HashMap<String, String>();
 				 
@@ -212,7 +213,7 @@ public class GraphSolver extends Module implements SolverInterface {
 					edgeLabels.put(edge,edge.split("] ")[1]); // Remove edge ID "[x] " from edge name
 				}
 				
-				new GraphFrame<Term,String>(G, null,  gC.getRelation().getArg(0).toString(), GraphFrame.LayoutClass.FR, edgeLabels);
+				new GraphFrame<Term,String>(G, null,  gC.getConstraint().getArg(0).toString(), GraphFrame.LayoutClass.FR, edgeLabels);
 			}	
 		}
 		
@@ -224,9 +225,9 @@ public class GraphSolver extends Module implements SolverInterface {
 			if ( !isConsistent ) {
 				break;
 			}
-			r = gC.getRelation();
+			r = gC.getConstraint();
 			Term graph = r.getArg(0);
-			if ( gC.getRelation().getUniqueName().equals("path/3") ) {
+			if ( gC.getRelation().equals(GraphRelation.Path) ) {
 				if ( verbose ) Logger.msg(getName(), "    Checking: " + gC, 1);
 				AbstractGraph<Term, String> G = graphs.get(graph);
 				
@@ -250,7 +251,7 @@ public class GraphSolver extends Module implements SolverInterface {
 				} else {
 					if ( verbose ) Logger.msg(getName(), "        Found path.", 1);
 				}				
-			} else if ( gC.getRelation().getUniqueName().equals("shortest-path/5") ) { 
+			} else if ( gC.getRelation().equals(GraphRelation.ShortestPath) ) { //gC.getConstraint().getUniqueName().equals("shortest-path/5") ) { 
 				/**
 				 * TODO: edge representation is bad
 				 * TODO: what do to with non-ground edges?
@@ -258,8 +259,8 @@ public class GraphSolver extends Module implements SolverInterface {
 				 */
 				if ( verbose ) Logger.msg(getName(), "    Checking: " + gC, 1);
 				
-				Term pathVar = gC.getRelation().getArg(3);
-				Term costVar = gC.getRelation().getArg(4);
+				Term pathVar = gC.getConstraint().getArg(3);
+				Term costVar = gC.getConstraint().getArg(4);
 				
 //				if ( !(pathVar.isVariable() && costVar.isVariable()) ) {
 //					if ( verbose ) Logger.msg(getName(), "        Unsatisfiable: " + pathVar + " and " + costVar + " need to be variables.", 1);
@@ -354,7 +355,7 @@ public class GraphSolver extends Module implements SolverInterface {
 						resolverLists.add(rList);
 					}
 				}
-			} else if ( gC.getRelation().getUniqueName().equals("dag/1") ) { 
+			} else if ( gC.getRelation().equals(GraphRelation.DAG) ) { 
 				if ( verbose ) Logger.msg(getName(), "    Checking: " + gC, 1);
 				if ( undirectedGraphs.contains(graph) ) { // An undirected graph cannot be a DAG
 					isConsistent = false;
@@ -389,7 +390,7 @@ public class GraphSolver extends Module implements SolverInterface {
 						}
 					}
 				}
-			} else if ( gC.getRelation().getUniqueName().equals("flow/1") ) { 
+			} else if ( gC.getRelation().equals(GraphRelation.Flow) ) { 
 				if ( verbose ) Logger.msg(getName(), "    Checking: " + gC, 1);
 				if ( undirectedGraphs.contains(graph) ) { // An undirected graph cannot be a flow	
 					isConsistent = false;					

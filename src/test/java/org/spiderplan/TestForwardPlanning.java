@@ -26,12 +26,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.spiderplan.causal.ForwardPlanningNode;
-import org.spiderplan.causal.ForwardPlanningNodeComparator;
-import org.spiderplan.causal.StateVariableOperatorMultiState;
-import org.spiderplan.causal.ForwardPlanningNode.EqualityCriteria;
-import org.spiderplan.causal.goals.Goal;
-import org.spiderplan.causal.goals.SingleGoal;
+import org.spiderplan.causal.forwardPlanning.ForwardPlanningNode;
+import org.spiderplan.causal.forwardPlanning.ForwardPlanningNodeComparator;
+import org.spiderplan.causal.forwardPlanning.StateVariableOperatorMultiState;
+import org.spiderplan.causal.forwardPlanning.ForwardPlanningNode.EqualityCriteria;
+import org.spiderplan.causal.forwardPlanning.goals.Goal;
+import org.spiderplan.causal.forwardPlanning.goals.SingleGoal;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.search.MultiHeuristicNodeComparatorIndex;

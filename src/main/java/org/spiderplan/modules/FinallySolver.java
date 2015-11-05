@@ -34,8 +34,8 @@ import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Asserted;
-import org.spiderplan.representation.constraints.Finally;
+import org.spiderplan.representation.expressions.misc.Asserted;
+import org.spiderplan.representation.expressions.misc.Finally;
 import org.spiderplan.tools.logging.Logger;
 
 /**

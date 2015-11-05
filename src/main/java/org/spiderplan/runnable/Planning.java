@@ -22,22 +22,34 @@
  *******************************************************************************/
 package org.spiderplan.runnable;
 
-import org.spiderplan.representation.parser.pddl.ParseException;
-
+/**
+ * Main class that takes files from command line arguments and either 
+ * uses them to run an experiment (single file) or solve a problem  
+ * (one planner description with one or more domain files).
+ * 
+ * @author Uwe Köckemann
+ *
+ */
 public class Planning {
 
 	/**
-	 * @param args
-	 * @throws ParseException 
-	 * @throws UnknownThing 
-	 * @throws NonGroundThing 
+	 * Main method to run experiments or solve problems.
+	 * <p>
+	 * Options for args:
+	 * <ul>
+	 * <li> Single (.exp/.experiment) file describing experiment
+	 * <li> One file describing the planner (.spider) and one or more domain definition files (.uddl)
+	 * <li> No arguments to solve the default problem
+	 * </ul>
+	 * 
+	 * @param args list of filenames 
 	 */
-	public static void main(String[] args) throws ParseException {			
-		if ( args.length >= 2 && !args[0].contains("[]")) { 			// Single problem
+	public static void main(String[] args) {			
+		if ( args.length >= 2 && !args[0].contains("[]")) { // Single problem
 			RunSingleProblem.run(args);		
-		} else if ( args.length == 1 ) {	// Experiment
+		} else if ( args.length == 1 ) {					// Experiment
 			RunExperiment.run(args[0]);	
-		} else {								// Default demo problem
+		} else {											// Default demo problem
 			String[] defaultArgs = { "./domains/household/planner.spider", "./domains/household/domain.uddl", "./domains/household/test-cases/test01.uddl" };
 			RunSingleProblem.run(defaultArgs);
 		}

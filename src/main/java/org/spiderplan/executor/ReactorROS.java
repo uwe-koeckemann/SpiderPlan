@@ -22,12 +22,13 @@
  *******************************************************************************/
 package org.spiderplan.executor;
 
-import org.spiderplan.representation.constraints.Statement;
-import org.spiderplan.representation.constraints.ros.ROSGoal;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.execution.ros.ROSGoal;
 
 /**
+ * Execute a ROS goal. Requires ROSproxy to be running.
+ * 
  * @author Uwe Koeckemann
- *
  */
 public class ReactorROS extends Reactor {
 	
@@ -35,6 +36,12 @@ public class ReactorROS extends Reactor {
 	
 	private int ID;
 	
+	/**
+	 * Default constructor.
+	 * 
+	 * @param target statement to be executed
+	 * @param goal associated ROS goal
+	 */
 	public ReactorROS( Statement target, ROSGoal goal ) {
 		super(target);
 		this.goal = goal;

@@ -22,8 +22,8 @@
  *******************************************************************************/
 package org.spiderplan.tools;
 
-import org.spiderplan.causal.goals.DisjunctiveGoal;
-import org.spiderplan.causal.goals.SingleGoal;
+import org.spiderplan.causal.forwardPlanning.goals.DisjunctiveGoal;
+import org.spiderplan.causal.forwardPlanning.goals.SingleGoal;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.logic.Term;
@@ -32,8 +32,17 @@ import org.spiderplan.tools.stopWatch.StopWatch;
 
 public class Global {
 
+	/**
+	 * Directory for temporary files created by the planner.
+	 */
 	public static final String workingDir = "/tmp/";
-//	public static String yapBinaryLocation = "yap";
+	
+	/**
+	 * Used to make temporary files unique so they are not overwritten by another
+	 * instance of the planner. 
+	 */
+	public static String UniqueFilenamePart = "";
+	
 	public static final long MaxTemporalHorizon = 1000000000;
 	
 	public static ConstraintDatabase initialContext;

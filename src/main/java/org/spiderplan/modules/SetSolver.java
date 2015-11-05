@@ -33,18 +33,19 @@ import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
-import org.spiderplan.representation.constraints.SetConstraint;
+import org.spiderplan.representation.expressions.ExpressionTypes.SetRelation;
+import org.spiderplan.representation.expressions.set.SetConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.logging.Logger;
 
 /**
- * Handles simple {@link SetConstraint}s.
+ * Handles simple set constraints.
  *  
  * @author Uwe Köckemann
  *
  */
-public class SetSolver extends Module implements SolverInterface {
+public class SetSolver extends Module implements SolverInterface { // TODO: stop using strings to test relations 
 	
 	/**
 	 * Create new instance by providing name and configuration manager.
@@ -82,13 +83,13 @@ public class SetSolver extends Module implements SolverInterface {
 		Atomic r;
 		if ( verbose ) Logger.msg(getName(), "Creating sets...", 1);
 		for ( SetConstraint sC : C ) {
-			r = sC.getRelation();
+			r = sC.getConstraint();
 			Term setID = r.getArg(0);
-			r = sC.getRelation();
-			if ( r.getUniqueName().equals("set/1") ) {
+			r = sC.getConstraint();
+			if ( sC.getRelation().equals(SetRelation.Set) ) {
 				if ( verbose ) Logger.msg(getName(), "    Creating set: " + sC, 2);
 				sets.put(setID, new HashSet<Term>());
-			} else if  ( r.getUniqueName().equals("is-domain/2") ) {
+			} else if  ( sC.getRelation().equals(SetRelation.IsDomain) ) { // r.getUniqueName().equals("is-domain/2") ) {
 				Term setName = r.getArg(0);
 				Term typeName = r.getArg(1);
 				HashSet<Term> domain = new HashSet<Term>();
@@ -101,7 +102,7 @@ public class SetSolver extends Module implements SolverInterface {
 		 */
 		Set<Term> S,S_prime;
 		for ( SetConstraint sC : C ) {
-			r = sC.getRelation();
+			r = sC.getConstraint();
 			Term setID = r.getArg(0);
 		
 			S = sets.get(setID);
@@ -110,7 +111,7 @@ public class SetSolver extends Module implements SolverInterface {
 				sets.put(setID, S);
 			}
 			
-			if ( sC.getRelation().getUniqueName().equals("add/2") ) {
+			if ( sC.getRelation().equals(SetRelation.Add) ) {
 				if ( verbose ) Logger.msg(getName(), "    Adding: " + sC, 2);
 				S.add(r.getArg(1));
 			} 
@@ -123,29 +124,29 @@ public class SetSolver extends Module implements SolverInterface {
 			if ( !isConsistent ) {
 				break;
 			}
-			r = sC.getRelation();
+			r = sC.getConstraint();
 			Term setID = r.getArg(0);
 			S = sets.get(setID);
 			
-			if ( sC.getRelation().getUniqueName().equals("in/2") ) {
+			if ( sC.getRelation().equals(SetRelation.In) ) {
 				if ( verbose ) Logger.msg(getName(), "    Checking: " + sC, 1);
 				Term e = r.getArg(1);
 				isConsistent = S.contains(e);
-			} else if  ( sC.getRelation().getUniqueName().equals("notin/2") ) {
+			} else if  ( sC.getRelation().equals(SetRelation.NotIn) ) {
 				if ( verbose ) Logger.msg(getName(), "    Checking: " + sC, 1);
 				Term e = r.getArg(1);
 				isConsistent = !S.contains(e);
-			} else if  ( sC.getRelation().getUniqueName().equals("equals/2") ) {
+			} else if  ( sC.getRelation().equals(SetRelation.Equals) ) {
 				if ( verbose ) Logger.msg(getName(), "    Checking: " + sC, 1);
 				S_prime = sets.get(r.getArg(1));
 				
 				isConsistent = S.equals(S_prime);
 				
-			} else if  ( sC.getRelation().getUniqueName().equals("subset/2") ) {
+			} else if  ( sC.getRelation().equals(SetRelation.Subset) ) {
 				if ( verbose ) Logger.msg(getName(), "    Checking: " + sC, 1);
 				S_prime = sets.get(r.getArg(1));
 				isConsistent = S_prime.containsAll(S);
-			} else if  ( sC.getRelation().getUniqueName().equals("proper-subset/2") ) {
+			} else if  ( sC.getRelation().equals(SetRelation.ProperSubset) ) {
 				if ( verbose ) Logger.msg(getName(), "    Checking: " + sC, 1);
 				S_prime = sets.get(r.getArg(1));
 				isConsistent = S_prime.containsAll(S) && S.size() < S_prime.size();

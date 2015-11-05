@@ -42,7 +42,7 @@ import org.spiderplan.representation.types.TypeManager;
  * @author Uwe Köckemann
  *
  */
-public class Core {	
+public class Core {	// TODO: change to include link to previous core + CDB and current resolver
 	/**
 	 * Used by solvers to assign their decision regarding decidability 
 	 * of the problem posed by a {@link Core}.
@@ -69,6 +69,8 @@ public class Core {
 	private Collection<Operator> O = new HashSet<Operator>();
 	private Plan plan = new Plan();
 	private TypeManager tM;
+	
+	private Core prevCore;
 	
 	private Collection<String> inSignals = new ArrayList<String>();
 	private HashMap<String,State> outSignals = new HashMap<String, State>();
@@ -107,6 +109,14 @@ public class Core {
 	 */
 	public void setTypeManager( TypeManager tM ) { this.tM = tM; };
 	
+	
+	/**
+	 * Set core that is the predecessor to this one.
+	 * @param c predecessor core
+	 */
+	public void setPredCore( Core c ) {
+		this.prevCore = c;
+	}
 
 	/**
 	 * Get the context {@link ConstraintDatabase}
@@ -128,6 +138,26 @@ public class Core {
 	 * @return A {@link TypeManager}
 	 */
 	public TypeManager getTypeManager() { return tM ; };
+	
+	/**
+	 * Get core that is the predecessor to this one.
+	 * @return predecessor core
+	 */
+	public Core getPredCore( ) {
+		return this.prevCore;
+	}
+	
+	/**
+	 * Get the root core of the search space.
+	 * @return core at the root of the search
+	 */
+	public Core getRootCore() {
+		if ( this.prevCore == null ) {
+			return this;
+		} else {
+			return this.prevCore.getRootCore();
+		}
+	}
 	
 	/**
 	 * Return a copy of this {@link Core} that can be changed without changing the original

@@ -27,11 +27,11 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.Cost;
-import org.spiderplan.representation.constraints.PrologConstraint;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.cost.Cost;
+import org.spiderplan.representation.expressions.prolog.PrologConstraint;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -114,7 +114,7 @@ public class TestConstraintDatabases extends TestCase {
 		
 	/**
 	 * Test difference function. Added after a problem caused by using 
-	 * {@link HashSet} to store {@link Constraint}s and changing them
+	 * {@link HashSet} to store {@link Expression}s and changing them
 	 * afterwards.
 	 */
 	public void testDifference()  {
@@ -197,7 +197,7 @@ public class TestConstraintDatabases extends TestCase {
 		cDB.add(new AllenConstraint("goal_30 Equals c4"));
 		cDB.add(new AllenConstraint("e1_21 Equals goal_30"));
 		
-		Map<Class<? extends Constraint>,Integer> cCount = cDB.getConstraintCount();
+		Map<Class<? extends Expression>,Integer> cCount = cDB.getConstraintCount();
 		cDB.setToConstraintCount(cCount);
 		
 		assertTrue(cDB.size() == 4);

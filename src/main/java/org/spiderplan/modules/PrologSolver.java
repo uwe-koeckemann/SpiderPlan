@@ -39,9 +39,9 @@ import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.prolog.YapPrologAdapter;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Asserted;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.PrologConstraint;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.misc.Asserted;
+import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.logging.Logger;
@@ -156,7 +156,7 @@ public class PrologSolver extends Module implements SolverInterface {
 				
 				if ( verbose ) {
 					Logger.msg(getName(), "Runniny query (wrt. "+programID+"): ", 1);
-					for ( Constraint c : queries.get(programID) ) {
+					for ( Expression c : queries.get(programID) ) {
 						Logger.msg(getName(), "    " + c.toString(), 1);
 					}
 				}

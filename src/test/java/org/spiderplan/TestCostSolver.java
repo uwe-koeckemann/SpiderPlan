@@ -28,7 +28,7 @@ import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Cost;
+import org.spiderplan.representation.expressions.cost.Cost;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;

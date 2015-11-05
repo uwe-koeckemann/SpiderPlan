@@ -30,18 +30,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.spiderplan.causal.StateVariableOperator;
-import org.spiderplan.causal.StateVariableOperatorMultiState;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintTypes;
-import org.spiderplan.representation.constraints.MiniZincConstraint;
-import org.spiderplan.representation.constraints.PrologConstraint;
-import org.spiderplan.representation.constraints.ReusableResourceCapacity;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Statement;
-import org.spiderplan.representation.constraints.constraintInterfaces.Matchable;
-import org.spiderplan.representation.constraints.constraintInterfaces.Mutable;
-import org.spiderplan.representation.constraints.constraintInterfaces.Substitutable;
+import org.spiderplan.causal.forwardPlanning.StateVariableOperator;
+import org.spiderplan.causal.forwardPlanning.StateVariableOperatorMultiState;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.ExpressionTypes;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.interfaces.Matchable;
+import org.spiderplan.representation.expressions.interfaces.Mutable;
+import org.spiderplan.representation.expressions.interfaces.Substitutable;
+import org.spiderplan.representation.expressions.minizinc.MiniZincInput;
+import org.spiderplan.representation.expressions.prolog.PrologConstraint;
+import org.spiderplan.representation.expressions.resources.ReusableResourceCapacity;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -58,7 +58,7 @@ import org.spiderplan.tools.UniqueID;
  * @author Uwe Köckemann
  *
  */
-public class Operator extends Constraint implements Substitutable {
+public class Operator extends Expression implements Substitutable {
 	
 	final private static Term ConstraintType = Term.createConstant("action");
 		
@@ -75,6 +75,9 @@ public class Operator extends Constraint implements Substitutable {
 //	private ArrayList<Constraint> C = new ArrayList<Constraint>();
 	private ConstraintDatabase C = new ConstraintDatabase();
 	
+	/**
+	 * Default constructor
+	 */
 	public Operator() { super(ConstraintType); }
 	
 	/**
@@ -128,16 +131,16 @@ public class Operator extends Constraint implements Substitutable {
 	}
 	
 	/**
-	 * Add a {@link Constraint} to this {@link Operator}.
-	 * @param c A {@link Constraint} that has to be satisfied in order to apply this {@link Operator}.
+	 * Add a {@link Expression} to this {@link Operator}.
+	 * @param c A {@link Expression} that has to be satisfied in order to apply this {@link Operator}.
 	 */
-	public void addConstraint( Constraint c ) {
+	public void addConstraint( Expression c ) {
 		C.add(c);
 	}
 	
 	/**
 	 * Add multiple precondition {@link Statement}s at once.
-	 * @param P A {@link Collection} of {@link Statements} that have to be 
+	 * @param P A {@link Collection} of {@link Statement}s that have to be 
 	 * present in a {@link ConstraintDatabase}
 	 * in order to apply this {@link Operator}.
 	 */
@@ -147,7 +150,7 @@ public class Operator extends Constraint implements Substitutable {
 	
 	/**
 	 * Add multiple effect {@link Statement}s at once.
-	 * @param E A {@link Collection} of {@link Statements} that will be added to a
+	 * @param E A {@link Collection} of {@link Statement}s that will be added to a
 	 * {@link ConstraintDatabase}
 	 * if this {@link Operator} is applied to it.
 	 */
@@ -156,11 +159,11 @@ public class Operator extends Constraint implements Substitutable {
 	}
 	
 	/**
-	 * multiple {@link Constraint}s to this {@link Operator}.
-	 * @param c A {@link Collection} of {@link Constraint}s that have to be satisfied in order 
+	 * multiple {@link Expression}s to this {@link Operator}.
+	 * @param C A {@link Collection} of {@link Expression}s that have to be satisfied in order 
 	 * to apply this {@link Operator}.
 	 */
-	public void addConstraints( Collection<Constraint> C ) {
+	public void addConstraints( Collection<Expression> C ) {
 		this.C.addAll(C);
 	}
 	
@@ -183,8 +186,8 @@ public class Operator extends Constraint implements Substitutable {
 	}
 	
 	/**
-	 * Get all {@link Constraint}s of this {@link Operator}. 
-	 * @return A {@link Collection} of {@link Constraint} that have to be satisfied in order to apply
+	 * Get all {@link Expression}s of this {@link Operator}. 
+	 * @return A {@link Collection} of {@link Expression} that have to be satisfied in order to apply
 	 * this {@link Operator}. 
 	 */
 	public ConstraintDatabase getConstraints( ) {
@@ -200,7 +203,7 @@ public class Operator extends Constraint implements Substitutable {
 		for ( Statement s : this.getEffects() ) {
 			r.addAll(s.getVariableTerms());
 		}
-		for ( Constraint c : this.getConstraints() ) {
+		for ( Expression c : this.getConstraints() ) {
 			r.addAll(c.getVariableTerms() );
 		}
 		return r;		
@@ -214,7 +217,7 @@ public class Operator extends Constraint implements Substitutable {
 		for ( Statement s : this.getEffects() ) {
 			r.addAll(s.getGroundTerms());
 		}
-		for ( Constraint c : this.getConstraints() ) {
+		for ( Expression c : this.getConstraints() ) {
 			r.addAll(c.getGroundTerms() );
 		}
 		return r;
@@ -228,7 +231,7 @@ public class Operator extends Constraint implements Substitutable {
 		for ( Statement s : this.getEffects() ) {
 			r.add(s.getVariable());
 		}
-		for ( Constraint c : this.getConstraints() ) {
+		for ( Expression c : this.getConstraints() ) {
 			r.addAll(c.getAtomics());
 		}
 		return r;
@@ -280,7 +283,7 @@ public class Operator extends Constraint implements Substitutable {
 			}
 		}			
 		
-		for ( Constraint c : C ) {
+		for ( Expression c : C ) {
 			if ( c instanceof Matchable ) {
 				Matchable cLit = (Matchable)c;
 				if ( !cLit.isGround() ) {
@@ -292,8 +295,8 @@ public class Operator extends Constraint implements Substitutable {
 	}
 	
 	/**
-	 * Get the {@link StateVariableAssignment} representing the execution interval of this {@link Operator}.
-	 * @return A {@link StateVariableAssignment} that represents the execution of this {@link Operator} during 
+	 * Get the {@link Statement} representing the execution interval of this {@link Operator}.
+	 * @return a {@link Statement} that represents the execution of this {@link Operator} during 
 	 * a temporal interval.
 	 */
 	public Statement getNameStateVariable() {
@@ -303,9 +306,9 @@ public class Operator extends Constraint implements Substitutable {
 	
 	/**
 	 * Get {@link Operator}s whose preconditions are a subset of a {@link Collection} of {@link Statement}s.
-	 * @param F A {@link Collection} of {@link Statement}s.
-	 * @param tM The {@link TypeManager}.
-	 * @return A {@link Collection} of {@link Operator}s whose preconditions are a subset of <i>F</i>
+	 * @param F a {@link Collection} of {@link Statement}s.
+	 * @param tM the {@link TypeManager}.
+	 * @return a {@link Collection} of {@link Operator}s whose preconditions are a subset of <i>F</i>
 	 */
 	public Collection<Operator> getApplicable( Collection<Statement> F, TypeManager tM ) {
 		ArrayList<Operator> r = new ArrayList<Operator>();
@@ -454,7 +457,11 @@ public class Operator extends Constraint implements Substitutable {
 		this.substitute(sub);
 	}
 	
-	public void makeEffectAndNameKeysGround() {
+	/**
+	 * Ground the terms of all interval keys of
+	 * effect statements.
+	 */
+	public void makeEffectIntervalKeysGround() {
 		Substitution sub = new Substitution();
 		if ( this.intervalKey.isVariable() ) {
 			sub.add(this.intervalKey, this.intervalKey.makeConstant());
@@ -492,7 +499,7 @@ public class Operator extends Constraint implements Substitutable {
 			vars.addAll(s.getVariable().getVariableTerms());
 			vars.addAll(s.getValue().getVariables());
 		}
-		for ( Constraint c : this.getConstraints() ) {
+		for ( Expression c : this.getConstraints() ) {
 			vars.addAll(c.getVariableTerms());
 		}
 		Substitution theta = new Substitution();
@@ -526,8 +533,9 @@ public class Operator extends Constraint implements Substitutable {
 
 	/**
 	 * Get a simplified version of this {@link Operator}, reduced to preconditions and effects in 
-	 * form of state variable mappings. All {@link Constraint}s are  ignored.
-	 * @return A {@link StateVariableOperator} that can be used e.g. by {@link ForwardPlanning}.
+	 * form of state variable mappings. All {@link Expression}s are  ignored.
+	 * @param usedVars set of unique names of variables that are used by this operator
+	 * @return a {@link StateVariableOperator} 
 	 */
 	public StateVariableOperator getStateVariableBasedOperator( HashSet<String> usedVars ) {
 		StateVariableOperator o = new StateVariableOperator();
@@ -552,8 +560,9 @@ public class Operator extends Constraint implements Substitutable {
 	
 	/**
 	 * Get a slightly less simplified version of this {@link Operator}, reduced to preconditions and effects in 
-	 * form of state variable mappings. All {@link Constraint}s are  ignored.
-	 * @return A {@link StateVariableOperator} that can be used e.g. by {@link ForwardPlanning}.
+	 * form of state variable mappings. All {@link Expression}s are  ignored.
+	 * @param usedVars usedVars set of unique names of variables that are used by this operator
+	 * @return a {@link StateVariableOperator}
 	 */
 	public StateVariableOperatorMultiState getStateVariableBasedOperatorWithMultipleEffectValues( Collection<String> usedVars ) {
 		StateVariableOperatorMultiState o = new StateVariableOperatorMultiState();
@@ -584,8 +593,8 @@ public class Operator extends Constraint implements Substitutable {
 	
 	/**
 	 * Get a slightly less simplified version of this {@link Operator}, reduced to preconditions and effects in 
-	 * form of state variable mappings. All {@link Constraint}s are  ignored.
-	 * @return A {@link StateVariableOperator} that can be used e.g. by {@link ForwardPlanning}.
+	 * form of state variable mappings. All {@link Expression}s are  ignored.
+	 * @return A {@link StateVariableOperator} that can be used e.g. by {@link ForwardPlanningSearch}.
 	 */
 	public StateVariableOperatorMultiState getStateVariableBasedOperatorWithSingleEffectValue( Collection<String> usedVars ) {
 		StateVariableOperatorMultiState o = new StateVariableOperatorMultiState();
@@ -648,7 +657,7 @@ public class Operator extends Constraint implements Substitutable {
 		
 		for ( int i = 0 ; i < thisMatchable.size() ; i++ ) {
 			if ( thisMatchable.get(i) instanceof Matchable ) {
-				if ( ! theta.add( thisMatchable.get(i).match( (Constraint)oMatchable.get(i))) ) {
+				if ( ! theta.add( thisMatchable.get(i).match( (Expression)oMatchable.get(i))) ) {
 					return null;
 				}
 			} else {
@@ -688,7 +697,7 @@ public class Operator extends Constraint implements Substitutable {
 		/**
 		 * Every temporal bound that was lifted is set to most relaxed ground value (i.e. 0 or inf) (least constrained) 
 		 */
-		for ( Constraint c : getConstraints() ) {
+		for ( Expression c : getConstraints() ) {
 			if ( c instanceof AllenConstraint ) {
 				AllenConstraint tc = (AllenConstraint)c;
 				tc.setVariableBoundsToMostRelaxed();
@@ -837,7 +846,7 @@ public class Operator extends Constraint implements Substitutable {
 		for ( Statement e : E ) {
 			oCopy.E.add(e);
 		}
-		for ( Constraint c : C ) { // TODO: should use ConstraintCollection...
+		for ( Expression c : C ) { // TODO: should use ConstraintCollection...
 			if ( c instanceof Mutable ) {
 				oCopy.C.add(((Mutable)c).copy());
 			} else {
@@ -849,7 +858,7 @@ public class Operator extends Constraint implements Substitutable {
 	}
 	
 	@Override
-	public Constraint substitute(Substitution theta) {
+	public Expression substitute(Substitution theta) {
 		this.name = this.name.substitute(theta);
 		this.intervalKey = this.intervalKey.substitute(theta);
 		for ( int i = 0 ; i < P.size() ; i++ ) {
@@ -912,20 +921,20 @@ public class Operator extends Constraint implements Substitutable {
 		}
 		r.append("\t)\n");
 		
-		Map<String,Collection<Constraint>> typeMap = new HashMap<String, Collection<Constraint>>();
-		for ( Constraint c : C ) {
+		Map<String,Collection<Expression>> typeMap = new HashMap<String, Collection<Expression>>();
+		for ( Expression c : C ) {
 			Term conType = c.getType();
 			String conTypeString = conType.toString();
-			if ( conType.equals(ConstraintTypes.Prolog) ) {
+			if ( conType.equals(ExpressionTypes.Prolog) ) {
 				PrologConstraint pc = (PrologConstraint)c;
 				conTypeString += " " + pc.getProgramID();
-			} else if  ( conType.equals(ConstraintTypes.MiniZinc) ) {
-				MiniZincConstraint mc = (MiniZincConstraint)c;
+			} else if  ( conType.equals(ExpressionTypes.MiniZinc) ) {
+				MiniZincInput mc = (MiniZincInput)c;
 				conTypeString += " " + mc.getProgramID();
 			} 
-			Collection<Constraint> Col = typeMap.get(conTypeString);
+			Collection<Expression> Col = typeMap.get(conTypeString);
 			if ( Col == null ) {
-				Col = new ArrayList<Constraint>();
+				Col = new ArrayList<Expression>();
 				typeMap.put(conTypeString, Col);
 			}
 			Col.add(c);
@@ -937,7 +946,7 @@ public class Operator extends Constraint implements Substitutable {
 				r.append(conType);
 			}
 				
-			for ( Constraint c : typeMap.get(conType) ) {
+			for ( Expression c : typeMap.get(conType) ) {
 				r.append("\n");
 				if ( !conType.equals(Term.createConstant("conditional")) && !conType.equals(Term.createConstant("include"))) {
 					String s = "\t\t\t"+c.toString().toString().replace("\n", "\n\t\t\t");

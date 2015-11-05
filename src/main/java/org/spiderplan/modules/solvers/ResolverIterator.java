@@ -26,9 +26,8 @@ import java.util.ArrayList;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.configuration.ParameterDescription;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Constraint;
+import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.tools.logging.Logger;
-import org.spiderplan.tools.statistics.Statistics;
 
 /**
  * Represents an iterator over resolvers. To address
@@ -103,7 +102,7 @@ public abstract class ResolverIterator {
 	/**
 	 * Return next {@link Resolver} that resolved the flaw associated 
 	 * to this instance.
-	 * @param C A collection of additional {@link Constraint}s that need to be considered 
+	 * @param C A collection of additional {@link Expression}s that need to be considered 
 	 * or <code>null</code>.
 	 * @return A {@link Resolver} that removes a flaw.
 	 */	

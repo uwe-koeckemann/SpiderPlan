@@ -28,7 +28,6 @@ import java.util.Collection;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.configuration.ParameterDescription;
-import org.spiderplan.tools.statistics.Statistics;
 
 /**
  * Abstract super class to all modules.  Modules can be solvers, 
@@ -47,8 +46,8 @@ public abstract class Module {
 	
 	protected boolean keepTimes = false;
 	protected boolean keepStats = false;
-	public boolean verbose = false;
-	public int verbosity = 0;
+	protected boolean verbose = false;
+	protected int verbosity = 0;
 	
 	protected static boolean killFlag = false;
 			

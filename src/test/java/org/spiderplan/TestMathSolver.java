@@ -27,7 +27,8 @@ import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.MathConstraint;
+import org.spiderplan.representation.expressions.math.MathConstraint;
+import org.spiderplan.representation.logic.Atomic;
 
 import junit.framework.TestCase;
 
@@ -51,13 +52,13 @@ public class TestMathSolver extends TestCase {
 	 */
 	public void test1() {
 		ConstraintDatabase cDB = new ConstraintDatabase();
-		cDB.add(new MathConstraint("(add 1 2 ?X1)"));
-		cDB.add(new MathConstraint("(add ?X1 2 5)"));
-		cDB.add(new MathConstraint("(mult 4 2 8)"));
-		cDB.add(new MathConstraint("(div 10 3 3)"));
-		cDB.add(new MathConstraint("(mod 10 7 3)"));
-		cDB.add(new MathConstraint("(sub 5 1 ?X2)"));
-		cDB.add(new MathConstraint("(sub 10 ?X2 6)"));
+		cDB.add(new MathConstraint(new Atomic("(add 1 2 ?X1)")));
+		cDB.add(new MathConstraint(new Atomic("(add ?X1 2 5)")));
+		cDB.add(new MathConstraint(new Atomic("(mult 4 2 8)")));
+		cDB.add(new MathConstraint(new Atomic("(div 10 3 3)")));
+		cDB.add(new MathConstraint(new Atomic("(mod 10 7 3)")));
+		cDB.add(new MathConstraint(new Atomic("(sub 5 1 ?X2)")));
+		cDB.add(new MathConstraint(new Atomic("(sub 10 ?X2 6)")));
 		
 		Core c = new Core();
 		c.setContext(cDB);
@@ -77,7 +78,7 @@ public class TestMathSolver extends TestCase {
 	 */
 	public void test2() {
 		ConstraintDatabase cDB = new ConstraintDatabase();
-		cDB.add(new MathConstraint("(mult 4 2 7)"));
+		cDB.add(new MathConstraint(new Atomic("(mult 4 2 7)")));
 		
 		Core c = new Core();
 		c.setContext(cDB);
@@ -97,8 +98,8 @@ public class TestMathSolver extends TestCase {
 	 */
 	public void test3() {
 		ConstraintDatabase cDB = new ConstraintDatabase();
-		cDB.add(new MathConstraint("(mult 4.0 2.0 ?X)"));
-		cDB.add(new MathConstraint("(add 3.0 5.0 ?X)"));
+		cDB.add(new MathConstraint(new Atomic("(mult 4.0 2.0 ?X)")));
+		cDB.add(new MathConstraint(new Atomic("(add 3.0 5.0 ?X)")));
 		
 		Core c = new Core();
 		c.setContext(cDB);
@@ -118,7 +119,7 @@ public class TestMathSolver extends TestCase {
 	 */
 	public void test4() {
 		ConstraintDatabase cDB = new ConstraintDatabase();
-		cDB.add(new MathConstraint("(mod 4.0 2.0 X)"));
+		cDB.add(new MathConstraint(new Atomic("(mod 4.0 2.0 ?X)")));
 				
 		Core c = new Core();
 		c.setContext(cDB);

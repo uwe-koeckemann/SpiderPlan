@@ -29,11 +29,12 @@ import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
-import org.spiderplan.representation.constraints.PlanningInterval;
-import org.spiderplan.representation.constraints.StateVariableOverride;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.causal.StateVariableOverride;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Atomic;
+import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
 import junit.framework.TestCase;
@@ -59,7 +60,7 @@ public class TestFutureEvents extends TestCase {
 		cDB.add( new AllenConstraint("s0 Before s1 [1,inf]"));
 		cDB.add( new AllenConstraint("s1 Before s2 [1,inf]"));
 		
-		cDB.add( new PlanningInterval(0,10000));
+		cDB.add( new PlanningInterval(Term.parse("[0 10000]")));
 		
 		/** Setup Modules */
 		ConfigurationManager cM = new ConfigurationManager();		
@@ -90,7 +91,7 @@ public class TestFutureEvents extends TestCase {
 		cDB2.add( new AllenConstraint("s0 Overlaps s1 [1,inf]"));
 		cDB2.add( new AllenConstraint("s1 Before s2 [1,inf]"));
 		
-		cDB2.add( new PlanningInterval(0,10000));
+		cDB2.add( new PlanningInterval(Term.parse("[0 10000]")));
 		
 		testCore.setContext(cDB2);
 		
@@ -130,7 +131,7 @@ public class TestFutureEvents extends TestCase {
 		cDB2.add( new AllenConstraint("s2 At [500,500] [700,700]"));
 		cDB2.add( new AllenConstraint("e0 Duration [100,100]"));
 		
-		cDB2.add( new PlanningInterval(0,10000));
+		cDB2.add( new PlanningInterval(Term.parse("[0 10000]")));
 		
 		testCore.setPlan(new Plan());
 		Operator a = new Operator();
@@ -178,7 +179,7 @@ public class TestFutureEvents extends TestCase {
 		cDB.add( new AllenConstraint("e0 Duration [150,150]"));
 		cDB.add( new AllenConstraint("s0 Meets e0"));
 		
-		cDB.add( new PlanningInterval(0,10000));
+		cDB.add( new PlanningInterval(Term.parse("[0 10000]")));
 		
 		testCore.setPlan(new Plan());
 		Operator a = new Operator();

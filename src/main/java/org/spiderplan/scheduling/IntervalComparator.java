@@ -24,8 +24,8 @@ package org.spiderplan.scheduling;
 
 import java.util.Comparator;
 
-import org.spiderplan.representation.constraints.Statement;
-import org.spiderplan.representation.constraints.TemporalIntervalLookup;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 
 public class IntervalComparator implements Comparator<Statement> {
 		

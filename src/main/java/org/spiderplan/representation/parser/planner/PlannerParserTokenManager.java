@@ -3,7 +3,6 @@ package org.spiderplan.representation.parser.planner;
 import java.util.ArrayList;
 import org.spiderplan.representation.*;
 import org.spiderplan.representation.types.*;
-import org.spiderplan.representation.constraints.*;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 @SuppressWarnings("all")

@@ -30,11 +30,11 @@ import java.util.List;
 import java.util.Vector;
 
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Interval;
-import org.spiderplan.representation.constraints.Statement;
-import org.spiderplan.representation.constraints.TemporalIntervalLookup;
-import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.Interval;
+import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
@@ -128,14 +128,11 @@ public abstract class Scheduler {
 		List<MCSData> r = new ArrayList<MCSData>();
 		
 		for ( Term[] pair : mcslist ) {
-			
-//			System.out.println("Testing: " + pair[0] + " " + pair[1]);
-		
 			boolean a_works = true;
 			boolean b_works = true;
 			
 			float pc_min = 1.1f;
-			float pc_min_bad = 1.1f; //??? TODO: ask Federico about this
+			float pc_min_bad = 1.1f; 
 			
 			List<Float> pc_vec = new ArrayList<Float>();
 			

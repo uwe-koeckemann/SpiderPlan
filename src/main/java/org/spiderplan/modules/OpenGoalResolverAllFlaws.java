@@ -25,7 +25,7 @@ package org.spiderplan.modules;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spiderplan.causal.pocl.OpenGoalResolverIterator;
+import org.spiderplan.causal.planSpacePlanning.OpenGoalResolverIterator;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.configuration.ParameterDescription;
 import org.spiderplan.modules.solvers.Core;
@@ -33,7 +33,7 @@ import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
-import org.spiderplan.representation.constraints.OpenGoal;
+import org.spiderplan.representation.expressions.causal.OpenGoal;
 
 /**
  * Select an {@link OpenGoal} flaw and create a list of resolvers for that flaw.

@@ -16,9 +16,23 @@ import java.io.IOException;
 
 import org.spiderplan.representation.*;
 import org.spiderplan.representation.types.*;
-import org.spiderplan.representation.constraints.*;
-import org.spiderplan.representation.constraints.ros.*;
-import org.spiderplan.representation.constraints.VariableDomainRestriction.Relation;
+import org.spiderplan.representation.expressions.*;
+import org.spiderplan.representation.expressions.execution.ros.*;
+import org.spiderplan.representation.expressions.causal.*;
+import org.spiderplan.representation.expressions.cost.*;
+import org.spiderplan.representation.expressions.domain.*;
+import org.spiderplan.representation.expressions.execution.*;
+import org.spiderplan.representation.expressions.graph.*;
+import org.spiderplan.representation.expressions.interaction.*;
+import org.spiderplan.representation.expressions.math.*;
+import org.spiderplan.representation.expressions.minizinc.*;
+import org.spiderplan.representation.expressions.misc.*;
+import org.spiderplan.representation.expressions.programs.*;
+import org.spiderplan.representation.expressions.prolog.*;
+import org.spiderplan.representation.expressions.resources.*;
+import org.spiderplan.representation.expressions.sampling.*;
+import org.spiderplan.representation.expressions.set.*;
+import org.spiderplan.representation.expressions.temporal.*;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.temporal.TemporalNetworkTools;
@@ -363,7 +377,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
  * Constraints
  */
   final public ConstraintDatabase ConstraintDatabase() throws ParseException {
-  Constraint c;
+  Expression c;
   Term programID;
   ConstraintDatabase cDB = new ConstraintDatabase();
   groupMapping = new HashMap<Term,ArrayList<Term>>();
@@ -473,12 +487,12 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
             }
           }
           break;
-        case PROBABILISTIC:
-          jj_consume_token(PROBABILISTIC);
+        case SAMPLING:
+          jj_consume_token(SAMPLING);
           label_15:
           while (true) {
-            c = ProbabilisticConstraint();
-                                                                                          cDB.add(c);
+            c = SamplingConstraint();
+                                                                                  cDB.add(c);
             if (jj_2_11(2)) {
               ;
             } else {
@@ -519,8 +533,8 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
           break;
         case SIMULATE:
           jj_consume_token(SIMULATE);
-          c = SimulationConstraint();
-                                                                                                          cDB.add(c);
+          c = Simulation();
+                                                                                                  cDB.add(c);
           break;
         case ROS:
           jj_consume_token(ROS);
@@ -596,7 +610,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
           programID = Term();
           label_23:
           while (true) {
-            c = MiniZincConstraint(programID);
+            c = MiniZincInput(programID);
                                                                                                           cDB.add(c);
             if (jj_2_18(2)) {
               ;
@@ -618,7 +632,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint TemporalConstraint() throws ParseException {
+  final public Expression TemporalConstraint() throws ParseException {
         Atomic constraint;
     constraint = Atomic();
                 if ( verbose ) { System.out.println("[Parser] Temporal Constraint"); }
@@ -644,7 +658,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint PrologConstraint(Term programID) throws ParseException {
+  final public Expression PrologConstraint(Term programID) throws ParseException {
         Atomic constraint;
     constraint = Atomic();
                         if ( verbose ) { System.out.println("[Parser] Prolog Constraint"); }
@@ -652,7 +666,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint GoalConstraint() throws ParseException {
+  final public Expression GoalConstraint() throws ParseException {
         Statement g;
     g = Statement();
                 if ( verbose ) { System.out.println("[Parser] Goal Constraint"); }
@@ -660,7 +674,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint TaskConstraint() throws ParseException {
+  final public Expression TaskConstraint() throws ParseException {
         Statement task;
     task = Statement();
                 if ( verbose ) { System.out.println("[Parser] Task Constraint"); }
@@ -668,15 +682,15 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint MiniZincConstraint(Term programID) throws ParseException {
+  final public Expression MiniZincInput(Term programID) throws ParseException {
         Atomic constraint;
     constraint = Atomic();
                 if ( verbose ) { System.out.println("[Parser] MiniZinc Constraint"); }
-                {if (true) return new MiniZincConstraint( constraint, programID );}
+                {if (true) return new MiniZincInput( constraint, programID );}
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint GraphConstraint() throws ParseException {
+  final public Expression GraphConstraint() throws ParseException {
         Atomic constraint;
     constraint = Atomic();
                 if ( verbose ) { System.out.println("[Parser] Graph Constraint"); }
@@ -684,14 +698,14 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint MathConstraint() throws ParseException {
+  final public Expression MathConstraint() throws ParseException {
         Atomic constraint;
     constraint = Atomic();
                 {if (true) return new MathConstraint( constraint );}
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint SetConstraint() throws ParseException {
+  final public Expression SetConstraint() throws ParseException {
         Atomic constraint;
     constraint = Atomic();
                 if ( verbose ) { System.out.println("[Parser] Set Constraint"); }
@@ -699,15 +713,15 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint ProbabilisticConstraint() throws ParseException {
+  final public Expression SamplingConstraint() throws ParseException {
         Atomic constraint;
     constraint = Atomic();
                 if ( verbose ) { System.out.println("[Parser] Probabilistic Constraint"); }
-                {if (true) return new ProbabilisticConstraint( constraint );}
+                {if (true) return new SamplingConstraint( constraint );}
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint CustomConstraint() throws ParseException {
+  final public Expression CustomConstraint() throws ParseException {
         Atomic constraint;
         Token conType;
     conType = jj_consume_token(COLON);
@@ -716,7 +730,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint FinallyConstraint() throws ParseException {
+  final public Expression FinallyConstraint() throws ParseException {
         ConstraintDatabase cDB;
     cDB = ConstraintDatabase();
                 if ( verbose ) { System.out.println("[Parser] Finally Constraint"); }
@@ -724,7 +738,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint DomainConstraint() throws ParseException {
+  final public Expression DomainConstraint() throws ParseException {
         Atomic constraint;
     constraint = Atomic();
                 if ( verbose ) { System.out.println("[Parser] Domain Constraint"); }
@@ -771,14 +785,14 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
                         Atomic a = new Atomic(constraint.name(), constraint.getArg(0), list);
 
-                        {if (true) return new DomainConstraint(a);}
+                        {if (true) return new DomainMemberConstraint(a);}
                 } else {
-                        {if (true) return new DomainConstraint(constraint);}
+                        {if (true) return new DomainMemberConstraint(constraint);}
                 }
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint ConditionalConstraint() throws ParseException {
+  final public Expression ConditionalConstraint() throws ParseException {
         InteractionConstraint iC;
         ConstraintDatabase tDB;
         Atomic name;
@@ -810,9 +824,8 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint ROSConstraint() throws ParseException {
-        Constraint rosCon;
-        ConstraintDatabase wrt = null;
+  final public Expression ROSConstraint() throws ParseException {
+        Expression rosCon;
         Atomic variable;
         Term value;
         Term topic;
@@ -829,18 +842,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
       value = Term();
       topic = Term();
       msgType = Term();
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case OP:
-        jj_consume_token(OP);
-        jj_consume_token(CONDITION);
-        wrt = ConstraintDatabase();
-        jj_consume_token(CP);
-        break;
-      default:
-        jj_la1[14] = jj_gen;
-        ;
-      }
-                                                                                                                                                          rosCon = new ROSConstraint(ConstraintTypes.ROSRelation.PublishTo,variable,value,topic,msgType,wrt);
+                          rosCon = new ROSConstraint(ExpressionTypes.ROSRelation.PublishTo,variable,value,topic,msgType);
     } else {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ROSSUBSCRIBE:
@@ -849,24 +851,13 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         value = Term();
         topic = Term();
         msgType = Term();
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case OP:
-          jj_consume_token(OP);
-          jj_consume_token(CONDITION);
-          wrt = ConstraintDatabase();
-          jj_consume_token(CP);
-          break;
-        default:
-          jj_la1[15] = jj_gen;
-          ;
-        }
-                                                                                                                                                           rosCon = new ROSConstraint(ConstraintTypes.ROSRelation.SubscribeTo,variable,value,topic,msgType,wrt);
+                          rosCon = new ROSConstraint(ExpressionTypes.ROSRelation.SubscribeTo,variable,value,topic,msgType);
         break;
       case ROSREGACTION:
         jj_consume_token(ROSREGACTION);
         serverID = Term();
         actionName = Term();
-                                                                         rosCon = new ROSRegisterAction(serverID,actionName);
+                          rosCon = new ROSRegisterAction(serverID,actionName);
         break;
       case ROSGOAL:
         jj_consume_token(ROSGOAL);
@@ -879,21 +870,10 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         } else {
           ;
         }
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case OP:
-          jj_consume_token(OP);
-          jj_consume_token(CONDITION);
-          wrt = ConstraintDatabase();
-          jj_consume_token(CP);
-          break;
-        default:
-          jj_la1[16] = jj_gen;
-          ;
-        }
-                                                                                                                                                                                                  rosCon = new ROSGoal(variable,serverID,actionName,msgType,resultMsg,wrt);
+                          rosCon = new ROSGoal(variable,serverID,actionName,msgType,resultMsg);
         break;
       default:
-        jj_la1[17] = jj_gen;
+        jj_la1[14] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -903,19 +883,19 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint SimulationConstraint() throws ParseException {
-        SimulationConstraint sC;
+  final public Expression Simulation() throws ParseException {
+        Simulation sC;
         Term dispatchTime;
         ConstraintDatabase simDB;
         Token type;
         if ( verbose ) { System.out.println("[Parser] Simulation Constraint"); }
     dispatchTime = Term();
     simDB = ConstraintDatabase();
-                {if (true) return new SimulationConstraint(dispatchTime,simDB);}
+                {if (true) return new Simulation(dispatchTime,simDB);}
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint ReusableResourceCapacity() throws ParseException {
+  final public Expression ReusableResourceCapacity() throws ParseException {
         Atomic name;
         String cap;
         if ( verbose ) { System.out.println("[Parser] Setting Capacity"); }
@@ -928,7 +908,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint IncludeProgram() throws ParseException {
+  final public Expression IncludeProgram() throws ParseException {
         Term name;
     String includedProgramID;
     Token includedProgramFile;
@@ -962,7 +942,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
             {if (true) return new IncludedProgram(name, includeMapping.get(includedProgramID) );}
         break;
       default:
-        jj_la1[18] = jj_gen;
+        jj_la1[15] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -991,7 +971,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         name = Atomic();
         break;
       default:
-        jj_la1[19] = jj_gen;
+        jj_la1[16] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1012,7 +992,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         ;
         break;
       default:
-        jj_la1[20] = jj_gen;
+        jj_la1[17] = jj_gen;
         break label_25;
       }
       s = Statement();
@@ -1028,7 +1008,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         ;
         break;
       default:
-        jj_la1[21] = jj_gen;
+        jj_la1[18] = jj_gen;
         break label_26;
       }
       s = Statement();
@@ -1062,7 +1042,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
                                                                 keyString = "?" + keyString;
         break;
       default:
-        jj_la1[22] = jj_gen;
+        jj_la1[19] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1097,14 +1077,14 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint ResourceConstraint() throws ParseException {
-        Constraint c;
+  final public Expression ResourceConstraint() throws ParseException {
+        Expression c;
     c = ReusableResourceCapacity();
                                              {if (true) return c;}
     throw new Error("Missing return statement in function");
   }
 
-  final public Constraint CostConstraint() throws ParseException {
+  final public Expression CostConstraint() throws ParseException {
         Atomic cRel;
     cRel = Atomic();
                                         {if (true) return new Cost(cRel);}
@@ -1129,13 +1109,13 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         sign = jj_consume_token(MINUS);
         break;
       default:
-        jj_la1[23] = jj_gen;
+        jj_la1[20] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       break;
     default:
-      jj_la1[24] = jj_gen;
+      jj_la1[21] = jj_gen;
       ;
     }
     number = NonComplexTerm();
@@ -1162,13 +1142,13 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         sign = jj_consume_token(MINUS);
         break;
       default:
-        jj_la1[25] = jj_gen;
+        jj_la1[22] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       break;
     default:
-      jj_la1[26] = jj_gen;
+      jj_la1[23] = jj_gen;
       ;
     }
     number = jj_consume_token(UFLOAT);
@@ -1362,15 +1342,15 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_59() {
-    if (jj_scan_token(COLON)) return true;
-    if (jj_3R_65()) return true;
-    return false;
-  }
-
   private boolean jj_3R_70() {
     if (jj_scan_token(OP)) return true;
     if (jj_3R_64()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_59() {
+    if (jj_scan_token(COLON)) return true;
+    if (jj_3R_65()) return true;
     return false;
   }
 
@@ -1414,14 +1394,14 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_57() {
-    if (jj_3R_65()) return true;
-    return false;
-  }
-
   private boolean jj_3R_69() {
     if (jj_scan_token(OP)) return true;
     if (jj_scan_token(REUSABLE)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_57() {
+    if (jj_3R_65()) return true;
     return false;
   }
 
@@ -1452,19 +1432,27 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3_21() {
-    if (jj_scan_token(ROSPUBLISH)) return true;
-    if (jj_3R_65()) return true;
-    return false;
-  }
-
   private boolean jj_3R_82() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_scan_token(54)) {
+    if (jj_scan_token(50)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(55)) return true;
+    if (jj_scan_token(51)) return true;
     }
+    return false;
+  }
+
+  private boolean jj_3R_80() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_82()) jj_scanpos = xsp;
+    if (jj_scan_token(UFLOAT)) return true;
+    return false;
+  }
+
+  private boolean jj_3_21() {
+    if (jj_scan_token(ROSPUBLISH)) return true;
+    if (jj_3R_65()) return true;
     return false;
   }
 
@@ -1481,14 +1469,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     jj_scanpos = xsp;
     if (jj_3R_77()) return true;
     }
-    return false;
-  }
-
-  private boolean jj_3R_80() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_82()) jj_scanpos = xsp;
-    if (jj_scan_token(UFLOAT)) return true;
     return false;
   }
 
@@ -1512,6 +1492,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3R_50() {
+    if (jj_3R_65()) return true;
+    return false;
+  }
+
   private boolean jj_3R_74() {
     if (jj_scan_token(OBRACKET)) return true;
     if (jj_3R_64()) return true;
@@ -1532,11 +1517,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3_17() {
     if (jj_3R_62()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_50() {
-    if (jj_3R_65()) return true;
     return false;
   }
 
@@ -1586,24 +1566,24 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3R_68() {
+    if (jj_scan_token(QPOINT)) return true;
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
   private boolean jj_3_10() {
     if (jj_3R_55()) return true;
     return false;
   }
 
-  private boolean jj_3_11() {
-    if (jj_3R_56()) return true;
+  private boolean jj_3R_67() {
+    if (jj_3R_30()) return true;
     return false;
   }
 
   private boolean jj_3_9() {
     if (jj_3R_54()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_68() {
-    if (jj_scan_token(QPOINT)) return true;
-    if (jj_3R_30()) return true;
     return false;
   }
 
@@ -1614,11 +1594,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3_7() {
     if (jj_3R_52()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_67() {
-    if (jj_3R_30()) return true;
     return false;
   }
 
@@ -1644,6 +1619,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3_11() {
+    if (jj_3R_56()) return true;
+    return false;
+  }
+
   private boolean jj_3_4() {
     if (jj_3R_49()) return true;
     return false;
@@ -1661,6 +1641,12 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3R_48() {
     if (jj_scan_token(MINIZINC)) return true;
+    return false;
+  }
+
+  private boolean jj_3_25() {
+    if (jj_scan_token(BAR)) return true;
+    if (jj_3R_30()) return true;
     return false;
   }
 
@@ -1682,14 +1668,18 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_45() {
-    if (jj_scan_token(INCLUDE)) return true;
+  private boolean jj_3_24() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_67()) {
+    jj_scanpos = xsp;
+    if (jj_3R_68()) return true;
+    }
     return false;
   }
 
-  private boolean jj_3_25() {
-    if (jj_scan_token(BAR)) return true;
-    if (jj_3R_30()) return true;
+  private boolean jj_3R_45() {
+    if (jj_scan_token(INCLUDE)) return true;
     return false;
   }
 
@@ -1722,16 +1712,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3_24() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_67()) {
-    jj_scanpos = xsp;
-    if (jj_3R_68()) return true;
-    }
-    return false;
-  }
-
   private boolean jj_3R_42() {
     if (jj_scan_token(SIMULATE)) return true;
     return false;
@@ -1739,6 +1719,17 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3R_41() {
     if (jj_scan_token(CONDITIONAL)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_71() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_24()) jj_scanpos = xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3_25()) { jj_scanpos = xsp; break; }
+    }
     return false;
   }
 
@@ -1753,18 +1744,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
   }
 
   private boolean jj_3R_38() {
-    if (jj_scan_token(PROBABILISTIC)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_71() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_24()) jj_scanpos = xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3_25()) { jj_scanpos = xsp; break; }
-    }
+    if (jj_scan_token(SAMPLING)) return true;
     return false;
   }
 
@@ -1821,6 +1801,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3_20() {
     if (jj_3R_64()) return true;
+    return false;
+  }
+
+  private boolean jj_3_23() {
+    if (jj_3R_66()) return true;
     return false;
   }
 
@@ -1886,11 +1871,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3_23() {
-    if (jj_3R_66()) return true;
-    return false;
-  }
-
   private boolean jj_3R_55() {
     if (jj_3R_65()) return true;
     return false;
@@ -1913,23 +1893,18 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
   private Token jj_scanpos, jj_lastpos;
   private int jj_la;
   private int jj_gen;
-  final private int[] jj_la1 = new int[27];
+  final private int[] jj_la1 = new int[24];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
-  static private int[] jj_la1_2;
   static {
       jj_la1_init_0();
       jj_la1_init_1();
-      jj_la1_init_2();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xdffe40,0x0,0x0,0x0,0x0,0xe000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_0 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xdffe40,0x0,0xe000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x100,0x100,0x0,0x0,0xc01500,0xc01500,0xc01500,0xc01500,0x100,0xc01500,0xc01500,0x100,0xe,0x100,0x100,0x100,0x100,0x0,0x100,0x100,0x100,0x100,0x0,0xc00000,0xc00000,0xc00000,0xc00000,};
-   }
-   private static void jj_la1_init_2() {
-      jj_la1_2 = new int[] {0x0,0x0,0x80,0x4,0x284,0x284,0x200,0x284,0x80,0x284,0x284,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x80,0x0,0x0,0x84,0x0,0x0,0x0,0x0,};
+      jj_la1_1 = new int[] {0x100,0x100,0x400000,0x200000,0x16c1500,0x16c1500,0x10c1500,0x16c1500,0x400100,0x16c1500,0x16c1500,0x100,0xe,0x100,0x0,0x100,0x400100,0x100,0x100,0x600000,0xc0000,0xc0000,0xc0000,0xc0000,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[25];
   private boolean jj_rescan = false;
@@ -1946,7 +1921,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 27; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1961,7 +1936,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 27; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1972,7 +1947,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 27; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1983,7 +1958,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 27; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1993,7 +1968,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 27; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2003,7 +1978,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 27; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2115,12 +2090,12 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[74];
+    boolean[] la1tokens = new boolean[57];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 27; i++) {
+    for (int i = 0; i < 24; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -2129,13 +2104,10 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
           if ((jj_la1_1[i] & (1<<j)) != 0) {
             la1tokens[32+j] = true;
           }
-          if ((jj_la1_2[i] & (1<<j)) != 0) {
-            la1tokens[64+j] = true;
-          }
         }
       }
     }
-    for (int i = 0; i < 74; i++) {
+    for (int i = 0; i < 57; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

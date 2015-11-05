@@ -42,7 +42,7 @@ public class SingleResolver extends ResolverIterator {
 	
 	/**
 	 * Create a new {@link ResolverIterator} that just contains a single {@link Resolver}.
-	 * @param r A {@link Resolver}.
+	 * @param resolver A {@link Resolver}.
 	 * @param name Name of the {@link ResolverIterator} (used for logging)
 	 * @param cM Contains planner configuration (not needed for this class)
 	 */

@@ -23,7 +23,6 @@
 package org.spiderplan.tools;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Allows to input a list of a list of choices (instances of class T) and returns a list of 
@@ -34,58 +33,15 @@ import java.util.List;
  * @param <T>
  */
 public class GenericComboBuilder<T> {
-	public int [] slotSizes;
-	public int [] slots; 
-	public boolean carry = false;
-	public boolean done = false;
-	
-	public GenericComboBuilder() {};
-	
-	public GenericComboBuilder(int[] slotSizes) {
-		this.slotSizes = slotSizes;
-		
-		slots = new int[slotSizes.length];
-		for  ( int i = 0 ; i < slots.length; i++ ) {
-			slots[i] = 0;
-		}
-	}
-	
-	public void iterate() {
-		
-		if ( done ) {	// reinit
-			done = false;
-			carry = false;
-			for  ( int i = 0 ; i < slots.length; i++ ) {
-				slots[i] = 0;
-			}
-		}
-		
-		carry = false;
-		
-		slots[0]++;
-		
-		for ( int i = 0 ; i < slots.length; i++ ) {
-			if ( carry ) {
-				slots[i]++;
-				carry = false;
-			}
-			
-			if ( slots[i] == slotSizes[i] ) {
-				slots[i] = 0;
-				carry = true;
-			} 
-		}
-		
-		if ( carry ) {
-			done = true;
-		} 
-		
-	}
+	private int [] slotSizes;
+	private int [] slots; 
+	private boolean carry = false;
+	private boolean done = false;
 	
 	/**
-	 * Returns all possible combinations of values 
-	 * @param in
-	 * @return
+	 * Returns all possible combinations when choosing one value from each provided list.
+	 * @param in a list of lists to be combined
+	 * @return list of combinations
 	 */
 	public ArrayList<ArrayList<T>> getCombos(ArrayList<ArrayList<T>> in) {
 		ArrayList<ArrayList<T>> out = new ArrayList<ArrayList<T>>();
@@ -120,57 +76,74 @@ public class GenericComboBuilder<T> {
 		
 		return out;
 	}
+
+//	public List<List<T>> getCombosSingleList(List<T> in, int n,  boolean allowDuplicates ) {
+//		List<List<T>> out = new ArrayList<List<T>>();
+//		
+//		this.slots = new int[n];
+//		this.slotSizes = new int[n];
+//		for ( int i = 0 ; i < n ; i++ ) {
+//			slotSizes[i] = in.size();
+//		}
+//		
+//		while ( ! this.done ) {	
+//			if ( allowDuplicates  ||  !containsDuplicates(slots, in.size()) ) {
+//			
+//				ArrayList<T> combo = new ArrayList<T>(slots.length);
+//			
+//				for ( int i = 0 ; i < slots.length ; i++ ) {
+//					combo.add(in.get(slots[i]));
+//				}
+//				out.add(combo);
+//			}
+//			this.iterate();
+//			
+//		}
+//		
+//		return out;
+//	}
 	
-	public String getSlotSizeString() {
-		String s = "[" + slotSizes[0];
-		for ( int i = 1 ; i < slotSizes.length ; i++ ) {
-			s += ", "+ slotSizes[i];
-		}
-		return s+"]";
-	}
-	
-	/**
-	 * Using the same choice <i>n</i> times with or without duplicates.
-	 * @param in
-	 * @param n
-	 * @param allowDuplicates
-	 * @return
-	 */
-	public List<List<T>> getCombosSingleList(List<T> in, int n,  boolean allowDuplicates ) {
-		List<List<T>> out = new ArrayList<List<T>>();
+	private void iterate() {
 		
-		this.slots = new int[n];
-		this.slotSizes = new int[n];
-		for ( int i = 0 ; i < n ; i++ ) {
-			slotSizes[i] = in.size();
-		}
-		
-		while ( ! this.done ) {	
-			if ( allowDuplicates  ||  !containsDuplicates(slots, in.size()) ) {
-			
-				ArrayList<T> combo = new ArrayList<T>(slots.length);
-			
-				for ( int i = 0 ; i < slots.length ; i++ ) {
-					combo.add(in.get(slots[i]));
-				}
-				out.add(combo);
-			}
-			this.iterate();
-			
-		}
-		
-		return out;
-	}
-	
-	private boolean containsDuplicates( int[] slots, int n ) {
-		int[] check = new int[n];
-		
-		for ( int s : slots ) {
-			check[s]++;
-			if ( check[s] > 1 ) {
-				return true;
+		if ( done ) {	// reinit
+			done = false;
+			carry = false;
+			for  ( int i = 0 ; i < slots.length; i++ ) {
+				slots[i] = 0;
 			}
 		}
-		return false;
+		
+		carry = false;
+		
+		slots[0]++;
+		
+		for ( int i = 0 ; i < slots.length; i++ ) {
+			if ( carry ) {
+				slots[i]++;
+				carry = false;
+			}
+			
+			if ( slots[i] == slotSizes[i] ) {
+				slots[i] = 0;
+				carry = true;
+			} 
+		}
+		
+		if ( carry ) {
+			done = true;
+		} 
+		
 	}
+	
+//	private boolean containsDuplicates( int[] slots, int n ) {
+//		int[] check = new int[n];
+//		
+//		for ( int s : slots ) {
+//			check[s]++;
+//			if ( check[s] > 1 ) {
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 }

@@ -38,18 +38,18 @@ import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.GraphConstraint;
-import org.spiderplan.representation.constraints.ReusableResourceCapacity;
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.graph.GraphConstraint;
+import org.spiderplan.representation.expressions.resources.ReusableResourceCapacity;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.scheduling.ReusableResourceScheduler;
 import org.spiderplan.scheduling.StateVariableScheduler;
 import org.spiderplan.tools.logging.Logger;
 
 /**
- * Handles {@link Constraint}s of type {@link GraphConstraint}.
+ * Handles {@link Expression}s of type {@link GraphConstraint}.
  * 
  * Does not yet support backtracking over its decisions.
  * This will become much easier after a general overhaul of the way

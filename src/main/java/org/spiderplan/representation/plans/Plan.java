@@ -32,11 +32,11 @@ import java.util.Set;
 
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.Interval;
-import org.spiderplan.representation.constraints.PrologConstraint;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.prolog.PrologConstraint;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -82,15 +82,15 @@ public class Plan {
 		this.A.addAll(A);
 	}
 	
-	public void addConstraint( Constraint c ) {
+	public void addConstraint( Expression c ) {
 		C.add(c);
 	}
 	
-	public void removeConstraint( Constraint c ) {
+	public void removeConstraint( Expression c ) {
 		C.remove(c);
 	}	
 	
-	public void addConstraints( Collection<Constraint> C ) {
+	public void addConstraints( Collection<Expression> C ) {
 		this.C.addAll(C);
 	}
 		
@@ -122,7 +122,7 @@ public class Plan {
 				a.makeUniqueVariables(planID);
 				a.makeUniqueVariables(nextFreeID++);
 //				a.makeUniqueEffectKeys(UniqueID.getID());
-				a.makeEffectAndNameKeysGround();
+				a.makeEffectIntervalKeysGround();
 //				a.makeKeysGround();
 				
 				Substitution substTHIS = new Substitution();
@@ -158,7 +158,7 @@ public class Plan {
 						 * (This establishes a causal link)
 						 */
 						if ( last != null ) {
-							AllenConstraint tC = new AllenConstraint(last.getKey(), pre.getKey(),  org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation.Equals );
+							AllenConstraint tC = new AllenConstraint(last.getKey(), pre.getKey(),  org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation.Equals );
 							C.add( tC );
 							
 							theta.add(pre.getKey(),pre.getKey().makeConstant());
@@ -234,7 +234,7 @@ public class Plan {
 		for ( int i = 0 ; i < n ; i++ ) {
 			p.addAction(this.getActions().get(i).copy());
 		}
-		for ( Constraint c : this.getConstraints() ) {
+		for ( Expression c : this.getConstraints() ) {
 			if ( c instanceof AllenConstraint ) {
 				AllenConstraint tC = (AllenConstraint)c;
 				boolean foundFromKey = false;
@@ -443,7 +443,7 @@ public class Plan {
 					}
 
 					ArrayList<Term> checkList = new ArrayList<Term>();
-					for ( Constraint c : nonGroundOp.getConstraints() ) {
+					for ( Expression c : nonGroundOp.getConstraints() ) {
 						if ( c instanceof PrologConstraint ) {
 							PrologConstraint rC = (PrologConstraint)c;
 							
@@ -469,7 +469,7 @@ public class Plan {
 					/**
 					 * Get non temporal constraints with right variables to add them later.
 					 */
-					for ( Constraint c : nonGroundOp.getConstraints() ) {
+					for ( Expression c : nonGroundOp.getConstraints() ) {
 						if ( ! (c instanceof AllenConstraint) ) {
 							nongroundOpConstraints.add(c);
 						}
@@ -488,7 +488,7 @@ public class Plan {
 		Set<Term> newEffectKeys = new HashSet<Term>();	
 		Set<Term> internallyConnectedKeys = new HashSet<Term>();
 		for ( AllenConstraint tC : this.C.get(AllenConstraint.class) ) {
-			if ( tC.isBinary() && tC.getRelation().equals(org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation.Equals) ) {
+			if ( tC.isBinary() && tC.getRelation().equals(org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation.Equals) ) {
 				Term from = tC.getFrom();
 				Term to = tC.getTo();
 				
@@ -715,7 +715,7 @@ public class Plan {
 			bounds[0] = new Interval("[1,inf]");
 			bounds[1] = new Interval("[1,inf]");			
 			
-			o.getConstraints().add(new AllenConstraint(name.getKey(), THIS, org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation.During, bounds));
+			o.getConstraints().add(new AllenConstraint(name.getKey(), THIS, org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation.During, bounds));
 			opCounter++;
 			
 			for ( int i = 0 ;  i < a.getName().getNumArgs() ; i++ ) {
@@ -762,11 +762,11 @@ public class Plan {
 		/**
 		 * Remove trivial temporal equals constraints (A equals A) 
 		 */
-		ArrayList<Constraint> remList = new ArrayList<Constraint>();
-		for ( Constraint c : o.getConstraints() ) {
+		ArrayList<Expression> remList = new ArrayList<Expression>();
+		for ( Expression c : o.getConstraints() ) {
 			if ( c instanceof AllenConstraint ) {
 				AllenConstraint tC = (AllenConstraint)c;
-				if ( tC.getRelation().equals(org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation.Equals) ) {
+				if ( tC.getRelation().equals(org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation.Equals) ) {
 					if ( tC.getFrom().equals(tC.getTo()) ) {
 						remList.add(tC);
 					}
@@ -908,7 +908,7 @@ public class Plan {
 			r.append("\n");
 		}
 		
-		for ( Constraint c : C ) {
+		for ( Expression c : C ) {
 			r.append(c.toString());
 			r.append("\n");
 		}

@@ -36,11 +36,11 @@ import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.OpenGoal;
-import org.spiderplan.representation.constraints.PlanningInterval;
-import org.spiderplan.representation.constraints.PossibleIntersection;
-import org.spiderplan.representation.constraints.TemporalIntervalQuery;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.causal.OpenGoal;
+import org.spiderplan.representation.expressions.temporal.PlanningInterval;
+import org.spiderplan.representation.expressions.temporal.PossibleIntersection;
+import org.spiderplan.representation.expressions.temporal.TemporalIntervalQuery;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
@@ -150,7 +150,7 @@ public class STPSolver extends Module implements SolverInterface {
 		}
 	
 		ConstraintDatabase cDB = core.getContext();
-		Map<Class<? extends Constraint>,Integer> cdbConCount = cDB.getConstraintCount();
+		Map<Class<? extends Expression>,Integer> cdbConCount = cDB.getConstraintCount();
 
 		/**
 		 * Add goals for the test
@@ -216,10 +216,10 @@ public class STPSolver extends Module implements SolverInterface {
 			if ( keepTimes ) StopWatch.start(msg("Testing queries"));
 			for ( TemporalIntervalQuery tiq : cDB.get(TemporalIntervalQuery.class)) {
 				if ( verbose ) Logger.msg(this.getName() , tiq.toString(), 1);
-				String relation = tiq.getRelation().getUniqueName();
+				String relation = tiq.getQuery().getUniqueName();
 				
-				Term variable = tiq.getRelation().getArg(0);
-				Term value = tiq.getRelation().getArg(1);
+				Term variable = tiq.getQuery().getArg(0);
+				Term value = tiq.getQuery().getArg(1);
 				
 				String feature = variable.getUniqueName();
 				Term targetInterval = variable.getArg(0);

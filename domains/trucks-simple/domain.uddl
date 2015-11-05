@@ -47,11 +47,15 @@ notEqual(A,B) :- A \== B.
 			( equals ?E1 ?E3 )
 			( meets ?THIS ?E1 )
 			( meets ?THIS ?E3 )
+			( meets ?P3 ?THIS )
 		)
 		(prolog kb
 			(location ?L1)
 			(location ?L2)
 			(notEqual ?L1 ?L2)
+		)
+		(cost
+			(add euros 100)
 		)
 	)
 )

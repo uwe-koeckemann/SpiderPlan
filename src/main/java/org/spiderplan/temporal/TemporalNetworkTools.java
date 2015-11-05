@@ -34,13 +34,13 @@ import java.util.Map;
 
 import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
-import org.spiderplan.representation.constraints.Interval;
-import org.spiderplan.representation.constraints.PlanningInterval;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Statement;
-import org.spiderplan.representation.constraints.TemporalIntervalLookup;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.Interval;
+import org.spiderplan.representation.expressions.temporal.PlanningInterval;
+import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -180,14 +180,14 @@ public class TemporalNetworkTools {
 	/**
 	 * Remove all groups in from {@link AllenConstraint}s and add new {@link AllenConstraint}s for 
 	 * combinations of group members.
-	 * @param C {@link Collection} of {@link Constraint}s
+	 * @param C {@link Collection} of {@link Expression}s
 	 * @param groupMapping A mapping of group key {@link Term} to all their member key {@link Term}s.
 	 */
-	public static void replaceGroupKeys( Collection<Constraint> C, Map<Term,ArrayList<Term>> groupMapping ) {
+	public static void replaceGroupKeys( Collection<Expression> C, Map<Term,ArrayList<Term>> groupMapping ) {
 		ArrayList<AllenConstraint> addList = new ArrayList<AllenConstraint>();
 		ArrayList<AllenConstraint> remList = new ArrayList<AllenConstraint>();
 		
-		for ( Constraint c : C ) {
+		for ( Expression c : C ) {
 			if ( c instanceof AllenConstraint ) {
 				AllenConstraint tC = (AllenConstraint)c;
 				

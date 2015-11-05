@@ -35,6 +35,14 @@ import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.Loop;
 
+/**
+ * Manages all communication with ROS. 
+ * <p>
+ * <b>Note:</b> Requires to run "spliderplan_proxy.py" server. 
+ * 
+ * @author Uwe Köckemann
+ *
+ */
 public class ROSProxy {
 	
 	private final static int SUBSCRIBE_TO = 0;
@@ -53,6 +61,14 @@ public class ROSProxy {
 	
 
 	
+	/**
+	 * Request subscription to a ROS topic.
+	 * 
+	 * @param topicName name of the topic
+	 * @param msgType type of ROS message
+	 * @param varName name of variable
+	 * @return <code>true</code> if request was successful, <code>false</code> otherwise.
+	 */
 	public static boolean subscribeToTopic( String topicName, String msgType, String varName ) {
 		try {
 			Socket clientSocket;
@@ -79,6 +95,13 @@ public class ROSProxy {
 		return false;
 	}
 	
+	/**
+	 * Register a publisher to a ROS topic.
+	 * 
+	 * @param topicName name of ROS topic
+	 * @param msgType message type
+	 * @return <code>true</code> if request was successful, <code>false</code> otherwise
+	 */
 	public static boolean publishToTopic( String topicName, String msgType ) {
 		try {
 			Socket clientSocket;
@@ -100,10 +123,22 @@ public class ROSProxy {
 		return false;
 	}
 	
+	/**
+	 * Get last message published on a ROS topic.
+	 * 
+	 * @param topicName name of ROS topic
+	 * @return message as a term
+	 */
 	public static Term get_last_msg( String topicName ) {
 		return subsriberThread.get(topicName).outputMsg;
 	}
 	
+	/**
+	 * Read message from ROS topic.
+	 * 
+	 * @param topicName name of ROS topic
+	 * @return message as a term
+	 */
 	public static Term read_msg( String topicName ) {
 		try {
 			Socket clientSocket;
@@ -132,6 +167,13 @@ public class ROSProxy {
 		return null;
 	}
 	
+	/**
+	 * Send message to a ROS topic.
+	 * 
+	 * @param topicName name of ROS topic
+	 * @param msg term representing the message
+	 * @return <code>true</code> if message was sent successfully, <code>false</code> otherwise.
+	 */
 	public static boolean send_msg( String topicName, Term msg ) {
 		try {
 			Socket clientSocket;
@@ -155,6 +197,12 @@ public class ROSProxy {
 		return false;
 	}
 	
+	/**
+	 * Perform a ROS service call.
+	 * 
+	 * @param request term representation of service call and its arguments
+	 * @return term representation of message returned by service call
+	 */
 	public static Term srv_call( Term request ) {
 		try {
 			Socket clientSocket;
@@ -178,6 +226,13 @@ public class ROSProxy {
 		return null;
 	}
 	
+	/**
+	 * Register with ROS action server to send goals there later.
+	 * 
+	 * @param serverID ID of server
+	 * @param actionName name of action to register
+	 * @return <code>true</code> if request was successful, <code>false</code> otherwise
+	 */
 	public static boolean register_action( Term serverID, Term actionName ) {
 		try {
 			Socket clientSocket;
@@ -201,6 +256,14 @@ public class ROSProxy {
 		return false;
 	}
 	
+	/**
+	 * Send goal to ROS action server. Used by ReactorROS.
+	 * 
+	 * @param serverID ID of server
+	 * @param actionName name of action
+	 * @param goalMsg ROS goal message
+	 * @return a request ID that can be used to see if the action corresponding to the goal has started/finished
+	 */
 	public static int send_goal( Term serverID, Term actionName, Term goalMsg ) {
 		try {
 			Socket clientSocket;
@@ -224,6 +287,12 @@ public class ROSProxy {
 		return -1;
 	}
 	
+	/**
+	 * Test if an action has started. Used by ReactorROS.
+	 * 
+	 * @param requestID ID returned when the goal was sent
+	 * @return <code>true</code> if the action is being executed, <code>false</code> otherwise.
+	 */
 	public static boolean has_started( int requestID ) {
 		try {
 			Socket clientSocket;
@@ -247,7 +316,13 @@ public class ROSProxy {
 		return false;
 	}
 	
-	
+	/**
+	 * Test if an action has finished. Used by ReactorROS.
+	 * 
+	 * @param requestID ID returned when the goal was sent
+	 * @param resultMsg message returned by action when it finished
+	 * @return <code>true</code> if the action has finished execution, <code>false</code> otherwise.
+	 */
 	public static boolean has_finished( int requestID, Term resultMsg ) {
 		try {
 			Socket clientSocket;

@@ -44,7 +44,7 @@ public interface DomainParser_v4Constants {
   /** RegularExpression Id. */
   int CONDITION = 21;
   /** RegularExpression Id. */
-  int PROBABILISTIC = 22;
+  int SAMPLING = 22;
   /** RegularExpression Id. */
   int ROS = 23;
   /** RegularExpression Id. */
@@ -100,53 +100,19 @@ public interface DomainParser_v4Constants {
   /** RegularExpression Id. */
   int COLON = 49;
   /** RegularExpression Id. */
-  int ASSIGNMENT = 50;
+  int PLUS = 50;
   /** RegularExpression Id. */
-  int SEMICOLON = 51;
+  int MINUS = 51;
   /** RegularExpression Id. */
-  int SLASH = 52;
+  int QMARKS = 52;
   /** RegularExpression Id. */
-  int TO = 53;
+  int QPOINT = 53;
   /** RegularExpression Id. */
-  int PLUS = 54;
+  int NON_COMPLEX_TERM = 54;
   /** RegularExpression Id. */
-  int MINUS = 55;
+  int STRING = 55;
   /** RegularExpression Id. */
-  int TIMES = 56;
-  /** RegularExpression Id. */
-  int DIVIDED = 57;
-  /** RegularExpression Id. */
-  int QMARKS = 58;
-  /** RegularExpression Id. */
-  int EQUALS = 59;
-  /** RegularExpression Id. */
-  int NEQUALS = 60;
-  /** RegularExpression Id. */
-  int NEG = 61;
-  /** RegularExpression Id. */
-  int LESS = 62;
-  /** RegularExpression Id. */
-  int LESSEQ = 63;
-  /** RegularExpression Id. */
-  int GREATER = 64;
-  /** RegularExpression Id. */
-  int GREATEREQ = 65;
-  /** RegularExpression Id. */
-  int QPOINT = 66;
-  /** RegularExpression Id. */
-  int HASH = 67;
-  /** RegularExpression Id. */
-  int DOLLAR = 68;
-  /** RegularExpression Id. */
-  int UNDERSCORE = 69;
-  /** RegularExpression Id. */
-  int PACKAGE = 70;
-  /** RegularExpression Id. */
-  int NON_COMPLEX_TERM = 71;
-  /** RegularExpression Id. */
-  int STRING = 72;
-  /** RegularExpression Id. */
-  int UFLOAT = 73;
+  int UFLOAT = 56;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -175,7 +141,7 @@ public interface DomainParser_v4Constants {
     "\"resource\"",
     "\"conditional\"",
     "\"condition\"",
-    "\"probabilistic\"",
+    "\"sampling\"",
     "\"ros\"",
     "\"publish-to\"",
     "\"subscribe-to\"",
@@ -203,27 +169,10 @@ public interface DomainParser_v4Constants {
     "\",\"",
     "\".\"",
     "\":\"",
-    "\":=\"",
-    "\";\"",
-    "\"/\"",
-    "\"->\"",
     "\"+\"",
     "\"-\"",
-    "\"*\"",
-    "\"\\\\\"",
     "\"\\\"\"",
-    "\"=\"",
-    "\"!=\"",
-    "\"!\"",
-    "\"<\"",
-    "\"<=\"",
-    "\">\"",
-    "\">=\"",
     "\"?\"",
-    "\"#\"",
-    "\"$\"",
-    "\"_\"",
-    "<PACKAGE>",
     "<NON_COMPLEX_TERM>",
     "<STRING>",
     "<UFLOAT>",

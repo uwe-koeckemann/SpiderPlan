@@ -25,10 +25,10 @@ package org.spiderplan.temporal;
 import java.util.ArrayList;
 
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.PossibleIntersection;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.PossibleIntersection;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.stopWatch.StopWatch;
@@ -39,7 +39,7 @@ public interface TemporalReasoningInterface {
 	public boolean isTemporalConsistent();
 	public boolean isResourceConsistent();
 	
-	public ArrayList<Constraint> getSchedulingDecisions();
+	public ArrayList<Expression> getSchedulingDecisions();
 	
 	public boolean hasInterval( Term k );
 	public long getEST( Term interval );

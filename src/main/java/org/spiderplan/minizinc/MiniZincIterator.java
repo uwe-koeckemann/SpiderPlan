@@ -29,6 +29,12 @@ import org.spiderplan.modules.solvers.ResolverIterator;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.logic.Substitution;
 
+/**
+ * Iterator over all solutions to a minizinc problem.
+ * 
+ * @author Uwe Köckemann
+ *
+ */
 public class MiniZincIterator extends ResolverIterator {
 
 	private int solutionIndex = 1;
@@ -37,6 +43,15 @@ public class MiniZincIterator extends ResolverIterator {
 	private String data;
 	private String minizincBinaryLocation;
 	
+	/**
+	 * Create new iterator.
+	 * 
+	 * @param minizincBinaryLocation location of minizinc binary
+	 * @param program string representation of minizinc program
+	 * @param data string representation minizinc input data
+	 * @param name name used by logger
+	 * @param cM configuration manager
+	 */
 	public MiniZincIterator( String minizincBinaryLocation, String program, String data, String name, ConfigurationManager cM) {
 		super(name, cM);
 		this.minizincBinaryLocation = minizincBinaryLocation;

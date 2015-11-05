@@ -29,9 +29,9 @@ import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Statement;
-import org.spiderplan.representation.constraints.TemporalIntervalQuery;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.TemporalIntervalQuery;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.types.TypeManager;
 

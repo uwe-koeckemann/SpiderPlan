@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -36,12 +35,11 @@ import java.util.regex.Pattern;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.tools.ModuleFactory;
-import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.PrologConstraint;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.prolog.PrologConstraint;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -53,7 +51,6 @@ import org.spiderplan.representation.types.IntegerType;
 import org.spiderplan.representation.types.IntervalType;
 import org.spiderplan.representation.types.Type;
 import org.spiderplan.representation.types.TypeManager;
-import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.tools.Global;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
@@ -473,7 +470,7 @@ public class Compile {
 				}
 			}
 			c.getContext().removeAll(remList);			
-			HashSet<Constraint> remSet = new HashSet<Constraint>();
+			HashSet<Expression> remSet = new HashSet<Expression>();
 			for ( AllenConstraint tC : c.getContext().get(AllenConstraint.class) ) {
 				if ( remKeys.contains(tC.getFrom()) || remKeys.contains(tC.getTo()) ) {
 					remSet.add(tC);
@@ -487,13 +484,13 @@ public class Compile {
 			 */
 			for ( Operator o : c.getOperators() ) {
 				remList = new ArrayList<Statement>();
-				ArrayList<Constraint> remListCon = new ArrayList<Constraint>();
+				ArrayList<Expression> remListCon = new ArrayList<Expression>();
 				for ( Statement p : o.getPreconditions() ) {
 					if ( p.getVariable().match(var) != null ) {
 						PrologConstraint rC = new PrologConstraint(p.getVariable(),programID);
 						remList.add(p);
 						
-						for ( Constraint con : o.getConstraints() ) {
+						for ( Expression con : o.getConstraints() ) {
 							if ( con instanceof AllenConstraint ) {
 								AllenConstraint tC = (AllenConstraint)con;
 								if ( tC.getFrom().equals(p.getKey()) || ( tC.isBinary() && tC.getTo().equals(p.getKey())) ) {
@@ -536,7 +533,7 @@ public class Compile {
 				if ( !usages.containsKey(e.getVariable())) {
 					usages.put(e.getVariable(), new ArrayList<Term>());
 				} 
-				for ( Constraint con : o.getConstraints() ) {
+				for ( Expression con : o.getConstraints() ) {
 					if ( con instanceof AllenConstraint ) {
 						AllenConstraint tC = (AllenConstraint)con;
 						conType = tC.getRelation().toString();
@@ -567,7 +564,7 @@ public class Compile {
 				ArrayList<Term> keySequence = usages.get(k);	 					
 				if ( keySequence.size() > 1 ) {
 					for ( int i = 0 ; i < keySequence.size()-1 ; i++ ) {
-						AllenConstraint tC = new AllenConstraint(keySequence.get(i), keySequence.get(i+1), org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation.Meets );
+						AllenConstraint tC = new AllenConstraint(keySequence.get(i), keySequence.get(i+1), org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation.Meets );
 						o.addConstraint(tC);
 						if ( verbose ) {
 							System.out.println("    " + tC);
@@ -597,7 +594,7 @@ public class Compile {
 //		allRelCons.addAll(c.getGoalContext().get(RelationalConstraint.class));
 		//allRelCons.addAll(c.get(RelationalConstraint.class));
 		for ( Operator o : c.getOperators() ) {
-			for ( Constraint con : o.getConstraints() ) {
+			for ( Expression con : o.getConstraints() ) {
 				if ( con instanceof PrologConstraint ) {
 					allRelCons.add((PrologConstraint)con);
 				}

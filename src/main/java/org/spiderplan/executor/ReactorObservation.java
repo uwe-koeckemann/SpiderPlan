@@ -24,7 +24,7 @@ package org.spiderplan.executor;
 
 import java.util.Map;
 
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.logic.Atomic;
 
 /**
@@ -38,6 +38,12 @@ public class ReactorObservation extends Reactor {
 		
 	Map<Atomic,Statement> lastChangingStatement;
 	
+	/**
+	 * Reactor for a statement that needs to be observed.
+	 * 
+	 * @param target statement which needs to be observed
+	 * @param lastChangingStatement lookup for most recent observations for all variables TODO: this could be solver better
+	 */
 	public ReactorObservation( Statement target, Map<Atomic,Statement> lastChangingStatement ) {
 		super(target);
 		this.lastChangingStatement = lastChangingStatement;

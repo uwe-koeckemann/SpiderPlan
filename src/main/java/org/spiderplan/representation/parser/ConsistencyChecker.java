@@ -28,15 +28,15 @@ import java.util.HashMap;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.CustomConstraint;
-import org.spiderplan.representation.constraints.GraphConstraint;
-import org.spiderplan.representation.constraints.Interval;
-import org.spiderplan.representation.constraints.NewObject;
-import org.spiderplan.representation.constraints.PrologConstraint;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Statement;
-import org.spiderplan.representation.constraints.VariableDomainRestriction;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.domain.NewObject;
+import org.spiderplan.representation.expressions.domain.VariableDomainRestriction;
+import org.spiderplan.representation.expressions.graph.GraphConstraint;
+import org.spiderplan.representation.expressions.misc.CustomConstraint;
+import org.spiderplan.representation.expressions.prolog.PrologConstraint;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.Type;
@@ -285,7 +285,7 @@ public class ConsistencyChecker {
 			ArrayList<String> atLeastOccurTwiceVars = new ArrayList<String>();
 			
 			
-			for ( Constraint c : o.getConstraints() ) {
+			for ( Expression c : o.getConstraints() ) {
 				if ( c instanceof PrologConstraint ) {
 					
 					PrologConstraint rC = (PrologConstraint)c;
@@ -301,10 +301,10 @@ public class ConsistencyChecker {
 					
 					for ( int i = 0 ; i < tC.getNumBounds() ; i++ ) { 
 						Interval ival = tC.getBound(i); 
-						for ( Term v : ival.getMinTerm().getVariables() ) {
+						for ( Term v : ival.getLowerTerm().getVariables() ) {
 							disconnectedVars.add(v.toString());
 						}
-						for ( Term v : ival.getMaxTerm().getVariables() ) {
+						for ( Term v : ival.getUpperTerm().getVariables() ) {
 							disconnectedVars.add(v.toString());
 						}
 					}	
@@ -319,8 +319,8 @@ public class ConsistencyChecker {
 				}  else if ( c instanceof CustomConstraint ) {
 					CustomConstraint crc = (CustomConstraint)c;
 					
-					for ( int i = 0 ; i < crc.getAtomic().getNumArgs() ; i++ ) {
-						Term t = crc.getAtomic().getArg(i);
+					for ( int i = 0 ; i < crc.getRelation().getNumArgs() ; i++ ) {
+						Term t = crc.getRelation().getArg(i);
 						for ( Term v : t.getVariables() ) {
 							connectedVars.add(v.toString());
 						}
@@ -465,7 +465,7 @@ public class ConsistencyChecker {
 				statementsLabels.add(s.getKey().toString());
 			}
 			
-			for ( Constraint c : o.getConstraints() ) {
+			for ( Expression c : o.getConstraints() ) {
 				if ( c instanceof AllenConstraint ) {
 					AllenConstraint tC = (AllenConstraint)c;	
 					tcLabels.add(tC.getFrom().toString());

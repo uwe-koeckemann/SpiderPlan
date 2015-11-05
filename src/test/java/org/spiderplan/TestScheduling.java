@@ -29,11 +29,11 @@ import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Interval;
-import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
-import org.spiderplan.representation.constraints.ReusableResourceCapacity;
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
+import org.spiderplan.representation.expressions.resources.ReusableResourceCapacity;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.logging.Logger;
@@ -120,10 +120,7 @@ public class TestScheduling extends TestCase {
 		
 		Core testCore = new Core();
 		testCore.setContext( cDB );
-		
-		
-
-
+	
 		testCore = solver.run(testCore);
 		
 		assertTrue(testCore.getResultingState("solver").equals(State.Consistent));

@@ -38,8 +38,8 @@ import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.IncludedProgram;
-import org.spiderplan.representation.constraints.MiniZincConstraint;
+import org.spiderplan.representation.expressions.minizinc.MiniZincInput;
+import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.logging.Logger;
 
@@ -123,7 +123,7 @@ public class MiniZincSolver extends Module implements SolverInterface {
 
 	@Override
 	public SolverResult testAndResolve(Core core) {
-		Collection<MiniZincConstraint> C = core.getContext().get(MiniZincConstraint.class)	;
+		Collection<MiniZincInput> C = core.getContext().get(MiniZincInput.class)	;
 		Collection<IncludedProgram> B = core.getContext().get(IncludedProgram.class);
 		
 		Set<Term> reqOutput = new HashSet<Term>();
@@ -141,7 +141,7 @@ public class MiniZincSolver extends Module implements SolverInterface {
 		 * Collect data from constraints and required output terms
 		 */
 		String dataStr = "";
-		for ( MiniZincConstraint c : C ) {
+		for ( MiniZincInput c : C ) {
 			if ( c.getRelation().name().equals("output")) {
 				reqOutput.addAll(c.getRelation().getVariableTerms());
 			} else {

@@ -22,12 +22,11 @@
  *******************************************************************************/
 package org.spiderplan.executor;
 
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.tools.ExecuteSystemCommand;
 
 /**
- * Extends reactor with a simple simulation of perfect start and end times 
- * (i.e. using earliest-time solution) 
+ * Execute ROS sound-play text-to-speech to say something.
  * 
  * @author Uwe Koeckemann
  *
@@ -36,25 +35,13 @@ public class ReactorSoundPlaySpeech extends Reactor {
 	
 	TalkThread execThread;
 	
-	public class TalkThread extends Thread {
-
-		public String string;
-		public boolean started = false;
-		public boolean ended = false;
-		
-		public TalkThread( String string ) {
-			this.string = string.replace("-", " ");
-		}
-		
-	    @Override
-		public void run() {
-	    	started = true;
-	    	System.out.println(string);
-	    	ExecuteSystemCommand.call("/tmp/", "rosrun sound_play say.py '"+string+"'");
-	    	ended = true;
-	    }
-	  }
-	
+	/**
+	 * Constructor using target statement and text that will
+	 * be said.
+	 * 
+	 * @param target statement to be executed
+	 * @param text text to be converted to speech
+	 */
 	public ReactorSoundPlaySpeech( Statement target, String text ) {
 		super(target);
 		this.execThread = new TalkThread(text);
@@ -75,4 +62,23 @@ public class ReactorSoundPlaySpeech extends Reactor {
 	public boolean hasEnded( long EET, long LET ) {	
 		return execThread.ended;
 	}
+	
+	private class TalkThread extends Thread {
+
+		public String string;
+		public boolean started = false;
+		public boolean ended = false;
+		
+		public TalkThread( String string ) {
+			this.string = string.replace("-", " ");
+		}
+		
+	    @Override
+		public void run() {
+	    	started = true;
+	    	System.out.println(string);
+	    	ExecuteSystemCommand.call("/tmp/", "rosrun sound_play say.py '"+string+"'");
+	    	ended = true;
+	    }
+	  }
 }

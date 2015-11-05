@@ -30,7 +30,7 @@ import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.SetConstraint;
+import org.spiderplan.representation.expressions.set.SetConstraint;
 import org.spiderplan.representation.types.TypeManager;
 import junit.framework.TestCase;
 

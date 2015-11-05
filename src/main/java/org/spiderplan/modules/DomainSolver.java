@@ -38,9 +38,10 @@ import org.spiderplan.modules.solvers.ResolverList;
 import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
-import org.spiderplan.representation.constraints.DomainConstraint;
-import org.spiderplan.representation.constraints.NewObject;
-import org.spiderplan.representation.constraints.VariableDomainRestriction;
+import org.spiderplan.representation.expressions.ExpressionTypes.DomainRelation;
+import org.spiderplan.representation.expressions.domain.DomainMemberConstraint;
+import org.spiderplan.representation.expressions.domain.NewObject;
+import org.spiderplan.representation.expressions.domain.VariableDomainRestriction;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -55,6 +56,7 @@ import org.spiderplan.tools.logging.Logger;
  * of all {@link VariableDomainRestriction}s is empty there is an inconsistency. 
  * 
  * TODO: Add propagation into a single {@link VariableDomainRestriction} constraint for each variable.
+ * TODO: Add substitution
  * 
  * @author Uwe Köckemann
  *
@@ -102,17 +104,17 @@ public class DomainSolver extends Module implements SolverInterface {
 		
 		boolean isConsistent = true;
 		
-		for ( DomainConstraint dC : core.getContext().get(DomainConstraint.class) ) {
-			Atomic r = dC.getRelation();
+		for ( DomainMemberConstraint dC : core.getContext().get(DomainMemberConstraint.class) ) {
+			Atomic r = dC.getConstraint();
 			Term a = r.getArg(0);
 			Term b = r.getArg(1);
 			
-			if ( r.getUniqueName().equals("equals/2") || r.getUniqueName().equals("equal/2") ) {	
+			if ( dC.getRelation().equals(DomainRelation.Equal) ) { //r.getUniqueName().equals("equals/2") || r.getUniqueName().equals("equal/2") ) {	
 				if ( verbose ) Logger.msg(getName(),dC.toString(), 1);
 				if ( a.isGround() && b.isGround() ) {
 					isConsistent = a.equals(b);	
 				}						
-			} else if  ( r.getUniqueName().equals("not-equals/2") || r.getUniqueName().equals("not-equal/2") ) {
+			} else if  ( dC.getRelation().equals(DomainRelation.NotEqual)  ) { // r.getUniqueName().equals("not-equals/2") || r.getUniqueName().equals("not-equal/2") ) {
 				if ( verbose ) Logger.msg(getName(),dC.toString(), 1);
 				isConsistent = !a.equals(b);
 			}
@@ -127,6 +129,7 @@ public class DomainSolver extends Module implements SolverInterface {
 			HashMap<Term,Set<Term>> domainLookUp = new HashMap<Term, Set<Term>>();
 			
 			for ( VariableDomainRestriction c : core.getContext().get(VariableDomainRestriction.class) ) {
+				//TODO: does not distinguish between In and NotIn
 				if ( verbose ) Logger.msg(getName(), "Checking: " + c, 1);
 				if ( c.getVariable().isGround() ) {
 					isConsistent = c.isConsistent();
@@ -135,10 +138,12 @@ public class DomainSolver extends Module implements SolverInterface {
 						/**
 						 * New variable: All values in the domain of this constraint are allowed
 						 */
-						HashSet<Term> s = new HashSet<Term>();
-						s.addAll(c.getDomain());
-						domainLookUp.put(c.getVariable(),s);
-						if ( verbose ) Logger.msg(getName(), "--> new domain: " + s, 2);
+						if ( c.getRelation().equals(DomainRelation.In) ) {
+							HashSet<Term> s = new HashSet<Term>();
+							s.addAll(c.getDomain());
+							domainLookUp.put(c.getVariable(),s);
+							if ( verbose ) Logger.msg(getName(), "--> new domain: " + s, 2);
+						}
 					} else {
 						/**
 						 * Variable has another domain restriction constraint:
@@ -147,8 +152,14 @@ public class DomainSolver extends Module implements SolverInterface {
 						ArrayList<Term> remList = new ArrayList<Term>();
 						Set<Term> allowedValues = domainLookUp.get(c.getVariable());
 						for ( Term val : allowedValues ) {
-							if ( !c.getDomain().contains(val) ) {
-								remList.add(val);
+							if ( c.getRelation().equals(DomainRelation.In) ) {
+								if ( !c.getDomain().contains(val) ) {
+									remList.add(val);
+								}
+							} else if ( c.getRelation().equals(DomainRelation.NotIn) ) {
+								if ( c.getDomain().contains(val) ) {
+									remList.add(val);
+								}
 							}
 						}
 						if ( verbose ) Logger.msg(getName(), "--> intersecting: " + allowedValues + " and " + c.getDomain(), 2);
@@ -180,7 +191,7 @@ public class DomainSolver extends Module implements SolverInterface {
 					if ( verbose ) Logger.msg(getName(),nO.toString(), 0);
 					
 					if ( !usedObjects.containsKey(typeName) ) {
-						Collection<Atomic> atomics = core.getContext().getAtomics();
+						Collection<Atomic> atomics = core.getContext().getAtomics(); //TODO: if this can be changed .getAtomics() can be removed everywhere...
 						Set<Term> objects = new HashSet<Term>();
 						for ( Atomic a : atomics ) {
 							objects.addAll(tM.getAllObjectsFromDomains(typeName, a));

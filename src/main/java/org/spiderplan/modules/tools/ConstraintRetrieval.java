@@ -26,14 +26,14 @@ import java.util.ArrayList;
 
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.PlanningInterval;
-import org.spiderplan.representation.constraints.constraintInterfaces.Assertable;
-import org.spiderplan.representation.constraints.constraintInterfaces.Matchable;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.interfaces.Assertable;
+import org.spiderplan.representation.expressions.interfaces.Matchable;
+import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Substitution;
 
 /**
- * Contains some static methods to retrieve certain types of {@link Constraint}s
+ * Contains some static methods to retrieve certain types of {@link Expression}s
  * from a {@link Core}.
  * 
  * @author Uwe Köckemann
@@ -42,7 +42,7 @@ import org.spiderplan.representation.logic.Substitution;
 public class ConstraintRetrieval {
 
 	/**
-	 * Get a unique {@link PlanningInterval} {@link Constraint} from a {@link Core}.
+	 * Get a unique {@link PlanningInterval} {@link Expression} from a {@link Core}.
 	 * Throws an exception if there is more than one and <code>null</code> if it
 	 * does not exist.
 	 * @param core The {@link Core} in which we are looking for the {@link PlanningInterval}. 
@@ -71,7 +71,7 @@ public class ConstraintRetrieval {
 	}
 	
 	/**
-	 * Get a unique {@link PlanningInterval} {@link Constraint} from a {@link ConstraintDatabase}.
+	 * Get a unique {@link PlanningInterval} {@link Expression} from a {@link ConstraintDatabase}.
 	 * Throws an exception if there is more than one and <code>null</code> if it
 	 * does not exist.
 	 * @param cDB The {@link ConstraintDatabase} in which we are looking for the {@link PlanningInterval}. 
@@ -101,19 +101,19 @@ public class ConstraintRetrieval {
 		
 	/**
 	 * Checks if there is an asserted constraint in a {@link ConstraintDatabase} that matches a 
-	 * given {@link Constraint}
+	 * given {@link Expression}
 	 * @param cdb A {@link ConstraintDatabase}
 	 * @param c A {@link Matchable}
-	 * @return <code>true</code> if there exists a {@link Constraint} in <code>cDB</code> that matches <code>c</code>
+	 * @return <code>true</code> if there exists a {@link Expression} in <code>cDB</code> that matches <code>c</code>
 	 */
-	public static boolean hasNoMatchingAssertedConstraint( ConstraintDatabase cdb, Constraint c ) {
+	public static boolean hasNoMatchingAssertedConstraint( ConstraintDatabase cdb, Expression c ) {
 		if ( ! (c instanceof Assertable) ) {
 			return true;
 		}
 		
 		if ( c instanceof Matchable ) {
 			Matchable mC = (Matchable)c;
-			for ( Constraint cIn : cdb.get(c.getClass()) ) {
+			for ( Expression cIn : cdb.get(c.getClass()) ) {
 				Substitution s = mC.match(cIn); 
 				if ( s != null ) {
 					if ( ((Assertable)cIn).isAsserted() ) {
@@ -122,7 +122,7 @@ public class ConstraintRetrieval {
 				}
 			}
 		} else {
-			for ( Constraint cIn : cdb.get(c.getClass()) ) {
+			for ( Expression cIn : cdb.get(c.getClass()) ) {
 				if ( c.equals(cIn) ) {
 					if ( ((Assertable)cIn).isAsserted() ) {
 						return false;
@@ -133,11 +133,18 @@ public class ConstraintRetrieval {
 		return true;
 	}
 	
-	public static boolean hasNoEqualAssertedConstraint( ConstraintDatabase cdb, Constraint c ) {
+	/**
+	 * Check if a constraint has been asserted in a context.
+	 * 
+	 * @param cdb context
+	 * @param c constraint
+	 * @return <code>true/code> if <code>c</code> has been asserted in <code>cdb</code>, <code>false</code> otherwise.
+	 */
+	public static boolean hasNoEqualAssertedConstraint( ConstraintDatabase cdb, Expression c ) {
 		if ( ! (c instanceof Assertable) ) {
 			return true;
 		}
-		for ( Constraint cIn : cdb.get(c.getClass()) ) {
+		for ( Expression cIn : cdb.get(c.getClass()) ) {
 			if ( c.equals(cIn) ) {
 				if ( ((Assertable)cIn).isAsserted() ) {
 					return false;

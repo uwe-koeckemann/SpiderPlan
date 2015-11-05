@@ -28,8 +28,8 @@ import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.tools.ModuleFactory;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.DiscardedPlan;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.causal.DiscardedPlan;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
@@ -40,7 +40,7 @@ import org.spiderplan.tools.stopWatch.StopWatch;
 /**
  * Will find the minimal length sub-sequence of a plan that
  * still creates a conflict. As a result {@link DiscardedPlan} 
- * {@link Constraint}s will be added to the {@link Core}. 
+ * {@link Expression}s will be added to the {@link Core}. 
  * 
  * @author Uwe Köckemann
  *

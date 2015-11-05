@@ -30,8 +30,8 @@ package org.spiderplan.tools;
  */
 public class Loop {
 	/**
-	 * Starts an endless loop. Used to keep application running, e.g., so 
-	 * that the {@link Logger} does not close.
+	 * Starts an endless loop. Used to keep application running so 
+	 * that, e.g., the logger does not close.
 	 */
 	public static void start() {
 		while ( true ) {

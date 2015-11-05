@@ -39,11 +39,11 @@ import java.util.Stack;
 
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
-import org.spiderplan.representation.constraints.Asserted;
-import org.spiderplan.representation.constraints.IncludedProgram;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.InteractionConstraint;
-import org.spiderplan.representation.constraints.PrologConstraint;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
+import org.spiderplan.representation.expressions.misc.Asserted;
+import org.spiderplan.representation.expressions.programs.IncludedProgram;
+import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -72,14 +72,31 @@ import org.spiderplan.tools.stopWatch.StopWatch;
  */
 public class YapPrologAdapter {
 
-	public String name = "YapPrologAdapter";
+	private String name = "YapPrologAdapter";
 
-	public enum FailBehavior { Warning, Exit, Ignore };
+	/**
+	 * Determines what happens if yap Prolog does not fins a solution. 
+	 * 
+	 * @author Uwe Köckemann
+	 */
+	public enum FailBehavior { /**
+	 * Give a warning.
+	 */
+	Warning, /**
+	 * Exit the planner.
+	 */
+	Exit, /**
+	 * Ignore (default)
+	 */
+	Ignore };
+	
+	
+	/**
+	 * Setting for fail behavior. TODO: could be removed
+	 */
 	public FailBehavior failBehavior = FailBehavior.Warning;
 	
-	public String errorMessage = "";	
-	public static String uniqueFileNamePart = ""; //TODO: move to global so it can be used everywhere...
-
+	private String errorMessage = "";	
 	private ArrayList<String> qVars = new ArrayList<String> ();
 	private String qPred = "";
 		
@@ -188,7 +205,7 @@ public class YapPrologAdapter {
 			ArrayList<PrologConstraint> query = new ArrayList<PrologConstraint>();
 			ArrayList<Atomic> qLits = new ArrayList<Atomic>();
 			
-			for ( Constraint c : o.getConstraints() ) {
+			for ( Expression c : o.getConstraints() ) {
 				if ( c instanceof PrologConstraint ) {	
 					if ( ((PrologConstraint) c).getProgramID().equals(programID) ) {
 						query.add((PrologConstraint)c);
@@ -255,8 +272,8 @@ public class YapPrologAdapter {
 					for ( Substitution theta  : appliedSubst ) {
 						Operator oCopy = o.copy();
 						oCopy.substitute(theta);
-						Collection<Constraint> conAddList = new ArrayList<Constraint>();
-						for ( Constraint c : oCopy.getConstraints() ) {
+						Collection<Expression> conAddList = new ArrayList<Expression>();
+						for ( Expression c : oCopy.getConstraints() ) {
 							if ( c instanceof PrologConstraint ) {
 								conAddList.add(new Asserted(c));
 							}
@@ -348,7 +365,7 @@ public class YapPrologAdapter {
 			remList.add(o);
 			ArrayList<PrologConstraint> query = new ArrayList<PrologConstraint>();
 			
-			for ( Constraint c : o.getConstraints() ) {
+			for ( Expression c : o.getConstraints() ) {
 				if ( c instanceof PrologConstraint ) {	
 					query.add((PrologConstraint)c);
 					
@@ -372,10 +389,10 @@ public class YapPrologAdapter {
 	
 	private void createQueryFile(String bagOfString) {
 		try{
-			FileWriter fstream = new FileWriter(Global.workingDir+"query"+uniqueFileNamePart+".prolog");
+			FileWriter fstream = new FileWriter(Global.workingDir+"query"+Global.UniqueFilenamePart+".prolog");
 			BufferedWriter out = new BufferedWriter(fstream);
 
-			out.write( ":- ['kb"+uniqueFileNamePart+".prolog'], " + bagOfString + " -> tell('answer"+uniqueFileNamePart+".prolog'), write(QueryResult) ; tell('answer"+uniqueFileNamePart+".prolog'), write('[-]') ." );
+			out.write( ":- ['kb"+Global.UniqueFilenamePart+".prolog'], " + bagOfString + " -> tell('answer"+Global.UniqueFilenamePart+".prolog'), write(QueryResult) ; tell('answer"+Global.UniqueFilenamePart+".prolog'), write('[-]') ." );
 			out.close();
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -476,7 +493,7 @@ public class YapPrologAdapter {
 
 	private void dumpKB2PrologFile( ArrayList<String> kb ) {
 		try{
-			FileWriter fstream = new FileWriter(Global.workingDir+"kb"+uniqueFileNamePart+".prolog");
+			FileWriter fstream = new FileWriter(Global.workingDir+"kb"+Global.UniqueFilenamePart+".prolog");
 			BufferedWriter out = new BufferedWriter(fstream);
 			for ( String l : kb ) {
 				out.write( l + "\n");
@@ -491,9 +508,9 @@ public class YapPrologAdapter {
 		try {  
 			/* Just create answer file to overwrite old one if exists  */
 			@SuppressWarnings("unused")
-			FileWriter fAnswer = new FileWriter(Global.workingDir+"answer"+uniqueFileNamePart+".prolog");
+			FileWriter fAnswer = new FileWriter(Global.workingDir+"answer"+Global.UniqueFilenamePart+".prolog");
 
-			String cmd = yapBinaryLocation + " -L "+Global.workingDir+"query"+uniqueFileNamePart+".prolog";
+			String cmd = yapBinaryLocation + " -L "+Global.workingDir+"query"+Global.UniqueFilenamePart+".prolog";
 			
 			if ( keepTimes ) StopWatch.start("[Prolog] Running");
 			String[] r = ExecuteSystemCommand.call("/tmp/", cmd);
@@ -515,7 +532,7 @@ public class YapPrologAdapter {
 		ArrayList<Substitution> resultingSubs = new ArrayList<Substitution>();
 
 		try {
-			FileInputStream fstream = new FileInputStream(Global.workingDir+"answer"+uniqueFileNamePart+".prolog");
+			FileInputStream fstream = new FileInputStream(Global.workingDir+"answer"+Global.UniqueFilenamePart+".prolog");
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String strLine;

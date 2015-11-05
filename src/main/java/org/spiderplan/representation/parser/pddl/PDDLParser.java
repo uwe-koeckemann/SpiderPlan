@@ -8,7 +8,23 @@ import java.util.HashMap;
 
 import org.spiderplan.representation.*;
 import org.spiderplan.representation.types.*;
-import org.spiderplan.representation.constraints.*;
+import org.spiderplan.representation.expressions.*;
+import org.spiderplan.representation.expressions.execution.ros.*;
+import org.spiderplan.representation.expressions.causal.*;
+import org.spiderplan.representation.expressions.cost.*;
+import org.spiderplan.representation.expressions.domain.*;
+import org.spiderplan.representation.expressions.execution.*;
+import org.spiderplan.representation.expressions.graph.*;
+import org.spiderplan.representation.expressions.interaction.*;
+import org.spiderplan.representation.expressions.math.*;
+import org.spiderplan.representation.expressions.minizinc.*;
+import org.spiderplan.representation.expressions.misc.*;
+import org.spiderplan.representation.expressions.programs.*;
+import org.spiderplan.representation.expressions.prolog.*;
+import org.spiderplan.representation.expressions.resources.*;
+import org.spiderplan.representation.expressions.sampling.*;
+import org.spiderplan.representation.expressions.set.*;
+import org.spiderplan.representation.expressions.temporal.*;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.temporal.TemporalNetworkTools;
@@ -777,7 +793,7 @@ public class PDDLParser implements PDDLParserConstants {
         Token durVarToken;
         Atomic functionName;
 
-        Constraint costCon;
+        Expression costCon;
     jj_consume_token(OP);
     jj_consume_token(ACTION);
     nameToken = jj_consume_token(TERM);
@@ -1188,20 +1204,21 @@ public class PDDLParser implements PDDLParserConstants {
     jj_consume_token(OP);
     optCritToken = jj_consume_token(TERM);
     jj_consume_token(CP);
-                        String optCritStr = optCritToken.image;
+                        {if (true) throw new UnsupportedOperationException();}
+                  //String optCritStr = optCritToken.image;
+                        //
+                        //if ( optCritStr.equals("total-time") )
+                        //{
+                        //	optCritStr = "makeSpan";
+                        //}
+                  //OptimizationCriterium oC;
+                        //if ( dirToken.image.equals("minimize") ) {
+                        //	oC = new OptimizationCriterium(new Atomic(optCritStr), OptimizationCriterium.OptDirection.Minimize);
+                        //} else {
+                        //	oC = new OptimizationCriterium(new Atomic(optCritStr), OptimizationCriterium.OptDirection.Minimize);	
+                        //}
+                        //c.getContext().add(oC);
 
-                        if ( optCritStr.equals("total-time") )
-                        {
-                                optCritStr = "makeSpan";
-                        }
-
-                        OptimizationCriterium oC;
-                        if ( dirToken.image.equals("minimize") ) {
-                                oC = new OptimizationCriterium(new Atomic(optCritStr), OptimizationCriterium.OptDirection.Minimize);
-                        } else {
-                                oC = new OptimizationCriterium(new Atomic(optCritStr), OptimizationCriterium.OptDirection.Minimize);
-                        }
-                        c.getContext().add(oC);
     jj_consume_token(CP);
   }
 
@@ -1267,7 +1284,7 @@ public class PDDLParser implements PDDLParserConstants {
     jj_consume_token(CP);
   }
 
-  final public Constraint Cost() throws ParseException {
+  final public Expression Cost() throws ParseException {
         Atomic var;
         Token amountToken;
         Token modToken;
@@ -1467,69 +1484,6 @@ public class PDDLParser implements PDDLParserConstants {
     finally { jj_save(19, xla); }
   }
 
-  private boolean jj_3R_27() {
-    if (jj_scan_token(OP)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(74)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(36)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(40)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(37)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(38)) return true;
-    }
-    }
-    }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_33() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(NOT)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_23() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(DOMAIN)) return true;
-    return false;
-  }
-
-  private boolean jj_3_14() {
-    if (jj_3R_28()) return true;
-    return false;
-  }
-
-  private boolean jj_3_19() {
-    if (jj_3R_27()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_25() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(FUNCTIONS)) return true;
-    return false;
-  }
-
-  private boolean jj_3_10() {
-    if (jj_scan_token(TERM)) return true;
-    return false;
-  }
-
-  private boolean jj_3_18() {
-    if (jj_3R_27()) return true;
-    return false;
-  }
-
-  private boolean jj_3_1() {
-    if (jj_3R_23()) return true;
-    return false;
-  }
-
   private boolean jj_3R_31() {
     if (jj_scan_token(OVER_ALL)) return true;
     return false;
@@ -1665,6 +1619,69 @@ public class PDDLParser implements PDDLParserConstants {
     jj_scanpos = xsp;
     if (jj_3R_32()) return true;
     }
+    return false;
+  }
+
+  private boolean jj_3R_27() {
+    if (jj_scan_token(OP)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(74)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(36)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(40)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(37)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(38)) return true;
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_33() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(NOT)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_23() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(DOMAIN)) return true;
+    return false;
+  }
+
+  private boolean jj_3_14() {
+    if (jj_3R_28()) return true;
+    return false;
+  }
+
+  private boolean jj_3_19() {
+    if (jj_3R_27()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_25() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(FUNCTIONS)) return true;
+    return false;
+  }
+
+  private boolean jj_3_10() {
+    if (jj_scan_token(TERM)) return true;
+    return false;
+  }
+
+  private boolean jj_3_18() {
+    if (jj_3R_27()) return true;
+    return false;
+  }
+
+  private boolean jj_3_1() {
+    if (jj_3R_23()) return true;
     return false;
   }
 

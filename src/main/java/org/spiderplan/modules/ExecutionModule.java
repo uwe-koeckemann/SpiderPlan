@@ -44,21 +44,21 @@ import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Asserted;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.IncludedProgram;
-import org.spiderplan.representation.constraints.InteractionConstraint;
-import org.spiderplan.representation.constraints.Interval;
-import org.spiderplan.representation.constraints.OpenGoal;
-import org.spiderplan.representation.constraints.PlanningInterval;
-import org.spiderplan.representation.constraints.SimulationConstraint;
-import org.spiderplan.representation.constraints.Statement;
-import org.spiderplan.representation.constraints.ConstraintTypes.ROSRelation;
-import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
-import org.spiderplan.representation.constraints.ros.ROSConstraint;
-import org.spiderplan.representation.constraints.ros.ROSGoal;
-import org.spiderplan.representation.constraints.ros.ROSRegisterAction;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ExpressionTypes.ROSRelation;
+import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
+import org.spiderplan.representation.expressions.causal.OpenGoal;
+import org.spiderplan.representation.expressions.execution.Simulation;
+import org.spiderplan.representation.expressions.execution.ros.ROSConstraint;
+import org.spiderplan.representation.expressions.execution.ros.ROSGoal;
+import org.spiderplan.representation.expressions.execution.ros.ROSRegisterAction;
+import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
+import org.spiderplan.representation.expressions.misc.Asserted;
+import org.spiderplan.representation.expressions.programs.IncludedProgram;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.Interval;
+import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -87,12 +87,14 @@ public class ExecutionModule  extends Module {
 	
 	long t0;
 	
-	boolean useRealTime = false; //TODO: true does not work yet
+	boolean useRealTime = false; //TODO: Real time does not work yet
 	boolean useForgetting = true;
 	boolean perfectSim = true;
 	
 	ConstraintDatabase execDB;	
 	ConstraintDatabase simDB;	
+	
+	ConstraintDatabase initialContext;
 
 	ArrayList<Reactor> reactors = new ArrayList<Reactor>();
 	
@@ -103,8 +105,8 @@ public class ExecutionModule  extends Module {
 	ArrayList<Statement> simList = new ArrayList<Statement>();
 	
 	ArrayList<Operator> executedActions = new ArrayList<Operator>();
-	ArrayList<Constraint> executedLinks = new ArrayList<Constraint>();
-	ArrayList<Constraint> reachedGoals = new ArrayList<Constraint>();
+	ArrayList<Expression> executedLinks = new ArrayList<Expression>();
+	ArrayList<Expression> reachedGoals = new ArrayList<Expression>();
 	ArrayList<Statement> removedStatements = new ArrayList<Statement>();
 	
 	TypeManager tM;
@@ -123,7 +125,7 @@ public class ExecutionModule  extends Module {
 	AllenConstraint rFuture = new AllenConstraint(new Atomic("(deadline past (interval 1 1)"));
 	AllenConstraint mFuture;
 	
-	private Map<Statement,Collection<Constraint>> addedConstraints = new HashMap<Statement, Collection<Constraint>>();
+	private Map<Statement,Collection<Expression>> addedConstraints = new HashMap<Statement, Collection<Expression>>();
 	private ConstraintDatabase addedSimDBs = new ConstraintDatabase();
 	private ConstraintDatabase addedOnReleaseDB = new ConstraintDatabase();
 	private ConstraintDatabase addedByROS = new ConstraintDatabase();
@@ -176,6 +178,8 @@ public class ExecutionModule  extends Module {
 		if ( verbose ) Logger.depth++;
 
 		this.plan = core.getPlan();
+		this.initialContext = Global.initialContext;
+//		this.initialContext = core.getRootCore().getContext();
 		
 		PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(core);
 		
@@ -206,7 +210,7 @@ public class ExecutionModule  extends Module {
 		execDB = core.getContext().copy();
 		simDB = new ConstraintDatabase();
 		
-		for ( SimulationConstraint simCon : execDB.get(SimulationConstraint.class) ) {
+		for ( Simulation simCon : execDB.get(Simulation.class) ) {
 			if ( simCon.getDispatchTime().toString().equals("on-release")) {
 				simDB.add(simCon.getExecutionTimeDB());
 				for ( Statement s : simCon.getExecutionTimeDB().get(Statement.class) ) {
@@ -276,7 +280,7 @@ public class ExecutionModule  extends Module {
 			for ( Statement s : execDB.get(Statement.class) ) {
 				
 				
-				Substitution subst = rosGoal.getOperatorName().match(s.getVariable());
+				Substitution subst = rosGoal.getVariable().match(s.getVariable());
 				if ( subst != null ) {
 					if ( hasReactorList.contains(s) ) {
 						throw new IllegalStateException("Statement " + s + " has multiple reactors... This cannot be good!");
@@ -485,7 +489,7 @@ public class ExecutionModule  extends Module {
 //					}
 //					System.out.println(execList.contains(r.target));
 					
-					if ( execList.contains(r.target) && !startedList.contains(r.target) ) {
+					if ( execList.contains(r.getTarget()) && !startedList.contains(r.getTarget()) ) {
 						remList.add(r);
 					}
 				}
@@ -565,7 +569,7 @@ public class ExecutionModule  extends Module {
 			List<Reactor> remList = new ArrayList<Reactor>();
 //			System.out.println("Replanning after temporal inconsistency: ");
 			for ( Reactor r : reactors ) {
-				if ( execList.contains(r.target) && !startedList.contains(r.target) ) {
+				if ( execList.contains(r.getTarget()) && !startedList.contains(r.getTarget()) ) {
 //					System.out.println("Removing: "  +r);
 					remList.add(r);
 				}
@@ -602,8 +606,8 @@ public class ExecutionModule  extends Module {
 			execList.clear();
 			
 			for ( Reactor r : this.reactors ) {
-				hasReactorList.add(r.target);
-				execList.add(r.target);
+				hasReactorList.add(r.getTarget());
+				execList.add(r.getTarget());
 			}
 			
 			/* ROS goals */
@@ -615,7 +619,7 @@ public class ExecutionModule  extends Module {
 						}
 						
 
-						Substitution subst = rosGoal.getOperatorName().match(s.getVariable());
+						Substitution subst = rosGoal.getVariable().match(s.getVariable());
 						if ( subst != null ) {
 							ROSGoal goalCopy = rosGoal.copy();
 							goalCopy.substitute(subst);
@@ -749,60 +753,60 @@ public class ExecutionModule  extends Module {
 		for ( Reactor r : reactors ) {
 			
 			r.printSetting(name, Logger.depth, verbose);
-			if ( r.s == Reactor.State.Done ) {
-				doneList.add(r.target);
+			if ( r.getState() == Reactor.State.Done ) {
+				doneList.add(r.getTarget());
 				remList.add(r);
 				someoneDone = true;
 				
 			} else {
-				Collection<Constraint> addedCons;
+				Collection<Expression> addedCons;
 				long EST, LST, EET, LET;
 				
-				if ( !simList.contains(r.target) ) {
-					EST = execCSP.getEST(r.target.getKey());
-					LST = execCSP.getLST(r.target.getKey());
-					EET = execCSP.getEET(r.target.getKey());
-					LET = execCSP.getLET(r.target.getKey());
+				if ( !simList.contains(r.getTarget()) ) {
+					EST = execCSP.getEST(r.getTarget().getKey());
+					LST = execCSP.getLST(r.getTarget().getKey());
+					EET = execCSP.getEET(r.getTarget().getKey());
+					LET = execCSP.getLET(r.getTarget().getKey());
 					
 					if ( verbose ) Logger.msg(getName(), "@t=" + t + " (BEFORE) >>> " + r, 1);
 					addedCons = r.update(t, EST, LST, EET, LET, execDB);
 					if ( verbose ) Logger.msg(getName(), "@t=" + t + " (AFTER)  >>> " + r, 1);
 
 				} else {
-					EST = simCSP.getEST(r.target.getKey());
-					LST = simCSP.getLST(r.target.getKey());
-					EET = simCSP.getEET(r.target.getKey());
-					LET = simCSP.getLET(r.target.getKey());
+					EST = simCSP.getEST(r.getTarget().getKey());
+					LST = simCSP.getLST(r.getTarget().getKey());
+					EET = simCSP.getEET(r.getTarget().getKey());
+					LET = simCSP.getLET(r.getTarget().getKey());
 					addedCons = r.update(t, EST, LST, EET, LET, simDB);
 				}
 				
 				
-				if ( !r.s.equals(Reactor.State.NotStarted) && !startedList.contains(r.target) ) {
-					startedList.add(r.target);
+				if ( !r.getState().equals(Reactor.State.NotStarted) && !startedList.contains(r.getTarget()) ) {
+					startedList.add(r.getTarget());
 				}
 				
 				/**
 				 * Add statements and constraints from sim list.
 				 * (only from simulation constraints with "on-release" dispatch)
 				 */
-				if ( simList.contains(r.target) ) {
-					if ( !addedCons.isEmpty() && !addedCons.equals(addedConstraints.get(r.target)) ) {
-						if ( addedConstraints.get(r.target) != null ) {
-							execDB.removeAll(addedConstraints.get(r.target));
-							addedOnReleaseDB.removeAll(addedConstraints.get(r.target));
+				if ( simList.contains(r.getTarget()) ) {
+					if ( !addedCons.isEmpty() && !addedCons.equals(addedConstraints.get(r.getTarget())) ) {
+						if ( addedConstraints.get(r.getTarget()) != null ) {
+							execDB.removeAll(addedConstraints.get(r.getTarget()));
+							addedOnReleaseDB.removeAll(addedConstraints.get(r.getTarget()));
 						}
 						execDB.addAll(addedCons);
 						addedOnReleaseDB.addAll(addedCons);
-						if ( !execDB.contains(r.target) ) {
-							addedOnReleaseDB.add(r.target);
-							execDB.add(r.target);
+						if ( !execDB.contains(r.getTarget()) ) {
+							addedOnReleaseDB.add(r.getTarget());
+							execDB.add(r.getTarget());
 						}
 						newInformationReleased = true;
 					}
 				}
-				Collection<Constraint> store = new ArrayList<Constraint>();
+				Collection<Expression> store = new ArrayList<Expression>();
 				store.addAll(addedCons);
-				addedConstraints.put(r.target, store);
+				addedConstraints.put(r.getTarget(), store);
 				
 			}
 		}
@@ -916,7 +920,7 @@ public class ExecutionModule  extends Module {
 			}
 		}
 				
-		ConstraintDatabase fromScratchDB = Global.initialContext.copy();
+		ConstraintDatabase fromScratchDB = initialContext.copy();
 		
 		if ( verbose ) { 
 			Logger.depth--;
@@ -949,7 +953,7 @@ public class ExecutionModule  extends Module {
 		
 		PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(fromScratchDB);
 		fromScratchDB.remove(pI);
-		fromScratchDB.add(new PlanningInterval(t, tMax));
+		fromScratchDB.add(new PlanningInterval(Term.createInteger(t), Term.createInteger(tMax)));
 		
 		for ( Statement s : fromScratchDB.get(Statement.class) ) {
 			actionIntervals.add(s.getKey());
@@ -1103,7 +1107,7 @@ public class ExecutionModule  extends Module {
 			}
 		}
 		
-		for ( Constraint c : reachedGoals ) {
+		for ( Expression c : reachedGoals ) {
 			if ( c instanceof Asserted ) {
 				fromScratchDB.processAsserted((Asserted)c);			
 			}
@@ -1187,10 +1191,12 @@ public class ExecutionModule  extends Module {
 		return String.format("[%d %d] [%d %d]", EST, LST, EET, LET);
 	}
 	
-	Set<Constraint> remList = new HashSet<Constraint>();
+	Set<Expression> remList = new HashSet<Expression>();
 	Set<Statement> writtenInStoneStatements = new HashSet<Statement>();	
 	Set<Term> writtenInStone = new HashSet<Term>();
-	public void removeWrittenInStone( ConstraintDatabase cdb, Set<Term> doNotAdd ) {
+	
+	
+	private void removeWrittenInStone( ConstraintDatabase cdb, Set<Term> doNotAdd ) {
 //		if ( !execCSP.isConsistent(execDB, tM) ) {
 //			throw new IllegalStateException();
 //		}
@@ -1200,7 +1206,7 @@ public class ExecutionModule  extends Module {
 			Logger.depth++;
 		}
 
-		Set<Constraint> writtenInStoneConstraints = new HashSet<Constraint>();
+		Set<Expression> writtenInStoneConstraints = new HashSet<Expression>();
 		
 		for ( Statement s : execDB.get(Statement.class) ) {
 			if ( execCSP.hasInterval(s.getKey()) && !doNotAdd.contains(s.getKey()) ) { //TODO: work-around 
@@ -1308,63 +1314,63 @@ public class ExecutionModule  extends Module {
 		}
 	}
 	
-	public ConstraintDatabase getRepairDB( ) {
-		ArrayList<Operator> executedActions = new ArrayList<Operator>();
-		ArrayList<Constraint> executedLinks = new ArrayList<Constraint>();
-		Set<Term> actionIntervals = new HashSet<Term>();
-		
-		if ( verbose ) Logger.msg(getName(), "Building initial context...", 3);
-		for ( Operator a : this.plan.getActions() ) {
-			if ( this.startedList.contains(a.getNameStateVariable()) || this.doneList.contains(a.getNameStateVariable()) ) {
-				if ( verbose ) Logger.msg(getName(), "    Adding " + a, 3);
-				executedActions.add(a);
-				
-				actionIntervals.add(a.getNameStateVariable().getKey());
-				for ( Statement p : a.getPreconditions() ) {
-					actionIntervals.add(p.getKey());
-				}
-				for ( Statement e : a.getEffects() ) {
-					actionIntervals.add(e.getKey());
-				}
-			} 
-		}
-		
-		for ( AllenConstraint tc : this.plan.getConstraints().get(AllenConstraint.class) ) {
-			if ( actionIntervals.contains(tc.getFrom()) && actionIntervals.contains(tc.getTo()) ) {
-				if ( verbose ) Logger.msg(getName(), "    Keeping " + tc, 3);
-				executedLinks.add(tc);
-			}
-		}
-		
-		ConstraintDatabase fromScratchDB = Global.initialContext.copy();
-		
-		if ( verbose ) Logger.msg(getName(), "Collecting achieved goals...", 3);
-		for ( OpenGoal og : execDB.get(OpenGoal.class)) {
-			if ( verbose ) Logger.msg(getName(), "Setting goal " + og + " as asserted.", 3);
-			fromScratchDB.add(new Asserted(og.copy()));
-			fromScratchDB.add(og.getStatement());
-		}
-		
-		for ( Operator a : executedActions ) {
-			fromScratchDB.add(a.getNameStateVariable());
-			for ( Statement p : a.getPreconditions() ) {
-				fromScratchDB.add(p);
-			}
-//			fromScratchDB.addStatements(a.getPreconditions());
-			for ( Statement e : a.getEffects() ) {
-				fromScratchDB.add(e);
-			}
-//			fromScratchDB.addStatements(a.getEffects());
-			fromScratchDB.addAll(a.getConstraints());
-		}
-		fromScratchDB.addAll(executedLinks);
-		fromScratchDB.add(addedSimDBs);
-//		fromScratchDB.addConstraints(addedConstraints);
-		return fromScratchDB;
-	}
+//	private ConstraintDatabase getRepairDB( ) {
+//		ArrayList<Operator> executedActions = new ArrayList<Operator>();
+//		ArrayList<Constraint> executedLinks = new ArrayList<Constraint>();
+//		Set<Term> actionIntervals = new HashSet<Term>();
+//		
+//		if ( verbose ) Logger.msg(getName(), "Building initial context...", 3);
+//		for ( Operator a : this.plan.getActions() ) {
+//			if ( this.startedList.contains(a.getNameStateVariable()) || this.doneList.contains(a.getNameStateVariable()) ) {
+//				if ( verbose ) Logger.msg(getName(), "    Adding " + a, 3);
+//				executedActions.add(a);
+//				
+//				actionIntervals.add(a.getNameStateVariable().getKey());
+//				for ( Statement p : a.getPreconditions() ) {
+//					actionIntervals.add(p.getKey());
+//				}
+//				for ( Statement e : a.getEffects() ) {
+//					actionIntervals.add(e.getKey());
+//				}
+//			} 
+//		}
+//		
+//		for ( AllenConstraint tc : this.plan.getConstraints().get(AllenConstraint.class) ) {
+//			if ( actionIntervals.contains(tc.getFrom()) && actionIntervals.contains(tc.getTo()) ) {
+//				if ( verbose ) Logger.msg(getName(), "    Keeping " + tc, 3);
+//				executedLinks.add(tc);
+//			}
+//		}
+//		
+//		ConstraintDatabase fromScratchDB = Global.initialContext.copy();
+//		
+//		if ( verbose ) Logger.msg(getName(), "Collecting achieved goals...", 3);
+//		for ( OpenGoal og : execDB.get(OpenGoal.class)) {
+//			if ( verbose ) Logger.msg(getName(), "Setting goal " + og + " as asserted.", 3);
+//			fromScratchDB.add(new Asserted(og.copy()));
+//			fromScratchDB.add(og.getStatement());
+//		}
+//		
+//		for ( Operator a : executedActions ) {
+//			fromScratchDB.add(a.getNameStateVariable());
+//			for ( Statement p : a.getPreconditions() ) {
+//				fromScratchDB.add(p);
+//			}
+////			fromScratchDB.addStatements(a.getPreconditions());
+//			for ( Statement e : a.getEffects() ) {
+//				fromScratchDB.add(e);
+//			}
+////			fromScratchDB.addStatements(a.getEffects());
+//			fromScratchDB.addAll(a.getConstraints());
+//		}
+//		fromScratchDB.addAll(executedLinks);
+//		fromScratchDB.add(addedSimDBs);
+////		fromScratchDB.addConstraints(addedConstraints);
+//		return fromScratchDB;
+//	}
 	
 	Map<Atomic,Statement> lastChangingStatement = new HashMap<Atomic, Statement>();
-	Map<Atomic,Constraint> lastAddedDeadline = new HashMap<Atomic, Constraint>();
+	Map<Atomic,Expression> lastAddedDeadline = new HashMap<Atomic, Expression>();
 	List<ROSConstraint> ROSsubs = new ArrayList<ROSConstraint>();
 	List<ROSConstraint> ROSpubs = new ArrayList<ROSConstraint>();
 	Term rosSubInterval = Term.createVariable("?I_ROS");
@@ -1372,7 +1378,7 @@ public class ExecutionModule  extends Module {
 	int ROS_SameValueCounter = 0;
 	Term ROS_NewValue = null;
 	
-	public boolean updateROS( ConstraintDatabase execDB ) {
+	private boolean updateROS( ConstraintDatabase execDB ) {
 		boolean change = false;
 		Atomic variable;
 		Term value;

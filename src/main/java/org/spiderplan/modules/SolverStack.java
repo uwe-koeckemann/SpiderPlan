@@ -37,7 +37,7 @@ import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.tools.ModuleFactory;
-import org.spiderplan.representation.constraints.AppliedPlan;
+import org.spiderplan.representation.expressions.causal.AppliedPlan;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
@@ -98,6 +98,7 @@ public class SolverStack extends Module {
 		currentCore.setPlan(core.getPlan());
 		currentCore.setOperators(core.getOperators());
 		currentCore.setTypeManager(core.getTypeManager());
+		currentCore.setPredCore(core.getPredCore());
 //		if ( keepTimes ) StopWatch.stop(msg("Copy"));
 		
 		if ( keepStats ) Statistics.creatCounter(msg("Backtracking"));
@@ -140,6 +141,7 @@ public class SolverStack extends Module {
 					stackedCore.setPlan(currentCore.getPlan().copy());
 					stackedCore.setOperators(currentCore.getOperators());
 					stackedCore.setTypeManager(core.getTypeManager());
+					stackedCore.setPredCore(currentCore.getPredCore());
 //					if ( keepTimes ) StopWatch.stop(msg("Copy"));
 					
 //					if ( keepTimes ) StopWatch.start(msg("Pushing resolver"));
@@ -194,6 +196,8 @@ public class SolverStack extends Module {
 					currentCore.setTypeManager(coreStack.peek().getTypeManager());
 					currentCore.setOperators(coreStack.peek().getOperators());
 					r.apply(currentCore.getContext());// this should be the only place in which currentCore.getContext() actually changes...
+					currentCore.setPredCore(coreStack.peek());
+					
 //					if ( keepTimes ) StopWatch.stop(msg("Copy"));
 					
 					// TODO: this is a hack

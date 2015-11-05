@@ -23,7 +23,7 @@
 package org.spiderplan.tools.visulization;
 
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;

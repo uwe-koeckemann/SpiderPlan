@@ -30,10 +30,10 @@ import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.NewObject;
-import org.spiderplan.representation.constraints.Statement;
-import org.spiderplan.representation.constraints.VariableDomainRestriction.Relation;
-import org.spiderplan.representation.constraints.VariableDomainRestriction;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ExpressionTypes.DomainRelation;
+import org.spiderplan.representation.expressions.domain.NewObject;
+import org.spiderplan.representation.expressions.domain.VariableDomainRestriction;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -66,7 +66,7 @@ public class TestDomainSolver extends TestCase {
 		D.add(Term.createConstant("a"));
 		D.add(Term.createConstant("b"));
 		D.add(Term.createConstant("c"));
-		VariableDomainRestriction dr = new VariableDomainRestriction(Relation.In, Term.createVariable("X"), D);
+		VariableDomainRestriction dr = new VariableDomainRestriction(DomainRelation.In, Term.createVariable("X"), D);
 		context.add(dr);
 	
 		
@@ -94,7 +94,7 @@ public class TestDomainSolver extends TestCase {
 		testCore = dSolver.run(testCore);
 		assertTrue(testCore.getResultingState("DomainSolver").equals(State.Consistent));
 		
-		VariableDomainRestriction drNew = new VariableDomainRestriction(Relation.In, Term.createVariable("Y"), D);
+		VariableDomainRestriction drNew = new VariableDomainRestriction(DomainRelation.In, Term.createVariable("Y"), D);
 		context.add(drNew);
 		
 		testCore = dSolver.run(testCore);	

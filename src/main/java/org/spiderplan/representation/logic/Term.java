@@ -80,6 +80,7 @@ public abstract class Term {
 	
 	public static Term parse( String s ) {		
 		s = s.replace("{", "(list ").replace("}", ")").replace("  ", " ");
+		s = s.replace("[", "(interval ").replace("]", ")").replace("  ", " ");
 		
 		if ( s.contains("(") && !s.startsWith("(") ) {
 			System.out.println("Old format. This should not happen!");

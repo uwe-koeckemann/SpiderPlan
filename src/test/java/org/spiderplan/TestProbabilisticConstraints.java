@@ -27,9 +27,9 @@ import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.ProbabilisticConstraint;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.sampling.SamplingConstraint;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.types.TypeManager;
 import junit.framework.TestCase;
@@ -52,12 +52,12 @@ public class TestProbabilisticConstraints extends TestCase {
 		ConstraintDatabase s = new ConstraintDatabase();
 		s.add(new Statement("(s1 (activity ?H) ?A)"));
 		s.add(new AllenConstraint(new Atomic("(duration s1 (interval ?D ?D))")));
-		s.add(new ProbabilisticConstraint(new Atomic("(random-variable ?H (list h1 h2 h3 h4 h5 h6 h7 h8 h9 h10))")));
-		s.add(new ProbabilisticConstraint(new Atomic("(random-variable ?A activities)")));
-		s.add(new ProbabilisticConstraint(new Atomic("(random-variable ?D (interval 1 100))")));
-		s.add(new ProbabilisticConstraint(new Atomic("(sample ?H)")));
-		s.add(new ProbabilisticConstraint(new Atomic("(sample ?A)")));
-		s.add(new ProbabilisticConstraint(new Atomic("(sample ?D)")));
+		s.add(new SamplingConstraint(new Atomic("(random-variable ?H (list h1 h2 h3 h4 h5 h6 h7 h8 h9 h10))")));
+		s.add(new SamplingConstraint(new Atomic("(random-variable ?A activities)")));
+		s.add(new SamplingConstraint(new Atomic("(random-variable ?D (interval 1 100))")));
+		s.add(new SamplingConstraint(new Atomic("(sample ?H)")));
+		s.add(new SamplingConstraint(new Atomic("(sample ?A)")));
+		s.add(new SamplingConstraint(new Atomic("(sample ?D)")));
 		
 		/**
 		 * Setup Modules

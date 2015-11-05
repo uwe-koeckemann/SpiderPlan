@@ -24,16 +24,21 @@ package org.spiderplan.executor;
 
 import java.util.Random;
 
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Statement;
 
 /**
- * Extends reactor with a simple simulation of random start and end times 
+ * Extends reactor with a simple simulation of random start and end times .
  * 
- * @author Uwe Koeckemann
+ * @author Uwe Köckemann
  *
  */
 public class ReactorRandomSimulation extends Reactor {
 		
+	/**
+	 * Default constructor.
+	 * 
+	 * @param target statement to be executed
+	 */
 	public ReactorRandomSimulation(Statement target) {
 		super(target);
 	}

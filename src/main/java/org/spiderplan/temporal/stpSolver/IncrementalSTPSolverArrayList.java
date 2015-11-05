@@ -28,15 +28,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.Interval;
-import org.spiderplan.representation.constraints.PossibleIntersection;
-import org.spiderplan.representation.constraints.Statement;
-import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
-import org.spiderplan.representation.constraints.TemporalIntervalLookup;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.Interval;
+import org.spiderplan.representation.expressions.temporal.PossibleIntersection;
+import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.temporal.TemporalReasoningInterface;
@@ -446,38 +445,38 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 			Long[] dCon1 = new Long[4];
 			dCon1[0] = (long) tpOrigin;
 			dCon1[1] = fs;
-			dCon1[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon1[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon1[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon1[3] = Math.min(INF, c.getBound(0).getUpper());
 		
 			r.add(dCon1);
 		} else if ( c.getRelation().equals(TemporalRelation.Deadline) ) {
 			Long[] dCon1 = new Long[4];
 			dCon1[0] = (long) tpOrigin;
 			dCon1[1] = fe;
-			dCon1[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon1[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon1[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon1[3] = Math.min(INF, c.getBound(0).getUpper());
 		
 			r.add(dCon1);
 		}  else if ( c.getRelation().equals(TemporalRelation.Duration) ) {
 			Long[] dCon1 = new Long[4];
 			dCon1[0] = fs;
 			dCon1[1] = fe;
-			dCon1[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon1[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon1[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon1[3] = Math.min(INF, c.getBound(0).getUpper());
 		
 			r.add(dCon1);
 		} else if ( c.getRelation().equals(TemporalRelation.At) ) {
 			Long[] dCon1 = new Long[4];
 			dCon1[0] = (long) tpOrigin;
 			dCon1[1] = fs;
-			dCon1[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon1[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon1[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon1[3] = Math.min(INF, c.getBound(0).getUpper());
 			
 			Long[] dCon2 = new Long[4];
 			dCon2[0] = (long) tpOrigin;
 			dCon2[1] = fe;
-			dCon2[2] = Math.min(INF, c.getBound(1).getMin());
-			dCon2[3] = Math.min(INF, c.getBound(1).getMax());
+			dCon2[2] = Math.min(INF, c.getBound(1).getLower());
+			dCon2[3] = Math.min(INF, c.getBound(1).getUpper());
 			r.add(dCon1);
 			r.add(dCon2);
 		} 
@@ -492,15 +491,15 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 			Long[] dCon = new Long[4];
 			dCon[0] = fe;
 			dCon[1] = ts;
-			dCon[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon[3] = Math.min(INF, c.getBound(0).getUpper());
 			r.add(dCon);
 		} else if ( c.getRelation().equals(TemporalRelation.After) || c.getRelation().equals(TemporalRelation.MetByOrAfter)) {
 			Long[] dCon = new Long[4];
 			dCon[0] = te;
 			dCon[1] = fs;
-			dCon[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon[3] = Math.min(INF, c.getBound(0).getUpper());
 			r.add(dCon);
 		} else if ( c.getRelation().equals(TemporalRelation.Equals) ) {
 			Long[] dCon1 = new Long[4];
@@ -543,8 +542,8 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 			Long[] dCon2 = new Long[4];
 			dCon2[0] = fe;
 			dCon2[1] = te;
-			dCon2[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon2[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon2[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon2[3] = Math.min(INF, c.getBound(0).getUpper());
 		
 			r.add(dCon1);
 			r.add(dCon2);
@@ -558,8 +557,8 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 			Long[] dCon2 = new Long[4];
 			dCon2[0] = te;
 			dCon2[1] = fe;
-			dCon2[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon2[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon2[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon2[3] = Math.min(INF, c.getBound(0).getUpper());
 		
 			r.add(dCon1);
 			r.add(dCon2);
@@ -567,14 +566,14 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 			Long[] dCon1 = new Long[4];
 			dCon1[0] = ts;
 			dCon1[1] = fs;
-			dCon1[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon1[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon1[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon1[3] = Math.min(INF, c.getBound(0).getUpper());
 			
 			Long[] dCon2 = new Long[4];
 			dCon2[0] = fe;
 			dCon2[1] = te;
-			dCon2[2] = Math.min(INF, c.getBound(1).getMin());
-			dCon2[3] = Math.min(INF, c.getBound(1).getMax());
+			dCon2[2] = Math.min(INF, c.getBound(1).getLower());
+			dCon2[3] = Math.min(INF, c.getBound(1).getUpper());
 		
 			r.add(dCon1);
 			r.add(dCon2);
@@ -582,14 +581,14 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 			Long[] dCon1 = new Long[4];
 			dCon1[0] = fs;
 			dCon1[1] = ts;
-			dCon1[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon1[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon1[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon1[3] = Math.min(INF, c.getBound(0).getUpper());
 			
 			Long[] dCon2 = new Long[4];
 			dCon2[0] = te;
 			dCon2[1] = fe;
-			dCon2[2] = c.getBound(1).getMin();
-			dCon2[3] = c.getBound(1).getMax();
+			dCon2[2] = c.getBound(1).getLower();
+			dCon2[3] = c.getBound(1).getUpper();
 		
 			r.add(dCon1);
 			r.add(dCon2);
@@ -603,8 +602,8 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 			Long[] dCon2 = new Long[4];
 			dCon2[0] = ts;
 			dCon2[1] = fs;
-			dCon2[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon2[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon2[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon2[3] = Math.min(INF, c.getBound(0).getUpper());
 		
 			r.add(dCon1);
 			r.add(dCon2);
@@ -618,8 +617,8 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 			Long[] dCon2 = new Long[4];
 			dCon2[0] = fs;
 			dCon2[1] = ts;
-			dCon2[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon2[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon2[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon2[3] = Math.min(INF, c.getBound(0).getUpper());
 		
 			r.add(dCon1);
 			r.add(dCon2);
@@ -639,8 +638,8 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 			Long[] dCon3 = new Long[4];
 			dCon3[0] = ts;
 			dCon3[1] = fe;
-			dCon3[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon3[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon3[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon3[3] = Math.min(INF, c.getBound(0).getUpper());
 		
 			r.add(dCon1);
 			r.add(dCon2);
@@ -661,8 +660,8 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 			Long[] dCon3 = new Long[4];
 			dCon3[0] = fs;
 			dCon3[1] = te;
-			dCon3[2] = Math.min(INF, c.getBound(0).getMin());
-			dCon3[3] = Math.min(INF, c.getBound(0).getMax());
+			dCon3[2] = Math.min(INF, c.getBound(0).getLower());
+			dCon3[3] = Math.min(INF, c.getBound(0).getUpper());
 		
 			r.add(dCon1);
 			r.add(dCon2);
@@ -764,7 +763,7 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 	}
 
 	@Override
-	public ArrayList<Constraint> getSchedulingDecisions() {
+	public ArrayList<Expression> getSchedulingDecisions() {
 		throw new IllegalAccessError("This is not implemented...");
 	}
 

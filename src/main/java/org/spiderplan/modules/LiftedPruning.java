@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-import org.spiderplan.causal.ApplyPlanIterator;
+import org.spiderplan.causal.forwardPlanning.ApplyPlanIterator;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.configuration.ParameterDescription;
 import org.spiderplan.modules.solvers.Core;
@@ -40,11 +40,11 @@ import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.DiscardedPlan;
-import org.spiderplan.representation.constraints.PlanningInterval;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.causal.DiscardedPlan;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
@@ -376,7 +376,7 @@ public class LiftedPruning extends Module {
 			pCopy.addAction(liftedOp);
 			if ( keepTimes ) StopWatch.stop("[LiftedPruning] copy remove add");
 			
-			HashSet<Constraint> remList = new HashSet<Constraint>();
+			HashSet<Expression> remList = new HashSet<Expression>();
 			for ( AllenConstraint tC : pCopy.getConstraints().get(AllenConstraint.class) ) {
 				if ( needToDisconnect.contains(tC.getFrom()) || needToDisconnect.contains(tC.getTo())) {
 					remList.add(tC);

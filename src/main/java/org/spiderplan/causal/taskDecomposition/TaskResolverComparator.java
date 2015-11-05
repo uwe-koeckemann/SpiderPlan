@@ -25,13 +25,16 @@ package org.spiderplan.causal.taskDecomposition;
 import java.util.Comparator;
 
 import org.spiderplan.modules.solvers.Resolver;
-import org.spiderplan.representation.constraints.Task;
+import org.spiderplan.representation.expressions.causal.Task;
 
+/**
+ * Compares two resolvers based on the number of open tasks. 
+ * 
+ * @author Uwe Köckemann
+ *
+ */
 public class TaskResolverComparator implements Comparator<Resolver> {
 		
-	public TaskResolverComparator( ) {
-	}
-	
 	@Override
 	public int compare(Resolver o1, Resolver o2) {
 		int subTasksO1 = 0;

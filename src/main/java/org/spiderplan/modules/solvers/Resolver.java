@@ -23,8 +23,8 @@
 package org.spiderplan.modules.solvers;
 
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Asserted;
-import org.spiderplan.representation.constraints.Delete;
+import org.spiderplan.representation.expressions.misc.Asserted;
+import org.spiderplan.representation.expressions.misc.Delete;
 import org.spiderplan.representation.logic.Substitution;
 
 /**

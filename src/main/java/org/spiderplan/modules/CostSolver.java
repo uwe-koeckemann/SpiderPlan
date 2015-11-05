@@ -31,7 +31,8 @@ import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
-import org.spiderplan.representation.constraints.Cost;
+import org.spiderplan.representation.expressions.ExpressionTypes.CostRelation;
+import org.spiderplan.representation.expressions.cost.Cost;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.logging.Logger;
@@ -81,11 +82,10 @@ public class CostSolver extends Module implements SolverInterface {
 		if ( verbose ) Logger.msg(getName(), "Calculating... ", 1);
 		
 		for ( Cost cost : costCons ) {
-			Atomic relation = cost.getRelation();
-			String operator = cost.getRelation().name();
-			
-			if ( operator.equals("add") 
-			  || operator.equals("sub") ) {
+			Atomic relation = cost.getConstraint();
+				
+			if ( cost.getRelation().equals(CostRelation.Add)
+				|| cost.getRelation().equals(CostRelation.Sub) ) {
 				
 				if ( verbose ) Logger.msg(getName(), "    " + cost, 1);
 				
@@ -117,7 +117,7 @@ public class CostSolver extends Module implements SolverInterface {
 				}
 				
 				double modifier = 1.0;
-				if ( relation.equals("sub") ) {
+				if ( cost.getRelation().equals(CostRelation.Sub) ) {
 					modifier = -1.0;
 				}
 					
@@ -145,13 +145,12 @@ public class CostSolver extends Module implements SolverInterface {
 		if ( verbose ) Logger.msg(getName(), "Checking inequalities... ", 1);
 				
 		for ( Cost  cost : core.getContext().get(Cost.class) ) {
-			Atomic relation = cost.getRelation();
-			String operator = cost.getRelation().name();
+			Atomic relation = cost.getConstraint();
 			
-			if ( operator.equals("less-than")  
-			||   operator.equals("less-than-or-equals")
-			||   operator.equals("greater-than")
-			||   operator.equals("greater-than-or-equals") ) {
+			if ( cost.getRelation().equals(CostRelation.LessThan) 
+			||   cost.getRelation().equals(CostRelation.LessThanOrEquals)
+			||   cost.getRelation().equals(CostRelation.GreaterThan)
+			||   cost.getRelation().equals(CostRelation.GreaterThanOrEquals) ) {
 									
 				if ( verbose ) Logger.msg(getName(), "    " + cost, 1);
 						
@@ -186,13 +185,13 @@ public class CostSolver extends Module implements SolverInterface {
 				}
 				
 				if ( !ignored ) {
-					if ( operator.equals("less-than") ) { 
+					if ( cost.getRelation().equals(CostRelation.LessThan) ) { 
 						atLeastOneViolation = !(costValue < compareValue);
-					} else if ( operator.equals("less-than-or-equals") ) { 
+					} else if (cost.getRelation().equals(CostRelation.LessThanOrEquals) ) { 
 						atLeastOneViolation = !(costValue <= compareValue);
-					} else if ( operator.equals("greater-than") ) { 
+					} else if ( cost.getRelation().equals(CostRelation.GreaterThan) ) { 
 						atLeastOneViolation = !(costValue > compareValue);
-					} else if ( operator.equals("greater-than-or-equals") ) { 
+					} else if ( cost.getRelation().equals(CostRelation.GreaterThanOrEquals) ) { 
 						atLeastOneViolation = !(costValue >= compareValue);
 					}
 					if ( atLeastOneViolation ) {

@@ -40,11 +40,11 @@ import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.Asserted;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.InteractionConstraint;
-import org.spiderplan.representation.constraints.OpenGoal;
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.causal.OpenGoal;
+import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
+import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.search.GenericSingleNodeSearch;
 import org.spiderplan.tools.logging.Logger;
@@ -394,7 +394,7 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 		
 		ConstraintDatabase enabledDB = core.getContext().copy();
 		enabledDB.removeAll(icsInCoreContext);	// (a) We only consider ICs belonging to the tested condition
-		Map<Class<? extends Constraint>,Integer> cCount = enabledDB.getConstraintCount();
+		Map<Class<? extends Expression>,Integer> cCount = enabledDB.getConstraintCount();
 		
 		
 //		ConstraintDatabase focused = new ConstraintDatabase();

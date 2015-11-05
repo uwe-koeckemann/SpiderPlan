@@ -39,7 +39,8 @@ import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.ProbabilisticConstraint;
+import org.spiderplan.representation.expressions.ExpressionTypes.SamplingRelation;
+import org.spiderplan.representation.expressions.sampling.SamplingConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -47,7 +48,8 @@ import org.spiderplan.representation.types.Type;
 import org.spiderplan.tools.logging.Logger;
 
 /**
- * Can be used to randomize variables in domain and problem definitions.
+ * Can be used to randomize variables in {@link ConstraintDatabase}s via 
+ * {@link SamplingConstraint}s.
  *  
  * @author Uwe Köckemann
  *
@@ -114,16 +116,16 @@ public class SamplingSolver extends Module implements SolverInterface {
 	public SolverResult testAndResolve( Core core ) {
 		boolean isConsistent = true;
 		
-		Collection<ProbabilisticConstraint> C = core.getContext().get(ProbabilisticConstraint.class);
+		Collection<SamplingConstraint> C = core.getContext().get(SamplingConstraint.class);
 		
 		Map<Term,List<Term>> domains = new HashMap<Term, List<Term>>();
 
 		Atomic r;
 		if ( verbose ) Logger.msg(getName(), "Loading random variable domains...", 1);
-		for ( ProbabilisticConstraint pC : C ) {
-			r = pC.getRelation();
+		for ( SamplingConstraint pC : C ) {
+			r = pC.getConstraint();
 			
-			if ( r.getUniqueName().equals("random-variable/2") ) {
+			if ( pC.getRelation().equals(SamplingRelation.RandomVariable) ) { // r.getUniqueName().equals("random-variable/2") ) {
 				if ( verbose ) Logger.msg(getName(), r.toString(), 1);
 				Term randomVariable = r.getArg(0);
 				Term domTerm = r.getArg(1);
@@ -160,10 +162,10 @@ public class SamplingSolver extends Module implements SolverInterface {
 		}
 		if ( verbose ) Logger.msg(getName(), "Sampling...", 1);
 		Substitution theta = new Substitution();
-		for ( ProbabilisticConstraint pC : C ) {
-			r = pC.getRelation();
+		for ( SamplingConstraint pC : C ) {
+			r = pC.getConstraint();
 			
-			if ( r.getUniqueName().equals("sample/1") ) {
+			if ( pC.getRelation().equals(SamplingRelation.Sample) ) {
 				if ( verbose ) Logger.msg(getName(), "    " + r, 1);
 				Term randomVariable = r.getArg(0);
 				if ( randomVariable.isVariable() ) {

@@ -28,46 +28,104 @@ import java.util.Collection;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.constraints.AllenConstraint;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.ConstraintTypes.TemporalRelation;
-import org.spiderplan.representation.constraints.Interval;
-import org.spiderplan.representation.constraints.Statement;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
+/**
+ * Manages execution of statements. 
+ * 
+ * @author Uwe Köckemann
+ *
+ */
 public abstract class Reactor {
-	public Statement target;
-//	MetaCSPAdapter csp;
-//	ConstraintDatabase execDB;
+	protected Statement target;
 	
 	protected long t;
 	
 	long t_init_start = -1;
 	long t_init_finish = -1;
 	
-	public State s = State.NotStarted;
+	protected State s = State.NotStarted;
 	
 	AllenConstraint afterPast;
 	AllenConstraint overlapsFuture;
 	
-	Collection<Constraint> activeConstraints = new ArrayList<Constraint>();
+	Collection<Expression> activeConstraints = new ArrayList<Expression>();
 	
-	public enum State { NotStarted, WaitingForStart, Started, WaitingForFinished, Finished, Done };
+	/**
+	 * States of execution.
+	 * 
+	 * @author Uwe Köckemann
+	 *
+	 */
+	public enum State { /**
+	 * 
+	 */
+	NotStarted, /**
+	 * 
+	 */
+	WaitingForStart, /**
+	 * 
+	 */
+	Started, /**
+	 * 
+	 */
+	WaitingForFinished, /**
+	 * 
+	 */
+	Finished, /**
+	 * 
+	 */
+	Done };
 	
-	public long EST,LST,EET,LET;
+	private long EST,LST,EET,LET; // TODO: only used by toString()
 	
-	public String name = "Executor";
-	public int depth = 0;
-	public boolean verbose = false;
+	protected String name = "Executor"; // TODO: only used by logger. is there a better way to do this?
+	protected int depth = 0;
+	protected boolean verbose = false;
 	
 	boolean firstUpdate = true;
 	
+	/**
+	 * Create a new reactor for target statement.
+	 * 
+	 * @param target statement to be executed
+	 */
 	public Reactor( Statement target ) {
 		this.target = target;
 	}	
 	
-	public Collection<Constraint> update( long t, long EST, long LST, long EET, long LET, ConstraintDatabase execDB ) {
+	/**
+	 * Get the statement executed by this reactor.
+	 * 
+	 * @return executed statement
+	 */
+	public Statement getTarget() { return target; }
+	
+	/**
+	 * Get current state of execution.
+	 * 
+	 * @return the execution state
+	 */
+	public State getState() { return s; }
+	
+	/**
+	 * Update state of execution
+	 * 
+	 * @param t current time 
+	 * @param EST earliest start time of target statement
+	 * @param LST latest start time of target statement
+	 * @param EET earliest end time of target statement
+	 * @param LET latest end time of target statement
+	 * @param execDB execution context
+ 	 * @return constraints that need to be added to execution context to maintain execution timing
+	 */
+	public Collection<Expression> update( long t, long EST, long LST, long EET, long LET, ConstraintDatabase execDB ) {
 		this.t = t;
 		
 		this.EST = EST;

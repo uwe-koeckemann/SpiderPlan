@@ -29,8 +29,8 @@ import java.util.Map;
 
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
-import org.spiderplan.representation.constraints.Constraint;
-import org.spiderplan.representation.constraints.PrologConstraint;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.GenericComboBuilder;
@@ -52,7 +52,7 @@ public class PrologTools {
 	public static Map<Term,Collection<PrologConstraint>> getQueries( Operator o ) {
 		Map<Term,Collection<PrologConstraint>> queries = new HashMap<Term, Collection<PrologConstraint>>();
 		
-		for ( Constraint c : o.getConstraints() ) {
+		for ( Expression c : o.getConstraints() ) {
 			if ( c instanceof PrologConstraint ) {
 				PrologConstraint rC = (PrologConstraint)c;
 				if ( !queries.containsKey(rC.getProgramID()) ) {
