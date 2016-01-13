@@ -40,6 +40,7 @@ import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.SimpleDistanceConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -109,6 +110,8 @@ public class Compile {
 	}
 	 
 	public static void compile( ArrayList<String> domainFilenames, String plannerFilename ) {
+		boolean isPDDL = false;
+		
 		if ( keepTimes || printTimes ) StopWatch.start("Compiling");
 		try {
 				
@@ -144,7 +147,8 @@ public class Compile {
 				
 				if ( filename.endsWith(".pddl") ) {
 					if ( keepTimes || printTimes ) StopWatch.start("PDDL post processing");
-					PDDLpostProcessing();
+//					PDDLpostProcessing();
+					isPDDL = true;
 					if ( keepTimes || printTimes ) StopWatch.stop("PDDL post processing");
 				}
 			}
@@ -170,17 +174,21 @@ public class Compile {
 				c.getTypeManager().collectTypeInformation(c.getContext());
 			}
 			
+			if ( isPDDL ) {
+				c.getContext().export(Global.workingDir + "dump.uddl");
+			}
+			
 			/**
 			 * TODO: change this...
 			 */
 			Global.initialContext = c.getContext().copy();
 			
 //			System.out.println(c.getTypeManager());
-			
+//			
 //			for ( Operator o : c.getOperators() ) {
 //				System.out.println(o);
 //			}
-			
+//			
 //			System.out.println(c.getContext());
 			
 
@@ -497,6 +505,12 @@ public class Compile {
 									remListCon.add(tC);
 								}
 							}
+							if ( con instanceof SimpleDistanceConstraint ) {
+								SimpleDistanceConstraint tC = (SimpleDistanceConstraint)con;
+								if ( tC.getFrom().equals(p.getKey()) || tC.getTo().equals(p.getKey()) ) {
+									remListCon.add(tC);
+								}
+							}
 						}
 						
 						o.addConstraint(rC);
@@ -510,6 +524,7 @@ public class Compile {
 						}																
 					}
 				}
+		
 				o.getPreconditions().removeAll(remList);
 				o.getConstraints().removeAll(remListCon);
 			}
@@ -606,7 +621,7 @@ public class Compile {
 		for ( PrologConstraint rC : allRelCons ) {
 			Atomic rel = rC.getRelation();
 			for ( int i = 0 ; i < rel.getNumArgs() ; i++ ) {
-				System.out.println("Rel: " + rel + " at " + i);
+//				System.out.println("Rel: " + rel + " at " + i);
 				t = tM.getPredicateTypes(rel.getUniqueName(), i);
 				if ( allGroundOccurences.containsKey(t) ) { 
 					if ( rel.getArg(i).isGround() ) {

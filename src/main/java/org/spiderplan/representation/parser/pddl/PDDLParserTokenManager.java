@@ -27,6 +27,8 @@ import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.tools.UniqueID;
+import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
+import org.spiderplan.representation.expressions.temporal.SimpleDistanceConstraint.TimePoint;
 @SuppressWarnings("all")
 
 /** Token Manager. */

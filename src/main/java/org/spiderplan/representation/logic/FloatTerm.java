@@ -53,7 +53,15 @@ public class FloatTerm extends Term {
 	public String getName() {
 		return value.toString(); 
 	}
-		
+	
+	/**
+	 * Get the Double value of this term.
+	 * @return the value
+	 */
+	public Double getValue() {
+		return value; 
+	}
+			
 	/**
 	 * Match <code>this</code> {@link FloatTerm} to another {@link FloatTerm} <code>a</code>. Returns a {@link Substitution} which makes them
 	 * equal or <code>null</code> if such a {@link Substitution} does not exist. If both <code>this</code> and <code>a</code> are variables

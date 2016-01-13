@@ -37,6 +37,7 @@ import org.spiderplan.representation.expressions.misc.CustomConstraint;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
+import org.spiderplan.representation.expressions.temporal.SimpleDistanceConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.Type;
@@ -308,6 +309,15 @@ public class ConsistencyChecker {
 							disconnectedVars.add(v.toString());
 						}
 					}	
+				}  else if ( c instanceof SimpleDistanceConstraint ) {
+					SimpleDistanceConstraint tC = (SimpleDistanceConstraint)c;
+					
+						for ( Term v : tC.getBound().getLowerTerm().getVariables() ) {
+							disconnectedVars.add(v.toString());
+						}
+						for ( Term v : tC.getBound().getUpperTerm().getVariables() ) {
+							disconnectedVars.add(v.toString());
+						}	
 				} else if ( c instanceof VariableDomainRestriction ) {
 					VariableDomainRestriction tC = (VariableDomainRestriction)c;
 					
@@ -400,6 +410,7 @@ public class ConsistencyChecker {
 			if ( verbose ) {
 				System.out.print(getDottedString(o.getName().toString(),numChars));
 			}
+//			System.out.println(o);
 			
 			oCopy = o.copy();
 					
@@ -473,8 +484,11 @@ public class ConsistencyChecker {
 					if ( tC.isBinary() ) {
 						tcLabels.add(tC.getTo().toString());
 					}
-				}
-				
+				} else if ( c instanceof SimpleDistanceConstraint ) {
+					SimpleDistanceConstraint tC = (SimpleDistanceConstraint)c;	
+					tcLabels.add(tC.getFrom().toString());
+					tcLabels.add(tC.getTo().toString());
+				}				
 			}
 			
 			for ( String s : statementsLabels ) {

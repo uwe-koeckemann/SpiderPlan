@@ -131,14 +131,10 @@ public class RunSingleProblem {
 			tnv.draw(res);
 			
 			TemporalNetworkTools.dumbTimeLineData(res, csp.getPropagatedTemporalIntervals(), "stp.txt");
-					
 
-//			System.out.println(StopWatch.allSums2Str());
-//			System.out.println("makespan = " + csp.getMakespan(res, new ArrayList<Statement>()));
-			
-//			System.out.println(Module.getStats());
+			res.export("solution.uddl");
 		}
-		
+						
 		System.out.println("===========================================================");
 		System.out.println("= Statistics");
 		System.out.println("===========================================================");

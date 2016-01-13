@@ -231,10 +231,11 @@ public class ApplyPlanIterator extends ResolverIterator {
 							Statement s = cDB.getStatement(interval);
 							if ( s.getValue().equals(goal.getValue()) ) {
 								if ( !goalStatements.contains(s) ) {
-									Term newKey = goal.getKey().makeConstant();
-									sub.add(goal.getKey(),newKey);								
-									
-									AllenConstraint newLink = new AllenConstraint(interval, newKey, TemporalRelation.Equals);
+									//TODO: does this work?
+//									Term newKey = goal.getKey().makeConstant();
+//									sub.add(goal.getKey(),newKey);								
+									AllenConstraint newLink = new AllenConstraint(interval, goal.getKey(), TemporalRelation.Equals);
+//									AllenConstraint newLink = new AllenConstraint(interval, newKey, TemporalRelation.Equals);
 									
 									if ( verbose ) print("    Possible link (goal): " + newLink, 3);
 									
@@ -269,10 +270,15 @@ public class ApplyPlanIterator extends ResolverIterator {
 					for ( Statement s : a.getEffects() ) {
 						Substitution theta = goal.matchWithoutKey(s);	
 						if ( theta != null ) {		
-							Term newKey = goal.getKey().makeConstant();
-							theta.add(goal.getKey(),newKey);		
+							//TODO: does this work?
+//							Term newKey = goal.getKey().makeConstant();
+//							sub.add(goal.getKey(),newKey);								
+							AllenConstraint newLink = new AllenConstraint(s.getKey(), goal.getKey(), TemporalRelation.Equals);
+//							AllenConstraint newLink = new AllenConstraint(interval, newKey, TemporalRelation.Equals);
+//							Term newKey = goal.getKey().makeConstant();
+//							theta.add(goal.getKey(),newKey);		
 							
-							AllenConstraint newLink = new AllenConstraint(s.getKey(), newKey, ExpressionTypes.TemporalRelation.Equals);
+//							AllenConstraint newLink = new AllenConstraint(s.getKey(), newKey, ExpressionTypes.TemporalRelation.Equals);
 							
 							if ( verbose ) print("    Possible link (goal): " + newLink, 3);
 							

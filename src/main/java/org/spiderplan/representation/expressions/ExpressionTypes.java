@@ -26,6 +26,7 @@ import org.spiderplan.representation.expressions.cost.Cost;
 import org.spiderplan.representation.expressions.domain.DomainMemberConstraint;
 import org.spiderplan.representation.expressions.domain.TypeDomainConstraint;
 import org.spiderplan.representation.expressions.domain.TypeSignatureConstraint;
+import org.spiderplan.representation.expressions.domain.Uncontrollable;
 import org.spiderplan.representation.expressions.graph.GraphConstraint;
 import org.spiderplan.representation.expressions.math.MathConstraint;
 import org.spiderplan.representation.expressions.sampling.SamplingConstraint;
@@ -93,11 +94,11 @@ public class ExpressionTypes {
 	 * 	to provide unique internal names for the same relations. They are also used by 
 	 * 	solvers to avoid bugs that result from using string names everywhere.
 	 */
-	public enum MathRelation { Addition, Subtraction, Multiplication, Division, Modulo, GreaterThan, GreaterThanOrEquals, LessThan, LessThanOrEquals };
+	public enum MathRelation { EvalInt, EvalFloat, Addition, Subtraction, Multiplication, Division, Modulo, GreaterThan, GreaterThanOrEquals, LessThan, LessThanOrEquals };
 	public enum SetRelation { Set, Add, In, NotIn, IsDomain, Equals, Subset, ProperSubset };
 	public enum GraphRelation { Directed, Undirected, Vertex, Edge, Draw, DAG, Flow, Capacity, Path, ShortestPath };
 	public enum CostRelation { Add, Sub, LessThan, LessThanOrEquals, GreaterThan, GreaterThanOrEquals };
-	public enum DomainRelation { Enum, Int, Float, Equal, NotEqual, In, NotIn, Signature };
+	public enum DomainRelation { Enum, Int, Float, Equal, NotEqual, In, NotIn, Signature, Uncontrollable };
 	public enum SamplingRelation { RandomVariable, Sample };
 	public enum TemporalRelation { 
 		Equals, Before, BeforeOrMeets, After, Meets, MetBy,  MetByOrAfter, 
@@ -169,6 +170,9 @@ public class ExpressionTypes {
 		DomainConstraints.add("sig/3", 			"(sig (p t1 t2) t)", 
 				"The domain of the arguments of p/2 are of type t1 and t2. The value type is t.", 
 				DomainRelation.Signature, TypeSignatureConstraint.class);
+		DomainConstraints.add("uncontrollable/1", 	"(uncontrollable (list x1 x2 ... xn))", 
+				"Terms x1, ..., xn cannot be influenced by any solver. If xi are variables they cannot be substituted.", 
+				DomainRelation.Uncontrollable, Uncontrollable.class);
 		
 		CostConstraints.add("add/2", 					"(add c x)", "c = c + x", 					CostRelation.Add,					Cost.class);
 		CostConstraints.add("sub/2", 					"(subtract c x)", "c = c - x", 				CostRelation.Sub, 					Cost.class);
@@ -198,11 +202,13 @@ public class ExpressionTypes {
 		SetConstraints.add("proper-subset/2", 	"(proper-subset S1 S2)", "S1 is a proper subset of S2.",	SetRelation.ProperSubset, 	SetConstraint.class);
 		SetConstraints.addAlias(SetRelation.NotIn, "notin/2");
 		
-		MathConstraints.add("add/3", "(add x y z)",		"x + y = z", 	MathRelation.Addition, 			MathConstraint.class);
-		MathConstraints.add("sub/3", "(sub x y z)",		"x - y = z", 	MathRelation.Subtraction, 		MathConstraint.class);
-		MathConstraints.add("mult/3","(mult x y z)", 	"x * y = z", 	MathRelation.Multiplication, 	MathConstraint.class);
-		MathConstraints.add("div/3", "(div x y z)", 	"x / y = z", 	MathRelation.Division, 			MathConstraint.class);
-		MathConstraints.add("mod/3", "(mod x y z)", 	"x mod y = z", 	MathRelation.Modulo, 			MathConstraint.class);
+		MathConstraints.add("eval-int/2", "(eval-int x expression)", "Evaluate integer expression. If x is variable it will be substituted with result. If x is ground it can be retrieved by other modules with (get-math-value x). If float values are used they will be converted to integers.", 	MathRelation.EvalInt, MathConstraint.class);
+		MathConstraints.add("eval-float/2", "(eval-float x expression)", "Evaluate float expression. If x is variable it will be substituted with result. If x is ground it can be retrieved by other modules with (get-math-value x). If integer values are used they will be converted to floats.", 	MathRelation.EvalFloat, MathConstraint.class);
+//		MathConstraints.add("add/3", "(add x y z)",		"x + y = z", 	MathRelation.Addition, 			MathConstraint.class);
+//		MathConstraints.add("sub/3", "(sub x y z)",		"x - y = z", 	MathRelation.Subtraction, 		MathConstraint.class);
+//		MathConstraints.add("mult/3","(mult x y z)", 	"x * y = z", 	MathRelation.Multiplication, 	MathConstraint.class);
+//		MathConstraints.add("div/3", "(div x y z)", 	"x / y = z", 	MathRelation.Division, 			MathConstraint.class);
+//		MathConstraints.add("mod/3", "(mod x y z)", 	"x mod y = z", 	MathRelation.Modulo, 			MathConstraint.class);
 		MathConstraints.add("less-than/2", 				"(less-than x y)", "x < y",					MathRelation.LessThan, 				MathConstraint.class);
 		MathConstraints.add("less-than-or-equal/2", 	"(less-than-or-equal x y)", "x <= y", 		MathRelation.LessThanOrEquals, 		MathConstraint.class);
 		MathConstraints.add("greater-than/2", 			"(greater-than x y)", "x > y", 				MathRelation.GreaterThan, 			MathConstraint.class);

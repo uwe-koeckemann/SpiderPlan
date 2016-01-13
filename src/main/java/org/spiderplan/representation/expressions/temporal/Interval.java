@@ -105,7 +105,7 @@ public class Interval {
 			return Global.MaxTemporalHorizon;
 		else if ( min.isVariable()  ) 
 			return 0;
-		else
+		else 
 			return ((IntegerTerm)min).getValue();
 	} 
 	

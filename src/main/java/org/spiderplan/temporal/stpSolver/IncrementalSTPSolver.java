@@ -35,6 +35,7 @@ import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelatio
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PossibleIntersection;
+import org.spiderplan.representation.expressions.temporal.SimpleDistanceConstraint;
 import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
@@ -42,23 +43,29 @@ import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.temporal.TemporalReasoningInterface;
 import org.spiderplan.tools.logging.Logger;
 
+/**
+ * Solver for {@link AllenConstraint} and {@link SimpleDistanceConstraint}.
+ * 
+ * @author Uwe Köckemann
+ *
+ */
 public class IncrementalSTPSolver implements TemporalReasoningInterface {
 	
 	private String name = "incSTP";
 	private boolean verbose = false;
 
 	private long[][] d;
-//	private List<List<Long>> distance;
 	private Map<Term,Integer> tpStart;
 	private List<Statement> addedStatements;
 	private List<AllenConstraint> addedAllenConstraints;
+	private List<SimpleDistanceConstraint> addedSimpleDistanceConstraints;
 	
 	private int maxHistorySize = 100;
-//	private List<List<List<Long>>> distanceHistory;
 	private List<long[][]> dHistory;
 	private List<Map<Term,Integer>> tpStartHistory;
 	private List<List<Statement>> addedStatementsHistory;
 	private List<List<AllenConstraint>> addedAllenConstraintsHistory;
+	private List<List<SimpleDistanceConstraint>> addedSimpleDistanceConstraintsHistory;
 	
 	private Map<Long[],AllenConstraint> debugLookUp = new HashMap<Long[], AllenConstraint>(); 
 	
@@ -76,22 +83,32 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 	private boolean propagationRequired = false;
 	
 	private boolean useLinearRevert = false;
+	/**
+	 * Simple flag to switch debug mode on and off. 
+	 * Debug mode will provide details about 
+	 * individual temporal constraints and point out
+	 * when inconsistencies arise.
+	 */
 	public boolean debug = false;
 		
+	/**
+	 * Create new solver by providing temporal origin and horizon.
+	 * @param origin the earliest considered time
+	 * @param horizon the latest considered time
+	 */
 	public IncrementalSTPSolver( long origin, long horizon ) {
 		this.O = origin;
 		this.H = horizon;
 		reset();
 	}
-	
-
-	
+		
 	@Override
 	public boolean isConsistent( ConstraintDatabase cDB, TypeManager tM ) {
 		propagationRequired = false;
 		
 		List<Statement> newStatements;
 		List<AllenConstraint> newAllenConstraints;
+		List<SimpleDistanceConstraint> newSimpleDistanceConstraints;
 
 		int revertToIndex;
 		
@@ -120,6 +137,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 					beginIndex = new ArrayList<Integer>();
 					beginIndex.add(0);
 					beginIndex.add(0);
+					beginIndex.add(0);
 				} else {
 					needFromScratch = false;
 					
@@ -132,18 +150,23 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 						this.bookmark();
 						// if ( keepTimes ) StopWatch.stop("[incSTP] 1-a) Reverting");
 					}
-					if ( beginIndex.get(0) == addedStatements.size() && beginIndex.get(1) == addedAllenConstraints.size() ) {
+					if ( beginIndex.get(0) == addedStatements.size() 
+							&& beginIndex.get(1) == addedAllenConstraints.size() 
+							&& beginIndex.get(2) == addedSimpleDistanceConstraints.size() ) 
+					{
 						propagationRequired = false;
 					} 
 				}
 				
 				newStatements = cDB.get(Statement.class).subList(beginIndex.get(0), cDB.get(Statement.class).size());
 				newAllenConstraints = cDB.get(AllenConstraint.class).subList(beginIndex.get(1), cDB.get(AllenConstraint.class).size());
+				newSimpleDistanceConstraints = cDB.get(SimpleDistanceConstraint.class).subList(beginIndex.get(2), cDB.get(SimpleDistanceConstraint.class).size());
 			} else {
 				// if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (quadratic)");
 				
 				List<Statement> cdbStatements = cDB.get(Statement.class);				
 				List<AllenConstraint> cdbAllenConstraints = cDB.get(AllenConstraint.class);
+				List<SimpleDistanceConstraint> cdbSimpleDistanceConstraints = cDB.get(SimpleDistanceConstraint.class);
 				
 				revertToIndex = dHistory.size()-1;
 		
@@ -172,9 +195,11 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 					if ( verbose ) Logger.msg(this.name, "Propagating from scratch...", 2);
 					newStatements = new ArrayList<Statement>();
 					newAllenConstraints = new ArrayList<AllenConstraint>();
+					newSimpleDistanceConstraints = new ArrayList<SimpleDistanceConstraint>();
 					
 					newStatements.addAll(cdbStatements);
 					newAllenConstraints.addAll(cdbAllenConstraints);	
+					newSimpleDistanceConstraints.addAll(cdbSimpleDistanceConstraints);				
 				} else {
 					needFromScratch = false;
 					
@@ -191,28 +216,35 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 						propagationRequired = false;
 						newStatements = new ArrayList<Statement>();
 						newAllenConstraints = new ArrayList<AllenConstraint>();
+						newSimpleDistanceConstraints = new ArrayList<SimpleDistanceConstraint>();
 					} else {
 						// only propagate new constraints
 						newStatements = new ArrayList<Statement>();
 						newAllenConstraints = new ArrayList<AllenConstraint>();
+						newSimpleDistanceConstraints = new ArrayList<SimpleDistanceConstraint>();
 						
 						newStatements.addAll(cdbStatements);
 						newAllenConstraints.addAll(cdbAllenConstraints);
+						newSimpleDistanceConstraints.addAll(cdbSimpleDistanceConstraints);
 						
 						newStatements.removeAll(addedStatementsHistory.get(revertToIndex));
 						newAllenConstraints.removeAll(addedAllenConstraintsHistory.get(revertToIndex));
+						newSimpleDistanceConstraints.remove(addedSimpleDistanceConstraintsHistory.get(revertToIndex));
 					}
 				}
 			}
 		} else {
 			List<Statement> cdbStatements = cDB.get(Statement.class);				
 			List<AllenConstraint> cdbAllenConstraints = cDB.get(AllenConstraint.class);
+			List<SimpleDistanceConstraint> cdbSimpleDistanceConstraints = cDB.get(SimpleDistanceConstraint.class);
 			
 			newStatements = new ArrayList<Statement>();
 			newAllenConstraints = new ArrayList<AllenConstraint>();
+			newSimpleDistanceConstraints = new ArrayList<SimpleDistanceConstraint>();
 			
 			newStatements.addAll(cdbStatements);
 			newAllenConstraints.addAll(cdbAllenConstraints);
+			newSimpleDistanceConstraints.addAll(cdbSimpleDistanceConstraints);
 		}
 		
 //		System.out.println("====================================================");
@@ -253,6 +285,8 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 			// if ( keepTimes ) StopWatch.start("[incSTP] Generating simple distance constraints");
 			addedConstraints.addAll(this.getNewDistanceConstraints(newAllenConstraints));
 			// if ( keepTimes ) StopWatch.stop("[incSTP] Generating simple distance constraints");
+			
+			addedConstraints.addAll(this.convertSimpleDistanceConstraints(newSimpleDistanceConstraints));
 			
 			if ( !addedConstraints.isEmpty() ) {
 				propagationRequired = true;
@@ -373,14 +407,41 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 	private void reset( ) {
 		d = null; //new ArrayList<List<Long>>();
 		tpStart = new HashMap<Term, Integer>();
+		
+		tpStart.put(Term.createConstant("_OH_"), 0); //TODO find better name
 
 		addedStatements = new ArrayList<Statement>();
 		addedAllenConstraints = new ArrayList<AllenConstraint>();
+		addedSimpleDistanceConstraints = new ArrayList<SimpleDistanceConstraint>();
 		
 		dHistory = new ArrayList<long[][]>();
 		tpStartHistory = new ArrayList<Map<Term,Integer>>();
 		addedStatementsHistory = new ArrayList<List<Statement>>();
 		addedAllenConstraintsHistory = new ArrayList<List<AllenConstraint>>();
+		addedSimpleDistanceConstraintsHistory = new ArrayList<List<SimpleDistanceConstraint>>();
+	}
+	
+	private List<Long[]> convertSimpleDistanceConstraints( List<SimpleDistanceConstraint> SDC ) {
+		List<Long[]> r = new Vector<Long[]>();
+		
+		for ( SimpleDistanceConstraint sdc : SDC ) {
+			this.addedSimpleDistanceConstraints.add(sdc);
+			Long[] dCon = new Long[4];
+			dCon[0] = Long.valueOf(tpStart.get(sdc.getFrom()));		// set to start time point of interval
+			dCon[1] = Long.valueOf(tpStart.get(sdc.getTo()));		// set to start time point of interval
+			dCon[2] = sdc.getBound().getLower();
+			dCon[3] = sdc.getBound().getUpper();
+
+			if ( sdc.getFromPoint().equals(SimpleDistanceConstraint.TimePoint.ET)) {
+				dCon[0]++; 		// change to end time point if needed
+			}
+			if ( sdc.getToPoint().equals(SimpleDistanceConstraint.TimePoint.ET)) {
+				dCon[1]++;		// change to end time point if needed
+			}
+			r.add(dCon);
+		}
+		
+		return r;
 	}
 	
 	private List<Long[]> getNewDistanceConstraints( List<AllenConstraint> AC ) {
@@ -451,6 +512,11 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 //		return sb.toString();
 //	}
 	
+	/**
+	 * Get a map from temporal interval keys to the propagated bounds
+	 * of their start and end times.
+	 * @return map to look up bounds from interval keys
+	 */
 	public TemporalIntervalLookup getPropagatedTemporalIntervals() {
 		Map<Term,Long[]> bounds = new HashMap<Term, Long[]>();
 		
@@ -546,6 +612,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 	
 	
 	private List<Long[]> binaryAllen2SimpleDistance( AllenConstraint c, long fs, long fe, long ts, long te ) {
+		System.out.println(c);
 		List<Long[]> r = new ArrayList<Long[]>();
 		
 		if ( c.getRelation().equals(TemporalRelation.Before) || c.getRelation().equals(TemporalRelation.BeforeOrMeets)) {
@@ -758,8 +825,23 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 			}
 		}
 		
+		List<SimpleDistanceConstraint> SDC2 = cdb.get(SimpleDistanceConstraint.class);
+		
+		if ( addedSimpleDistanceConstraintsHistory.get(n).size() > SDC2.size() ) {
+			return null;
+		}
+		
+		for ( int i = 0 ; i < addedSimpleDistanceConstraintsHistory.get(n).size() ; i++ ) {
+			if ( !addedSimpleDistanceConstraintsHistory.get(n).get(i).equals(SDC2.get(i)) ) {
+				return null;
+			}
+		}
+		
+		
 		r.add(addedStatementsHistory.get(n).size());
 		r.add(addedAllenConstraintsHistory.get(n).size());
+		r.add(addedSimpleDistanceConstraintsHistory.get(n).size());
+	
 		
 //		StopWatch.stop("isContainedIn");
 		return r;
@@ -770,6 +852,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		Map<Term,Integer> tpStartCopy = new HashMap<Term, Integer>();
 		List<Statement> addedStatementsCopy = new ArrayList<Statement>();
 		List<AllenConstraint> addedAllenConstraintsCopy = new ArrayList<AllenConstraint>();
+		List<SimpleDistanceConstraint> addedSimpleDistanceConstraintsCopy = new ArrayList<SimpleDistanceConstraint>();
 		
 		for ( int i = 0 ; i < d.length ; i++ ) {
 			for ( int j = 0 ; j < d.length ;j++ ) {
@@ -779,17 +862,20 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		tpStartCopy.putAll(tpStart);
 		addedStatementsCopy.addAll(addedStatements);
 		addedAllenConstraintsCopy.addAll(addedAllenConstraints);
+		addedSimpleDistanceConstraintsCopy.addAll(addedSimpleDistanceConstraints);
 		
 		this.dHistory.add(distanceCopy);
 		this.tpStartHistory.add(tpStartCopy);
 		this.addedStatementsHistory.add(addedStatementsCopy);
 		this.addedAllenConstraintsHistory.add(addedAllenConstraintsCopy);
+		this.addedSimpleDistanceConstraintsHistory.add(addedSimpleDistanceConstraintsCopy);
 		
 		if ( this.dHistory.size() > maxHistorySize ) {
 			this.dHistory.remove(0);
 			this.tpStartHistory.remove(0);
 			this.addedStatementsHistory.remove(0);
 			this.addedAllenConstraintsHistory.remove(0);
+			this.addedSimpleDistanceConstraintsHistory.remove(0);
 		}
 	}
 	
@@ -798,6 +884,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		this.tpStart = tpStartHistory.get(n);
 		this.addedStatements = this.addedStatementsHistory.get(n);
 		this.addedAllenConstraints = this.addedAllenConstraintsHistory.get(n);
+		this.addedSimpleDistanceConstraints = this.addedSimpleDistanceConstraintsHistory.get(n);
 		
 		int i;
 		while ( this.dHistory.size() > n ) {
@@ -806,6 +893,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 			this.tpStartHistory.remove(i);
 			this.addedStatementsHistory.remove(i);
 			this.addedAllenConstraintsHistory.remove(i);
+			this.addedSimpleDistanceConstraintsHistory.remove(i);
 		}
 	}
 
@@ -971,10 +1059,14 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		this.keepStats = keepStats;
 	}
 	
-	protected String msg( String s ) {
-		return "["+name+"] "+s;
-	}
+//	protected String msg( String s ) {
+//		return "["+name+"] "+s;
+//	}
 	
+	/**
+	 * Set this solver's verbose mode.
+	 * @param verbose
+	 */
 	public void setVerbose( boolean verbose ){
 		this.verbose = verbose;
 	}

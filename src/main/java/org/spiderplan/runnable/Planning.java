@@ -22,6 +22,8 @@
  *******************************************************************************/
 package org.spiderplan.runnable;
 
+import java.util.Arrays;
+
 /**
  * Main class that takes files from command line arguments and either 
  * uses them to run an experiment (single file) or solve a problem  
@@ -44,7 +46,7 @@ public class Planning {
 	 * 
 	 * @param args list of filenames 
 	 */
-	public static void main(String[] args) {			
+	public static void main(String[] args) {	
 		if ( args.length >= 2 && !args[0].contains("[]")) { // Single problem
 			RunSingleProblem.run(args);		
 		} else if ( args.length == 1 ) {					// Experiment

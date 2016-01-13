@@ -22,6 +22,9 @@
  *******************************************************************************/
 package org.spiderplan.representation;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -396,6 +399,25 @@ public class ConstraintDatabase implements Collection<Expression> {
 //			keys.add(s.getKey());
 //		}
 //	}
+	
+	/**
+	 * Export constraint database to file.
+	 * @param fName
+	 */
+	public void export( String fName ) {
+		String expStr = this.toString();
+		FileWriter fstream;
+		try {
+			fstream = new FileWriter(fName);
+
+			BufferedWriter out = new BufferedWriter(fstream);
+			out.write(expStr);
+			out.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	@Override
 	public String toString() {

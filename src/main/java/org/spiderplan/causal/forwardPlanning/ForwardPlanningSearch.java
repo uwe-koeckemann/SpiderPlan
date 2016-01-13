@@ -353,7 +353,7 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 				if ( keepTimes ) StopWatch.stop("[ForwardPlanner] Calculating heuristic: " + heuristics.get(i).getClass().getSimpleName());
 			}
 			
-			if ( verbose ) Logger.msg(getName(),"Adding to expansion "+Arrays.toString(nNew.getHeuristicValues())+":\n    "+nNew.getPlan().toString().replace("\n", "\n    "), 4);
+			if ( verbose ) Logger.msg(getName(),"Adding to expansion "+Arrays.toString(nNew.getHeuristicValues())+":\n    "+nNew.getPlan().toString().replace("\n", "\n    "), 5);
 			
 			
 			

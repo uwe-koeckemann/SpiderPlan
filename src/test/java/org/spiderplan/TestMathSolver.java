@@ -26,9 +26,12 @@ import org.spiderplan.modules.MathSolver;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Core.State;
+import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.representation.ConstraintDatabase;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.math.MathConstraint;
 import org.spiderplan.representation.logic.Atomic;
+import org.spiderplan.representation.logic.Term;
 
 import junit.framework.TestCase;
 
@@ -48,78 +51,18 @@ public class TestMathSolver extends TestCase {
 	}
 	
 	/**
-	 * Test with simple satisfiable operations
+	 * Test evaluating math expressions
 	 */
 	public void test1() {
 		ConstraintDatabase cDB = new ConstraintDatabase();
-		cDB.add(new MathConstraint(new Atomic("(add 1 2 ?X1)")));
-		cDB.add(new MathConstraint(new Atomic("(add ?X1 2 5)")));
-		cDB.add(new MathConstraint(new Atomic("(mult 4 2 8)")));
-		cDB.add(new MathConstraint(new Atomic("(div 10 3 3)")));
-		cDB.add(new MathConstraint(new Atomic("(mod 10 7 3)")));
-		cDB.add(new MathConstraint(new Atomic("(sub 5 1 ?X2)")));
-		cDB.add(new MathConstraint(new Atomic("(sub 10 ?X2 6)")));
-		
-		Core c = new Core();
-		c.setContext(cDB);
-		
-		ConfigurationManager cM = new ConfigurationManager();
-		cM.add("MathSolver");
-				
-		MathSolver mS = new MathSolver("MathSolver", cM);
-		
-		mS.run(c);
-				
-		assertTrue(c.getResultingState("MathSolver").equals(State.Consistent));
-	}
-	
-	/**
-	 * Test with simple unsatisfiable operations
-	 */
-	public void test2() {
-		ConstraintDatabase cDB = new ConstraintDatabase();
-		cDB.add(new MathConstraint(new Atomic("(mult 4 2 7)")));
-		
-		Core c = new Core();
-		c.setContext(cDB);
-		
-		ConfigurationManager cM = new ConfigurationManager();
-		cM.add("MathSolver");
-				
-		MathSolver mS = new MathSolver("MathSolver", cM);
-		
-		mS.run(c);
-				
-		assertFalse(c.getResultingState("MathSolver").equals(State.Consistent));
-	}
-	
-	/**
-	 * Test with simple satisfiable float operations
-	 */
-	public void test3() {
-		ConstraintDatabase cDB = new ConstraintDatabase();
-		cDB.add(new MathConstraint(new Atomic("(mult 4.0 2.0 ?X)")));
-		cDB.add(new MathConstraint(new Atomic("(add 3.0 5.0 ?X)")));
-		
-		Core c = new Core();
-		c.setContext(cDB);
-		
-		ConfigurationManager cM = new ConfigurationManager();
-		cM.add("MathSolver");
-				
-		MathSolver mS = new MathSolver("MathSolver", cM);
-		
-		mS.run(c);
-						
-		assertTrue(c.getResultingState("MathSolver").equals(State.Consistent));
-	}
-	
-	/**
-	 * Test with bad types
-	 */
-	public void test4() {
-		ConstraintDatabase cDB = new ConstraintDatabase();
-		cDB.add(new MathConstraint(new Atomic("(mod 4.0 2.0 ?X)")));
+		cDB.add(new MathConstraint(new Atomic("(eval-int x (* 100 (+ (* (/ 100 10) (- 7 3)) (% 5 3))))")));
+		cDB.add(new MathConstraint(new Atomic("(eval-int (a q) (/ x 100))")));
+		cDB.add(new MathConstraint(new Atomic("(eval-int (q a) (% (a q) 7))")));
+		cDB.add(new MathConstraint(new Atomic("(eval-float y (* 0.5 3.0))")));
+
+		cDB.add(new MathConstraint(new Atomic("(greater-than y 1)")));
+		cDB.add(new MathConstraint(new Atomic("(greater-than (a q) 41)	")));
+		cDB.add(new MathConstraint(new Atomic("(less-than (a q) 42.5)")));
 				
 		Core c = new Core();
 		c.setContext(cDB);
@@ -129,15 +72,13 @@ public class TestMathSolver extends TestCase {
 				
 		MathSolver mS = new MathSolver("MathSolver", cM);
 		
-		boolean caught = false;
+		SolverResult r = mS.testAndResolve(c);
 		
-		try {
-			mS.run(c);
-		} catch ( IllegalStateException e ) {
-			caught = true;
-		}
-						
-		assertTrue(caught);
+		ValueLookup vl = r.getResolverIterator().next().getConstraintDatabase().get(ValueLookup.class).get(0);
+			
+		assertTrue(vl.getInt(Term.createConstant("x")) == 4200);
+		assertTrue(vl.getInt(Term.parse("(a q)")) == 42);
+		assertTrue(vl.getFloat(Term.parse("y")) == 1.5);
 	}
 }
 

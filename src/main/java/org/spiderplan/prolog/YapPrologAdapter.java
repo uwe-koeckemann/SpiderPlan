@@ -144,8 +144,14 @@ public class YapPrologAdapter {
 
 		ArrayList<String> B = new ArrayList<String>();
 		
-		for ( PrologConstraint rC : this.getTypeDomainsAsPrologConstraints(programID, tM) ) {
-			B.add(rC.getRelation().getPrologStyleString()+".");
+		/*
+		 * Used to generate integers in a range:
+		 */		
+		B.add("generateIntegerRange(X,Upper,X) :- X =< Upper.");
+		B.add("generateIntegerRange(X,Upper,Z) :- X =< Upper, X1 is X+1, generate(X1,Upper,Z).");
+		
+		for ( String s : this.getTypeDomainsAsPrologConstraints(programID, tM) ) {
+			B.add(s);
 		}		
 		if ( kbIn != null ) {
 			
@@ -556,9 +562,7 @@ public class YapPrologAdapter {
 
 					for ( int k = 0 ; k < constants.length; k++ ) {		
 						Term realVal = prologCompatibilityMap.get(constants[k]);
-						if ( realVal == null ) {
-							realVal = Term.createConstant(constants[k]);
-						}
+						realVal = Term.parse(constants[k]);
 						
 						theta.add( prologCompatibilityMap.get(qVars.get(k)), realVal );
 					}
@@ -590,8 +594,8 @@ public class YapPrologAdapter {
 	 * @param tM {@link TypeManager} containing all typing information.
 	 * @return
 	 */
-	private Collection<PrologConstraint> getTypeDomainsAsPrologConstraints( Term programID, TypeManager tM ) {
-		ArrayList<PrologConstraint> r = new ArrayList<PrologConstraint>();
+	private Collection<String> getTypeDomainsAsPrologConstraints( Term programID, TypeManager tM ) {
+		ArrayList<String> r = new ArrayList<String>();
 		
 		int valIdx = 0;
 			
@@ -599,14 +603,16 @@ public class YapPrologAdapter {
 			Type t = tM.getTypeByName(tName); 
 			if ( t instanceof IntegerType ) {
 				IntegerType iT = (IntegerType)t;
+				
+				r.add(iT.getName() + "(X) :- generateIntegerRange("+ iT.max + "," + iT.max + ",X).");
 						
-				for ( long i = iT.min ; i <= iT.max ; i++ ) {
-					prologCompatibilityMap.put(String.valueOf(i), Term.createInteger(i));
-					
-					PrologConstraint rC = new PrologConstraint(new Atomic(iT.getName().toString(), Term.createInteger(i)) , programID );
-					rC.setAsserted(true);
-					r.add( rC );
-				}
+//				for ( long i = iT.min ; i <= iT.max ; i++ ) {
+//					prologCompatibilityMap.put(String.valueOf(i), Term.createInteger(i));
+//					
+//					PrologConstraint rC = new PrologConstraint(new Atomic(iT.getName().toString(), Term.createInteger(i)) , programID );
+//					rC.setAsserted(true);
+//					r.add( rC );
+//				}
 		
 			} else if ( t instanceof EnumType ) {
 				EnumType iT = (EnumType)t;
@@ -626,7 +632,7 @@ public class YapPrologAdapter {
 					
 					PrologConstraint rC = new PrologConstraint(new Atomic(iT.getName().toString(),  value) , programID );
 					rC.setAsserted(true);
-					r.add( rC );
+					r.add( rC.getRelation().getPrologStyleString()+"." );
 				}
 			}
 		}

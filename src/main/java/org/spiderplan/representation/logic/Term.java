@@ -56,6 +56,9 @@ public abstract class Term {
 	
 	public static Term createConstant( String name ) {		
 		Term v =  new ConstantSymbolicTerm(name);
+		if ( Character.isDigit(name.charAt(0)) ) {
+			throw new IllegalArgumentException("Constant terms are not allowed to start with numbers."); 
+		}
 //		poolConstant.add(v);
 		return v;
 	}

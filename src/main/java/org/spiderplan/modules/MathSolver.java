@@ -24,19 +24,28 @@ package org.spiderplan.modules;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Resolver;
 import org.spiderplan.modules.solvers.ResolverIterator;
 import org.spiderplan.modules.solvers.ResolverList;
+import org.spiderplan.modules.solvers.SingleResolver;
 import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
+import org.spiderplan.representation.ConstraintDatabase;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.ExpressionTypes.MathRelation;
 import org.spiderplan.representation.expressions.math.MathConstraint;
+import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Atomic;
+import org.spiderplan.representation.logic.FloatTerm;
+import org.spiderplan.representation.logic.IntegerTerm;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.logging.Logger;
@@ -81,141 +90,220 @@ public class MathSolver extends Module implements SolverInterface {
 		if ( verbose ) Logger.depth--;
 		return core;
 	}
-
+	ValueLookup evalMap;
+	TemporalIntervalLookup temporalIntervals;
+	
+	private long evaluateIntegerTerm( Term expression ) {
+		
+		if ( expression instanceof IntegerTerm ) {
+			IntegerTerm value = (IntegerTerm)expression;
+			return value.getValue();
+		} 
+		
+		if ( expression instanceof FloatTerm ) {
+			FloatTerm value = (FloatTerm)expression;
+			return value.getValue().longValue();
+		}
+		
+		if ( expression.isConstant() ) {
+			Long r = null;
+			r = evalMap.getInt(expression);
+			if ( r == null ) {
+				throw new IllegalArgumentException("Failed to lookup value of '" + expression + "' (not yet computed?).");
+			}
+			return r.longValue();
+		}
+		
+		if ( expression.getNumArgs() == 1
+				&& (expression.getName().equals("EST") 
+				|| expression.getName().equals("LST") 
+				|| expression.getName().equals("EET") 
+				|| expression.getName().equals("LET")) ) {
+			Long r = null;
+			if ( expression.getName().equals("EST") && temporalIntervals != null ) {
+				r = temporalIntervals.getEST(expression.getArg(0));
+			}
+			if ( expression.getName().equals("LST") && temporalIntervals != null ) {
+				r = temporalIntervals.getLST(expression.getArg(0));
+			}
+			if ( expression.getName().equals("EET") && temporalIntervals != null ) {
+				r = temporalIntervals.getEET(expression.getArg(0));
+			}
+			if ( expression.getName().equals("LET") && temporalIntervals != null ) {
+				r = temporalIntervals.getLET(expression.getArg(0));
+			}
+			if ( r == null ) {
+				throw new IllegalArgumentException("Failed to lookup value of '" + expression + "' (not yet computed?).");
+			}
+			return r.longValue();
+		} else if ( expression.getNumArgs() == 2 ) { // TODO: allow >2 args with clisp interpretation
+			if ( expression.getName().equals("add") || expression.getName().equals("+") ) {
+				return evaluateIntegerTerm(expression.getArg(0)) + evaluateIntegerTerm(expression.getArg(1));
+			}
+			
+			if ( expression.getName().equals("sub") || expression.getName().equals("-") ) {
+				return evaluateIntegerTerm(expression.getArg(0)) - evaluateIntegerTerm(expression.getArg(1));
+			}
+			
+			if ( expression.getName().equals("div") || expression.getName().equals("/") ) {
+				return evaluateIntegerTerm(expression.getArg(0)) / evaluateIntegerTerm(expression.getArg(1));
+			}
+			
+			if ( expression.getName().equals("mult") || expression.getName().equals("*") ) {
+				return evaluateIntegerTerm(expression.getArg(0)) * evaluateIntegerTerm(expression.getArg(1));
+			}
+			
+			if ( expression.getName().equals("mod") || expression.getName().equals("%") ) {
+				return evaluateIntegerTerm(expression.getArg(0)) % evaluateIntegerTerm(expression.getArg(1));
+			}
+		} 
+		
+		Long r = null;
+		r = evalMap.getInt(expression);
+		if ( r == null ) {
+			throw new IllegalArgumentException("Failed to lookup value of '" + expression + "' (not yet computed?).");
+		}
+		return r.longValue();
+	}
+	
+	private double evaluateFloatTerm( Term expression ) {
+		
+		if ( expression instanceof IntegerTerm ) {
+			IntegerTerm value = (IntegerTerm)expression;
+			return (double)value.getValue();
+		} 
+		
+		if ( expression instanceof FloatTerm ) {
+			FloatTerm value = (FloatTerm)expression;
+			return value.getValue().doubleValue();
+		}
+		
+		if ( expression.isConstant() ) {
+			Double r = null;
+			r = evalMap.getFloat(expression);
+			if ( r == null ) {
+				throw new IllegalArgumentException("Failed to lookup value of '" + expression + "' (not yet computed?).");
+			}
+			return r.longValue();
+		}
+		
+		if ( expression.getNumArgs() == 1
+			&& (expression.getName().equals("EST") 
+			|| expression.getName().equals("LST") 
+			|| expression.getName().equals("EET") 
+			|| expression.getName().equals("LET")) ) {
+			Double r = null;
+			if ( expression.getName().equals("EST") && temporalIntervals != null ) {
+				r = (double)temporalIntervals.getEST(expression.getArg(0));
+			}
+			if ( expression.getName().equals("LST") && temporalIntervals != null ) {
+				r = (double)temporalIntervals.getLST(expression.getArg(0));
+			}
+			if ( expression.getName().equals("EET") && temporalIntervals != null ) {
+				r = (double)temporalIntervals.getEET(expression.getArg(0));
+			}
+			if ( expression.getName().equals("LET") && temporalIntervals != null ) {
+				r = (double)temporalIntervals.getLET(expression.getArg(0));
+			}
+			if ( r == null ) {
+				throw new IllegalArgumentException("Failed to lookup value of " + expression + " (not yet computed?).");
+			}
+			return r.longValue();
+		} else if ( expression.getNumArgs() == 2 ) { // TODO: allow >2 args with clisp interpretation
+			if ( expression.getName().equals("add") || expression.getName().equals("+") ) {
+				return evaluateFloatTerm(expression.getArg(0)) + evaluateFloatTerm(expression.getArg(1));
+			}
+			
+			if ( expression.getName().equals("sub") || expression.getName().equals("-") ) {
+				return evaluateFloatTerm(expression.getArg(0)) - evaluateFloatTerm(expression.getArg(1));
+			}
+			
+			if ( expression.getName().equals("div") || expression.getName().equals("/") ) {
+				return evaluateFloatTerm(expression.getArg(0)) / evaluateFloatTerm(expression.getArg(1));
+			}
+			
+			if ( expression.getName().equals("mult") || expression.getName().equals("*") ) {
+				return evaluateFloatTerm(expression.getArg(0)) * evaluateFloatTerm(expression.getArg(1));
+			}
+			
+			if ( expression.getName().equals("mod") || expression.getName().equals("%") ) {
+				return evaluateFloatTerm(expression.getArg(0)) % evaluateFloatTerm(expression.getArg(1));
+			}
+		} 
+		Double r = null;
+		r = evalMap.getFloat(expression);
+		if ( r == null ) {
+			throw new IllegalArgumentException("Failed to lookup value of '" + expression + "' (not yet computed?).");
+		}
+		return r;
+	}
 	@Override
 	public SolverResult testAndResolve(Core core) {
 		boolean isConsistent = true;
 		
 		Collection<MathConstraint> C = core.getContext().get(MathConstraint.class);
 		
+		List<TemporalIntervalLookup> tiLookUp = core.getContext().get(TemporalIntervalLookup.class);
+		
+		if ( !tiLookUp.isEmpty() ) {
+			this.temporalIntervals = core.getContext().get(TemporalIntervalLookup.class).get(0);
+		} else {
+			this.temporalIntervals = null;
+		}
+		
+		List<ValueLookup> valueLookUp = core.getContext().get(ValueLookup.class);
+		
+		if ( !valueLookUp.isEmpty() ) {
+			this.evalMap = core.getContext().get(ValueLookup.class).get(0).copy();
+		} else {
+			this.evalMap = new ValueLookup();
+		}
+				
 		Substitution theta = new Substitution();
 		
 		for ( MathConstraint gC : C ) {
-			Atomic r = gC.getConstraint().substitute(theta);			
-			if ( verbose ) Logger.msg(getName(),"Solving: " + r, 1);
+			Atomic r = gC.getConstraint().substitute(theta);
+			if ( verbose ) Logger.msg(getName(),"Evaluating: " + r, 1);
 			
-			Term a = r.getArg(0);
-			Term b = r.getArg(1);
-			Term c = r.getArg(2);
-			
-			boolean integerInput = false, floatInput = false, integerOutput = false, floatOutput = false;
-			int aInt = -10000 ,bInt = -10000 ,cInt = -10000;
-			double aFloat = -1.0, bFloat = -1.0, cFloat = -1.0;
-			
-			/**
-			 * Checking types:
-			 */
-			if ( a.isVariable() || b.isVariable() ) {
-				if ( verbose ) Logger.msg(getName(),"Skipping because " + r + " has variable arguments.", 1);
-				continue;
-			} 
-			
-			try {
-				aInt = Integer.valueOf(a.toString()).intValue();
-				bInt = Integer.valueOf(b.toString()).intValue();
-				integerInput = true;
-				floatInput = false;
-			} catch ( NumberFormatException e ) {
-				integerInput = false;
+			if ( gC.getRelation().equals(MathRelation.EvalInt) ) {
+				Term target = r.getArg(0);
+				Term expression = r.getArg(1);
 				
 				try {
-					aFloat= Double.valueOf(a.toString()).doubleValue();
-					bFloat = Double.valueOf(b.toString()).doubleValue();
-					floatInput = true;
-				} catch ( NumberFormatException e2 ) {
-					throw new IllegalStateException("MathConstraint " + r + " needs two integers or two floats as first two arguments.");
-				}
-			}
-			
-			if ( !c.isVariable() ) {
+					long result = evaluateIntegerTerm(expression);
+					
+					if ( target.isVariable() ) {
+						theta.add(target, Term.createInteger(result));
+					} else {
+						evalMap.putInt(target, result);
+					}
+					
+					if ( verbose ) Logger.msg(getName(),"Result: " + target + " = " + result , 1);
+					
+				} catch ( IllegalArgumentException e ) {  
+					if ( verbose ) Logger.msg(getName(),"Skipping: Contains variable terms or not (yet) computed values.", 1);
+				}				
+				
+			} else if ( gC.getRelation().equals(MathRelation.EvalFloat) ) {
+					Term target = r.getArg(0);
+					Term expression = r.getArg(1);
+					
 				try {
-					cInt = Integer.valueOf(c.toString()).intValue();
-					integerOutput = true;
-					floatOutput = false;
+					double result = evaluateFloatTerm(expression);
 					
-					if ( floatInput ) {
-						throw new IllegalStateException("MathConstraint " + r + " type missmatch between argument 3 (integer) and arguments 1 and 2 (float).");
+					if ( target.isVariable() ) {
+						theta.add(target, Term.createFloat(result));
+					} else {
+						evalMap.putFloat(target, result);
 					}
-				} catch ( NumberFormatException e ) {					
-					integerOutput = false;
-
-					try {
-						cFloat= Double.valueOf(c.toString()).doubleValue();
-						
-						if ( integerInput ) {
-							throw new IllegalStateException("MathConstraint " + r + " type missmatch between argument 3 (float) and arguments 1 and 2 (integers).");
-						}
-
-						floatOutput = true;
-					} catch ( NumberFormatException e2 ) {
-						throw new IllegalStateException("MathConstraint " + r + " has constant output (arg3) that is neither integer nor float.");
-					}
-
 					
-				}
-			}
-
-			/**
-			 * Compute:
-			 */			
-			int rInt = -10000;
-			double rFloat = -1.0;
-			
-			if ( gC.getRelation().equals(MathRelation.Addition) ) { //r.getUniqueName().equals("add/3") ) {
-				if ( integerInput ) {
-					rInt = aInt + bInt;
-				} else if ( floatInput ) {
-					rFloat = aFloat + bFloat;
-				} else {
-					throw new IllegalStateException("MathConstraint " + r + " has type problems. This should never happen if types are tested correctly earlier in the same class.");
-				}
-			} else if ( gC.getRelation().equals(MathRelation.Subtraction) ) {
-				if ( integerInput ) {
-					rInt = aInt - bInt;
-				} else if ( floatInput ) {
-					rFloat = aFloat - bFloat;
-				} else {
-					throw new IllegalStateException("MathConstraint " + r + " has type problems. This should never happen if types are tested correctly earlier in the same class.");
-				}
-			} else if ( gC.getRelation().equals(MathRelation.Multiplication) ) {
-				if ( integerInput ) {
-					rInt = aInt * bInt;
-				} else if ( floatInput ) {
-					rFloat = aFloat * bFloat;
-				} else {
-					throw new IllegalStateException("MathConstraint " + r + " has type problems. This should never happen if types are tested correctly earlier in the same class.");
-				}
-			} if ( gC.getRelation().equals(MathRelation.Division) ) {
-				if ( integerInput ) {
-					rInt = aInt / bInt;
-				} else if ( floatInput ) {
-					rFloat = aFloat / bFloat;
-				} else {
-					throw new IllegalStateException("MathConstraint " + r + " has type problems. This should never happen if types are tested correctly earlier in the same class.");
-				}
-			} else if ( gC.getRelation().equals(MathRelation.Modulo) ) {
-				if ( integerInput ) {
-					rInt = aInt % bInt;
-				} else {
-					throw new IllegalStateException("MathConstraint " + r + " not supported for float arguments.");
-				}
+				if ( verbose ) Logger.msg(getName(),"Result: " + target + " = " + result , 1);
+					
+				} catch ( IllegalArgumentException e ) {  
+					if ( verbose ) Logger.msg(getName(),"Skipping: Contains variable terms or not (yet) computed values.", 1);
+				}		
+					
 			} 
-			
-			/**
-			 * Process results:
-			 */
-			if ( integerInput && integerOutput && rInt != cInt ) {	// If result was picked before was it correct?
-				isConsistent = false;
-				break;
-			} else if ( integerInput ) {							// Substitute result with computed 
-				theta.add(c, Term.createInteger(rInt));
-			} else if ( floatInput && floatOutput && rFloat!= cFloat ) {	// If result was picked before was it correct?
-				isConsistent = false;
-				break;
-			} else if ( floatInput ) {							// Substitute result with computed 
-				theta.add(c, Term.createFloat(rFloat));
-			}
-			
 		}
 		
 		boolean atLeastOneViolation = false;
@@ -223,16 +311,12 @@ public class MathSolver extends Module implements SolverInterface {
 		if ( verbose ) Logger.msg(getName(), "Checking inequalities... ", 1);
 		for ( MathConstraint  mathCon : core.getContext().get(MathConstraint.class) ) {
 			Atomic relation = mathCon.getConstraint();
-//			String operator = mathCon.getConstraint().name();
-			
-//			if ( operator.equals("less-than")  			||   operator.equals("less-than-or-equals")			||   operator.equals("greater-than")			||   operator.equals("greater-than-or-equals") ) {
-				
+
 			if ( mathCon.getRelation().equals(MathRelation.LessThan) 
 				|| mathCon.getRelation().equals(MathRelation.LessThanOrEquals) 
 				|| mathCon.getRelation().equals(MathRelation.GreaterThan)
 				|| mathCon.getRelation().equals(MathRelation.GreaterThanOrEquals) ) {
-				
-				
+								
 				if ( verbose ) Logger.msg(getName(), "    " + mathCon, 1);
 						
 				Term xTerm = relation.getArg(0);
@@ -240,52 +324,90 @@ public class MathSolver extends Module implements SolverInterface {
 				
 				boolean ignored = false;
 				
-				double xValue = 0.0;
-				double yValue = 0.0;
+				Double xDouble = null;
+				Double yDouble = null;
+				Long xLong = null;
+				Long yLong = null;
 				
-				if ( xTerm.isConstant() ) {
+				if ( !xTerm.isVariable() ) {
 					try  {  
-						Integer v = Integer.parseInt( xTerm.toString() );  
-						xValue = v.doubleValue();  
-					} catch( Exception eNotInt ) {  
-						try  {
-							Double v = Double.parseDouble( yTerm.toString() );  
-							xValue = v.doubleValue();
-						} catch( Exception eNotDouble ) {
-							throw new IllegalStateException("Value term "+yTerm+" in cost constraint " + mathCon + " is a constant but not parsable as double or int.");
+						xLong = Long.parseLong( xTerm.toString() );  
+					} catch( Exception e ) { }
+					try  {
+						xDouble = Double.parseDouble( xTerm.toString() );
+					} catch( Exception e ) { }
+					if ( xLong == null ) {
+						if ( evalMap.hasIntVariable(xTerm) ) {
+							xLong = evalMap.getInt(xTerm);
 						}
-			        }  
+					}
+					if ( xDouble == null ) {
+						if ( evalMap.hasFloatVariable(xTerm) ) {
+							xDouble = evalMap.getFloat(xTerm);
+						}
+					}
 				} else {
 					if ( verbose ) Logger.msg(getName(), "    variable value -> ignored", 1);
 					ignored = true;
 				}
 				
-				if ( yTerm.isConstant() ) {
+				
+				if ( !yTerm.isVariable() ) {
 					try  {  
-						Integer v = Integer.parseInt( yTerm.toString() );  
-						yValue = v.doubleValue();  
-					} catch( Exception eNotInt ) {  
-						try  {
-							Double v = Double.parseDouble( yTerm.toString() );  
-							yValue = v.doubleValue();
-						} catch( Exception eNotDouble ) {
-							throw new IllegalStateException("Value term "+yTerm+" in cost constraint " + mathCon + " is a constant but not parsable as double or int.");
+						yLong = Long.parseLong( yTerm.toString() ); 
+					} catch( Exception e ) { }
+					try  {
+						yDouble = Double.parseDouble( yTerm.toString() );  
+					} catch( Exception e ) { }
+					if ( yLong == null ) {
+						if ( evalMap.hasIntVariable(yTerm) ) {
+							yLong = evalMap.getInt(yTerm);
 						}
-			        }  
+					}
+					if ( yDouble == null ) {
+						if ( evalMap.hasFloatVariable(yTerm) ) {
+							yDouble = evalMap.getFloat(yTerm);
+						}
+					}						
+					
 				} else {
 					if ( verbose ) Logger.msg(getName(), "    variable value -> ignored", 1);
 					ignored = true;
 				}
+			
+				ignored = (xLong == null && xDouble == null) || (yLong == null && yDouble == null);
 				
 				if ( !ignored ) {
-					if ( mathCon.getRelation().equals(MathRelation.LessThan) ) { 
-						atLeastOneViolation = !(xValue < yValue);
-					} else if ( mathCon.getRelation().equals(MathRelation.LessThanOrEquals) ) { 
-						atLeastOneViolation = !(xValue <= yValue);
-					} else if ( mathCon.getRelation().equals(MathRelation.GreaterThan) ) { 
-						atLeastOneViolation = !(xValue > yValue);
-					} else if ( mathCon.getRelation().equals(MathRelation.GreaterThanOrEquals) ) { 
-						atLeastOneViolation = !(xValue >= yValue);
+					if ( xLong != null && yLong != null ) {
+						if ( mathCon.getRelation().equals(MathRelation.LessThan) ) { 
+							atLeastOneViolation = !(xLong < yLong);
+						} else if ( mathCon.getRelation().equals(MathRelation.LessThanOrEquals) ) { 
+							atLeastOneViolation = !(xLong <= yLong);
+						} else if ( mathCon.getRelation().equals(MathRelation.GreaterThan) ) { 
+							atLeastOneViolation = !(xLong > yLong);
+						} else if ( mathCon.getRelation().equals(MathRelation.GreaterThanOrEquals) ) { 
+							atLeastOneViolation = !(xLong >= yLong);
+						}
+					} else if ( xLong != null ) {
+						if ( mathCon.getRelation().equals(MathRelation.LessThan) ) { 
+							atLeastOneViolation = !(xLong < yDouble);
+						} else if ( mathCon.getRelation().equals(MathRelation.LessThanOrEquals) ) { 
+							atLeastOneViolation = !(xLong <= yDouble);
+						} else if ( mathCon.getRelation().equals(MathRelation.GreaterThan) ) { 
+							atLeastOneViolation = !(xLong > yDouble);
+						} else if ( mathCon.getRelation().equals(MathRelation.GreaterThanOrEquals) ) { 
+							atLeastOneViolation = !(xLong >= yDouble);
+						}
+					}  else if ( yLong != null ) {	
+						if ( mathCon.getRelation().equals(MathRelation.LessThan) ) { 
+							atLeastOneViolation = !(xDouble < yLong);
+						} else if ( mathCon.getRelation().equals(MathRelation.LessThanOrEquals) ) { 
+							atLeastOneViolation = !(xDouble <= yLong);
+						} else if ( mathCon.getRelation().equals(MathRelation.GreaterThan) ) { 
+							atLeastOneViolation = !(xDouble > yLong);
+						} else if ( mathCon.getRelation().equals(MathRelation.GreaterThanOrEquals) ) { 
+							atLeastOneViolation = !(xDouble >= yLong);
+						}
 					}
 					if ( atLeastOneViolation ) {
 						if ( verbose ) Logger.msg(getName(), "    fail!", 1);
@@ -296,13 +418,18 @@ public class MathSolver extends Module implements SolverInterface {
 		}
 		
 		State state;
-		ResolverIterator resolverIterator = null;
+		SingleResolver r = null;
 		
 		if ( !theta.isEmpty() ) {
-			List<Resolver> rList = new ArrayList<Resolver>();
-			Resolver resolver = new Resolver(theta);
-			rList.add(resolver);
-			resolverIterator = new ResolverList(rList, this.getName(),this.cM);
+			ConstraintDatabase resCDB = new ConstraintDatabase();
+			resCDB.add(evalMap);
+			Resolver resolver = new Resolver(theta, resCDB);
+			r = new SingleResolver(resolver, this.getName(),this.cM);
+		} else {
+			ConstraintDatabase resCDB = new ConstraintDatabase();
+			resCDB.add(evalMap);
+			Resolver resolver = new Resolver(resCDB);
+			r = new SingleResolver(resolver, this.getName(),this.cM);
 		}
 		
 		if ( isConsistent ) {
@@ -313,7 +440,7 @@ public class MathSolver extends Module implements SolverInterface {
 			if ( verbose ) Logger.msg(getName(), "Inconsistent", 0);
 			state = State.Inconsistent;
 		}
-		return new SolverResult(state,resolverIterator);
+		return new SolverResult(state,r);
 	}
 	
 }

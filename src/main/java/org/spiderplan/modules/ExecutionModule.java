@@ -59,6 +59,7 @@ import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
+import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -76,6 +77,8 @@ import org.spiderplan.tools.visulization.timeLineViewer.TimeLineViewer;
 
 /**
  * Executes a plan.
+ * 
+ * TODO: simulation constraints on release not firing?	
  * 
  * @author Uwe Köckemann
  * 
@@ -111,7 +114,7 @@ public class ExecutionModule  extends Module {
 	
 	TypeManager tM;
 	
-	IncrementalSTPSolver execCSP;
+//	IncrementalSTPSolver execCSP;
 	IncrementalSTPSolver simCSP;
 	
 	Atomic tHorizon = new Atomic("tHorizon");
@@ -137,8 +140,8 @@ public class ExecutionModule  extends Module {
 	boolean drawTimeLines = true;
 	TimeLineViewer timeLineViewer = null;
 		
-//	private String repairSolverName;
-//	private Module repairSolver = null;
+	private String repairSolverName;
+	private Module repairSolver = null;
 	
 	private String fromScratchSolverName;
 	private Module fromScratchSolver = null;
@@ -158,10 +161,10 @@ public class ExecutionModule  extends Module {
 	public ExecutionModule(String name, ConfigurationManager cM ) {
 		super(name, cM);
 		
-//		if ( cM.hasAttribute(name, "repairSolver") ) {
-//			this.repairSolverName = cM.getString(this.getName(), "repairSolver" );
-//			this.repairSolver = ModuleFactory.initModule( this.repairSolverName , cM );
-//		}
+		if ( cM.hasAttribute(name, "repairSolver") ) {
+			this.repairSolverName = cM.getString(this.getName(), "repairSolver" );
+			this.repairSolver = ModuleFactory.initModule( this.repairSolverName , cM );
+		}
 		
 		if ( cM.hasAttribute(name, "fromScratchSolver") ) {
 			this.fromScratchSolverName = cM.getString(this.getName(), "fromScratchSolver" );
@@ -219,6 +222,7 @@ public class ExecutionModule  extends Module {
 			} else {
 				try {
 					Long dispatchTime = Long.valueOf(simCon.getDispatchTime().toString());
+					System.out.println("Got sim DB for t=" + dispatchTime);
 					ConstraintDatabase dispatchedDB = dispatchedDBs.get(dispatchTime);
 					if ( dispatchedDB == null ) {
 						dispatchedDB = new ConstraintDatabase();
@@ -311,7 +315,7 @@ public class ExecutionModule  extends Module {
 			}
 		}
 				
-		execCSP = new IncrementalSTPSolver(0, tMax);
+//		execCSP = new IncrementalSTPSolver(0, tMax);
 //		execCSP = new MetaCSPAdapter(tMax);
 		simCSP = new IncrementalSTPSolver(0,tMax);
 		
@@ -338,9 +342,9 @@ public class ExecutionModule  extends Module {
 		simDB.add(mPastFuture);
 		simDB.add(dFuture);
 		
-		if ( !execCSP.isConsistent(execDB, this.tM) ) {
-			throw new IllegalStateException("Execution failure: Temporal inconsistency in execution CDB.");
-		}
+//		if ( !execCSP.isConsistent(execDB, this.tM) ) {
+//			throw new IllegalStateException("Execution failure: Temporal inconsistency in execution CDB.");
+//		}
 		
 		if ( !simCSP.isConsistent(simDB, tM) ) {
 			throw new IllegalStateException("Execution failure: Temporal inconsistency in simulation CDB.");
@@ -392,6 +396,7 @@ public class ExecutionModule  extends Module {
 	boolean newInformationReleased = false;
 	
 	private void update( ) {
+		boolean needFromScratch = true;
 		/************************************************************************************************
 		 * Update time
 		 ************************************************************************************************/
@@ -407,15 +412,13 @@ public class ExecutionModule  extends Module {
 		/************************************************************************************************
 		 * Dispatch new information (from simulation)
 		 ************************************************************************************************/
-		boolean newInformationDispatched = newInformationReleased;
-		newInformationReleased = false;
 		if ( dispatchedDBs.get(t) != null ) {
+			System.out.println("Dispatching: " + t);
 			if ( verbose ) Logger.msg(getName(), "Dispatching:\n" + dispatchedDBs.get(t), 1);
 			execDB.add(dispatchedDBs.get(t));
 			addedSimDBs.add(dispatchedDBs.get(t));
-			newInformationDispatched = true;
 		}
-		
+				
 		execDB.remove(rFuture);
 		simDB.remove(rFuture);
 		rFuture = new AllenConstraint(new Atomic("(deadline past (interval "+(t)+" "+(t)+"))"));
@@ -423,140 +426,68 @@ public class ExecutionModule  extends Module {
 		simDB.add(rFuture);
 		
 		/************************************************************************************************
-		 * From scratch propagation to handle new information
+		 * Check for new flaws, resolve them and update execution CDB
 		 ************************************************************************************************/
-		if ( newInformationDispatched ) {
-			long before = 0;
-			try {
-				before = StopWatch.getLast(msg("Replanning"));
-			} catch ( NullPointerException e ) {
-				before = 0;
-			}
-			if ( keepTimes ) StopWatch.start(msg("Replanning"));
-//			testCore.setContext(execDB.copy());
-//			testCore = repairSolver.run(testCore);
-			
-			boolean needFromScratch = true;
-			
-//			needFromScratch = testCore.getResultingState(repairSolverName).equals(Core.State.Inconsistent);
-			
-			if ( !needFromScratch ) {
-				for ( OpenGoal og : testCore.getContext().get(OpenGoal.class) ) {
-					if ( !og.isAsserted() ) {
-						needFromScratch = true;
-						break;
-					}
-				}
-			}
-			
-			if ( needFromScratch ) {
-				if ( verbose ) Logger.msg(getName(), "Re-planning from scratch...", 1);
-										
-				ConstraintDatabase fromScratch = this.getFromScrathDB();
+		Core execCore = new Core();
+		execCore.setTypeManager(tM);
+		execCore.setOperators(this.O);
+		execCore.setPlan(new Plan());
+		execCore.setContext(execDB.copy());		
+		execCore = repairSolver.run(execCore);
 				
-				execCSP.isConsistent(fromScratch, tM);
-								
-				Core fromScratchCore = new Core();
-				fromScratchCore.setTypeManager(tM);
-				fromScratchCore.setOperators(this.O);
-				fromScratchCore.setPlan(new Plan());
-				fromScratchCore.setContext(fromScratch.copy());
-								
-				fromScratchCore = fromScratchSolver.run(fromScratchCore);
-				
-				
-				ConstraintDatabase fromScratchSolution = fromScratchCore.getContext();
-				
-				
-				
-				if ( fromScratchCore.getResultingState(fromScratchSolverName).equals(Core.State.Inconsistent) ) {
-					throw new IllegalStateException("Inconsistency when planning from scratch during execution.");
-				}
-				
-				
-				for ( Operator a : fromScratchCore.getPlan().getActions() ) {
-					fromScratchSolution.add(new AllenConstraint(a.getNameStateVariable().getKey(), TemporalRelation.Release, new Interval(Term.createInteger(t), Term.createConstant("inf"))));
-				}
-		
-				execDB = fromScratchSolution;
-
-				this.plan = fromScratchCore.getPlan();
-				List<Reactor> remList = new ArrayList<Reactor>();
-				for ( Reactor r : reactors ) {
-//					System.out.println("Considering: "  +r);
-//					for ( Statement s : execList ) {
-//						System.out.println(r.target + " == " + s + " ? " + r.target.equals(s));
-//					}
-//					System.out.println(execList.contains(r.target));
-					
-					if ( execList.contains(r.getTarget()) && !startedList.contains(r.getTarget()) ) {
-						remList.add(r);
-					}
-				}
-				reactors.removeAll(remList);
-				execList.clear();
-				
-				execCSP = new IncrementalSTPSolver(0,this.tMax);
-			}
-			if ( keepTimes ) StopWatch.stop(msg("Replanning"));
-			if( keepTimes && keepStats ) Statistics.addLong(msg("Replanning"), (StopWatch.getLast(msg("Replanning"))-before));
-		}
-		
-		long before = 0;
-		try {
-			before = StopWatch.getLast(msg("Temporal propagation"));
-		} catch ( NullPointerException e ) {
-			before = 0;
-		}
-		
-		/**
-		 * TODO: set this up in a way that makes it work (keep checking ICs for contingencies and add new reactors)
-		 */
-		if ( !newInformationDispatched ) {
-			int numConstraintsBefore = execDB.size();
-			
-			Core core = new Core();
-			core.setTypeManager(tM);
-			core.setOperators(this.O);
-			core.setPlan(new Plan());
-			core.setContext(execDB);
-			core = fromScratchSolver.run(core);
-			
-			execDB = core.getContext();
-			
-			if ( execDB.size() != numConstraintsBefore ) {
-				newInformationDispatched = true;
-			}
-		}
+		needFromScratch = execCore.getResultingState(repairSolverName).equals(Core.State.Inconsistent);
 		
 		/************************************************************************************************
-		 * Temporal propagation
+		 * Check for new open goals
 		 ************************************************************************************************/
-		if ( keepTimes ) StopWatch.start(msg("Temporal propagation"));
-		if ( !execCSP.isConsistent(execDB, this.tM) ) {
-			if ( verbose ) Logger.msg(getName(), "Temporal inconsistency during execution propagation. Will try to re-plan from scratch. ", 1);
-	
-			IncrementalSTPSolver csp = new IncrementalSTPSolver(0, tMax);
-			csp.debug = true;
-			csp.isConsistent(execDB, tM);
-			
-			Loop.start();
-			
+		if ( !needFromScratch ) {
+			if ( verbose ) Logger.msg(getName(), "Checking for new open goals...", 1);
+			for ( OpenGoal og : execDB.get(OpenGoal.class) ) {
+				if ( !og.isAsserted() ) {
+					if ( verbose ) Logger.msg(getName(), "-> Found at least one open goal (need from scratch).", 1);
+					needFromScratch = true;
+					break;
+				}
+			}
+		}
+		
+		if ( !needFromScratch ) {
+			execDB = execCore.getContext();	
+		} else {
+			if ( verbose ) Logger.msg(getName(), "Re-planning from scratch...", 1);
 			
 			ConstraintDatabase fromScratch = this.getFromScrathDB();
 			
+			IncrementalSTPSolver execCSP = new IncrementalSTPSolver(0, this.tMax);
+			if ( !execCSP.isConsistent(fromScratch, tM) ) {
+				IncrementalSTPSolver csp = new IncrementalSTPSolver(0, this.tMax);
+				csp.debug = true;
+				csp.isConsistent(fromScratch, tM);
+				
+				for ( Statement s : execDB.get(Statement.class) ) {
+					System.out.println("[S] " + s);
+				}
+				for ( AllenConstraint tc : execDB.get(AllenConstraint.class) ) {
+					System.out.println("[T] " + tc);
+				}	
+				
+				throw new IllegalStateException("This should not happen!");
+			}
+											
 			Core fromScratchCore = new Core();
 			fromScratchCore.setTypeManager(tM);
 			fromScratchCore.setOperators(this.O);
 			fromScratchCore.setPlan(new Plan());
 			fromScratchCore.setContext(fromScratch.copy());
-			fromScratchCore = fromScratchSolver.run(fromScratchCore);
 							
-			ConstraintDatabase fromScratchSolution = fromScratchCore.getContext();
+			fromScratchCore = fromScratchSolver.run(fromScratchCore);
+			
+			ConstraintDatabase fromScratchSolution = fromScratchCore.getContext();				
 			
 			if ( fromScratchCore.getResultingState(fromScratchSolverName).equals(Core.State.Inconsistent) ) {
 				throw new IllegalStateException("Inconsistency when planning from scratch during execution.");
 			}
+			
 			
 			for ( Operator a : fromScratchCore.getPlan().getActions() ) {
 				fromScratchSolution.add(new AllenConstraint(a.getNameStateVariable().getKey(), TemporalRelation.Release, new Interval(Term.createInteger(t), Term.createConstant("inf"))));
@@ -565,73 +496,51 @@ public class ExecutionModule  extends Module {
 			execDB = fromScratchSolution;
 
 			this.plan = fromScratchCore.getPlan();
-
 			List<Reactor> remList = new ArrayList<Reactor>();
-//			System.out.println("Replanning after temporal inconsistency: ");
 			for ( Reactor r : reactors ) {
+				
 				if ( execList.contains(r.getTarget()) && !startedList.contains(r.getTarget()) ) {
-//					System.out.println("Removing: "  +r);
 					remList.add(r);
 				}
 			}
 			reactors.removeAll(remList);
 			execList.clear();
-			
-			newInformationDispatched = true;
-			
-			if ( !execCSP.isConsistent(execDB, this.tM) ) {
-				IncrementalSTPSolver csp1 = new IncrementalSTPSolver(0, this.tMax);
-				csp1.debug = true;
-				csp1.isConsistent(execDB, this.tM);
-		
-				throw new IllegalStateException("Execution failure: Temporal inconsistency in execution CDB.");
-			}	
-		} else {
-//			System.out.println("================================");
-//			System.out.println(execDB.getStatements().toString().replace(",", "\n"));
-			TemporalNetworkTools.dumbTimeLineData(execDB, execCSP.getPropagatedTemporalIntervals(), "execution@"+t);
 		}
-		
-		if ( !simDB.isEmpty() && !simCSP.isConsistent(simDB, tM) ) {
-			throw new IllegalStateException("Execution failure: Temporal inconsistency in simulation CDB.");
-		}
-		if ( keepTimes ) StopWatch.stop(msg("Temporal propagation"));
-		if( keepTimes && keepStats ) Statistics.addLong(msg("Temporal propagation"), (StopWatch.getLast(msg("Temporal propagation"))-before));
-		
+
 		/************************************************************************************************
 		 * Add reactors if needed
 		 ************************************************************************************************/
-		if ( newInformationDispatched ) {
-			hasReactorList.clear();
-			execList.clear();
-			
-			for ( Reactor r : this.reactors ) {
-				hasReactorList.add(r.getTarget());
-				execList.add(r.getTarget());
-			}
-			
-			/* ROS goals */
-			for ( ROSGoal rosGoal :  execDB.get(ROSGoal.class) ) {
-				for ( Statement s : execDB.get(Statement.class) ) {
-					if ( !execList.contains(s) && !doneList.contains(s) && !hasReactorList.contains(s) ) {
-						if ( hasReactorList.contains(s) ) {
-							throw new IllegalStateException("Statement " + s + " has multiple reactors... This cannot be good!");
-						}
-						
 
-						Substitution subst = rosGoal.getVariable().match(s.getVariable());
-						if ( subst != null ) {
-							ROSGoal goalCopy = rosGoal.copy();
-							goalCopy.substitute(subst);
-							hasReactorList.add(s);
-							execList.add(s);
-							ReactorROS reactor = new ReactorROS(s, goalCopy);
-							this.reactors.add(reactor);
-						}
+		hasReactorList.clear();
+		execList.clear();
+		
+		for ( Reactor r : this.reactors ) {
+			hasReactorList.add(r.getTarget());
+			execList.add(r.getTarget());
+		}
+		
+		/* ROS goals */
+		for ( ROSGoal rosGoal :  execDB.get(ROSGoal.class) ) {
+			for ( Statement s : execDB.get(Statement.class) ) {
+				if ( !execList.contains(s) && !doneList.contains(s) && !hasReactorList.contains(s) ) {
+					if ( hasReactorList.contains(s) ) {
+						throw new IllegalStateException("Statement " + s + " has multiple reactors... This cannot be good!");
+					}
+					
+
+					Substitution subst = rosGoal.getVariable().match(s.getVariable());
+					if ( subst != null ) {
+						ROSGoal goalCopy = rosGoal.copy();
+						goalCopy.substitute(subst);
+						hasReactorList.add(s);
+						execList.add(s);
+						ReactorROS reactor = new ReactorROS(s, goalCopy);
+						this.reactors.add(reactor);
 					}
 				}
 			}
-			
+		}
+		if ( verbose ) {
 			Logger.msg(getName(), "execList:", 1);
 			Logger.depth++;
 			for ( Statement s : execList )
@@ -653,89 +562,112 @@ public class ExecutionModule  extends Module {
 			for ( Statement s : startedList )
 				Logger.msg(getName(), s.toString(), 1);
 			Logger.depth--;
+		}
+		
+		/**
+		 * TODO: necessary because otherwise past and future are ignored which will
+		 * screw over reactor timings. can we add past and future constraints to fromScratchDB to avoid propagation here?
+		 */
+		IncrementalSTPSolver execCSP = new IncrementalSTPSolver(0, this.tMax);
+		if ( !execCSP.isConsistent(execDB, tM) ) {
+			IncrementalSTPSolver csp = new IncrementalSTPSolver(0, this.tMax);
+			csp.debug = true;
+			csp.isConsistent(execDB, tM);
 			
-			/* Operator reactors */
-			for ( Operator a : this.executedActions ) {
-				Statement opName = a.getNameStateVariable();
-				if ( !execList.contains(opName) && !doneList.contains(opName) && !hasReactorList.contains(opName) ) {
-					
-					if ( execCSP.getLST(opName.getKey()) < t ) {
-						throw new IllegalStateException("Newly added operator " + opName + " has latest start time "+execCSP.getLST(opName.getKey())+" in the past (<"+t+")");
-					}
-					
-					Reactor r;
-					if ( perfectSim ) r = new ReactorPerfectSimulation(opName);
-					else r = new ReactorRandomSimulation(opName);
-					
-					reactors.add(r);
-					if ( verbose ) Logger.msg(getName(), "@t=" + t + ": Adding reactor " + r, 1);
-					execList.add(opName);
-				}
-			}
-			/* Operator reactors */
-			for ( Operator a : this.plan.getActions() ) {
-				Statement opName = a.getNameStateVariable();
-				if ( !execList.contains(opName) && !doneList.contains(opName) && !hasReactorList.contains(opName) ) {
-					
-					if ( execCSP.getLST(opName.getKey()) < t ) {
-						throw new IllegalStateException("Newly added operator " + opName + " has latest start time "+execCSP.getLST(opName.getKey())+" in the past (<"+t+")");
-					}
-					
-					Reactor r;
-					if ( perfectSim ) r = new ReactorPerfectSimulation(opName);
-					else r = new ReactorRandomSimulation(opName);
-					
-					reactors.add(r);
-					if ( verbose ) Logger.msg(getName(), "@t=" + t + ": Adding reactor " + r, 1);
-					execList.add(opName);
-				}
-			}
-			/* Observable effect reactors */
-			for ( Operator a : this.plan.getActions() ) {
-				for ( Statement e : a.getEffects() ) {
-					if ( !execList.contains(e) && !doneList.contains(e) && !hasReactorList.contains(e) ) {
-						if ( variablesObservedByROS.contains(e.getVariable()) ) {
-							ReactorObservation r = new ReactorObservation(e, lastChangingStatement);
-							execList.add(e);
-							hasReactorList.add(e);
-							this.reactors.add(r);
-						}
-					}
-				}
-			}
-			/* Observable effect reactors */
-			for ( Operator a : this.executedActions ) {
-				for ( Statement e : a.getEffects() ) {
-					if ( !execList.contains(e) && !doneList.contains(e) && !hasReactorList.contains(e) ) {
-						if ( variablesObservedByROS.contains(e.getVariable()) ) {
-							ReactorObservation r = new ReactorObservation(e, lastChangingStatement);
-							execList.add(e);
-							hasReactorList.add(e);
-							this.reactors.add(r);
-						}
-					}
-				}
-			}
-			/* Speech reactors */
 			for ( Statement s : execDB.get(Statement.class) ) {
-				if ( s.getVariable().getUniqueName().equals("say/1")) {
-					if ( !execList.contains(s) && !doneList.contains(s) && !hasReactorList.contains(s) ) {
-						String text = "";
-						for ( IncludedProgram ip : execDB.get(IncludedProgram.class) ) {
-							if ( s.getVariable().getArg(0).equals(ip.getName())) {
-								text += ip.getCode();
-							}
-						}
-						
-						if ( text.isEmpty() ) {
-							text = s.getValue().toString();
-						}
-						
-						execList.add(s);
-						hasReactorList.add(s);
-						ReactorSoundPlaySpeech reactor = new ReactorSoundPlaySpeech(s,text);
-						this.reactors.add(reactor);
+				System.out.println("[S] " + s);
+			}
+			for ( AllenConstraint tc : execDB.get(AllenConstraint.class) ) {
+				System.out.println("[T] " + tc);
+			}	
+			
+			throw new IllegalStateException("This should not happen!");
+		}
+		TemporalIntervalLookup propagatedTimes = execCSP.getPropagatedTemporalIntervals(); //d  execDB.get(TemporalIntervalLookup.class).get(0);
+		
+		
+//		TemporalIntervalLookup propagatedTimes = execDB.get(TemporalIntervalLookup.class).get(0);
+		/* Operator reactors */
+		for ( Operator a : this.executedActions ) {
+			Statement opName = a.getNameStateVariable();
+			if ( !execList.contains(opName) && !doneList.contains(opName) && !hasReactorList.contains(opName) ) {
+				
+				if ( propagatedTimes.getLST(opName.getKey()) < t ) {
+					throw new IllegalStateException("Newly added operator " + opName + " has latest start time "+propagatedTimes.getLST(opName.getKey())+" in the past (<"+t+")");
+				}
+				
+				Reactor r;
+				if ( perfectSim ) r = new ReactorPerfectSimulation(opName);
+				else r = new ReactorRandomSimulation(opName);
+				
+				reactors.add(r);
+				if ( verbose ) Logger.msg(getName(), "@t=" + t + ": Adding reactor " + r, 1);
+				execList.add(opName);
+			}
+		}
+		/* Operator reactors */
+		for ( Operator a : this.plan.getActions() ) {
+			Statement opName = a.getNameStateVariable();
+			if ( !execList.contains(opName) && !doneList.contains(opName) && !hasReactorList.contains(opName) ) {
+				
+				if ( propagatedTimes.getLST(opName.getKey()) < t ) {
+					throw new IllegalStateException("Newly added operator " + opName + " has latest start time "+propagatedTimes.getLST(opName.getKey())+" in the past (<"+t+")");
+				}
+				
+				Reactor r;
+				if ( perfectSim ) r = new ReactorPerfectSimulation(opName);
+				else r = new ReactorRandomSimulation(opName);
+				
+				reactors.add(r);
+				if ( verbose ) Logger.msg(getName(), "@t=" + t + ": Adding reactor " + r, 1);
+				execList.add(opName);
+			}
+		}
+		/* Observable effect reactors */
+		for ( Operator a : this.plan.getActions() ) {
+			for ( Statement e : a.getEffects() ) {
+				if ( !execList.contains(e) && !doneList.contains(e) && !hasReactorList.contains(e) ) {
+					if ( variablesObservedByROS.contains(e.getVariable()) ) {
+						ReactorObservation r = new ReactorObservation(e, lastChangingStatement);
+						execList.add(e);
+						hasReactorList.add(e);
+						this.reactors.add(r);
 					}
+				}
+			}
+		}
+		/* Observable effect reactors */
+		for ( Operator a : this.executedActions ) {
+			for ( Statement e : a.getEffects() ) {
+				if ( !execList.contains(e) && !doneList.contains(e) && !hasReactorList.contains(e) ) {
+					if ( variablesObservedByROS.contains(e.getVariable()) ) {
+						ReactorObservation r = new ReactorObservation(e, lastChangingStatement);
+						execList.add(e);
+						hasReactorList.add(e);
+						this.reactors.add(r);
+					}
+				}
+			}
+		}
+		/* Speech reactors */
+		for ( Statement s : execDB.get(Statement.class) ) {
+			if ( s.getVariable().getUniqueName().equals("say/1")) {
+				if ( !execList.contains(s) && !doneList.contains(s) && !hasReactorList.contains(s) ) {
+					String text = "";
+					for ( IncludedProgram ip : execDB.get(IncludedProgram.class) ) {
+						if ( s.getVariable().getArg(0).equals(ip.getName())) {
+							text += ip.getCode();
+						}
+					}
+					
+					if ( text.isEmpty() ) {
+						text = s.getValue().toString();
+					}
+					
+					execList.add(s);
+					hasReactorList.add(s);
+					ReactorSoundPlaySpeech reactor = new ReactorSoundPlaySpeech(s,text);
+					this.reactors.add(reactor);
 				}
 			}
 		}
@@ -743,7 +675,7 @@ public class ExecutionModule  extends Module {
 		 * Check ROS
 		 ************************************************************************************************/
 		if ( !firstUpdate ) 
-			newInformationReleased = newInformationReleased || updateROS(execDB);
+			updateROS(execDB);
 		
 		/************************************************************************************************
 		 * Update all reactors 
@@ -763,10 +695,10 @@ public class ExecutionModule  extends Module {
 				long EST, LST, EET, LET;
 				
 				if ( !simList.contains(r.getTarget()) ) {
-					EST = execCSP.getEST(r.getTarget().getKey());
-					LST = execCSP.getLST(r.getTarget().getKey());
-					EET = execCSP.getEET(r.getTarget().getKey());
-					LET = execCSP.getLET(r.getTarget().getKey());
+					EST = propagatedTimes.getEST(r.getTarget().getKey());
+					LST = propagatedTimes.getLST(r.getTarget().getKey());
+					EET = propagatedTimes.getEET(r.getTarget().getKey());
+					LET = propagatedTimes.getLET(r.getTarget().getKey());
 					
 					if ( verbose ) Logger.msg(getName(), "@t=" + t + " (BEFORE) >>> " + r, 1);
 					addedCons = r.update(t, EST, LST, EET, LET, execDB);
@@ -834,7 +766,7 @@ public class ExecutionModule  extends Module {
 					String tName = s.getVariable().toString();
 					String value = s.getValue().toString(); 
 					Term id = s.getKey();
-					long[] bounds = execCSP.getBoundsArray(id);
+					long[] bounds = propagatedTimes.getBoundsArray(id);
 					
 					if ( ! timeLineViewer.hasTrack(tName) ) {
 						timeLineViewer.createTrack(tName);
@@ -872,6 +804,7 @@ public class ExecutionModule  extends Module {
 			execDB.add(og.getStatement());
 		}
 		
+		IncrementalSTPSolver execCSP = new IncrementalSTPSolver(0, this.tMax);
 		if ( !execCSP.isConsistent(execDB, tM) ) {
 			IncrementalSTPSolver csp = new IncrementalSTPSolver(0, this.tMax);
 			csp.debug = true;
@@ -886,6 +819,9 @@ public class ExecutionModule  extends Module {
 			
 			throw new IllegalStateException("This should not happen!");
 		}
+		TemporalIntervalLookup propagatedTimes = execCSP.getPropagatedTemporalIntervals(); //d  execDB.get(TemporalIntervalLookup.class).get(0);
+		
+		
 				
 		Set<Term> actionIntervals = new HashSet<Term>();
 		Set<Term> nonExecutedActionIntervals = new HashSet<Term>();
@@ -930,11 +866,11 @@ public class ExecutionModule  extends Module {
 		}
 		for ( Statement s : execDB.get(Statement.class) ) { 
 
-			if ( !nonExecutedActionIntervals.contains(s.getKey()) &&  ((execCSP.getLST(s.getKey()) < t || execCSP.getLET(s.getKey()) < t)) ) {
-				long EST = execCSP.getEST(s.getKey());
-				long LST = execCSP.getLST(s.getKey());
-				long EET = execCSP.getEET(s.getKey());
-				long LET = execCSP.getLET(s.getKey());
+			if ( !nonExecutedActionIntervals.contains(s.getKey()) &&  ((propagatedTimes.getLST(s.getKey()) < t || propagatedTimes.getLET(s.getKey()) < t)) ) {
+				long EST = propagatedTimes.getEST(s.getKey());
+				long LST = propagatedTimes.getLST(s.getKey());
+				long EET = propagatedTimes.getEET(s.getKey());
+				long LET = propagatedTimes.getLET(s.getKey());
 				if ( LET < t || t > LST ) {
 					if ( !s.getKey().toString().equals("past") )  {
 						if ( verbose ) Logger.msg(getName(), s.toString() + " " + Interval2String(EST, LST, EET, LET) , 2);		
@@ -988,10 +924,10 @@ public class ExecutionModule  extends Module {
 			System.out.println(og);
 			if ( execDB.hasKey(og.getStatement().getKey())) {
 				if ( verbose ) Logger.msg(getName(), "Goal " + og + " with " + og.getStatement().getKey() 
-																	+ " [" + execCSP.getEST(og.getStatement().getKey()) 
-																	+ " " + execCSP.getLST(og.getStatement().getKey())
-																	+ "] [" + execCSP.getEET(og.getStatement().getKey())
-																	+ " " + execCSP.getLET(og.getStatement().getKey()) + "]", 2);
+																	+ " [" + propagatedTimes.getEST(og.getStatement().getKey()) 
+																	+ " " + propagatedTimes.getLST(og.getStatement().getKey())
+																	+ "] [" + propagatedTimes.getEET(og.getStatement().getKey())
+																	+ " " + propagatedTimes.getLET(og.getStatement().getKey()) + "]", 2);
 				
 				
 				boolean connectedToExecutedEffect = false;
@@ -1009,8 +945,9 @@ public class ExecutionModule  extends Module {
 					}
 				}
 				
-				
-				if ( execCSP.getEST(og.getStatement().getKey()) <= t || connectedToExecutedEffect ) {
+//				if ( execCSP.getEST(og.getStatement().getKey()) <= t || connectedToExecutedEffect ) {
+					
+				if ( connectedToExecutedEffect ) {
 					if ( verbose ) Logger.msg(getName(), "... was already achieved.", 2);
 //					fromScratchDB.remove(og);
 					OpenGoal ogCopy = og.copy();
@@ -1036,7 +973,7 @@ public class ExecutionModule  extends Module {
 		for ( Operator a : executedActions ) {
 			if ( execDB.hasKey(a.getNameStateVariable().getKey()) ) {
 				if ( verbose ) Logger.msg(getName(), a.getNameStateVariable().toString(), 2);
-				long bounds[] = execCSP.getBoundsArray(a.getNameStateVariable().getKey());
+				long bounds[] = propagatedTimes.getBoundsArray(a.getNameStateVariable().getKey());
 				Interval[] intervals = new Interval[2];
 				intervals[0] = new Interval(Term.createInteger(bounds[0]), Term.createInteger(bounds[1]));
 				intervals[1] = new Interval(Term.createInteger(bounds[2]), Term.createInteger(bounds[3]));
@@ -1085,7 +1022,7 @@ public class ExecutionModule  extends Module {
 				boolean allConditionStatementsInPast = true;
 				
 				for ( Statement s : ic.getCondition().get(Statement.class) ) {
-					if ( !(execDB.hasKey(s.getKey()) && (execCSP.getLST(s.getKey()) < t || execCSP.getLET(s.getKey()) < t)) ) {
+					if ( !(execDB.hasKey(s.getKey()) && (propagatedTimes.getLST(s.getKey()) < t || propagatedTimes.getLET(s.getKey()) < t)) ) {
 						allConditionStatementsInPast = false;
 						break;
 					}
@@ -1093,7 +1030,7 @@ public class ExecutionModule  extends Module {
 				
 				boolean allResolverStatementsInPast = true;
 				for ( Statement s : ic.getResolvers().get(ic.getResolverIndex()).get(Statement.class) ) {
-					if ( !(execDB.hasKey(s.getKey()) && (execCSP.getLST(s.getKey()) < t || execCSP.getLET(s.getKey()) < t)) ) {
+					if ( !(execDB.hasKey(s.getKey()) && (propagatedTimes.getLST(s.getKey()) < t || propagatedTimes.getLET(s.getKey()) < t)) ) {
 						allResolverStatementsInPast = false;
 						break;
 					}
@@ -1196,10 +1133,8 @@ public class ExecutionModule  extends Module {
 	Set<Term> writtenInStone = new HashSet<Term>();
 	
 	
-	private void removeWrittenInStone( ConstraintDatabase cdb, Set<Term> doNotAdd ) {
-//		if ( !execCSP.isConsistent(execDB, tM) ) {
-//			throw new IllegalStateException();
-//		}
+	private void removeWrittenInStone( ConstraintDatabase cdb, Set<Term> doNotAdd ) {		
+		TemporalIntervalLookup propagatedTimes = execDB.get(TemporalIntervalLookup.class).get(0);
 		
 		if ( verbose ) { 
 			Logger.msg(getName(),"Searching for fixed statements...", 2);
@@ -1209,14 +1144,14 @@ public class ExecutionModule  extends Module {
 		Set<Expression> writtenInStoneConstraints = new HashSet<Expression>();
 		
 		for ( Statement s : execDB.get(Statement.class) ) {
-			if ( execCSP.hasInterval(s.getKey()) && !doNotAdd.contains(s.getKey()) ) { //TODO: work-around 
-				long EST = execCSP.getEST(s.getKey());
-				long LST = execCSP.getLST(s.getKey());
-				long EET = execCSP.getEET(s.getKey());
-				long LET = execCSP.getLET(s.getKey());
+			if ( propagatedTimes.hasInterval(s.getKey()) && !doNotAdd.contains(s.getKey()) ) { //TODO: work-around 
+				long EST = propagatedTimes.getEST(s.getKey());
+				long LST = propagatedTimes.getLST(s.getKey());
+				long EET = propagatedTimes.getEET(s.getKey());
+				long LET = propagatedTimes.getLET(s.getKey());
 				
 				if ( LET < t || t > LST ) {
-					if ( !s.getKey().toString().equals("past") && !execList.contains(s) )  {
+					if ( !s.getKey().toString().equals("past") && !s.getKey().toString().equals("future") && !execList.contains(s) )  {
 						
 						cdb.add(s); 
 						Interval b1 = new Interval(EST,LST);
@@ -1379,6 +1314,8 @@ public class ExecutionModule  extends Module {
 	Term ROS_NewValue = null;
 	
 	private boolean updateROS( ConstraintDatabase execDB ) {
+		TemporalIntervalLookup propagatedTimes = execDB.get(TemporalIntervalLookup.class).get(0);
+		
 		boolean change = false;
 		Atomic variable;
 		Term value;
@@ -1463,7 +1400,7 @@ public class ExecutionModule  extends Module {
 			variable = pub.getVariable(); 
 			Statement currentStatement = null;
 			for ( Statement s : execDB.get(Statement.class) ) {
-				if ( variable.equals(s.getVariable()) && execCSP.getEST(s.getKey()) <= t && execCSP.getEET(s.getKey()) >= t ) {
+				if ( variable.equals(s.getVariable()) && propagatedTimes.getEST(s.getKey()) <= t && propagatedTimes.getEET(s.getKey()) >= t ) {
 					currentStatement = s;
 					break;
 				}
@@ -1486,13 +1423,15 @@ public class ExecutionModule  extends Module {
 	 * Draw time-lines produced by execution 
 	 */
 	public void draw() {
+		TemporalIntervalLookup propagatedTimes = execDB.get(TemporalIntervalLookup.class).get(0);
+		
 		timeLineViewer = new TimeLineViewer();
 		for ( Statement s : execDB.get(Statement.class) ) {
 			String tName = s.getVariable().toString();
 			String value = s.getValue().toString(); 
 			Term id = s.getKey();
-			if ( execCSP.hasInterval(id)) {
-				long[] bounds = execCSP.getBoundsArray(id);
+			if ( propagatedTimes.hasInterval(id)) {
+				long[] bounds = propagatedTimes.getBoundsArray(id);
 				
 				if ( ! timeLineViewer.hasTrack(tName) ) {
 					timeLineViewer.createTrack(tName);

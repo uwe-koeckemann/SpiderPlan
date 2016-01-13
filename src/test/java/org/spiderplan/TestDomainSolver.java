@@ -159,6 +159,51 @@ public class TestDomainSolver extends TestCase {
 		
 		assertTrue(context.equals(cdbBefore)); // context should be unaltered after inconsistency		
 	}
+	
+	/**
+	 * Test if new-object works when another type uses the same constants as new-object type
+	 */
+	public void testNewObject2() {
+		ConstraintDatabase context = new ConstraintDatabase();
+
+		NewObject no = new NewObject(Term.createVariable("?X"), Term.createConstant("t")); // X is an unused object of type t
+		context.add(no);
+	
+		TypeManager tM = new TypeManager();
+		tM.addSimpleEnumType("t","a,b");
+		tM.addSimpleEnumType("t2","a,b");
+		tM.addSimpleEnumType("boolean","true,false");
+		tM.attachTypes("(q t)");								// q has type t
+		tM.attachTypes("(p t2)");								// p has type t2
+		
+		context.add(new Statement(Term.createConstant("k1"), new Atomic("(q ?X)"), Term.createConstant("true")));		// should become b because:	
+		context.add(new Statement(Term.createConstant("k2"), new Atomic("(q a)"), Term.createConstant("true")));		// a is used already
+		context.add(new Statement(Term.createConstant("k3"), new Atomic("(p b)"), Term.createConstant("true")));		// b is used by p (but from different type so it should be okay)
+		
+		/**
+		 * Setup Modules
+		 */
+		ConfigurationManager cM = new ConfigurationManager();		
+		cM.add("DomainSolver");
+		DomainSolver dSolver = new DomainSolver("DomainSolver", cM);
+
+		/**
+		 * Setup Core
+		 */
+		Core testCore = new Core();
+		testCore.setContext( context );
+		
+		testCore.setTypeManager(tM);
+		
+		testCore = dSolver.run(testCore);
+		assertTrue(testCore.getResultingState("DomainSolver").equals(State.Searching));
+		assertTrue(context.get(Statement.class).contains(new Statement("(k1 (q b) true)")));   // X was substituted by new object b
+		
+		testCore = dSolver.run(testCore);	// running test again should produce same result
+		assertTrue(testCore.getResultingState("DomainSolver").equals(State.Consistent)); 
+		assertTrue(context.get(Statement.class).contains(new Statement("(k1 (q b) true)")));   
+
+	}
 }
 
 

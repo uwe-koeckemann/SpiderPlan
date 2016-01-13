@@ -527,9 +527,21 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
           }
           break;
         case CONDITIONAL:
-          jj_consume_token(CONDITIONAL);
+        case IC:
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case CONDITIONAL:
+            jj_consume_token(CONDITIONAL);
+            break;
+          case IC:
+            jj_consume_token(IC);
+            break;
+          default:
+            jj_la1[11] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+          }
           c = ConditionalConstraint();
-                                                                                                  cDB.add(c);
+                                                                                                          cDB.add(c);
           break;
         case SIMULATE:
           jj_consume_token(SIMULATE);
@@ -547,7 +559,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
               ;
               break;
             default:
-              jj_la1[11] = jj_gen;
+              jj_la1[12] = jj_gen;
               break label_18;
             }
           }
@@ -620,7 +632,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
           }
           break;
         default:
-          jj_la1[12] = jj_gen;
+          jj_la1[13] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -643,13 +655,15 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
               } else {
                  {if (true) return new PlanningInterval(constraint.getArg(0), constraint.getArg(1));}
               }
-            } else if ( name.equals("possibleintersection") ) {
+            } else if ( name.equals("possibleintersection") || name.equals("intersection") ) {
               ArrayList<Term> terms = new ArrayList<Term>();
           for ( int i = 0 ; i < constraint.getNumArgs() ; i++ )
           {
                             terms.add(constraint.getArg(i));
           }
               {if (true) return new PossibleIntersection(terms);}
+                        } else if ( name.equals("distance") ) {
+                                {if (true) return new SimpleDistanceConstraint( constraint );}
             } else if ( name.contains("greater") || name.contains("less") ) {
                   {if (true) return new TemporalIntervalQuery( constraint );}
             } else {
@@ -767,6 +781,8 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
                 } else if ( constraint.name().equals("new-object") ) {
                         {if (true) return new NewObject(constraint.getArg(0), constraint.getArg(1));}
+                } else if ( constraint.name().equals("uncontrollable") ) {
+                        {if (true) return new Uncontrollable(constraint);}
                 } else if ( constraint.name().equals("in") || constraint.name().equals("not-in")) {
                         ArrayList<Term> D = new ArrayList<Term>();
                         for ( int i = 1 ; i < constraint.getNumArgs() ; i++ ) {
@@ -811,7 +827,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         ;
         break;
       default:
-        jj_la1[13] = jj_gen;
+        jj_la1[14] = jj_gen;
         break label_24;
       }
       jj_consume_token(OP);
@@ -873,7 +889,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
                           rosCon = new ROSGoal(variable,serverID,actionName,msgType,resultMsg);
         break;
       default:
-        jj_la1[14] = jj_gen;
+        jj_la1[15] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -942,7 +958,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
             {if (true) return new IncludedProgram(name, includeMapping.get(includedProgramID) );}
         break;
       default:
-        jj_la1[15] = jj_gen;
+        jj_la1[16] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -971,7 +987,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         name = Atomic();
         break;
       default:
-        jj_la1[16] = jj_gen;
+        jj_la1[17] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -992,7 +1008,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         ;
         break;
       default:
-        jj_la1[17] = jj_gen;
+        jj_la1[18] = jj_gen;
         break label_25;
       }
       s = Statement();
@@ -1008,7 +1024,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         ;
         break;
       default:
-        jj_la1[18] = jj_gen;
+        jj_la1[19] = jj_gen;
         break label_26;
       }
       s = Statement();
@@ -1042,7 +1058,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
                                                                 keyString = "?" + keyString;
         break;
       default:
-        jj_la1[19] = jj_gen;
+        jj_la1[20] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1109,13 +1125,13 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         sign = jj_consume_token(MINUS);
         break;
       default:
-        jj_la1[20] = jj_gen;
+        jj_la1[21] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       break;
     default:
-      jj_la1[21] = jj_gen;
+      jj_la1[22] = jj_gen;
       ;
     }
     number = NonComplexTerm();
@@ -1142,13 +1158,13 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         sign = jj_consume_token(MINUS);
         break;
       default:
-        jj_la1[22] = jj_gen;
+        jj_la1[23] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       break;
     default:
-      jj_la1[23] = jj_gen;
+      jj_la1[24] = jj_gen;
       ;
     }
     number = jj_consume_token(UFLOAT);
@@ -1335,16 +1351,16 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     finally { jj_save(24, xla); }
   }
 
+  private boolean jj_3R_70() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_3R_64()) return true;
+    return false;
+  }
+
   private boolean jj_3R_61() {
     if (jj_scan_token(OP)) return true;
     if (jj_3R_71()) return true;
     if (jj_3R_65()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_70() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_3R_64()) return true;
     return false;
   }
 
@@ -1435,9 +1451,9 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
   private boolean jj_3R_82() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_scan_token(50)) {
+    if (jj_scan_token(51)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(51)) return true;
+    if (jj_scan_token(52)) return true;
     }
     return false;
   }
@@ -1487,13 +1503,13 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_79() {
-    if (jj_3R_64()) return true;
+  private boolean jj_3R_50() {
+    if (jj_3R_65()) return true;
     return false;
   }
 
-  private boolean jj_3R_50() {
-    if (jj_3R_65()) return true;
+  private boolean jj_3R_79() {
+    if (jj_3R_64()) return true;
     return false;
   }
 
@@ -1556,8 +1572,19 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3R_68() {
+    if (jj_scan_token(QPOINT)) return true;
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
   private boolean jj_3_13() {
     if (jj_3R_58()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_67() {
+    if (jj_3R_30()) return true;
     return false;
   }
 
@@ -1566,19 +1593,8 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_68() {
-    if (jj_scan_token(QPOINT)) return true;
-    if (jj_3R_30()) return true;
-    return false;
-  }
-
   private boolean jj_3_10() {
     if (jj_3R_55()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_67() {
-    if (jj_3R_30()) return true;
     return false;
   }
 
@@ -1634,19 +1650,29 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3_25() {
+    if (jj_scan_token(BAR)) return true;
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
   private boolean jj_3R_29() {
     if (jj_scan_token(QPOINT)) return true;
     return false;
   }
 
-  private boolean jj_3R_48() {
-    if (jj_scan_token(MINIZINC)) return true;
+  private boolean jj_3_24() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_67()) {
+    jj_scanpos = xsp;
+    if (jj_3R_68()) return true;
+    }
     return false;
   }
 
-  private boolean jj_3_25() {
-    if (jj_scan_token(BAR)) return true;
-    if (jj_3R_30()) return true;
+  private boolean jj_3R_48() {
+    if (jj_scan_token(MINIZINC)) return true;
     return false;
   }
 
@@ -1668,18 +1694,19 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3_24() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_67()) {
-    jj_scanpos = xsp;
-    if (jj_3R_68()) return true;
-    }
+  private boolean jj_3R_45() {
+    if (jj_scan_token(INCLUDE)) return true;
     return false;
   }
 
-  private boolean jj_3R_45() {
-    if (jj_scan_token(INCLUDE)) return true;
+  private boolean jj_3R_71() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_24()) jj_scanpos = xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3_25()) { jj_scanpos = xsp; break; }
+    }
     return false;
   }
 
@@ -1718,17 +1745,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
   }
 
   private boolean jj_3R_41() {
-    if (jj_scan_token(CONDITIONAL)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_71() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3_24()) jj_scanpos = xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3_25()) { jj_scanpos = xsp; break; }
+    if (jj_scan_token(20)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(21)) return true;
     }
     return false;
   }
@@ -1794,11 +1815,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_30() {
-    if (jj_scan_token(NON_COMPLEX_TERM)) return true;
-    return false;
-  }
-
   private boolean jj_3_20() {
     if (jj_3R_64()) return true;
     return false;
@@ -1806,6 +1822,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3_23() {
     if (jj_3R_66()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_30() {
+    if (jj_scan_token(NON_COMPLEX_TERM)) return true;
     return false;
   }
 
@@ -1893,7 +1914,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
   private Token jj_scanpos, jj_lastpos;
   private int jj_la;
   private int jj_gen;
-  final private int[] jj_la1 = new int[24];
+  final private int[] jj_la1 = new int[25];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -1901,10 +1922,10 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xdffe40,0x0,0xe000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_0 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x300000,0x0,0x1bffe40,0x0,0x1c000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x100,0x100,0x400000,0x200000,0x16c1500,0x16c1500,0x10c1500,0x16c1500,0x400100,0x16c1500,0x16c1500,0x100,0xe,0x100,0x0,0x100,0x400100,0x100,0x100,0x600000,0xc0000,0xc0000,0xc0000,0xc0000,};
+      jj_la1_1 = new int[] {0x200,0x200,0x800000,0x400000,0x2d82a00,0x2d82a00,0x2182a00,0x2d82a00,0x800200,0x2d82a00,0x2d82a00,0x0,0x200,0x1c,0x200,0x0,0x200,0x800200,0x200,0x200,0xc00000,0x180000,0x180000,0x180000,0x180000,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[25];
   private boolean jj_rescan = false;
@@ -1921,7 +1942,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 25; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1936,7 +1957,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 25; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1947,7 +1968,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 25; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1958,7 +1979,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 25; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1968,7 +1989,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 25; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1978,7 +1999,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 25; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2090,12 +2111,12 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[57];
+    boolean[] la1tokens = new boolean[58];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 24; i++) {
+    for (int i = 0; i < 25; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -2107,7 +2128,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         }
       }
     }
-    for (int i = 0; i < 57; i++) {
+    for (int i = 0; i < 58; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

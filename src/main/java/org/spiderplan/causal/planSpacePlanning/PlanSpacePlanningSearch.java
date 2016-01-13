@@ -143,7 +143,9 @@ public class PlanSpacePlanningSearch extends MultiHeuristicSearch<PlanSpacePlann
 			r.apply(succDB);
 			
 			Substitution allSubst = p.getCombinedSubstitution(); 
-			allSubst.add(r.getSubstitution());
+			
+			if ( allSubst != null )
+				allSubst.add(r.getSubstitution());
 			
 			if ( allSubst != null ) {
 

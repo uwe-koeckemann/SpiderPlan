@@ -72,8 +72,13 @@ public class Atomic {
 	 */
 	public Atomic(String s) {		
 		if ( s.contains("(") && !s.startsWith("(") ) {
-			System.out.println("Old format. This should not happen!");
+			throw new IllegalAccessError(s + ": string representation of atomic has old format. This should not happen!");
 		}
+		
+		s = s.replace("[", "(interval ");
+		s = s.replace("]", ")");
+		s = s.replace("{", "(list ");
+		s = s.replace("}", ")");
 		
 		ArrayList<String> terms = new ArrayList<String>();
 		if ( s.contains("(") ) {

@@ -29,20 +29,40 @@ import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.tools.UniqueID;
+import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
+import org.spiderplan.representation.expressions.temporal.SimpleDistanceConstraint.TimePoint;
 @SuppressWarnings("all")
 
 public class PDDLParser implements PDDLParserConstants {
         Core c;
         Map<String,String> typeMapping;
-        static public boolean verbose = true;
+                static public boolean verbose = true;
+
+                private final static Term THIS = Term.createVariable("THIS");
+                private final static TemporalRelation Before = TemporalRelation.Before;
+                private final static TemporalRelation Meets = TemporalRelation.Meets;
+                private final static TemporalRelation DuringOrEquals = TemporalRelation.DuringOrEquals;
+                private final static TemporalRelation Duration = TemporalRelation.Duration;
+                private final static TimePoint ST = SimpleDistanceConstraint.TimePoint.ST;
+                private final static TimePoint ET = SimpleDistanceConstraint.TimePoint.ET;
 
         private class StatementConstraintPair   {
-                public Statement s;
-                public AllenConstraint c;
+                public Statement s = null;
+                public AllenConstraint c = null;
+                        public SimpleDistanceConstraint sdc1 = null;
+                        public SimpleDistanceConstraint sdc2 = null;
+
                 public StatementConstraintPair( Statement s, AllenConstraint c )
                 {
                   this.s = s;
                   this.c = c;
+                }
+
+                public StatementConstraintPair( Statement s, SimpleDistanceConstraint sdc1, SimpleDistanceConstraint sdc2 )
+                {
+                  this.s = s;
+                  this.sdc1 = sdc1;
+                        this.sdc2 = sdc2;
                 }
         }
 
@@ -239,6 +259,7 @@ public class PDDLParser implements PDDLParserConstants {
 
                                         c.getContext().add(s);
                                         c.getContext().add(new AllenConstraint(s.getKey() + " Release ["+eventTime+","+eventTime+"]"));
+                                        c.getContext().add(new AllenConstraint(s.getKey(),Duration,new Interval(Term.createInteger(1),Term.createConstant("inf"))));
                                 } else { // Function assignments are added to background knowledge (as asserted relational constraints)
                                         String newAtomicStr;
                                         if ( variable.getNumArgs() > 0 )
@@ -308,9 +329,9 @@ public class PDDLParser implements PDDLParserConstants {
                                 else
                                         { value = Term.createConstant("false");  }
 
-                                Statement s = new Statement(Term.createConstant("G"+(litCounter++)), variable, value);
+                                Statement s = new Statement(Term.createVariable("G"+(litCounter++)), variable, value);
 
-                                c.getContext().add(s);
+                                //c.getContext().add(s);	 	
                                 c.getContext().add(new OpenGoal(s));
                                 goalList.add(s.getKey());
     }
@@ -413,7 +434,7 @@ public class PDDLParser implements PDDLParserConstants {
                           for ( Token tToken : typeList )
                           {
                                   EnumType t = new EnumType();
-                                  Term tName = Term.createConstant(tToken.image);
+                                  Term tName = Term.createConstant("t"+tToken.image);
                                   tName = tName.makeConstant();
 
                                   t.setName(tName.toString());
@@ -423,16 +444,16 @@ public class PDDLParser implements PDDLParserConstants {
 
                                   if ( superTypeToken != null )
                                   {
-                                    Term superTypeName = Term.createConstant(superTypeToken.image);
+                                    Term superTypeName = Term.createConstant("t"+superTypeToken.image);
                                         if ( !c.getTypeManager().hasTypeWithName(superTypeName) ) {
 
                                                 EnumType superType = new EnumType();
-                                                superType.setName(superTypeToken.image);
+                                                superType.setName("t"+superTypeToken.image);
                                                 c.getTypeManager().addNewType(superType);
                                         }
 
                                         EnumType superType = (EnumType)c.getTypeManager().getTypeByName(superTypeName);
-                                        superType.getDomain().add(Term.createConstant(tToken.image));
+                                        superType.getDomain().add(Term.createConstant("t"+tToken.image));
                                   }
                           }
     }
@@ -459,7 +480,7 @@ public class PDDLParser implements PDDLParserConstants {
       label_9:
       while (true) {
         valueToken = Term();
-                                  valueToken.image = valueToken.image.substring(0, 1).toLowerCase() + valueToken.image.substring(1);
+                                  valueToken.image = "t" + valueToken.image; //.substring(0, 1).toLowerCase() + valueToken.image.substring(1);
                                         values.add(Term.createConstant(valueToken.image));
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case TERM:
@@ -472,7 +493,7 @@ public class PDDLParser implements PDDLParserConstants {
       }
       jj_consume_token(MINUS);
       typeToken = jj_consume_token(TERM);
-                            Term tName = Term.createConstant(typeToken.image);
+                            Term tName = Term.createConstant("t"+typeToken.image);
                                 tName = tName.makeConstant();
                                 c.getTypeManager().getTypeByName(tName).getDomain().addAll(values);
     }
@@ -501,7 +522,7 @@ public class PDDLParser implements PDDLParserConstants {
       label_11:
       while (true) {
         valueToken = Term();
-                                        valueToken.image = valueToken.image.substring(0, 1).toLowerCase() + valueToken.image.substring(1);
+                                  valueToken.image = "t" + valueToken.image; //.substring(0, 1).toLowerCase() + valueToken.image.substring(1);
                                         values.add(Term.createConstant(valueToken.image));
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case TERM:
@@ -514,7 +535,7 @@ public class PDDLParser implements PDDLParserConstants {
       }
       jj_consume_token(MINUS);
       typeToken = jj_consume_token(TERM);
-                            Term tName = Term.createConstant(typeToken.image);
+                            Term tName = Term.createConstant("t"+typeToken.image);
                                 tName = tName.makeConstant();
                                 c.getTypeManager().getTypeByName(tName).getDomain().addAll(values);
     }
@@ -572,22 +593,22 @@ public class PDDLParser implements PDDLParserConstants {
       argToken = Term();
                           String argStr = argToken.image;
                           if ( isVariable ) {
-                                argStr = argStr.substring(0, 1).toUpperCase() + argStr.substring(1);
+                                        argStr = "?" + argStr; //.substring(0, 1).toUpperCase() + argStr.substring(1);
                           } else {
-                                argStr = argStr.substring(0, 1).toLowerCase() + argStr.substring(1);
+                                        argStr = "t" + argStr;
                           }
-                          Term arg = Term.createConstant(argStr);
+                          Term arg = Term.parse(argStr);
                           argList.add(arg);
     }
     jj_consume_token(CP);
-                nameToken.image = nameToken.image.substring(0, 1).toLowerCase() + nameToken.image.substring(1);
-                String s = nameToken.image.replace("-","");
+                //nameToken.image = nameToken.image.substring(0, 1).toLowerCase() + nameToken.image.substring(1);
+                String s = "(p" + nameToken.image.replace("-","_") + " "; //;
                 if ( !argList.isEmpty() )
                 {
-                        s += "("+argList.get(0);
+                        s += argList.get(0);
                         for ( int i = 1 ; i < argList.size(); i++ )
                         {
-                                s += ","+argList.get(i);
+                                s += " "+argList.get(i);
                         }
                         s += ")";
 
@@ -638,27 +659,30 @@ public class PDDLParser implements PDDLParserConstants {
       }
       typedList = TypedList();
       jj_consume_token(CP);
-                                nameToken.image = nameToken.image.substring(0, 1).toLowerCase() + nameToken.image.substring(1);
-                                nameToken.image = nameToken.image.replace("-","");
+                                  nameToken.image = "p" + nameToken.image.replace("-","_");
+                                        String convertedFormat = "("+ nameToken.image.replace(","," ").replace("("," ");
                                 Atomic name = null;
                                 if ( typedList.isEmpty() )
                                 {
-                                  name = new Atomic(nameToken.image);
+                                  name = new Atomic(convertedFormat);
+                                        System.out.println("A: " + name);
                                 } else {
-                                  String tStr = typedList.get(0).split("/")[1].substring(0, 1).toLowerCase() + typedList.get(0).split("/")[1].substring(1);
+                                        System.out.println(typedList);
+                                  String tStr = typedList.get(0).split("/")[1]; //.split("/")[1].substring(0, 1).toLowerCase() + typedList.get(0).split("/")[1].substring(1);
 
-                                  String s = nameToken.image + "(" + tStr;
+                                  String s = "(" + nameToken.image + " " + tStr;
                                   for ( int i = 1 ; i < typedList.size() ; i++ )
                                   {
-                                    tStr = typedList.get(i).split("/")[1].substring(0, 1).toLowerCase() + typedList.get(i).split("/")[1].substring(1);
+                                    tStr = typedList.get(i).split("/")[1]; //.split("/")[1].substring(0, 1).toLowerCase() + typedList.get(i).split("/")[1].substring(1);
 
-                                        s += ","+tStr;
+                                        s += " "+tStr;
                                   }
                                   s += ")";
 
                                   name = new Atomic(s);
+                                        System.out.println("B: " + name);
                                 }
-
+                          System.out.println("C: " + name);
                                 c.getTypeManager().attachTypes( name, Term.createConstant("boolean") );
     }
     jj_consume_token(CP);
@@ -696,10 +720,10 @@ public class PDDLParser implements PDDLParserConstants {
         argToken = Term();
                         String argStr = argToken.image;
                                 if ( isVariable ) {
-                                        argStr = argStr.substring(0, 1).toUpperCase() + argStr.substring(1);
-                                }  else {
-                                        argStr = argStr.substring(0, 1).toLowerCase() + argStr.substring(1);
-                                }
+                                        argStr = "?" + argStr; //.substring(1);
+                                }else {
+                                        argStr = "t" + argStr;
+                        }
                                 argList.add(argStr);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case QM:
@@ -714,7 +738,7 @@ public class PDDLParser implements PDDLParserConstants {
       jj_consume_token(MINUS);
       if (jj_2_11(2)) {
         typeToken = jj_consume_token(TERM);
-                                String tStr = typeToken.image.substring(0, 1).toLowerCase() + typeToken.image.substring(1);
+                                String tStr = "t" + typeToken.image; //.substring(0, 1).toLowerCase() + typeToken.image.substring(1);
                                 for ( String s : argList )
                                 {
                                         r.add(s+"/"+tStr);
@@ -728,7 +752,7 @@ public class PDDLParser implements PDDLParserConstants {
           label_16:
           while (true) {
             typeToken = jj_consume_token(TERM);
-                                        String tStr = typeToken.image.substring(0, 1).toLowerCase() + typeToken.image.substring(1);
+                                        String tStr = "t" + typeToken.image; //.substring(0, 1).toLowerCase() + typeToken.image.substring(1);
                                         tNames.add(Term.createConstant(tStr));
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
             case TERM:
@@ -771,7 +795,7 @@ public class PDDLParser implements PDDLParserConstants {
   final public Token Term() throws ParseException {
         Token r;
     r = jj_consume_token(TERM);
-                r.image = r.image.replace("-","");
+                r.image = r.image.replace("-","_");
                 {if (true) return r;}
     throw new Error("Missing return statement in function");
   }
@@ -800,16 +824,16 @@ public class PDDLParser implements PDDLParserConstants {
     jj_consume_token(PARAMETERS);
     jj_consume_token(OP);
     typedList = TypedList();
-                                String sArgs = nameToken.image + "(";
-                                String sTypes = nameToken.image + "(";
+                                String sArgs = "(" + nameToken.image + " ";
+                                String sTypes = "(" + nameToken.image + " ";
 
                                 if ( !typedList.isEmpty() ) {
                                         sArgs += typedList.get(0).split("/")[0];
                                         sTypes += typedList.get(0).split("/")[1];
 
                                         for ( int i = 1 ; i < typedList.size() ; i++ ) {
-                                                sArgs += "," + typedList.get(i).split("/")[0];
-                                                sTypes += "," + typedList.get(i).split("/")[1];
+                                                sArgs += " " + typedList.get(i).split("/")[0];
+                                                sTypes += " " + typedList.get(i).split("/")[1];
                                         }
 
                                 }
@@ -823,7 +847,7 @@ public class PDDLParser implements PDDLParserConstants {
 
                                 c.getTypeManager().attachTypes( nameDef, Term.createConstant("boolean") );
     jj_consume_token(CP);
-                                o.addConstraint(new AllenConstraint("THIS Duration [1,1]"));
+                                o.addConstraint(new AllenConstraint("?THIS Duration [1,1]"));
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case PRECONDITION:
       jj_consume_token(PRECONDITION);
@@ -832,10 +856,11 @@ public class PDDLParser implements PDDLParserConstants {
         jj_consume_token(AND);
         label_17:
         while (true) {
-          p = StatementConstraintPair("P", conCounter++);
+          p = StatementConstraintPair("P", conCounter++,true);
                             o.addPrecondition(p.s);
-                            //o.addConstraint(new AllenConstraint(p.s.getKey() + " MeetsOrOverlapsOrFinishedByOrContains THIS [0,inf]"));
-
+                            //o.addConstraint(new AllenConstraint(p.s.getKey() + " MeetsOrOverlapsOrFinishedByOrContains ?THIS [0,inf]"));
+                                        o.addConstraint(new SimpleDistanceConstraint(SimpleDistanceConstraint.TimePoint.ST, p.s.getKey(), SimpleDistanceConstraint.TimePoint.ST, Term.createVariable("THIS"), new Interval(Term.createInteger(1),Term.createConstant("inf"))));
+                                        o.addConstraint(new SimpleDistanceConstraint(SimpleDistanceConstraint.TimePoint.ET, p.s.getKey(), SimpleDistanceConstraint.TimePoint.ST, Term.createVariable("THIS"), new Interval(Term.createInteger(0),Term.createConstant("inf"))));
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case OP:
             ;
@@ -849,10 +874,11 @@ public class PDDLParser implements PDDLParserConstants {
       } else {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case OP:
-          p = StatementConstraintPair("P", conCounter++);
+          p = StatementConstraintPair("P", conCounter++,true);
                             o.addPrecondition(p.s);
-                            //o.addConstraint(new AllenConstraint(p.s.getKey() + " MeetsOrOverlapsOrFinishedByOrContains THIS [0,inf]"));
-
+                            //o.addConstraint(new AllenConstraint(p.s.getKey() + " MeetsOrOverlapsOrFinishedByOrContains ?THIS [0,inf]"));
+                                        o.addConstraint(new SimpleDistanceConstraint(SimpleDistanceConstraint.TimePoint.ST, p.s.getKey(), SimpleDistanceConstraint.TimePoint.ST, Term.createVariable("THIS"), new Interval(Term.createInteger(1),Term.createConstant("inf"))));
+                                        o.addConstraint(new SimpleDistanceConstraint(SimpleDistanceConstraint.TimePoint.ET, p.s.getKey(), SimpleDistanceConstraint.TimePoint.ST, Term.createVariable("THIS"), new Interval(Term.createInteger(0),Term.createConstant("inf"))));
           break;
         default:
           jj_la1[29] = jj_gen;
@@ -872,9 +898,9 @@ public class PDDLParser implements PDDLParserConstants {
       label_18:
       while (true) {
         if (jj_2_13(2)) {
-          p = StatementConstraintPair("E", effCounter++);
+          p = StatementConstraintPair("E", effCounter++,false);
                                                 o.addEffect(p.s);
-                                                o.addConstraint(new AllenConstraint("THIS Meets E"+(effCounter-1)));
+                                                o.addConstraint(new AllenConstraint("?THIS Meets ?E"+(effCounter-1)));
         } else {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case OP:
@@ -901,9 +927,9 @@ public class PDDLParser implements PDDLParserConstants {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case OP:
         if (jj_2_14(2)) {
-          p = StatementConstraintPair("E", effCounter++);
+          p = StatementConstraintPair("E", effCounter++,false);
                                                 o.addEffect(p.s);
-                                                o.addConstraint(new AllenConstraint("THIS Meets E"+(effCounter-1)));
+                                                o.addConstraint(new AllenConstraint("?THIS Meets ?E"+(effCounter-1)));
         } else {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case OP:
@@ -949,16 +975,16 @@ public class PDDLParser implements PDDLParserConstants {
     jj_consume_token(PARAMETERS);
     jj_consume_token(OP);
     typedList = TypedList();
-                                String sArgs = nameToken.image + "(";
-                                String sTypes = nameToken.image + "(";
+                                String sArgs = "(" + nameToken.image + " ";
+                                String sTypes = "(" + nameToken.image + " ";
 
                                 if ( !typedList.isEmpty() ) {
                                         sArgs += typedList.get(0).split("/")[0];
                                         sTypes += typedList.get(0).split("/")[1];
 
                                         for ( int i = 1 ; i < typedList.size() ; i++ ) {
-                                                sArgs += "," + typedList.get(i).split("/")[0];
-                                                sTypes += "," + typedList.get(i).split("/")[1];
+                                                sArgs += " " + typedList.get(i).split("/")[0];
+                                                sTypes += " " + typedList.get(i).split("/")[1];
                                         }
 
                                 }
@@ -970,6 +996,8 @@ public class PDDLParser implements PDDLParserConstants {
 
                                 System.out.println(name);
                                 System.out.println(nameDef);
+
+                                System.out.println("NAME: " + name);
 
                                 o.setName(name);
 
@@ -983,8 +1011,8 @@ public class PDDLParser implements PDDLParserConstants {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case TERM:
       durToken = jj_consume_token(TERM);
-                                        Term durTerm = Term.createConstant(durToken.image);
-                                        o.addConstraint(new AllenConstraint("THIS Duration ["+durTerm+","+durTerm+"]"));
+                                        Term durTerm = Term.parse(durToken.image);
+                                        o.addConstraint(new AllenConstraint(Term.createVariable("?THIS"), ExpressionTypes.TemporalRelation.Duration, new Interval(durTerm,durTerm)));
       break;
     case OP:
       functionName = Relation();
@@ -993,7 +1021,7 @@ public class PDDLParser implements PDDLParserConstants {
                                         durVarTerm = Term.createVariable(durVarTerm.getName());
                                         relConStr += ","+durVarTerm + ")";
                                         PrologConstraint durCon = new PrologConstraint(new Atomic(relConStr),Term.createConstant("pddlKB"));
-                                        o.addConstraint(new AllenConstraint("THIS Duration ["+durVarTerm+","+durVarTerm+"]"));
+                                        o.addConstraint(new AllenConstraint("?THIS Duration ["+durVarTerm+" "+durVarTerm+"]"));
                                         o.addConstraint(durCon);
       break;
     default:
@@ -1010,9 +1038,15 @@ public class PDDLParser implements PDDLParserConstants {
         jj_consume_token(AND);
         label_19:
         while (true) {
-          p = StatementConstraintPair("P", conCounter++);
+          p = StatementConstraintPair("P", conCounter++,true);
+                                        System.out.println("P: " + p.s);
                             o.addPrecondition(p.s);
-                            o.addConstraint(p.c);
+                                        if ( p.c != null )
+                                                o.addConstraint(p.c);
+                                        if ( p.sdc1 != null )
+                                                o.addConstraint(p.sdc1);
+                                        if ( p.sdc2 != null )
+                                                o.addConstraint(p.sdc2);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case OP:
             ;
@@ -1026,9 +1060,15 @@ public class PDDLParser implements PDDLParserConstants {
       } else {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case OP:
-          p = StatementConstraintPair("P", conCounter++);
+          p = StatementConstraintPair("P", conCounter++,true);
+                                        System.out.println("P: " + p.s);
                             o.addPrecondition(p.s);
-                            o.addConstraint(p.c);
+                                        if ( p.c != null )
+                                                o.addConstraint(p.c);
+                                        if ( p.sdc1 != null )
+                                                o.addConstraint(p.sdc1);
+                                        if ( p.sdc2 != null )
+                                                o.addConstraint(p.sdc2);
           break;
         default:
           jj_la1[37] = jj_gen;
@@ -1047,15 +1087,15 @@ public class PDDLParser implements PDDLParserConstants {
       jj_consume_token(AND);
       label_20:
       while (true) {
-        p = StatementConstraintPair("E", effCounter++);
+        p = StatementConstraintPair("E", effCounter++,false);
                                 o.addEffect(p.s);
-                                /*if ( p.c.getRelation().equals(ConstraintTypes.TemporalRelation.MeetsOrOverlapsOrFinishedByOrContains) )
-			  	{
-			  		o.addConstraint(new AllenConstraint(p.c.getFrom() + " StartStart " + p.c.getTo() + " [0,0]"));
-			  	} else {
-					o.addConstraint(p.c);
-			  	}*/
-                                o.addConstraint(new AllenConstraint("E"+(effCounter-1)+ " Duration " + " [1,inf]"));
+                                        if ( p.c != null )
+                                                o.addConstraint(p.c);
+                                        if ( p.sdc1 != null )
+                                                o.addConstraint(p.sdc1);
+                                        if ( p.sdc2 != null )
+                                                o.addConstraint(p.sdc2);
+                                o.addConstraint(new AllenConstraint("?E"+(effCounter-1)+ " Duration " + " [1,inf]"));
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case OP:
           ;
@@ -1069,15 +1109,15 @@ public class PDDLParser implements PDDLParserConstants {
     } else {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case OP:
-        p = StatementConstraintPair("E", effCounter++);
+        p = StatementConstraintPair("E", effCounter++,false);
                                 o.addEffect(p.s);
-                          /*	if ( p.c.getRelation().equals(ConstraintTypes.TemporalRelation.MeetsOrOverlapsOrFinishedByOrContains) )
-			  	{
-			  		o.addConstraint(new AllenConstraint(p.c.getFrom() + " StartStart " + p.c.getTo() + " [0,0]"));
-			  	} else {
-					o.addConstraint(p.c);
-			  	}*/
-                                o.addConstraint(new AllenConstraint("E"+(effCounter-1)+ " Duration " + " [1,inf]"));
+                                        if ( p.c == null )
+                                {
+                                        o.addConstraint(new SimpleDistanceConstraint(SimpleDistanceConstraint.TimePoint.ST, p.sdc1.getFrom(), SimpleDistanceConstraint.TimePoint.ST, p.sdc1.getTo(), new Interval(0,0)));
+                                } else {
+                                                o.addConstraint(p.c);
+                                }
+                                o.addConstraint(new AllenConstraint("?E"+(effCounter-1)+ " Duration " + " [1,inf]"));
         break;
       default:
         jj_la1[40] = jj_gen;
@@ -1086,15 +1126,18 @@ public class PDDLParser implements PDDLParserConstants {
       }
     }
     jj_consume_token(CP);
+                System.out.println(o);
                 c.getOperators().add(o);
   }
 
-  final public StatementConstraintPair StatementConstraintPair(String kBase, int i) throws ParseException {
+  final public StatementConstraintPair StatementConstraintPair(String kBase, int i, boolean isCondition) throws ParseException {
         StatementConstraintPair p;
         Statement s;
         AllenConstraint c = null;
-        Term sKey = Term.createConstant(kBase+i);
-        Term oKey = Term.createConstant("THIS");
+        SimpleDistanceConstraint sdc1 = null;
+        SimpleDistanceConstraint sdc2 = null;
+        Term sKey = Term.createVariable(kBase+i);
+        Term oKey = Term.createVariable("THIS");
         boolean isNegated = false;
         String tcType = null;
         String boundsStr = "[UNDEF-BOUNDS]";
@@ -1104,15 +1147,15 @@ public class PDDLParser implements PDDLParserConstants {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case AT_START:
         jj_consume_token(AT_START);
-                                           tcType = "MeetsOrOverlapsOrFinishedByOrContains"; boundsStr = "[0,inf]";
+                                           tcType = "AT-START";
         break;
       case AT_END:
         jj_consume_token(AT_END);
-                                           tcType = "Meets"; boundsStr = "";
+                                           tcType = "AT-END";
         break;
       case OVER_ALL:
         jj_consume_token(OVER_ALL);
-                                             tcType = "DuringOrEquals"; boundsStr = "[0,inf] [0,inf]";
+                                             tcType = "OVER-ALL";
         break;
       default:
         jj_la1[41] = jj_gen;
@@ -1166,12 +1209,26 @@ public class PDDLParser implements PDDLParserConstants {
     }
                 if ( tcType != null )
                 {
-                        if ( !tcType.equals("DuringOrEquals") && !tcType.equals("Meets") ) {
-                                c = new AllenConstraint(sKey + " " + tcType + " THIS " + boundsStr);
-                        } else {
-                          c = new AllenConstraint("THIS " + tcType + " " + sKey + " " + boundsStr);
+                                if ( tcType.equals("AT-START") ) {
+                                        if ( isCondition ) {
+                                                sdc1 = new SimpleDistanceConstraint(ST, sKey, ST, THIS, new Interval(Term.createInteger(1),Term.createConstant("inf")));
+                                                sdc2 = new SimpleDistanceConstraint(ET, sKey, ST, THIS, new Interval(Term.createInteger(0),Term.createConstant("inf")));
+                                        } else {
+                                                sdc1 = new SimpleDistanceConstraint(ST, sKey, ST, THIS, new Interval(Term.createInteger(0),Term.createInteger(0)));
+                                        }
+                                } else if ( tcType.equals("AT-END") ) {
+                                        if ( isCondition ) {
+                                                sdc1 = new SimpleDistanceConstraint(ST, sKey, ET, THIS, new Interval(Term.createInteger(0),Term.createConstant("inf")));
+                                                sdc2 = new SimpleDistanceConstraint(ET, THIS, ET, sKey, new Interval(Term.createInteger(1),Term.createConstant("inf")));
+                                        } else {
+                                                c = new AllenConstraint(THIS,sKey,Meets);
+                                        }
+                                        //c = new AllenConstraint("?THIS " + "Before" + " " + sKey + " [1,1]");		
+                                        //c = new AllenConstraint(THIS,sKey,Before,new Interval(1,1));
+                                } else if ( tcType.equals("OVER-ALL") ) {
+                                        c = new AllenConstraint(THIS,sKey,DuringOrEquals,new Interval(Term.createInteger(0),Term.createConstant("inf")),new Interval(Term.createInteger(0),Term.createConstant("inf")));
+                                }
                         }
-                }
                 Term value;
                 if ( !isNegated ) {
                   value = Term.createConstant("true");
@@ -1180,7 +1237,10 @@ public class PDDLParser implements PDDLParserConstants {
                 }
 
                 s = new Statement(sKey, variable, value);
-                p = new StatementConstraintPair(s,c);
+                if ( c != null )
+                        p = new StatementConstraintPair(s,c);
+                else
+                        p = new StatementConstraintPair(s,sdc1,sdc2);
                 {if (true) return p;}
     throw new Error("Missing return statement in function");
   }
@@ -1204,20 +1264,6 @@ public class PDDLParser implements PDDLParserConstants {
     jj_consume_token(OP);
     optCritToken = jj_consume_token(TERM);
     jj_consume_token(CP);
-                        {if (true) throw new UnsupportedOperationException();}
-                  //String optCritStr = optCritToken.image;
-                        //
-                        //if ( optCritStr.equals("total-time") )
-                        //{
-                        //	optCritStr = "makeSpan";
-                        //}
-                  //OptimizationCriterium oC;
-                        //if ( dirToken.image.equals("minimize") ) {
-                        //	oC = new OptimizationCriterium(new Atomic(optCritStr), OptimizationCriterium.OptDirection.Minimize);
-                        //} else {
-                        //	oC = new OptimizationCriterium(new Atomic(optCritStr), OptimizationCriterium.OptDirection.Minimize);	
-                        //}
-                        //c.getContext().add(oC);
 
     jj_consume_token(CP);
   }
@@ -1256,7 +1302,7 @@ public class PDDLParser implements PDDLParserConstants {
         jj_consume_token(TERM);
         jj_consume_token(MINUS);
         tmpArg = jj_consume_token(TERM);
-                                        args.add(tmpArg);
+                                                args.add(tmpArg);
       }
       jj_consume_token(CP);
       jj_consume_token(MINUS);
@@ -1264,14 +1310,15 @@ public class PDDLParser implements PDDLParserConstants {
                                 Atomic name = null;
                                 if ( args.isEmpty() )
                                 {
-                                  name = new Atomic(nameToken.image.replace("-","") + "(" + valTypeToken.image + ")");
+                                        String convertedFormat = "("+ nameToken.image.replace(","," ").replace("("," ") + " " + valTypeToken.image;
+                                  name = new Atomic(convertedFormat);
                                 } else {
-                                  String s = nameToken.image.replace("-","") + "(" + args.get(0).image;
+                                  String s = "(" + nameToken.image + " " + args.get(0).image;
                                   for ( int i = 1 ; i < args.size() ; i++ )
                                   {
-                                        s += ","+args.get(i).image;
+                                        s += " "+args.get(i).image;
                                   }
-                                  s += "," + valTypeToken.image + ")";
+                                  s += " " + valTypeToken.image + ")";
                                   name = new Atomic(s);
                                 }
                                 if ( !c.getTypeManager().hasTypeWithName( Term.createConstant(valTypeToken.image) ) )
@@ -1484,102 +1531,9 @@ public class PDDLParser implements PDDLParserConstants {
     finally { jj_save(19, xla); }
   }
 
-  private boolean jj_3R_31() {
-    if (jj_scan_token(OVER_ALL)) return true;
-    return false;
-  }
-
-  private boolean jj_3_9() {
-    if (jj_3R_27()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_30() {
-    if (jj_scan_token(AT_END)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_29() {
-    if (jj_scan_token(AT_START)) return true;
-    return false;
-  }
-
-  private boolean jj_3_13() {
-    if (jj_3R_28()) return true;
-    return false;
-  }
-
-  private boolean jj_3_15() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(AND)) return true;
-    return false;
-  }
-
-  private boolean jj_3_17() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(AND)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_32() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_19()) {
-    jj_scanpos = xsp;
-    if (jj_3R_33()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_26() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(DURATIVE_ACTION)) return true;
-    return false;
-  }
-
-  private boolean jj_3_5() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(AT)) return true;
-    return false;
-  }
-
-  private boolean jj_3_11() {
-    if (jj_scan_token(TERM)) return true;
-    return false;
-  }
-
-  private boolean jj_3_6() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(NOT)) return true;
-    return false;
-  }
-
-  private boolean jj_3_7() {
-    if (jj_3R_27()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_24() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(CONSTANTS)) return true;
-    return false;
-  }
-
-  private boolean jj_3_12() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(AND)) return true;
-    return false;
-  }
-
   private boolean jj_3_8() {
     if (jj_scan_token(OP)) return true;
     if (jj_scan_token(EQUALS)) return true;
-    return false;
-  }
-
-  private boolean jj_3_16() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(AND)) return true;
     return false;
   }
 
@@ -1593,17 +1547,18 @@ public class PDDLParser implements PDDLParserConstants {
     return false;
   }
 
-  private boolean jj_3_20() {
-    if (jj_scan_token(OP)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_29()) {
-    jj_scanpos = xsp;
-    if (jj_3R_30()) {
-    jj_scanpos = xsp;
-    if (jj_3R_31()) return true;
-    }
-    }
+  private boolean jj_3R_31() {
+    if (jj_scan_token(OVER_ALL)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_30() {
+    if (jj_scan_token(AT_END)) return true;
+    return false;
+  }
+
+  private boolean jj_3_14() {
+    if (jj_3R_28()) return true;
     return false;
   }
 
@@ -1612,13 +1567,8 @@ public class PDDLParser implements PDDLParserConstants {
     return false;
   }
 
-  private boolean jj_3R_28() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_20()) {
-    jj_scanpos = xsp;
-    if (jj_3R_32()) return true;
-    }
+  private boolean jj_3R_29() {
+    if (jj_scan_token(AT_START)) return true;
     return false;
   }
 
@@ -1642,9 +1592,19 @@ public class PDDLParser implements PDDLParserConstants {
     return false;
   }
 
-  private boolean jj_3R_33() {
+  private boolean jj_3R_32() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_19()) {
+    jj_scanpos = xsp;
+    if (jj_3R_33()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3_17() {
     if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(NOT)) return true;
+    if (jj_scan_token(AND)) return true;
     return false;
   }
 
@@ -1654,13 +1614,18 @@ public class PDDLParser implements PDDLParserConstants {
     return false;
   }
 
-  private boolean jj_3_14() {
-    if (jj_3R_28()) return true;
+  private boolean jj_3_10() {
+    if (jj_scan_token(TERM)) return true;
     return false;
   }
 
-  private boolean jj_3_19() {
-    if (jj_3R_27()) return true;
+  private boolean jj_3_1() {
+    if (jj_3R_23()) return true;
+    return false;
+  }
+
+  private boolean jj_3_13() {
+    if (jj_3R_28()) return true;
     return false;
   }
 
@@ -1670,8 +1635,84 @@ public class PDDLParser implements PDDLParserConstants {
     return false;
   }
 
-  private boolean jj_3_10() {
+  private boolean jj_3_15() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(AND)) return true;
+    return false;
+  }
+
+  private boolean jj_3_20() {
+    if (jj_scan_token(OP)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_29()) {
+    jj_scanpos = xsp;
+    if (jj_3R_30()) {
+    jj_scanpos = xsp;
+    if (jj_3R_31()) return true;
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_26() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(DURATIVE_ACTION)) return true;
+    return false;
+  }
+
+  private boolean jj_3_9() {
+    if (jj_3R_27()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_28() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_20()) {
+    jj_scanpos = xsp;
+    if (jj_3R_32()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3_11() {
     if (jj_scan_token(TERM)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_33() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(NOT)) return true;
+    return false;
+  }
+
+  private boolean jj_3_16() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(AND)) return true;
+    return false;
+  }
+
+  private boolean jj_3_5() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(AT)) return true;
+    return false;
+  }
+
+  private boolean jj_3_19() {
+    if (jj_3R_27()) return true;
+    return false;
+  }
+
+  private boolean jj_3_6() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(NOT)) return true;
+    return false;
+  }
+
+  private boolean jj_3_12() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(AND)) return true;
     return false;
   }
 
@@ -1680,8 +1721,14 @@ public class PDDLParser implements PDDLParserConstants {
     return false;
   }
 
-  private boolean jj_3_1() {
-    if (jj_3R_23()) return true;
+  private boolean jj_3_7() {
+    if (jj_3R_27()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_24() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(CONSTANTS)) return true;
     return false;
   }
 

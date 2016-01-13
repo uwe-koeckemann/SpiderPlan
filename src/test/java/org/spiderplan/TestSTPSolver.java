@@ -31,8 +31,11 @@ import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.SimpleDistanceConstraint;
+import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.expressions.temporal.TemporalIntervalQuery;
 import org.spiderplan.representation.logic.Atomic;
+import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 
 import junit.framework.TestCase;
@@ -235,6 +238,41 @@ public class TestSTPSolver extends TestCase {
 		SolverResult r = mS.testAndResolve(c);
 				
 		assertFalse(r.getState().equals(State.Consistent));
+	}
+	
+	public void testSimpleDistanceConstraints() {
+		ConstraintDatabase cDB = new ConstraintDatabase();
+	
+		cDB.add(new Statement("(i1 x1 v1)"));
+		
+		Atomic a1 = new Atomic("(distance (ST _OH_) (ST i1) [1 10])");
+		Atomic a2 = new Atomic("(distance (ST i1) (ET i1) [3 3])");
+		
+		
+		cDB.add(new SimpleDistanceConstraint(a1));
+		cDB.add(new SimpleDistanceConstraint(a2));
+		
+		TypeManager tM = new TypeManager();
+	
+		Core c = new Core();
+		c.setContext(cDB);
+		c.setTypeManager(tM);
+		
+		ConfigurationManager cM = new ConfigurationManager();
+		cM.add("STPSolver");
+				
+		STPSolver mS = new STPSolver("STPSolver", cM);
+		
+		SolverResult r = mS.testAndResolve(c);
+				
+		assertTrue(r.getState().equals(State.Consistent));
+		
+		TemporalIntervalLookup tiq = r.getResolverIterator().next().getConstraintDatabase().get(TemporalIntervalLookup.class).get(0);
+		
+		assertTrue(tiq.getEST(Term.createConstant("i1")) == 1);
+		assertTrue(tiq.getLST(Term.createConstant("i1")) == 10);
+		assertTrue(tiq.getEET(Term.createConstant("i1")) == 4);
+		assertTrue(tiq.getLET(Term.createConstant("i1")) == 13);
 	}
 }
 

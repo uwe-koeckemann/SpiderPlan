@@ -92,6 +92,29 @@ public class TemporalIntervalLookup extends Expression implements Unique {
 		return this.bounds.get(interval)[3];
 	}
 	
+	/**
+	 * Get bounds as long array
+	 * @param interval 
+	 * @return bounds array
+	 */
+	public long[] getBoundsArray( Term interval ) {
+		long[] r = new long[4];
+		r[0] = this.bounds.get(interval)[0];
+		r[1] = this.bounds.get(interval)[1];
+		r[2] = this.bounds.get(interval)[2];
+		r[3] = this.bounds.get(interval)[3];
+		return r;
+	}
+	
+	/**
+	 * Check if interval is known.
+	 * @param interval
+	 * @return <code>true</code> if interval is known, <code>false</code> otherwise
+	 */
+	public boolean hasInterval( Term interval ) {
+		return bounds.containsKey(interval);
+	}
+	
 //	public String getFlexibleIntervalString( Term interval ) {
 //		return "[["+ this.getEST(interval) + " " + this.getLST(interval) + "] [" + this.getEET(interval) + " " + this.getLET(interval) + "]]"; 
 //	}
@@ -132,8 +155,10 @@ public class TemporalIntervalLookup extends Expression implements Unique {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		
+		sb.append(";; Propagated temporal intervals:");
 		for ( Term k : this.bounds.keySet() ) {
 			Long[] bound = this.bounds.get(k);
+			sb.append("\n;;     ");
 			sb.append(k.toString());
 			sb.append(" [");
 			sb.append(bound[0]);
@@ -143,7 +168,7 @@ public class TemporalIntervalLookup extends Expression implements Unique {
 			sb.append(bound[2]);
 			sb.append(" ");			
 			sb.append(bound[3]);
-			sb.append("]\n");
+			sb.append("]");
 		}
 		
 		return sb.toString();
