@@ -316,7 +316,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		
 		if ( isConsistent && propagationRequired && !debug ) {
 			this.bookmark();
-		} else if (!debug) {
+		} else if ( !isConsistent && !debug && getHistorySize() > 0) {
 			this.revert(getHistorySize()-1);
 			this.bookmark();
 		}

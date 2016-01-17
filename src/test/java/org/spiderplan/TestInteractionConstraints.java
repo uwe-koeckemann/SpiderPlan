@@ -873,26 +873,26 @@ public class TestInteractionConstraints extends TestCase {
 			 */
 			ConfigurationManager cM = new ConfigurationManager();		
 			cM.set("T","class","STPSolver");
-	//		cM.set("T","verbose","true");
-	//		cM.set("T","verbosity","2");
+//			cM.set("T","verbose","true");
+//			cM.set("T","verbosity","2");
 			cM.set("R","class","PrologSolver");
-	//		cM.set("R","verbose","true");
-	//		cM.set("R","verbosity","2");
+//			cM.set("R","verbose","true");
+//			cM.set("R","verbosity","2");
 			cM.set("checker","class","SolverStack");
-	//		cM.set("checker","verbose","true");
+//			cM.set("checker","verbose","true");
 			cM.set("checker","solvers","T,R");
-	//		cM.set("checker","verbosity","2");
+//			cM.set("checker","verbosity","2");
 			
 			cM.set("main","class","SolverStack");
-	//		cM.set("main","verbose","true");
+//			cM.set("main","verbose","true");
 			cM.set("main","solvers","T,R,icResolver");
-	//		cM.set("main","verbosity","2");
+//			cM.set("main","verbosity","2");
 			
 			cM.set("icResolver","class","InteractionConstraintSolver");
 			cM.set("icResolver","consistencyChecker","checker");
 			
-	//		cM.set("icResolver","verbose","true");
-	//		cM.set("icResolver","verbosity","5");
+//			cM.set("icResolver","verbose","true");
+//			cM.set("icResolver","verbosity","5");
 			
 			Logger.addPrintStream("main", System.out);
 			Logger.addPrintStream("checker", System.out);

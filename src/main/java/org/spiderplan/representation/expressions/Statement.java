@@ -66,8 +66,10 @@ public class Statement extends Expression implements Substitutable {
 	 */
 	public Statement( String s ) {
 		super(ExpressionTypes.Statement);
-		this.intervalKey = Term.parse(SimpleParsing.complexSplit(s.substring(1, s.length()-1), " ").get(0));		
+		s = s.replace("  ", " ");
 		ArrayList<String> tmp = SimpleParsing.complexSplit(s.substring(1, s.length()-1), " ");
+		this.intervalKey = Term.parse(tmp.get(0));		
+//		ArrayList<String> tmp = SimpleParsing.complexSplit(s.substring(1, s.length()-1), " ");
 		this.variable = new Atomic(tmp.get(1));
 		this.value = Term.parse(tmp.get(2));	//TODO: does not parse statements with default value 'true'	
 	}

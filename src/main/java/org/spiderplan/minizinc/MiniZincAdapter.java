@@ -130,7 +130,7 @@ public class MiniZincAdapter {
 					Substitution theta = new Substitution();
 					for ( String ft : s.split(",") ) {
 						String[] tmp = ft.split("/");
-						theta.add(Term.createVariable(tmp[0]), Term.createConstant(tmp[1]));
+						theta.add(Term.createVariable(tmp[0]), Term.parse(tmp[1]));
 					}
 					subst.add(theta);
 				}

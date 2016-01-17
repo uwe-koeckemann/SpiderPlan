@@ -23,8 +23,12 @@
 package org.spiderplan.modules;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
@@ -398,6 +402,7 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 		enabledDB.removeAll(icsInCoreContext);	// (a) We only consider ICs belonging to the tested condition
 		Map<Class<? extends Expression>,Integer> cCount = enabledDB.getConstraintCount();
 		
+		Collection<Term> variablesInCDB = enabledDB.getVariableTerms();
 		
 //		ConstraintDatabase focused = new ConstraintDatabase();
 //		focused.addStatements(TemporalNetworkTools.getStatementsInPlanningInterval(cdb, core.getTypeManager()));
@@ -529,8 +534,10 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 									Substitution s = new Substitution();
 									long ID = UniqueID.getID();
 									for ( Term var : icCopy.getVariableTerms() ) {
-										Term newVar = var.makeUnique(ID);
-										s.add(var, newVar);
+										if ( !variablesInCDB.contains(var) ) {
+											Term newVar = var.makeUnique(ID);
+											s.add(var, newVar);
+										}
 									}
 									icCopy.substitute(s);
 									
