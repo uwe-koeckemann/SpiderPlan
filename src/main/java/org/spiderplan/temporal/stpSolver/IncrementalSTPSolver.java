@@ -247,6 +247,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 			newSimpleDistanceConstraints.addAll(cdbSimpleDistanceConstraints);
 		}
 		
+		
 //		System.out.println("====================================================");
 //		System.out.println(addedStatements);
 //		System.out.println(addedAllenConstraints);
@@ -261,7 +262,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 //		System.out.println("Propagation required? " + propagationRequired);
 //		System.out.println("Best revert: " + (dHistory.size()-1));
 //		System.out.println("Reverted to " + revertToIndex);
-////		
+//		
 //		System.out.println("newStatements " + newStatements.size());
 //		System.out.println("newAllenConstraints " + newAllenConstraints.size());
 		
@@ -299,22 +300,27 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 			for ( Long[] con : addedConstraints ) {
 				isConsistent &= incrementalDistanceMatrixComputation(con[0].intValue(), con[1].intValue(), con[2], con[3]);
 				
-				if ( debug ) {
-					System.err.println(debugLookUp.get(con));
-				}
+//				if ( debug ) {
+//					System.err.println(debugLookUp.get(con));
+//				}
 				
 				if ( !isConsistent ) {
-					if ( debug ) 
-						System.err.println("FAIL");
+					if ( debug ) {
+						System.err.println("[FAIL] " + debugLookUp.get(con));
+					}
 					break;
 				}
 			}
 //		}
 		// if ( keepTimes ) StopWatch.stop("[incSTP] Propagation");
 		
-		if ( isConsistent && propagationRequired ) {
+		if ( isConsistent && propagationRequired && !debug ) {
+			this.bookmark();
+		} else if (!debug) {
+			this.revert(getHistorySize()-1);
 			this.bookmark();
 		}
+//		System.out.println("RETURNING: " + isConsistent);
 		return isConsistent;
 	}	
 	
@@ -448,11 +454,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		List<Long[]> r = new Vector<Long[]>();
 		for ( int i = 0 ; i < AC.size() ; i++ ) {
 			AllenConstraint ac = AC.get(i);
-			
-			if ( debug ) {
-				System.err.println(ac);
-			}
-			
+						
 			this.addedAllenConstraints.add(ac);
 //			if ( !this.acdMap.containsKey(ac) ) {
 //				System.out.println(ac);
@@ -488,7 +490,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 						debugLookUp.put(con, ac);
 					}
 					
-					System.err.println(addedConstraints);
+//					System.err.println(addedConstraints);
 				}
 				
 //				for ( Long[] sdc : addedConstraints ) {
@@ -612,7 +614,6 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 	
 	
 	private List<Long[]> binaryAllen2SimpleDistance( AllenConstraint c, long fs, long fe, long ts, long te ) {
-		System.out.println(c);
 		List<Long[]> r = new ArrayList<Long[]>();
 		
 		if ( c.getRelation().equals(TemporalRelation.Before) || c.getRelation().equals(TemporalRelation.BeforeOrMeets)) {

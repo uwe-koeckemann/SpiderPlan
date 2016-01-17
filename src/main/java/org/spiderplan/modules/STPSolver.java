@@ -23,6 +23,7 @@
 package org.spiderplan.modules;
 
 import java.util.Map;
+import java.util.Scanner;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.configuration.ParameterDescription;
@@ -40,10 +41,12 @@ import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.expressions.temporal.PossibleIntersection;
+import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.expressions.temporal.TemporalIntervalQuery;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
+import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
@@ -183,6 +186,18 @@ public class STPSolver extends Module implements SolverInterface {
 		isTemporalConsistent = stpSolver.isConsistent( cDB, core.getTypeManager() );
 		if ( keepTimes ) StopWatch.stop("["+this.getName()+"] Running incremental STP solver");
 		
+//		System.out.println(StopWatch.getLast("["+this.getName()+"] Running incremental STP solver"));
+		
+//		if ( !isTemporalConsistent ) {
+//			System.out.println("==============================================");
+//			System.out.println("Debugging: ");
+//			System.out.println("==============================================");
+//			IncrementalSTPSolver stpDebug = new IncrementalSTPSolver(0, 600);
+//			stpDebug.debug = true;
+//			System.out.println(stpDebug.isConsistent( cDB, core.getTypeManager()));
+//			System.out.println("==============================================");
+//		}
+		
 		isConsistent = isTemporalConsistent;
 			
 		if ( isConsistent ) {
@@ -278,7 +293,12 @@ public class STPSolver extends Module implements SolverInterface {
 		ResolverIterator resolverIterator = null;
 		if ( isConsistent ) {
 			ConstraintDatabase resCDB = new ConstraintDatabase();
-			resCDB.add(stpSolver.getPropagatedTemporalIntervals());
+			
+			TemporalIntervalLookup tiLookup = stpSolver.getPropagatedTemporalIntervals(); 
+			
+//			System.out.println(tiLookup);
+			
+			resCDB.add(tiLookup);
 			Resolver r = new Resolver(resCDB);
 			resolverIterator = new SingleResolver(r, name, cM);
 			if ( verbose ) Logger.msg(getName(), "Consistent (adding bound information resolver)", 0);
@@ -286,21 +306,18 @@ public class STPSolver extends Module implements SolverInterface {
 			state = State.Consistent;
 		} else {
 			
-//			MetaCSPAdapter csp = new MetaCSPAdapter();		
-//			System.out.println("=========================================");
-//			boolean test = csp.isConsistent(cDB, core.getTypeManager());
-//			System.out.println(test);
-//			IncrementalSTPSolver stpNew = new IncrementalSTPSolver(0, 10000000);
-//			System.out.println(stpNew.isConsistent( cDB, core.getTypeManager()));
-//			System.out.println(stpSolver.isConsistent( cDB, core.getTypeManager()));
-//			System.out.println("=========================================");
-//
+
 //			if ( !isTemporalConsistent ) {
 //				System.out.println(cDB);
 //				IncrementalSTPSolver stpNewDebug = new IncrementalSTPSolver(0, 10000000);
 //				stpNewDebug.debug = true;
 //				System.out.println(stpNewDebug.isConsistent( cDB, core.getTypeManager()));
-//				Loop.start();
+//				
+//				System.out.println("Press \"ENTER\" to continue...");
+////				try{System.in.read();}
+////				catch(Exception e){}
+////				Scanner scanner = new Scanner(System.in);
+////				scanner.nextLine();
 //			}
 			
 			if ( verbose ) {

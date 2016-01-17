@@ -120,7 +120,7 @@ public class SolverStack extends Module {
 			if ( keepTimes ) StopWatch.stop(msg("Test and find flaws " + solverNames.get(i)));
 			if ( verbose ) Logger.depth--;
 					
-			if ( verbose ) Logger.msg(getName(), ((Module)solvers.get(i)).getName() + " says -> " + result.getState().toString(), 0);
+			if ( verbose ) Logger.msg(getName(), "    -> " + result.getState().toString(), 0);
 			
 			if ( !result.getState().equals(State.Inconsistent) && result.getResolverIterator() == null ) {
 				i++;
@@ -170,6 +170,21 @@ public class SolverStack extends Module {
 //							Statistics.increment(msg("Level " +(backtrackStack.size()) + " popping"));
 						}
 						
+						/**
+						 * TODO: Add optional backjumping:
+						 * 
+						 * 1) Get failed solver (or constraint? or resolvers?)
+						 * 2) While type/constraint/resolvers fail: 
+						 * 		a) Remove added resolvers and test if failed resolvers work.
+						 * 3) If it works after n times we pop n times and take next resolver
+						 *
+						 * TODO: Add optional dynamic re-ordering:
+						 * 	1) Type x constraint fails
+						 * 	2) Estimate search space for all types y that have resolvers on stack
+						 *  3) Swap ordering to minimize expected backtracking
+						 *
+						 */
+						
 //						if ( keepTimes ) StopWatch.start(msg("Popping resolver"));
 						backtrackStack.pop();
 						coreStack.pop();
@@ -182,9 +197,10 @@ public class SolverStack extends Module {
 				 */	
 				if ( r != null ) {							// found resolver to try next
 //					if ( keepTimes ) StopWatch.start(msg("Applying resolver"));
-					if ( verbose ) {
-						Logger.msg(getName(), "Applying resolver", 1);
-					}
+//					if ( verbose ) {
+//						Logger.msg(getName(), "Applying resolver", 1);
+//						Logger.msg(getName(), r.toString(), 1);
+//					}
 					if ( keepStats ) {
 						Statistics.increment(msg("Applied resolvers"));
 					}

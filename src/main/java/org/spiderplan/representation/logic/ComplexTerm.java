@@ -41,13 +41,14 @@ public class ComplexTerm extends Term {
 	private String string;
 	private int hashCode;
 		
-	protected ComplexTerm() { }
-		
 	protected ComplexTerm( String name, Term... args ) {
 		this.value = name;		
 		this.args = args;
+		this.isGround = true;
 		for ( Term t : args ) {
-			this.isGround &= t.isGround();
+			if ( !t.isGround() ) {
+				this.isGround = false;
+			}
 		}
 		if ( args.length == 0 ) {
 			args = null;

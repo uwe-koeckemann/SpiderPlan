@@ -1,18 +1,18 @@
-(initial-context
-	(domain
+(:initial-context
+	(:domain
 		( enum robotTask ( list t1 recharge1 ) )
 		( int intType ( interval 0 1000 ) )
 	)
-	(statement
+	(:statement
 		( key1 ( at r1 ) robotRoom )
 		( key2 ( state t1 vaccuum bedroomParents ) waiting )
 		( key3 ( state recharge1 recharge_r1 robotRoom ) waiting )
 	)
-	(goal
+	(:goal
 		( G1 ( state t1 vaccuum bedroomParents ) finished )
 		( G2 ( state recharge1 recharge_r1 robotRoom ) finished )
 	)
-	(temporal
+	(:temporal
 		( release key1 [0 0] )
 		( release key2 [0 0] )
 		( release key3 [0 0] )

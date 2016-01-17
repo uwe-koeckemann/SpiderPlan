@@ -166,11 +166,11 @@ public class ForwardPlanningModule extends Module implements SolverInterface {
 				state = State.Searching;
 				resolverIterator = new ForwardPlanningIterator(core.getContext(), G, core.getOperators(), core.getTypeManager(), this.cM, this.getName());
 			} else {
-				System.out.println("===========================================================");
-				for ( OpenGoal g : G )
-					System.out.println(g);
-				System.out.println("===========================================================");
-				System.out.println(core.getPlan());
+//				System.out.println("===========================================================");
+//				for ( OpenGoal g : G )
+//					System.out.println(g);
+//				System.out.println("===========================================================");
+//				System.out.println(core.getPlan());
 				boolean uniqueInitialStateSetting = false;
 				if ( cM.hasAttribute(getName(), "uniqueInitialState")) {
 					uniqueInitialStateSetting = cM.getBoolean(this.getName(), "uniqueInitialState");

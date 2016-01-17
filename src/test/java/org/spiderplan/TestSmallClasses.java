@@ -40,6 +40,8 @@ import org.spiderplan.representation.parser.pddl.ParseException;
 import org.spiderplan.search.GenericSingleNodeSearch;
 import org.spiderplan.tools.GenericComboBuilder;
 import org.spiderplan.tools.GenericComboIterator;
+import org.spiderplan.tools.SimpleParsing;
+
 import junit.framework.TestCase;
 
 /**
@@ -333,6 +335,24 @@ public class TestSmallClasses extends TestCase {
 		assertTrue( rC.next() == null );
 	}
 	
+	public void testConvertPrologToMine() throws ParseException {
+		
+		String prolog1 = "f(x)";
+		System.out.println(SimpleParsing.convertTermFormat(prolog1));
+		assertTrue(SimpleParsing.convertTermFormat(prolog1).equals("(f x)"));
+		
+		String prolog2 = "f(x,y,z)";
+		System.out.println(SimpleParsing.convertTermFormat(prolog2));
+		assertTrue(SimpleParsing.convertTermFormat(prolog2).equals("(f x y z)"));
+		
+		String prolog3 = "f(x,y,z,g(z))";
+		System.out.println(SimpleParsing.convertTermFormat(prolog3));
+		assertTrue(SimpleParsing.convertTermFormat(prolog3).equals("(f x y z (g z))"));
+		
+		String prolog4 = "f(f(f(f(f(x)))))";
+		System.out.println(SimpleParsing.convertTermFormat(prolog4));
+		assertTrue(SimpleParsing.convertTermFormat(prolog4).equals("(f (f (f (f (f x)))))"));
+	}
 	
 	public void testComplieWithGroups() throws ParseException { 
 		Core c = Compile.compile("./domains/test-cases/test-groups.uddl");

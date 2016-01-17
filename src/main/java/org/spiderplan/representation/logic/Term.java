@@ -81,12 +81,12 @@ public abstract class Term {
 		return new ComplexTerm(name,args);
 	}
 	
-	public static Term parse( String s ) {		
+	public static Term parse( String s ) {	
 		s = s.replace("{", "(list ").replace("}", ")").replace("  ", " ");
 		s = s.replace("[", "(interval ").replace("]", ")").replace("  ", " ");
 		
 		if ( s.contains("(") && !s.startsWith("(") ) {
-			System.out.println("Old format. This should not happen!");
+			throw new IllegalArgumentException("String " + s + " has wrong format. This should not happen!");
 		}
 		
 		String value = s;

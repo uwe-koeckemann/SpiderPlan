@@ -150,9 +150,12 @@ public class SchedulingSolver extends Module implements SolverInterface {
 			}
 			
 			if ( !resolvers.isEmpty() ) {
-				if ( verbose ) Logger.depth++;
+				if ( verbose ) {
+					Logger.msg(getName(), "Need to resolve: " + rrc , 1); 
+					Logger.depth++;
+				}
 				for ( AllenConstraint resCon : resolvers ) {
-					if ( verbose ) Logger.msg(getName(), "Resolver: " + resCon , 3); 
+					if ( verbose ) Logger.msg(getName(), "Resolver: " + resCon , 1); 
 					ConstraintDatabase resolverCDB = new ConstraintDatabase();
 					resolverCDB.add(resCon);
 					resolverList.add(new Resolver(resolverCDB));

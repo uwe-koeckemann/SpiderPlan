@@ -222,7 +222,7 @@ public class ExecutionModule  extends Module {
 			} else {
 				try {
 					Long dispatchTime = Long.valueOf(simCon.getDispatchTime().toString());
-					System.out.println("Got sim DB for t=" + dispatchTime);
+//					System.out.println("Got sim DB for t=" + dispatchTime);
 					ConstraintDatabase dispatchedDB = dispatchedDBs.get(dispatchTime);
 					if ( dispatchedDB == null ) {
 						dispatchedDB = new ConstraintDatabase();
@@ -413,7 +413,7 @@ public class ExecutionModule  extends Module {
 		 * Dispatch new information (from simulation)
 		 ************************************************************************************************/
 		if ( dispatchedDBs.get(t) != null ) {
-			System.out.println("Dispatching: " + t);
+//			System.out.println("Dispatching: " + t);
 			if ( verbose ) Logger.msg(getName(), "Dispatching:\n" + dispatchedDBs.get(t), 1);
 			execDB.add(dispatchedDBs.get(t));
 			addedSimDBs.add(dispatchedDBs.get(t));
@@ -921,7 +921,7 @@ public class ExecutionModule  extends Module {
 			Logger.depth++;
 		}
 		for ( OpenGoal og : execDB.get(OpenGoal.class)) {
-			System.out.println(og);
+//			System.out.println(og);
 			if ( execDB.hasKey(og.getStatement().getKey())) {
 				if ( verbose ) Logger.msg(getName(), "Goal " + og + " with " + og.getStatement().getKey() 
 																	+ " [" + propagatedTimes.getEST(og.getStatement().getKey()) 
@@ -1197,10 +1197,18 @@ public class ExecutionModule  extends Module {
 			Logger.msg(getName(),"The following statements will be removed...", 2);
 			Logger.depth++;
 		}
+		
+		List<OpenGoal> remGoalList = new ArrayList<OpenGoal>();
 		for ( Statement s : cdb.get(Statement.class) ) {
 			if ( writtenInStone.contains(s.getKey()) && !connectedToOutside.contains(s.getKey()) ) {
 				if ( verbose ) Logger.msg(getName(), s.toString(), 2);
 				remList.add(s);
+				
+				for ( OpenGoal og : cdb.get(OpenGoal.class) ) {
+					if ( og.getStatement().equals(s)) {
+						remGoalList.add(og);
+					}
+				}
 				
 				for ( AllenConstraint ac : cdb.get(AllenConstraint.class)) {
 					if ( ac.getFrom().equals(s.getKey()) || (ac.isBinary() && ac.getTo().equals(s.getKey()))) {
@@ -1218,13 +1226,15 @@ public class ExecutionModule  extends Module {
 			Logger.depth++;
 		}
 		
-
 		
 		int beforeAC =  (cdb.get(AllenConstraint.class).size());
 		int beforeStatements = (cdb.get(Statement.class).size());
+		int beforeOpenGoals = (cdb.get(OpenGoal.class).size());
 		if ( verbose ) Logger.msg(this.getName(), "Number of constraints (before removal) " + beforeAC, 2);		
 		if ( verbose ) Logger.msg(this.getName(), "Number of statements (before removal) " + beforeStatements, 2);
+		if ( verbose ) Logger.msg(this.getName(), "Number of open goals (before removal) " + beforeOpenGoals, 2);		
 		cdb.removeAll(remList);
+		cdb.removeAll(remGoalList);
 		cdb.addAll(writtenInStoneConstraints);
 		
 		remList.clear();
@@ -1244,6 +1254,7 @@ public class ExecutionModule  extends Module {
 			Logger.msg(this.getName(), "Removed " + (beforeStatements-afterStatements) + " statements whose intervals are fixed anyways." , 2);
 			Logger.msg(this.getName(), "Final number of temporal constraints " + (long) (cdb.get(AllenConstraint.class).size())  , 2);
 			Logger.msg(this.getName(), "Final number of statements " + (cdb.get(Statement.class).size()) , 2);
+			Logger.msg(this.getName(), "Final number of goals " + (cdb.get(OpenGoal.class).size()) , 2);
 			Logger.msg(this.getName(), "Final number of constraints " + (long) (cdb.size()) , 2);
 			Logger.depth--;
 		}

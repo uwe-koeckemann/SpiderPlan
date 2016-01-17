@@ -1,12 +1,12 @@
 ;; Cargo a and b have to switch locations.
 
-(initial-context
-	(domain
+(:initial-context
+	(:domain
 		( enum truck ( list truck1 truck2 ) )
 		( enum location ( list loc1 loc2 ) )
 		( enum cargo ( list a b nothing ) )
 	)
-	(statement
+	(:statement
 		( s1 ( at truck1 ) loc1 )
 		( s2 ( at truck2 ) loc2 )
 		( s3 ( free loc1 ) false )
@@ -16,11 +16,11 @@
 		( s7 ( holds truck1 ) nothing )
 		( s8 ( holds truck2 ) nothing )
 	)
-	(goal
+	(:goal
 		( ?g1 ( cargo-at a ) loc2 )
 		( ?g2 ( cargo-at b ) loc1 )
 	)
-	(temporal
+	(:temporal
 		( release s1 [0 0] )
 		( release s2 [0 0] )
 		( release s3 [0 0] )

@@ -130,8 +130,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 		for ( OpenGoal og : cDB.get(OpenGoal.class) ) {
 			
 			if ( verbose ) print (og.toString(), 3);
-//			if ( !og.isAsserted() ) {
-				
+//			if ( !og.isAsserted() ) {  // TODO: why did I comment this out?
 				goalStatements.add(og.getStatement());
 //			} else {
 //				if ( verbose ) print ("Already asserted...", 3);
@@ -216,10 +215,11 @@ public class ApplyPlanIterator extends ResolverIterator {
 		 * we need to map open goal statements to any possible statement from plan 
 		 * or context.
 		 */
+		addGoals = true;
 		if ( addGoals ) {
 			for ( Statement goal : goalStatements ) {	
 				if ( verbose ) print("Goal: " + goal, 3);
-				ArrayList<Substitution> possibleMachtes = new ArrayList<Substitution>();
+				ArrayList<Substitution> possibleMatches = new ArrayList<Substitution>();
 				ArrayList<AllenConstraint> possibleLinks = new ArrayList<AllenConstraint>();
 				for ( Atomic var : sortedIntervals.keySet() ) {
 					Substitution theta = goal.getVariable().match(var);	
@@ -239,7 +239,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 									
 									if ( verbose ) print("    Possible link (goal): " + newLink, 3);
 									
-									possibleMachtes.add(sub);
+									possibleMatches.add(sub);
 									possibleLinks.add(newLink);
 								}
 							}
@@ -283,21 +283,24 @@ public class ApplyPlanIterator extends ResolverIterator {
 							if ( verbose ) print("    Possible link (goal): " + newLink, 3);
 							
 							possibleLinks.add(newLink);									
-							possibleMachtes.add(theta);	
+							possibleMatches.add(theta);	
 						}
 					}
 				} 
 				
-				if ( possibleMachtes.isEmpty() ) {
-					System.err.println(cDB);
-					throw new IllegalStateException("Statement (goal) " + goal.toString() + " does not exist in context.");
-				}
+				if ( possibleMatches.isEmpty() ) {
+					// TODO: asserted goals whose achieving statements were forgotten can throw this exception.
+					// ideally the goals should be removed when their statements are forgotten...
+//					System.err.println(cDB);
+//					throw new IllegalStateException("Statement (goal) " + goal.toString() + " does not exist in context.");
+				}  else {
 				
-				// reverse list to try last one added first, since later effects are more likely to be intended for goals
-				Collections.reverse(possibleMachtes); 
-				matchesForAllOpenPreconditions.add(possibleMachtes);
-				Collections.reverse(possibleLinks); 
-				linksForAllOpenPreconditions.add(possibleLinks);
+					// reverse list to try last one added first, since later effects are more likely to be intended for goals
+					Collections.reverse(possibleMatches); 
+					matchesForAllOpenPreconditions.add(possibleMatches);
+					Collections.reverse(possibleLinks); 
+					linksForAllOpenPreconditions.add(possibleLinks);
+				}	
 			}
 		}
 		

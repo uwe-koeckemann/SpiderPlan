@@ -296,6 +296,14 @@ public class RunExperiment {
 	 * @param expFilename filename of experiment definition
 	 */
 	public static void run( String expFilename ) {
+		String expBaseDir = "./";
+		String[] tmp =  expFilename.split("/");
+		for ( int i = 0 ; i < tmp.length-1 ; i++ ) {
+			expBaseDir += tmp[i] + "/";
+		}
+		
+		System.out.println("Experiment directory: " + expBaseDir);
+		
 		ConsistencyChecker.ignoreWarnings = true;
 		int expCount = 0;
 		
@@ -356,14 +364,14 @@ public class RunExperiment {
 			throw new IllegalArgumentException("Missing information in file " + expFilename + ": name");
 		}
 		if ( optionsMap.containsKey("problems") ) {
-			System.out.println("Problem Directory: " + optionsMap.get("problems"));
-			problemsDirectoryName = optionsMap.get("problems");
+			System.out.println("Problem Directory: " + expBaseDir + optionsMap.get("problems"));
+			problemsDirectoryName = expBaseDir + optionsMap.get("problems");
 		} else {
 			throw new IllegalArgumentException("Missing information in file " + expFilename + ": problems");
 		}
 		if ( optionsMap.containsKey("planner") ) {
-			System.out.println("Planner: " + optionsMap.get("planner"));
-			plannerFilename = optionsMap.get("planner");
+			System.out.println("Planner: " + expBaseDir + optionsMap.get("planner"));
+			plannerFilename = expBaseDir + optionsMap.get("planner");
 		} else {
 			throw new IllegalArgumentException("Missing information in file " + expFilename + ": planner");
 		}
@@ -392,8 +400,8 @@ public class RunExperiment {
 		 * Optional information
 		 */		
 		if ( optionsMap.containsKey("domain") ) {
-			System.out.println("Domain: " + optionsMap.get("domain"));
-			domainFilename = optionsMap.get("domain");
+			System.out.println("Domain: " + expBaseDir + optionsMap.get("domain"));
+			domainFilename = expBaseDir + optionsMap.get("domain");
 		} 
 		if ( optionsMap.containsKey("timeout") ) {
 			System.out.println("Timeout: " + optionsMap.get("timeout"));
@@ -487,11 +495,11 @@ public class RunExperiment {
 				tOutThread.start();
 			}
 			
-			ConstraintDatabase initDB = initCore.getContext().copy();
+//			ConstraintDatabase initDB = initCore.getContext().copy();
 			
 			Core r = main.run(initCore);
 			
-			System.out.println(r.getRootCore().getContext().equals(initDB));
+//			System.out.println(r.getRootCore().getContext().equals(initDB));
 			
 			if ( maxTimeMillis != -1 ) {
 				tOutThread.stopThread();

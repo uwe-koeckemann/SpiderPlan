@@ -71,6 +71,27 @@ public class SimpleParsing {
 	}
 	
 	/**
+	 * Converts String representation of term in format f(x,y,g(z)) to 
+	 * s-expression format: (f x y (g z))
+	 * @param in
+	 * @return String in s-expression format
+	 */
+	public static String convertTermFormat( String in ) {
+		String tmp = " " + in.replace(",", " ");
+		
+		int lastSpaceAt = 0;
+		
+		for ( int i = 0 ; i < tmp.length(); i++ ) {
+			if ( tmp.charAt(i) == ' ' ) {
+				lastSpaceAt = i;
+			} else if ( tmp.charAt(i) == '(' ) {
+				tmp = tmp.substring(0, lastSpaceAt) + " (" + tmp.substring(lastSpaceAt+1,i) + " " + tmp.substring(i+1);  
+			}
+		}
+		return tmp.substring(1);
+	}
+	
+	/**
 	 * Create a map of assignments from {@link Atomic} to {@link Term} from
 	 * a {@link String}.
 	 * @param s {@link String} of the form "p(a,b)<-c;p(b,c)<-a;..."

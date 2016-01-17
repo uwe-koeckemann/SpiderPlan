@@ -207,7 +207,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			this.multiEffectSupport = cManager.getBoolean(name, "multiEffectSupport");
 		}
 		
-		if ( cManager.hasAttribute(name, "consistencyChecker") ) {
+		if ( cManager.hasAttribute(name, "consistencyChecker") ) {			
 			this.incremental = true;
 			this.consistencyCheckerName = cManager.getString(this.getName(), "consistencyChecker" );
 			this.consistencyChecker = ModuleFactory.initModule( this.consistencyCheckerName, cManager );
@@ -384,9 +384,11 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		while ( !planner.isDone() ) {
 			if ( keepTimes ) StopWatch.start(msg("Stepping"));
 			planner.step();
+			
 			if ( keepTimes ) StopWatch.stop(msg("Stepping"));			
 			if ( verbose ) printIterationInfo();
 			if ( keepStats ) recordStats();
+			
 			
 			if ( keepTimes ) StopWatch.start(msg("Plan pruned?"));
 			boolean currentPlanPruned = this.isDiscarded((ForwardPlanningNode)planner.getCurrentNode());
@@ -395,24 +397,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			if ( currentPlanPruned ) {
 				this.prune();
 			}
-			
-//			if ( findConflictsWithFutureEvents ) {
-//				if ( verbose ) print("Checking for conflicts with future events...", 0);
-//
-//				OrderedPlan pPlan = ((ForwardPlanningNode)planner.getCurrentNode()).getPlan();	
-//				if ( resetUniqueIDs ) UniqueID.reset();
-//				ArrayList<Operator> allOps = new ArrayList<Operator>();
-//				allOps.addAll(O);
-//				allOps.addAll(this.transitionOperators);
-//				Plan p = new Plan(pPlan, allOps);
-//					
-//				if ( resetUniqueIDs ) UniqueID.restore();
-//				
-//				ConstraintDatabase context = originalContext.copy();
-//				
-//				this.findConflictsWithFutureEvents(context, p, tM);
-//			}
-			
+
 			if ( incremental && !currentPlanPruned && !(planner.getCurrentNode() == null) ) {
 				if ( keepTimes ) StopWatch.start(msg("Incremental consistency check"));
 
@@ -808,7 +793,6 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			Collection<Operator> appNew = new HashSet<Operator>();
 			
 			for ( StateVariableOperatorMultiState svo : svOperators ) {
-
 //					print("Working on:    " + svo.toString().replace("\n","\n    "), 4);
 				
 				/**

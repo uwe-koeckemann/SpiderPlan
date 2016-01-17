@@ -40,7 +40,7 @@ import org.spiderplan.representation.logic.Term;
 
 /**
  * Represents all kinds of values that are computed by different solvers.
- * Implemented uses so far include: Storing integer and float results of evaluated equations (math constraints).
+ * Implemented uses so far include: Storing integer and float results of evaluated equations (:math constraints).
  * <p>
  * <b>Note:</b> Implements {@link Unique} interface so adding more than one instance of this constraint to a {@link ConstraintDatabase} 
  * will overwrite the existing one. 

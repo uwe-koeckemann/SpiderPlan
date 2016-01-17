@@ -75,41 +75,41 @@ SKIP:
 
 TOKEN :
 {
-   < INCLUDE : "include" >
-|   < EXECUTION : "execution" >
-|   < TEMPORAL : "temporal" >
-|   < COST : "cost" >
-|   < MATH : "math" >
-|   < SET : "sets" >
-|   < GRAPH : "graph" >
-|   < PROLOG : "prolog" >
-|   < DOMAIN : "domain" >
-|   < GOAL : "goal" >
-|   < TASK : "task" >
-|   < FINALLY : "finally" >
-|   < MINIZINC : "minizinc" >
-|   < RESOURCE : "resource" >
-|   < CONDITIONAL : "conditional" >
-|   < IC: "ic" >
-|   < CONDITION : "condition" >
-|   < SAMPLING : "sampling" >
-|   < ROS : "ros" >
+    < INCLUDE : ":include" >
+|   < EXECUTION : ":execution" >
+|   < TEMPORAL : ":temporal" >
+|   < COST : ":cost" >
+|   < MATH : ":math" >
+|   < SET : ":set" >
+|   < GRAPH : ":graph" >
+|   < PROLOG : ":prolog" >
+|   < DOMAIN : ":domain" >
+|   < GOAL : ":goal" >
+|   < TASK : ":task" >
+|   < FINALLY : ":finally" >
+|   < MINIZINC : ":minizinc" >
+|   < RESOURCE : ":resource" >
+|   < CONDITIONAL : ":conditional" >
+|   < IC: ":ic" >
+|   < CONDITION : ":condition" >
+|   < SAMPLING : ":sampling" >
+|   < ROS : ":ros" >
+|   < RESOLVER : ":resolver" >
+|   < CAPACITY : ":capacity" >
+|   < INITIAL : ":initial-context" >
+|   < CUSTOM : ":custom" >
+|   < SIMULATE : ":simulate" >
+|   < STATEMENT : ":statement" >
+| 	< OPERATOR : ":operator" >
+| 	< PRECONDITIONS : ":preconditions" > 
+| 	< EFFECTS : ":effects" >
+| 	< CONSTRAINTS : ":constraints" >
+
 |   < ROSPUBLISH : "publish-to" >
 |   < ROSSUBSCRIBE : "subscribe-to" >
 |   < ROSREGACTION : "register-action" >
 |   < ROSGOAL : "is-goal" >
-|   < RESOLVER : "resolver" >
-|   < CAPACITY : "capacity" >
 |   < REUSABLE : "reusable" >
-|   < CONSUMABLE : "consumable" >
-|   < INITIAL : "initial-context" >
-|   < CUSTOM : "custom" >
-|   < SIMULATE : "simulate" >
-|   < STATEMENT : "statement" >
-| 	< OPERATOR : "operator" >
-| 	< PRECONDITIONS : "preconditions" > 
-| 	< EFFECTS : "effects" >
-| 	< CONSTRAINTS : "constraints" >
 }
 
 /* SEPARATORS */

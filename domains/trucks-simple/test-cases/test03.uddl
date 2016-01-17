@@ -1,22 +1,22 @@
 ;; Cargo a has to be transported to loc2
 
-(initial-context
-	(domain
+(:initial-context
+	(:domain
 		( enum truck ( list truck1) )
 		( enum location ( list loc1 loc2 ) )
 		( enum cargo ( list a nothing ) )
 	)
-	(statement
+	(:statement
 		( s1 ( at truck1 ) loc1 )
 		( s3 ( free loc1 ) false )
 		( s4 ( free loc2 ) false )
 		( s5 ( cargo-at a ) loc1 )
 		( s6 ( holds truck1 ) nothing )
 	)
-	(goal
+	(:goal
 		( ?g2 ( cargo-at a ) loc2 )
 	)
-	(temporal
+	(:temporal
 		( release s1 [0 0] )
 		( release s3 [0 0] )
 		( release s4 [0 0] )

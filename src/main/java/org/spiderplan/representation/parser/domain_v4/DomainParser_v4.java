@@ -1451,9 +1451,9 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
   private boolean jj_3R_82() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_scan_token(51)) {
+    if (jj_scan_token(50)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(52)) return true;
+    if (jj_scan_token(51)) return true;
     }
     return false;
   }
@@ -1922,10 +1922,10 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x300000,0x0,0x1bffe40,0x0,0x1c000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_0 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x300000,0x0,0x71bffe40,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x200,0x200,0x800000,0x400000,0x2d82a00,0x2d82a00,0x2182a00,0x2d82a00,0x800200,0x2d82a00,0x2d82a00,0x0,0x200,0x1c,0x200,0x0,0x200,0x800200,0x200,0x200,0xc00000,0x180000,0x180000,0x180000,0x180000,};
+      jj_la1_1 = new int[] {0x100,0x100,0x400000,0x200000,0x16c1500,0x16c1500,0x10c1500,0x16c1500,0x400100,0x16c1500,0x16c1500,0x0,0x100,0x0,0x100,0x70,0x100,0x400100,0x100,0x100,0x600000,0xc0000,0xc0000,0xc0000,0xc0000,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[25];
   private boolean jj_rescan = false;
@@ -2111,7 +2111,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[58];
+    boolean[] la1tokens = new boolean[57];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -2128,7 +2128,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
         }
       }
     }
-    for (int i = 0; i < 58; i++) {
+    for (int i = 0; i < 57; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

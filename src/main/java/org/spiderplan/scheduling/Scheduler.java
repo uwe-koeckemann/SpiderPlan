@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+import org.spiderplan.modules.STPSolver;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
@@ -37,6 +38,9 @@ import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
+import org.spiderplan.representation.types.TypeManager;
+import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
+import org.spiderplan.tools.Loop;
 
 /**
  * Note: Code based on scheduling code of the metacsp project (http://metacsp.org/) 
@@ -50,6 +54,8 @@ public abstract class Scheduler {
 	private Atomic resourceVariable;
 	private TemporalIntervalLookup tiLookup;
 	
+	private ConstraintDatabase currentCDB = null;
+	
 	private List<Statement> usages;
 	
 	public Scheduler( Atomic resourceVariable ) {
@@ -62,6 +68,7 @@ public abstract class Scheduler {
 	 * @param cDB
 	 */
 	public List<AllenConstraint> resolveFlaw( ConstraintDatabase cDB ) {
+		currentCDB = cDB;
 		this.usages = new ArrayList<Statement>();
 		
 		this.tiLookup = cDB.get(TemporalIntervalLookup.class).get(0); 
@@ -306,10 +313,27 @@ public abstract class Scheduler {
 			}
 		
 			for (int i = 0; i < groundVars.length-1; i++) {
+
 				long i_min = tiLookup.getEST(groundVars[i].getKey());
 				long i_max = tiLookup.getEET(groundVars[i].getKey());
+				Bounds b_i = null;
 				
-				Bounds b_i = new Bounds(i_min, i_max);
+				try {
+					b_i = new Bounds(i_min, i_max);	
+				} catch ( Exception e ) {
+					IncrementalSTPSolver stpSolver = new IncrementalSTPSolver(0, 1000000);
+					boolean r = stpSolver.isConsistent(currentCDB, new TypeManager());
+					
+					System.out.println("i: " + groundVars[i]);
+					System.out.println(tiLookup.getEST(groundVars[i].getKey()));
+					System.out.println(tiLookup.getEET(groundVars[i].getKey()));
+					System.out.println(r);
+					
+//					System.out.println(stpSolver.getPropagatedTemporalIntervals());
+					
+					Loop.start();
+				}
+				
 						
 				for (int j = i+1; j < groundVars.length; j++) {
 					long j_min = tiLookup.getEST(groundVars[j].getKey());

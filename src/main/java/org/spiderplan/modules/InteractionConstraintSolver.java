@@ -46,7 +46,9 @@ import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
 import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.logic.Substitution;
+import org.spiderplan.representation.logic.Term;
 import org.spiderplan.search.GenericSingleNodeSearch;
+import org.spiderplan.tools.UniqueID;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
@@ -523,7 +525,19 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 	//								}
 	//
 	//								icCopy.substitute(groundIntervalSubst);
+									
+									Substitution s = new Substitution();
+									long ID = UniqueID.getID();
+									for ( Term var : icCopy.getVariableTerms() ) {
+										Term newVar = var.makeUnique(ID);
+										s.add(var, newVar);
+									}
+									icCopy.substitute(s);
+									
+									
 									icCopy.setResolverIndex(j);
+									resolverCDB.substitute(s);
+									
 									
 									resolverCDB.add(icCopy.copy());
 									resolverCDB.add(new Asserted(icCopy));

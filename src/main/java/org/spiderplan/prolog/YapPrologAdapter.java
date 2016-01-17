@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -243,24 +244,77 @@ public class YapPrologAdapter {
 						}
 					}
 					
+					List<Term> needsNoCheck = new ArrayList<Term>();
+					
 					Stack<Substitution> workStack = new Stack<Substitution>();
 					workStack.addAll(qResult);
 					while ( !workStack.empty() ) {
 						Substitution q = workStack.pop();
 						boolean isGround = true;
 						boolean isInDomain = true;
+						
+						/**
+						 * TODO: to needs special handling if complex with skolem arguments:
+						 * 			1) Make Skolems variables
+						 * 			2) Take all matching values from domain
+						 * 			3) Push results on stack as for other cases
+						 */
+						
 						for ( Term from : q.getMap().keySet() ) {
-							if ( q.getMap().get(from).toString().substring(0, 1).equals("_") ) {	
+							Term to = q.getMap().get(from);
+//							System.out.println("from=" + from);
+//							System.out.println("to=" + to);
+							if ( to.toString().substring(0, 1).equals("_") ) {	
 								isGround = false;
 								ArrayList<Term> domain = varTypes.get(from).getDomain();
 								for ( Term val : domain ) {
 									Substitution qNew = q.copy();
 									qNew.getMap().put(from,val);
+									
 									workStack.push(qNew);
 								}
 								break;
+							} else if ( to.isComplex() ) {
+//								System.out.println("Complex: " + to);
+								String tmp = to.toString().replace(" _", " ?X");
+								Term toNew = Term.parse(tmp);
+								toNew = toNew.substitute(q);
+								
+								if ( !toNew.equals(to) ) {
+									isGround = false;
+								}
+																
+								if ( !isGround ) {
+									Term toAfterQ = toNew.substitute(q);
+									
+									if ( toAfterQ.isGround() ) {    // variables have already been grounded by q
+										Substitution qNew = q.copy();
+										qNew.add(from, toNew);
+										workStack.push(qNew);
+									} else {						// need to find matching values in domain
+										for ( Term value : varTypes.get(from).getDomain() ) {
+											Substitution sub = value.match(toNew);
+											if ( sub != null ) {
+		//										System.out.println("Value " + value + " matches.");
+												Substitution qNew = q.copy();
+												if ( qNew.add(sub) ) {
+													qNew.add(from, toNew);
+													for ( Term var : sub.getMap().keySet() ) {
+														needsNoCheck.add(var);
+													}
+													workStack.push(qNew);
+												}
+											}
+										}
+									}
+									break;
+								}
+									
 							} else {
-								if ( !varTypes.get(from).contains(q.getMap().get(from)) ) {
+								if ( !needsNoCheck.contains(from) && !varTypes.get(from).contains(to) ) {
+//									System.out.println(from);
+//									System.out.println(varTypes.get(from));
+//									System.out.println(q.getMap().get(from));
 									isInDomain = false;
 									break;
 								}
@@ -275,7 +329,10 @@ public class YapPrologAdapter {
 					/*
 					 * Substitute
 					 */
+//					System.out.println("=======================================");
 					for ( Substitution theta  : appliedSubst ) {
+						
+//						System.out.println(theta);
 						Operator oCopy = o.copy();
 						oCopy.substitute(theta);
 						Collection<Expression> conAddList = new ArrayList<Expression>();
@@ -299,7 +356,7 @@ public class YapPrologAdapter {
 					}
 				}
 			}
-//			if (o.getName().toString().contains("pick")) {
+//			if (o.getName().toString().contains("set-device-configuration-flag")) {
 //				Loop.start();
 //			}
 		}
@@ -557,11 +614,19 @@ public class YapPrologAdapter {
 				for ( int i = 0 ; i < allSubstitutions.size(); i++ ) {
 					String[] constants = allSubstitutions.get(i).replace("/", "<####>").split("<####>");
 
+					// f(x,g(h))
+					// <1>f<2(>
 						
 					Substitution theta = new Substitution();
 
 					for ( int k = 0 ; k < constants.length; k++ ) {		
 						Term realVal = prologCompatibilityMap.get(constants[k]);
+						
+						if ( constants[k].contains("(") ) {
+							constants[k] = SimpleParsing.convertTermFormat(constants[k]);
+						}
+						
+						
 						realVal = Term.parse(constants[k]);
 						
 						theta.add( prologCompatibilityMap.get(qVars.get(k)), realVal );
@@ -604,7 +669,7 @@ public class YapPrologAdapter {
 			if ( t instanceof IntegerType ) {
 				IntegerType iT = (IntegerType)t;
 				
-				r.add(iT.getName() + "(X) :- generateIntegerRange("+ iT.max + "," + iT.max + ",X).");
+				r.add(iT.getName() + "(X) :- generateIntegerRange("+ iT.min + "," + iT.max + ",X).");
 						
 //				for ( long i = iT.min ; i <= iT.max ; i++ ) {
 //					prologCompatibilityMap.put(String.valueOf(i), Term.createInteger(i));
