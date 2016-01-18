@@ -29,14 +29,15 @@ The following libraries will be fetched from maven when running gradle:
 
 - JUnit <a href="http://junit.org/">(link)</a>
 - Jung Graph Library <a href="http://jung.sourceforge.net/">(link)</a>
-- 
+
 
 Apart from that Python 2.x is required by some scripts. YAP Prolog <a href="http://www.dcc.fc.up.pt/~vsc/Yap/">(link)</a> is used to solve Prolog constraints. And ROS Hydro <a href="http://www.ros.org/">(link)</a> is required when ising ROS constraints.
 
 # Installation & Test
 
+All commands assume the current folder is the SpiderPlan root folder. The run.sh script will also build the project.
 
-## Compile with gradlew (will download gradle and all maven dependencies):
+## Build: 
 
 ```
  ./gradlew build
@@ -45,13 +46,23 @@ Apart from that Python 2.x is required by some scripts. YAP Prolog <a href="http
 ## Run default test case:
 
 ```
- ./gradlew run
+ ./run.sh
 ```
 
-## Run by specifying domain, problem and planner definitions:
+## Running a single problem:
+
+We need to provide a planner definition (.spider) as first argument followed by any number of domain description files (.uddl).
 
 ```
- ./gradlew run -Dexec.args='./domains/household/planner.spider ./domains/household/domain.uddl ./domains/household/test-cases/test01.uddl' 
+ ./run.sh ./domains/household/planner.spider ./domains/household/domain.uddl ./domains/household/test-cases/test01.uddl
+```
+
+## Running an experiment:
+
+Planner definition, domain description and problem folder are specidied in the experiment definition (.experiment). Running the following line will solve all problems with the specified planner and domain and store the results in a .csv file.
+
+```
+ ./run.sh ./domains/household/u0.experiment
 ```
 
 # Sponsors
