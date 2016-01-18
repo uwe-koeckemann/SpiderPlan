@@ -29,7 +29,7 @@ The following libraries will be fetched from maven when running gradle:
 
 - JUnit <a href="http://junit.org/">(link)</a>
 - Jung Graph Library <a href="http://jung.sourceforge.net/">(link)</a>
-- 
+
 
 Apart from that Python 2.x is required by some scripts. YAP Prolog <a href="http://www.dcc.fc.up.pt/~vsc/Yap/">(link)</a> is used to solve Prolog constraints. And ROS Hydro <a href="http://www.ros.org/">(link)</a> is required when ising ROS constraints.
 
@@ -45,13 +45,13 @@ Apart from that Python 2.x is required by some scripts. YAP Prolog <a href="http
 ## Run default test case:
 
 ```
- ./gradlew run
+ ./run.sh
 ```
 
 ## Run by specifying domain, problem and planner definitions:
 
 ```
- ./gradlew run -Dexec.args='./domains/household/planner.spider ./domains/household/domain.uddl ./domains/household/test-cases/test01.uddl' 
+ ./run.sh ./domains/household/planner.spider ./domains/household/domain.uddl ./domains/household/test-cases/test01.uddl
 ```
 
 # Sponsors
