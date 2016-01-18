@@ -73,6 +73,8 @@ public class STPSolver extends Module implements SolverInterface {
 		super.parameterDesc.add(  new ParameterDescription("useFrameConstraints", "boolean", "false", "Frame constraints are temporal constraints that assure that a state variable that does not change will keep its value until the temporal horizon (i.e. forever). Used to create inconsistencies as early as possible. Can lead to removal of solutions in some cases (e.g. required concurrency, pre-scheduled resource usages). Should be turned on/off on a domain-by-domain basis. Note: Using this setting will most likely make the make-span to be the temporal horizon and thus useless as a quality criteria.") );
 		super.parameterDesc.add(  new ParameterDescription("calculateRigidity", "boolean", "false", "Switch on to add rigidity of STN (after scheduling) to Core's features in case of consistency.") );		
 		
+		//TODO: handle all options
+		
 //		if ( cM.hasAttribute(name, "useBookmarks") ) {
 //			useBookmarks = cM.getBoolean(name, "useBookmarks");
 //		}

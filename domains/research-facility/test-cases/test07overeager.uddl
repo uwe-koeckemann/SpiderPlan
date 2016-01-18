@@ -1,0 +1,107 @@
+;; There was a bug that caused the first calenderEntry to trigger two goals (at time 0 and again at time 100),
+;; even if the goal triggered at time 0 was already resolved. 
+;; This test-cases reproduces this problem.
+(:initial-context
+	(:domain
+		( enum robot ( list r1 r2 r3 r4 r5 r6 r7 r8 ) )
+		( enum location ( list corridor1 corridor2 corridor3 corridor4 basement office1_1 office1_2 office1_3 office1_4 office1_5 office1_6 office1_7 office1_8 office1_9 office1_10 office2_1 office2_2 office2_3 office2_4 office2_5 office2_6 office2_7 office2_8 office2_9 office2_10 meetingRoom1 meetingRoom2 lab1 lab2 ) )
+		( enum human ( list h01 h02 h03 h04 h05 h06 h07 h08 h09 h10 h11 h12 h13 h14 h15 h16 h17 h18 h19 h20 ) )
+		( enum agent ( list robot human ) )
+		( enum place ( list location robot ) )
+		( enum calenderNote ( list human activity ) )
+	)
+	(:statement
+		( s1 ( at r1 ) corridor1 )
+	)
+	(:temporal
+		( planning-interval [0 51200] )
+		( release s1 [0 0] )
+	)
+	(:simulate 0
+		(:statement
+			( l1 ( calenderEntry h01 labWork3 lab1 ) true )
+		)
+		(:temporal
+			( release l1 [20 40] )
+			( duration l1 [60 60] )
+		)
+	)
+	(:simulate 100
+		(:statement
+			( c2 ( calenderEntry h03 h04 ) true )
+		)
+		(:temporal
+			( release c2 [200 300] )
+			( duration c2 [60 60] )
+		)
+	)
+
+	(:include
+	( kb
+		<begin-escape-syntax>
+	
+					adjacencyTable(basement,lab1).
+					adjacencyTable(basement,lab2).
+					
+					adjacencyTable(corridor1,basement).
+					adjacencyTable(corridor1,corridor2).
+					adjacencyTable(corridor1,corridor3).
+					adjacencyTable(corridor1,corridor4).
+					adjacencyTable(corridor2,basement).
+					adjacencyTable(corridor2,corridor3).
+					adjacencyTable(corridor2,corridor4).
+					adjacencyTable(corridor3,basement).
+					adjacencyTable(corridor3,corridor4).
+					adjacencyTable(corridor4,basement).
+					
+					adjacencyTable(corridor1,office1_1).
+					adjacencyTable(corridor1,office1_2).
+					adjacencyTable(corridor1,office1_3).
+					adjacencyTable(corridor1,office1_4).
+					adjacencyTable(corridor1,office1_5).
+					adjacencyTable(corridor1,office1_6).
+					adjacencyTable(corridor1,office1_7).
+					adjacencyTable(corridor1,office1_8).
+					adjacencyTable(corridor1,office1_9).
+					adjacencyTable(corridor1,office1_10).
+					
+					adjacencyTable(corridor2,office2_1).
+					adjacencyTable(corridor2,office2_2).
+					adjacencyTable(corridor2,office2_3).
+					adjacencyTable(corridor2,office2_4).
+					adjacencyTable(corridor2,office2_5).
+					adjacencyTable(corridor2,office2_6).
+					adjacencyTable(corridor2,office2_7).
+					adjacencyTable(corridor2,office2_8).
+					adjacencyTable(corridor2,office2_9).
+					adjacencyTable(corridor2,office2_10).
+					
+					adjacencyTable(meetingRoom1,corridor1).
+					adjacencyTable(meetingRoom2,corridor1).
+					
+					adjacent(L1,L2) :- adjacencyTable(L1,L2).
+					adjacent(L2,L1) :- adjacencyTable(L1,L2).
+					
+					isMobile(r1).
+					isMobile(r2).
+					isMobile(r3).
+					isMobile(r4).
+					isMobile(r5).
+					isMobile(r6).
+					isMobile(r7).
+					isMobile(r8).
+					
+					isMeetingRoom(meetingRoom1).
+					isMeetingRoom(meetingRoom2).
+					
+					taskDuration(clean,30).
+					taskDuration(prepare,10).				
+					taskDuration(serveCoffee,5).				
+					taskDuration(labAssistance,1).
+					objectSize(file,1).
+					objectSize(parcel,2).
+			
+		<end-escape-syntax>
+	)
+	)
+)

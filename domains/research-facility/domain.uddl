@@ -1,0 +1,495 @@
+(:initial-context
+	(:domain 
+		(enum robot { r1  r2  r3  r4 })
+		(enum location { 	corridor1  corridor2  corridor3  corridor4  basement  
+											office1_1  office1_2  office1_3  office1_4  office1_5  office1_6  office1_7  office1_8  office1_9  office1_10 
+											office2_1  office2_2  office2_3  office2_4  office2_5  office2_6  office2_7  office2_8  office2_9  office2_10  
+											meetingRoom1  meetingRoom2 lab1  lab2 none })
+		(enum human { jill  john  judy  jimmy  judith  james  jane  jenny  jack  johan  johnny  julien  
+									judas  jamar  julius  jeremy  arthur  bert  clemens  elli  frank })
+		(enum agent { robot  human })
+		(enum calenderNote { human  activity })	
+
+		(enum locationType {office lab storage meetingroom bathroom breakroom})
+		(enum activity {break work visitor meeting labWork1 labWork2 labWork3 labWork4})
+		(enum request {meeting})
+		(enum activityRisk {none low medium high})
+
+		(enum place {location robot})
+		(enum taskClass {clean serveCoffee prepare labAssistance})
+		(enum taskState {idle processing done})
+		(enum reqState {pending fulfilled})
+		(enum objectClass {file parcel})
+		(int intType [0 100])
+		(int object [1 100])
+		(int setID [0 10000])
+		;; Humans & Robots
+		(sig (at agent) location)
+		;; Objects
+		(sig (objectState object objectClass) place)
+		(sig (objectSize objectClass intType))
+		;; Robots
+		(sig (isMobile robot))
+		(sig (robotSpace robot) intType)
+
+		;; Locations
+		(sig (locType location locationType))
+		(sig (adjacent location location))
+		(sig (roomUsage location) intType)
+		(sig (isMeetingRoom location))
+
+		;; Objects
+		(sig (size object intType))
+
+		;; Tasks
+		(sig (state setID taskClass location) taskState)
+		(sig (state setID human taskClass location) taskState)
+		(sig (taskDuration taskClass intType))
+		(sig (risk activity activityRisk))
+		(sig (riskGreaterOrEqual activityRisk activityRisk))
+
+		;; Calender
+		(sig (calenderEntry human activity location))
+		(sig (calenderEntry human calenderNote))
+
+		;; Request
+		(sig (request setID setID request))
+		(sig (requestState setID setID request) reqState)
+
+		;; Derived activities
+		(sig (activity setID activity))
+		(sig (activity-location setID activity) location)
+		
+		(sig (notify setID activity location))
+
+	)
+	(:resource
+		(reusable (robotSpace r1) 10)
+		(reusable (robotSpace r2) 10)
+		(reusable (robotSpace r3) 10)
+		(reusable (robotSpace r4) 10)
+		(reusable (roomUsage meetingRoom1) 1)
+		(reusable (roomUsage meetingRoom2) 1)
+	)
+	(:include
+		(kb
+			<begin-escape-syntax>
+notEqual(A,B) :- A \== B.
+riskGreaterOrEqual(high,high).
+riskGreaterOrEqual(high,medium).
+riskGreaterOrEqual(high,low).
+riskGreaterOrEqual(high,none).
+riskGreaterOrEqual(medium,medium).
+riskGreaterOrEqual(medium,low).
+riskGreaterOrEqual(medium,none).
+riskGreaterOrEqual(low,low).
+riskGreaterOrEqual(low,none).
+
+risk(labWork1,none).
+risk(labWork2,low).				
+risk(labWork3,medium).				
+risk(labWork4,high).				
+			<end-escape-syntax>
+		)
+	)
+	(:ic
+		(create-meeting ?H1 ?H2 ?I1) 
+		(:condition
+			(:statement
+				( ?I1 (calenderEntry ?H1 ?H2) )
+			)				
+			(:prolog kb
+					(human ?H2)
+			)
+			(:ic
+				(not-exists-1 ?P ?I2)
+				(:condition
+					(:statement
+						( ?I2 (activity ?P meeting) )
+					)
+					(:set
+						(in ?P ?H1)
+					)
+					(:temporal
+						(equals ?I1 ?I2)
+					)
+				)
+			)
+			(:ic
+				(not-exists-2 ?P ?I2)
+				(:condition
+					(:statement
+						( ?I2 (activity ?P meeting) )
+					)
+					(:set
+						(in ?P ?H2)
+					)
+					(:temporal
+						(equals ?I1 ?I2)
+					)
+				)
+			)
+		)
+		(:resolver
+			(:statement 
+				( ?IA  (activity ?Set meeting) )
+			)
+			(:domain
+				(new-object ?Set setID)
+			)
+			(:temporal
+				(equals ?I1 ?IA)
+			)
+			(:set
+				(set ?Set)
+				(add ?Set ?H1)
+				(add ?Set ?H2)
+			)
+		)
+	)
+	;; Add H2 to meeting
+	(:ic
+		( add-to-meeting-1 ?H1 ?H2 ?Set ?I1 ?IA )
+		(:condition
+			(:statement
+				( ?I1 (calenderEntry ?H1 ?H2) )
+				( ?IA (activity ?Set meeting) )
+			)
+			(:prolog kb
+				(human ?H2)
+			)
+			(:temporal
+				(equals ?I1 ?IA)
+			)
+			(:set
+				(in ?Set ?H1)
+				(not-in ?Set ?H2)
+			)
+		)
+		(:resolver
+			(:set
+				(add ?Set ?H2)
+			)
+			(:temporal
+				(equals ?I1 ?IA)
+			)
+		)
+	)
+	;; Add H1 to meeting
+	(:ic
+		(add-to-meeting-2 ?H1 ?H2 ?Set ?I1 ?IA )
+		(:condition
+			(:statement
+				( ?I1 (calenderEntry ?H1 ?H2) )
+				( ?IA (activity ?Set meeting) )
+			)
+			(:prolog kb
+				(human ?H2)
+			)
+			(:temporal
+				(equals ?I1 ?IA)
+			)
+			(:set
+				(not-in ?Set ?H1)
+				(in ?Set ?H2)
+			)
+		)
+		(:resolver
+			(:set
+				(add ?Set ?H1)
+			)
+			(:temporal
+				(equals ?I1 ?IA)
+			)
+		)			
+	)
+	;; Create goal to schedule meeting
+	(:ic
+		(schedule-meeting ?Participants ?I)
+		(:condition
+			(:statement
+				( ?I (activity ?Participants meeting) )
+			)
+			(:ic
+				(not-exists-1 ?Participants ?L ?IExists )
+				(:condition
+					(:statement
+						( ?IExists ( activity-location ?Participants meeting ) ?L )
+					)
+					(:temporal
+						(equals ?I ?IExists)
+					)
+				)
+			)
+		)
+		(:resolver
+			(:statement
+				( ?IA ( activity-location ?Participants meeting ) ?L )
+				( ?Scheduled (roomUsage ?L) 1 )
+			)
+			(:temporal
+				(equals ?I ?IA)
+				(equals ?I ?Scheduled)
+;; 				(during ?I ?Scheduled [1 1] [20 20])
+			)
+			(:prolog kb
+				(isMeetingRoom ?L)
+			)
+		)
+	)
+	;; Create goals to prepare a meeting
+	(:ic
+		(prepare-meeting ?A1 ?A2 ?S ?L)
+		(:condition
+			(:statement
+				( ?A1 (activity ?S meeting) )
+				( ?A2 (activity-location ?S meeting) ?L )
+			)
+			(:domain
+				(not-equal ?L none)
+			)
+			(:temporal
+				(equals ?A1 ?A2)
+			)
+			(:ic
+				(not-exists-coffee-serving ?S ?L ?I3)	;; Scheduled coffee already (needed since execution forgets assertions)
+				(:condition
+					(:statement
+						( ?I3 (state ?S serveCoffee ?L) idle )
+					)
+					(:temporal
+						(equals ?I3 ?A1)
+					)
+				)
+			)
+		)
+		(:resolver
+			(:statement
+				;;( Initial1 , state(T1, prepare, L), idle )
+				( ?Initial2 (state ?S serveCoffee ?L) idle )
+				;;( Initial3 , state(T3, clean, L) idle )
+			)
+			(:temporal
+					;;Before(Goal1 A1 1 10);
+					(equals ?Goal2 ?A1)
+					;;After(Goal3 A1 [1 inf]);
+			)
+			(:goal
+					;;( Goal1 , state(T1, prepare, L) , processing )
+				( ?Goal2 (state ?S serveCoffee ?L) processing )
+					;;( Goal3 , state(T3, clean, L) , processing )
+			)
+		)
+	)
+	;; Send robot for lab-assistance in medium or higher risk activity
+	(:ic
+		(medium-or-higher-risk ?H ?A ?L ?I1)
+		(:condition
+			(:statement
+				( ?I1 (calenderEntry ?H ?A ?L) )
+			)
+			(:prolog kb
+				(risk ?A ?R)
+				(riskGreaterOrEqual ?R medium)
+			)
+			(:ic
+				(not-exists-human-assistance ?H ?H1 ?A ?L ?I1 ?I3)	;; Someone else assisting already
+				(:condition
+					(:statement
+						( ?I3 (calenderEntry ?H1 ?A ?L) )
+					)
+					(:domain
+						(not-equal ?H ?H1)
+					)
+					(:temporal
+						(equals ?I1 ?I3)
+					)
+				)
+			)
+			(:ic
+				(not-exists-assistance ?T ?L ?I3)	;; Scheduled assistance already (needed since execution forgets assertions)
+				(:condition
+					(:statement
+						(?I3 (state ?T ?H labAssistance ?L) processing )
+					)
+					(:temporal
+						(equals ?I1 ?I3)
+					)
+				)
+			)
+		)
+		(:resolver
+			(:statement
+				( ?Init (state ?T ?H labAssistance ?L) idle )
+			)
+			(:temporal
+				(equals ?Goal ?I1)
+			)
+			(:domain
+				(new-object ?T setID)
+			)
+			(:goal
+				(?Goal (state ?T ?H labAssistance ?L) processing )
+			)
+		)
+	)			
+	;; 30 min break required before high risk task
+	(:ic
+		(high-risk ?H ?A ?L ?I1 )
+		(:condition
+			(:statement
+				( ?I1 (calenderEntry ?H ?A ?L) )
+			)
+			(:prolog kb
+				(risk ?A high)
+			)
+		)
+		(:resolver
+			(:statement
+				( ?I2 (calenderEntry ?H break) )
+			)
+			(:temporal
+				(before-or-meets ?I2 ?I1 [1 1])
+				(duration ?I2 [30 30])
+			)
+		)
+	)
+)
+
+(:operator
+	(move ?R - robot ?L1 - location ?L2 - location)
+	(:preconditions
+		( ?P1 (at ?R) ?L1 )
+	)
+	(:effects
+		( ?E1 (at ?R) ?L2 )  
+	)
+	(:constraints
+		(:temporal
+			(duration ?THIS [10 inf])
+			(duration ?E1 [1 inf])
+			(before ?P1 ?THIS [1 1])
+			(before ?THIS ?E1 [1 1])
+		)
+		(:prolog kb
+			(adjacent ?L1 ?L2)
+			(isMobile ?R)
+		)
+	)
+)
+(:operator
+  (pick-up ?R - robot ?O - object ?C - objectClass ?L - location)
+	(:preconditions
+		( ?P1 (at ?R) ?L )
+		( ?P2 (objectState ?O ?C) ?L )
+	)
+	(:effects
+		( ?E1  (objectState ?O ?C) ?R )
+		( ?E2  (robotSpace ?R) 1 )
+	)
+	(:constraints
+		(:temporal
+			(duration ?THIS [1 inf])
+			(during ?THIS ?P1 [1 inf] [1 inf])
+			(before ?P2 ?THIS [1 1])
+			(after ?E1 ?THIS [1 1])
+			(equals ?E2 ?E1)
+		)
+		(:prolog kb
+			(objectSize ?C ?S)
+		)
+	)
+)
+(:operator
+	(deliver ?R - robot ?O - object ?C - objectClass ?L - location )
+	(:preconditions
+		( ?P1 (at ?R) ?L )
+		( ?P2 (objectState ?O ?C) ?R )
+	)
+	(:effects
+		( ?E1 (objectState ?O ?C) ?L )
+	)
+	(:constraints
+		(:temporal
+			(duration ?THIS [1 inf])
+			(during ?THIS ?P1 [1 inf] [1 inf])
+			(before ?P2 ?THIS [1 1])
+			(after ?E1 ?THIS [1 1])
+		)
+	)
+)
+(:operator 
+	(do ?R - robot ?T - setID ?C - taskClass ?L - location)
+	(:preconditions
+		( ?P1 (at ?R) ?L )
+		( ?P2 (state ?T ?C ?L) idle )
+	)
+	(:effects
+		( ?E1 (state ?T ?C ?L) processing )
+	)
+	(:constraints
+		(:temporal
+			(duration ?THIS [?D inf])
+			(during ?THIS ?P1 [1 inf] [1 inf])
+			(before ?P2 ?THIS [1 1])
+			(equals ?E1 ?THIS)
+		)
+		(:prolog kb
+			(taskDuration ?C ?D)
+		)
+	)
+)
+(:operator 
+	(do-assist ?R - robot ?H - human ?T - setID ?C - taskClass ?L - location)
+	(:preconditions
+		( ?P1 (at ?R) ?L )
+		( ?P2 (state ?T ?H ?C ?L) idle )
+	)
+	(:effects
+		( ?E1 (state ?T ?H ?C ?L) processing )
+	)
+	(:constraints
+		(:temporal
+			(duration ?THIS [?D inf])
+			(during ?THIS ?P1 [1 inf] [1 inf])
+			(before ?P2 ?THIS [1 1])
+			(equals ?E1 ?THIS)
+		)
+		(:prolog kb
+			(taskDuration ?C ?D)
+		)
+	)
+)
+(:operator
+	(schedule-meeting ?T - setID  ?S - setID  ?L - location)
+	(:preconditions
+		( ?P1 (requestState ?T ?S meeting) pending )
+		( ?P2 (activity ?S meeting) )
+		( ?P3 (activity-location ?S meeting) none )
+	)
+	(:effects
+		( ?E1  (activity-location ?S meeting)  ?L )
+		( ?E2  (roomUsage ?L)  1 )
+		( ?E3  (requestState ?T ?S meeting)  fulfilled )
+		( ?E4  (notify ?S meeting ?L) )
+	)
+	(:constraints
+		(:temporal
+			( duration ?E1 [1 inf] )
+			( before ?P3 ?E1 [1 1] )
+			( before ?P1 ?P2 [1 1] )
+			( before ?P1 ?E3 [1 1] )			
+			( equals ?THIS ?E1 )
+			( equals ?E1 ?E2 )
+			( equals ?E1 ?E3 )
+			( equals ?P2 ?E1 )
+			( before ?E4 ?E1 [60 inf])
+			;;( before ?E4 ?E1 (_list 60 inf))
+		)
+		(:prolog kb
+			(isMeetingRoom ?L)
+		)
+	)
+)
+
+		

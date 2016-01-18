@@ -477,6 +477,7 @@ public class RunExperiment {
 			Compile.compile( domainFilenames, plannerFilename);
 				
 			ConfigurationManager oM = Compile.getPlannerConfig();
+			oM.overrideOption("verbose", "false"); // make sure all modules are silenced			
 			
 			Module main = ModuleFactory.initModule("main", oM);
 					

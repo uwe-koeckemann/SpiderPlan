@@ -1,0 +1,110 @@
+(:initial-context
+	(:domain
+		( enum robot ( list r1 r2 ) )
+		( enum location ( list corridor1 basement office1 office2 meetingRoom1 meetingRoom2 lab1 lab2 breakroom1 ) )
+		( enum human ( list jill john judy jimmy judith james jane jenny ) )
+		( enum agent ( list robot human ) )
+		( enum place ( list location robot ) )
+		( enum calenderNote ( list human activity ) )
+	)
+	(:statement
+		( key1 ( at r1 ) office1 )
+		( key2 ( at r2 ) office1 )
+		( key3 ( state 1 clean office1 ) idle )
+		( key4 ( state 2 clean office2 ) idle )
+		( key5 ( objectState 1 file ) office1 )
+		( key6 ( objectState 2 parcel ) office1 )
+	)
+	(:goal
+		( g1 ( at r1 ) office2 )
+		( g2 ( at r2 ) office2 )
+		( g3 ( state 1 clean office1 ) processing )
+		( g4 ( state 2 clean office2 ) processing )
+		( g5 ( objectState 1 file ) office2 )
+		( g6 ( objectState 2 parcel ) office2 )
+	)
+	(:temporal
+		( planning-interval [0 500] )
+		( release key1 [0 0] )
+		( release key2 [0 0] )
+		( release key3 [0 0] )
+		( release key4 [0 0] )
+		( release key5 [0 0] )
+		( release key6 [0 0] )
+	)
+
+	(:simulate 10
+		(:statement
+			( c1 ( calenderEntry jill john ) true )
+		)
+		(:temporal
+			( at c1 [150 150] [180 180] )	
+		)
+	)
+	(:simulate 30
+		(:statement
+			( c2 ( calenderEntry john judy ) true )
+		)
+		(:temporal
+			( at c2 [70 70] [120 120] )
+		)
+	)	
+	(:simulate 50
+		(:statement
+			( c3 ( calenderEntry jimmy labWork3 lab1 ) true )
+		)
+		(:temporal
+			( release c3 [200 300] )
+			( duration c3 [60 60] )
+		)
+	)				
+	(:simulate 100
+		(:statement
+			( c4 ( calenderEntry jenny labWork4 lab1 ) true )
+		)
+		(:temporal
+			( release c4 [400 500] )
+			( duration c4 [60 60] )
+		)
+	)					
+	(:simulate 200
+		(:statement
+			( c5 ( calenderEntry james labWork4 lab1 ) true )
+			( c6 ( calenderEntry jane labWork4 lab1 ) true )
+		)
+		(:temporal
+			( at c5 [400 400] [480 480] )
+			( at c6 [400 400] [480 480] )
+		)
+	)						
+	(:include
+	( kb
+		<begin-escape-syntax>
+adjacencyTable(basement,lab1).
+adjacencyTable(basement,lab2).
+adjacencyTable(corridor1,basement).
+adjacencyTable(corridor1,breakroom1).
+adjacencyTable(office1,corridor1).
+adjacencyTable(office2,corridor1).
+adjacencyTable(meetingRoom1,corridor1).
+adjacencyTable(meetingRoom2,corridor1).
+adjacent(L1,L2) :- adjacencyTable(L1,L2).
+adjacent(L2,L1) :- adjacencyTable(L1,L2).
+
+isMobile(r1).
+isMobile(r2).
+
+isMeetingRoom(meetingRoom1).
+isMeetingRoom(meetingRoom2).
+isBreakRoom(breakroom1).
+
+taskDuration(clean,30).
+taskDuration(prepare,10).				
+taskDuration(serveCoffee,5).				
+taskDuration(labAssistance,1).
+objectSize(file,1).
+objectSize(parcel,2).				
+		<end-escape-syntax>
+	)
+	)
+)

@@ -90,6 +90,19 @@ public class ConfigurationManager {
 	}
 	
 	/**
+	 * Change setting globally and for all modules.
+	 * 
+	 * @param att Attribute name
+	 * @param val Value name
+	 */
+	public void overrideOption( String att, String val ) {
+		for ( String moduleName : moduleConfigs.keySet() ) {
+			moduleConfigs.get(moduleName).put(att, val);
+		}
+		options.put(att, val);
+	}
+	
+	/**
 	 * Check if parameter is set by a {@link Module}
 	 * @param mName {@link Module} name
 	 * @param att Attribute of parameter 

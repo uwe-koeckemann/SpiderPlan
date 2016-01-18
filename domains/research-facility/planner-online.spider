@@ -1,0 +1,129 @@
+FlowModule main:		
+	modules = "PrologPreprocessor,ProbSolver,MainSolver,Execution";
+	rules = { 
+		Start => PrologPreprocessor;
+		PrologPreprocessor => ProbSolver;
+		ProbSolver => MainSolver;
+		MainSolver => MainSolver.Consistent => Execution  ;
+		MainSolver => MainSolver.Inconsistent => Fail  ;
+		Execution => Execution.Consistent => Success ;
+		Execution => Execution.Inconsistent => Fail ;
+	};
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=false;
+	verbosity=1;
+
+PrologPreprocessor PrologPreprocessor:
+	keepStatistics=true;
+	verbose=false;
+	verbosity=0;	
+
+SamplingSolver ProbSolver:
+	verbose=true;
+	verbosity=1;
+
+SolverStack MainSolver:		
+	solvers = "Domain,Costs,Sets,Prolog,Temporal,Scheduler,ICSolver,ForwardPlanner";
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=1;
+
+ExecutionModule Execution:
+	fromScratchSolver = "MainSolver";
+	repairSolver = "RepairSolver";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=5;
+
+DomainSolver Domain:	
+	keepStatistics=true;
+	verbose=false;
+	verbosity=4;
+
+CostSolver Costs:
+	keepStatistics=true;
+	verbose=false;
+	verbosity=0;
+
+SetSolver Sets:
+	keepStatistics=true;
+	verbose=false;
+	verbosity=0;
+
+PrologSolver Prolog:
+	keepStatistics=true;
+	verbose=false;
+	verbosity=1;
+
+STPSolver Temporal:
+	useBookmarks=false;
+	keepTimes=false;
+	static=false;
+	initNumActivities=600;
+	numActivitiesInc=200;
+	keepStatistics=true;
+	verbose=false;
+	verbosity=10;
+
+STPSolver TemporalStepChecker:
+	static=true;
+	historySize=5;
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=false;
+	verbosity=10;
+	
+SchedulingSolver Scheduler:
+	verbose=true;
+	verbosity=1;
+
+SolverStack RepairSolver:		
+	solvers = "Domain,Costs,Sets,Prolog,Temporal,ICSolver,Scheduler";
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=false;
+	verbosity=0;
+
+InteractionConstraintSolver ICSolver:
+	consistencyChecker="ConsistencyCheckerIC";
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=0;
+	
+SolverStack ConsistencyCheckerIC:		
+	solvers = "Domain,Costs,Sets,Temporal,ICSolver2";
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=false;
+	verbosity=0;
+	
+InteractionConstraintSolver ICSolver2:
+	consistencyChecker="ConsistencyCheckerIC2";
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=false;
+	verbosity=4;
+
+SolverStack ConsistencyCheckerIC2:		
+	solvers = "Domain,Costs,Sets,Temporal";
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=false;
+	verbosity=1;
+
+ForwardPlanningModule ForwardPlanner:
+	lookAhead=0;
+	queueStyle="MultiQueue";
+	heuristics="CausalGraph,FastForward"; 
+	consistencyChecker="TemporalStepChecker";
+	multiEffectSupport=false;
+	uniqueInitialState=true;
+	nodeEquality="ResultingStateBased";
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=2;

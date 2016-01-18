@@ -1,0 +1,6 @@
+name				= "research-facility-offline-goals-first";
+planner			= "./planner-offline-goals-first.spider";
+domain			= "./domain.uddl";
+problems		= "./offline";
+timeout			= 10;
+attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

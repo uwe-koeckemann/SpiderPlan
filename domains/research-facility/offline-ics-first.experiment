@@ -1,0 +1,6 @@
+name				= "research-facility-offline-ics-first";
+planner			= "./planner-offline-ics-first.spider";
+domain			= "./domain.uddl";
+problems		= "./offline";
+timeout			= 10;
+attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

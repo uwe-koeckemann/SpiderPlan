@@ -1,0 +1,147 @@
+(:initial-context
+	(:domain
+		( enum robot ( list r1 r2 r3 r4 ) )
+		( enum location ( list corridor1 corridor2 corridor3 corridor4 basement office1_1 office1_2 office1_3 office1_4 office1_5 office1_6 office1_7 office1_8 office1_9 office1_10 office2_1 office2_2 office2_3 office2_4 office2_5 office2_6 office2_7 office2_8 office2_9 office2_10 meetingRoom1 meetingRoom2 lab1 lab2 ) )
+		( enum human ( list jill john judy jimmy judith james jane jenny jack johan johnny julien judas jamar julius jeremy arthur bert clemens elli frank ) )
+		( enum agent ( list robot human ) )
+		( enum place ( list location robot ) )
+		( enum calenderNote ( list human activity ) )
+	)
+	(:statement
+		( key1 ( at r1 ) corridor1 )
+		( key2 ( at r2 ) corridor2 )
+		( key3 ( at r3 ) corridor3 )
+		( key4 ( at r4 ) corridor4 )
+		( key5 ( objectState 1 file ) office1_1 )
+		( key6 ( objectState 2 file ) office1_2 )
+		( key7 ( objectState 3 file ) office1_3 )
+		( key8 ( objectState 4 file ) office1_4 )
+		( key9 ( objectState 5 parcel ) office1_5 )
+		( key10 ( state 31 clean office2_1 ) idle )
+		( key11 ( state 32 clean office2_2 ) idle )
+		( key12 ( state 33 clean office2_3 ) idle )
+		( key13 ( state 34 clean office2_4 ) idle )
+		( key14 ( state 35 clean office2_5 ) idle )
+		( ru1 ( roomUsage meetingRoom1 ) 1 )
+		( ru2 ( roomUsage meetingRoom1 ) 1 )
+		( ru3 ( roomUsage meetingRoom1 ) 1 )
+		( ru4 ( roomUsage meetingRoom2 ) 1 )
+		( ru5 ( roomUsage meetingRoom2 ) 1 )
+		( c1 ( calenderEntry jimmy jack ) true )
+		( c2 ( calenderEntry jimmy jenny ) true )
+		( c3 ( calenderEntry jill jane ) true )
+		( c4 ( calenderEntry jane john ) true )
+		( c5 ( calenderEntry judith james ) true )
+		( c6 ( calenderEntry judith johan ) true )
+	)
+	(:goal
+		( key15 ( objectState 1 file ) office2_1 )
+		( key16 ( objectState 2 file ) office2_2 )
+		( key17 ( objectState 3 file ) office2_3 )
+		( key18 ( objectState 4 file ) office2_4 )
+		( key19 ( objectState 5 parcel ) office2_5 )
+		( key20 ( state 31 clean office2_1 ) processing )
+		( key21 ( state 32 clean office2_2 ) processing )
+		( key22 ( state 33 clean office2_3 ) processing )
+		( key23 ( state 34 clean office2_4 ) processing )
+		( key24 ( state 35 clean office2_5 ) processing )
+	)
+	(:temporal
+		( planning-interval [0 1200] )
+		( at ru1 [0 0] [50 50] )
+		( at ru2 [280 280] [350 350] )
+		( at ru3 [480 480] [500 500] )
+		( at ru4 [200 200] [280 280] )
+		( at ru5 [400 400] [450 450] )
+		( at c1 [0 1200] [0 1200] )
+		( duration c1 [45 60] )
+		( at c2 [0 1200] [0 1200] )
+		( duration c2 [45 60] )
+		( at c3 [0 1200] [0 1200] )
+		( duration c3 [60 60] )
+		( at c4 [0 1200] [0 1200] )
+		( duration c4 [60 60] )
+		( at c5 [0 1200] [0 1200] )
+		( duration c5 [90 90] )
+		( at c6 [0 1200] [0 1200] )
+		( duration c6 [90 90] )
+		( release key1 [0 0] )
+		( release key2 [0 0] )
+		( release key3 [0 0] )
+		( release key4 [0 0] )
+		( release key5 [0 0] )
+		( release key6 [0 0] )
+		( release key7 [0 0] )
+		( release key8 [0 0] )
+		( release key9 [0 0] )
+		( release key10 [0 0] )
+		( release key11 [0 0] )
+		( release key12 [0 0] )
+		( release key13 [0 0] )
+		( release key14 [0 0] )
+	)
+	(:include
+	( kb
+		<begin-escape-syntax>
+	
+					adjacencyTable(basement,lab1).
+					adjacencyTable(basement,lab2).
+					
+					adjacencyTable(corridor1,basement).
+					adjacencyTable(corridor1,corridor2).
+					adjacencyTable(corridor1,corridor3).
+					adjacencyTable(corridor1,corridor4).
+					adjacencyTable(corridor2,basement).
+					adjacencyTable(corridor2,corridor3).
+					adjacencyTable(corridor2,corridor4).
+					adjacencyTable(corridor3,basement).
+					adjacencyTable(corridor3,corridor4).
+					adjacencyTable(corridor4,basement).
+					
+					adjacencyTable(corridor1,office1_1).
+					adjacencyTable(corridor1,office1_2).
+					adjacencyTable(corridor1,office1_3).
+					adjacencyTable(corridor1,office1_4).
+					adjacencyTable(corridor1,office1_5).
+					adjacencyTable(corridor1,office1_6).
+					adjacencyTable(corridor1,office1_7).
+					adjacencyTable(corridor1,office1_8).
+					adjacencyTable(corridor1,office1_9).
+					adjacencyTable(corridor1,office1_10).
+					
+					adjacencyTable(corridor2,office2_1).
+					adjacencyTable(corridor2,office2_2).
+					adjacencyTable(corridor2,office2_3).
+					adjacencyTable(corridor2,office2_4).
+					adjacencyTable(corridor2,office2_5).
+					adjacencyTable(corridor2,office2_6).
+					adjacencyTable(corridor2,office2_7).
+					adjacencyTable(corridor2,office2_8).
+					adjacencyTable(corridor2,office2_9).
+					adjacencyTable(corridor2,office2_10).
+					
+					adjacencyTable(meetingRoom1,corridor1).
+					adjacencyTable(meetingRoom2,corridor1).
+					
+					adjacent(L1,L2) :- adjacencyTable(L1,L2).
+					adjacent(L2,L1) :- adjacencyTable(L1,L2).
+					
+					isMobile(r1).
+					isMobile(r2).
+					isMobile(r3).
+					isMobile(r4).
+					
+					isMeetingRoom(meetingRoom1).
+					isMeetingRoom(meetingRoom2).
+					
+					taskDuration(clean,30).
+					taskDuration(prepare,10).				
+					taskDuration(serveCoffee,5).				
+					taskDuration(labAssistance,1).
+					objectSize(file,1).
+					objectSize(parcel,2).
+			
+		<end-escape-syntax>
+	)
+	)
+)
