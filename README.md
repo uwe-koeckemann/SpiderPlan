@@ -62,7 +62,7 @@ We need to provide a planner definition (.spider) as first argument followed by 
 Planner definition, domain description and problem folder are specidied in the experiment definition (.experiment). Running the following line will solve all problems with the specified planner and domain and store the results in a .csv file.
 
 ```
- ./run.sh ./domains/household/u0.experiment
+ ./run.sh ./domains/household/u0-p1.experiment
 ```
 
 # Sponsors
