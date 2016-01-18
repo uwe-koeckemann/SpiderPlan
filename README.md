@@ -51,11 +51,15 @@ All commands assume the current folder is the SpiderPlan root folder. The run.sh
 
 ## Running a single problem:
 
+We need to provide a planner definition (.spider) as first argument followed by any number of domain description files (.uddl).
+
 ```
  ./run.sh ./domains/household/planner.spider ./domains/household/domain.uddl ./domains/household/test-cases/test01.uddl
 ```
 
 ## Running an experiment:
+
+Planner definition, domain description and problem folder are specidied in the experiment definition (.experiment). Running the following line will solve all problems with the specified planner and domain and store the results in a .csv file.
 
 ```
  ./run.sh ./domains/household/u0.experiment
