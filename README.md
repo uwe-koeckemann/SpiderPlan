@@ -35,6 +35,7 @@ Apart from that Python 2.x is required by some scripts. YAP Prolog <a href="http
 
 # Installation & Test
 
+All commands assume the current folder is the SpiderPlan root folder.
 
 ## Compile with gradlew (will download gradle and all maven dependencies):
 
@@ -48,10 +49,16 @@ Apart from that Python 2.x is required by some scripts. YAP Prolog <a href="http
  ./run.sh
 ```
 
-## Run by specifying domain, problem and planner definitions:
+## Running a single problem:
 
 ```
  ./run.sh ./domains/household/planner.spider ./domains/household/domain.uddl ./domains/household/test-cases/test01.uddl
+```
+
+## Running an experiment:
+
+```
+ ./run.sh ./domains/household/u0.experiment
 ```
 
 # Sponsors
