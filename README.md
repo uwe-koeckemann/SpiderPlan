@@ -35,9 +35,9 @@ Apart from that Python 2.x is required by some scripts. YAP Prolog <a href="http
 
 # Installation & Test
 
-All commands assume the current folder is the SpiderPlan root folder.
+All commands assume the current folder is the SpiderPlan root folder. The run.sh script will also build the project.
 
-## Compile with gradlew (will download gradle and all maven dependencies):
+## Build: 
 
 ```
  ./gradlew build
