@@ -937,10 +937,15 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
                 try {
                         String fileName = includedProgramFile.image.substring(1,includedProgramFile.image.length()-1);
 
+                        System.out.println(fileName);
+                        System.out.println(sourceDirectory);
+
                         if ( fileName.startsWith(".") ) {
                                 fileName = sourceDirectory + fileName;
                                 fileName = fileName.replace("/./", "/");
                         }
+
+                        System.out.println(fileName);
 
                         String program = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
                         {if (true) return new IncludedProgram(name, program );}
@@ -1351,12 +1356,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     finally { jj_save(24, xla); }
   }
 
-  private boolean jj_3R_70() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_3R_64()) return true;
-    return false;
-  }
-
   private boolean jj_3R_61() {
     if (jj_scan_token(OP)) return true;
     if (jj_3R_71()) return true;
@@ -1443,11 +1442,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_63() {
-    if (jj_3R_65()) return true;
-    return false;
-  }
-
   private boolean jj_3R_82() {
     Token xsp;
     xsp = jj_scanpos;
@@ -1455,6 +1449,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     jj_scanpos = xsp;
     if (jj_scan_token(51)) return true;
     }
+    return false;
+  }
+
+  private boolean jj_3R_63() {
+    if (jj_3R_65()) return true;
     return false;
   }
 
@@ -1498,18 +1497,23 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_62() {
+  private boolean jj_3R_50() {
     if (jj_3R_65()) return true;
     return false;
   }
 
-  private boolean jj_3R_50() {
+  private boolean jj_3R_62() {
     if (jj_3R_65()) return true;
     return false;
   }
 
   private boolean jj_3R_79() {
     if (jj_3R_64()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_51() {
+    if (jj_3R_69()) return true;
     return false;
   }
 
@@ -1536,11 +1540,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_51() {
-    if (jj_3R_69()) return true;
-    return false;
-  }
-
   private boolean jj_3R_81() {
     if (jj_3R_64()) return true;
     return false;
@@ -1557,6 +1556,12 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3R_68() {
+    if (jj_scan_token(QPOINT)) return true;
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
   private boolean jj_3_16() {
     if (jj_3R_61()) return true;
     return false;
@@ -1567,24 +1572,18 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3R_67() {
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
   private boolean jj_3_14() {
     if (jj_3R_59()) return true;
     return false;
   }
 
-  private boolean jj_3R_68() {
-    if (jj_scan_token(QPOINT)) return true;
-    if (jj_3R_30()) return true;
-    return false;
-  }
-
   private boolean jj_3_13() {
     if (jj_3R_58()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_67() {
-    if (jj_3R_30()) return true;
     return false;
   }
 
@@ -1610,6 +1609,12 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3_7() {
     if (jj_3R_52()) return true;
+    return false;
+  }
+
+  private boolean jj_3_25() {
+    if (jj_scan_token(BAR)) return true;
+    if (jj_3R_30()) return true;
     return false;
   }
 
@@ -1640,6 +1645,16 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3_24() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_67()) {
+    jj_scanpos = xsp;
+    if (jj_3R_68()) return true;
+    }
+    return false;
+  }
+
   private boolean jj_3_4() {
     if (jj_3R_49()) return true;
     return false;
@@ -1650,23 +1665,18 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3_25() {
-    if (jj_scan_token(BAR)) return true;
-    if (jj_3R_30()) return true;
-    return false;
-  }
-
   private boolean jj_3R_29() {
     if (jj_scan_token(QPOINT)) return true;
     return false;
   }
 
-  private boolean jj_3_24() {
+  private boolean jj_3R_71() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_67()) {
-    jj_scanpos = xsp;
-    if (jj_3R_68()) return true;
+    if (jj_3_24()) jj_scanpos = xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3_25()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
@@ -1696,17 +1706,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3R_45() {
     if (jj_scan_token(INCLUDE)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_71() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_24()) jj_scanpos = xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3_25()) { jj_scanpos = xsp; break; }
-    }
     return false;
   }
 
@@ -1804,6 +1803,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3_23() {
+    if (jj_3R_66()) return true;
+    return false;
+  }
+
   private boolean jj_3_19() {
     if (jj_scan_token(TEMPORAL)) return true;
     Token xsp;
@@ -1817,11 +1821,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3_20() {
     if (jj_3R_64()) return true;
-    return false;
-  }
-
-  private boolean jj_3_23() {
-    if (jj_3R_66()) return true;
     return false;
   }
 
@@ -1900,6 +1899,12 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
   private boolean jj_3R_28() {
     if (jj_scan_token(OP)) return true;
     if (jj_scan_token(INITIAL)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_70() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_3R_64()) return true;
     return false;
   }
 

@@ -1,0 +1,6 @@
+name			= "household-u1-p2";
+planner			= "./planner-p2.spider";
+domain			= "./domain.uddl";
+problems		= "./experiment-u1";
+timeout			= 30;
+attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

@@ -732,10 +732,15 @@ Expression IncludeProgram() :
 	 	try {
 	 		String fileName = includedProgramFile.image.substring(1,includedProgramFile.image.length()-1);
 
+			System.out.println(fileName);
+			System.out.println(sourceDirectory);
+
 			if ( fileName.startsWith(".") ) {	
 				fileName = sourceDirectory + fileName;
 				fileName = fileName.replace("/./", "/");
 			}
+
+			System.out.println(fileName);
 
 	 		String program = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
 	 		return new IncludedProgram(name, program );

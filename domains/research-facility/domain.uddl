@@ -71,27 +71,7 @@
 		(reusable (roomUsage meetingRoom1) 1)
 		(reusable (roomUsage meetingRoom2) 1)
 	)
-	(:include
-		(kb
-			<begin-escape-syntax>
-notEqual(A,B) :- A \== B.
-riskGreaterOrEqual(high,high).
-riskGreaterOrEqual(high,medium).
-riskGreaterOrEqual(high,low).
-riskGreaterOrEqual(high,none).
-riskGreaterOrEqual(medium,medium).
-riskGreaterOrEqual(medium,low).
-riskGreaterOrEqual(medium,none).
-riskGreaterOrEqual(low,low).
-riskGreaterOrEqual(low,none).
-
-risk(labWork1,none).
-risk(labWork2,low).				
-risk(labWork3,medium).				
-risk(labWork4,high).				
-			<end-escape-syntax>
-		)
-	)
+	(:include (kb "./kb.prolog") )
 	(:ic
 		(create-meeting ?H1 ?H2 ?I1) 
 		(:condition
