@@ -1,0 +1,35 @@
+;; Context Awareness - Use Case 3: 
+;;
+;;	"If someone is putting on their shoes and then puts on their jacket they will leave the house next."
+;;
+(:initial-context
+	(:domain
+		(enum switch {on off})
+		(enum human {h1})
+		(enum location {entrance})
+		(enum activity-type {getting-up putting-on-shoes putting-on-jacket leaving})
+		(enum human-type {child grandparent})
+		(sig (at human) location)
+		(sig (activity human location activity-type))
+	)
+	(:statement
+		(i1 (activity h1 entrance putting-on-shoes))
+		(i2 (activity h1 entrance putting-on-jacket))
+	)
+	(:temporal
+		(before i1 i2 [0 2])
+	)
+	(:ic
+		(leaving-the-house ?H ?I1 ?I2)
+		(:condition
+			(:statement 
+				(?I1 (activity ?H entrance putting-on-shoes)) 
+				(?I2 (activity ?H entrance putting-on-jacket))
+			) 
+			(:temporal (after ?I2 ?I1 [1 5]) ) )
+		(:resolver
+			(:statement
+				(?I3 (activity ?H entrance leaving)) )
+			(:temporal
+				(before ?I2 ?I3 [1 5]) ) ) )
+)

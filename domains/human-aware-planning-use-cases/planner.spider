@@ -1,0 +1,86 @@
+FlowModule main:		
+	modules = "PrologPreprocessor,MainSolver";
+	rules = { 
+		Start => PrologPreprocessor;
+		PrologPreprocessor => MainSolver;
+		MainSolver => MainSolver.Consistent => Success  ;
+		MainSolver => MainSolver.Inconsistent => Fail  ;
+	};
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=1;
+		
+SolverStack MainSolver:		
+	solvers = "Domain,Costs,Temporal,ReusableResources,ICSolver,ForwardPlanner";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=3;
+	
+DomainSolver Domain:	
+	keepStatistics=true;
+	verbose=true;
+	verbosity=4;
+	
+CostSolver Costs:
+	keepStatistics=true;
+	verbose=true;
+	verbosity=0;
+		
+STPSolver Temporal:
+	static=false;
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=10;
+	
+SchedulingSolver ReusableResources:
+	verbose=true;
+	verbosity=1;
+
+InteractionConstraintSolver ICSolver:
+	consistencyChecker="ICConChecker";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=4;
+	
+SolverStack ICConChecker:		
+	solvers = "Domain,Costs,Temporal,IcSolver2";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=0;
+
+InteractionConstraintSolver IcSolver2:
+	consistencyChecker="ICConChecker2";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=4;
+	
+SolverStack ICConChecker2:		
+	solvers = "Domain,Costs,Temporal";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=0;
+	
+PrologPreprocessor PrologPreprocessor:
+	keepStatistics=true;
+	verbose=true;
+	verbosity=3;
+	
+ForwardPlanningModule ForwardPlanner:
+	queueStyle="MultiQueue";
+	heuristics="CausalGraph,FastForward"; 
+	consistencyChecker="Temporal";
+	multiEffectSupport=false;
+	uniqueInitialState=true;
+	nodeEquality="ResultingStateBased";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;	
+	verbosity=3;
+

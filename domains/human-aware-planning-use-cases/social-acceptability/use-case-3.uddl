@@ -1,0 +1,52 @@
+;; Social Acceptability - Use Case 3: 
+;;
+;; 	"Don't vacuum while the child is sleeping or try to only have a limited overlap between vacuuming and sleeping with a social cost of 5 or pay social cost of 10."
+;;
+(:initial-context
+	(:domain
+		(enum human {h1})
+		(enum robot {r1})
+		(enum location {bedroom})
+		(enum activity-type {sleeping})
+		(enum action-type {vacuum})
+		(enum human-type {child})
+		(sig (at human) location)
+		(sig (activity human location activity-type))
+		(sig (action robot location action-type))
+	)
+	(:statement
+		(i1 (activity h1 bedroom sleeping))
+		(i2 (action r1 bedroom vacuum)) 
+	)
+	(:temporal
+		(at i1 [10 10] [40 40])
+		(at i2 [35 35] [70 80])
+	)
+	(:include 
+		(kb
+			<begin-escape-syntax>
+property(h1,child).
+			<end-escape-syntax>
+		)
+	)
+(:ic
+	(sleeping ?H ?R ?L ?I1 ?I2)
+	(:condition
+		(:statement
+			(?I1 (activity ?H ?L sleeping))
+			(?I2 (action ?R ?L vacuum)) )
+		(:temporal
+			(intersection {?I1 ?I2}) ) )
+	(:resolver
+		(:temporal (before ?I1 ?I2 [1 inf]) ) )
+	(:resolver 
+		(:temporal (after ?I1 ?I2 [1 inf]) ) )
+	(:resolver
+		(:temporal (overlaps ?I1 ?I2 [1 10]))
+		(:cost (add social 5)) )
+	(:resolver
+		(:temporal (overlapped-by ?I1 ?I2 [1 10]))
+		(:cost (add social 5)) )
+	(:resolver
+		(:cost (add social 10)) ) )
+)

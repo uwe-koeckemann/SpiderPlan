@@ -1,0 +1,24 @@
+A series of implementations of use cases that address some requirements of human-aware planning.
+
+All problems are minimal and self-contained.
+
+Solve a problem by running one of the following commands from SpiderPlan root:
+
+Social Acceptability:
+
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/social-acceptability/use-case-1.uddl
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/social-acceptability/use-case-2.uddl 
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/social-acceptability/use-case-3.uddl  
+
+Proactive:
+
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/proactivity/use-case-1.uddl
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/proactivity/use-case-2.uddl 
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/proactivity/use-case-3.uddl  
+
+Context Awareness:
+
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/context-awareness/use-case-1.uddl 
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/context-awareness/use-case-2.uddl 
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/context-awareness/use-case-3.uddl 
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/context-awareness/use-case-4.uddl 
