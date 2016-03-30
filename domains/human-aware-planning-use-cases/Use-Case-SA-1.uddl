@@ -1,0 +1,24 @@
+;; Social Acceptability - Use Case SA-1: 
+;;
+;;	"No robots are allowed in the office."
+;;
+(:initial-context
+	(:domain
+		(enum robot {r1})
+		(enum location {office})
+		(enum human-type {child})
+		(sig (at robot) location)
+	)
+	(:statement
+		(i1 (at r1) office) 
+	)
+	(:temporal
+		(at i1 [10 20] [40 50])
+	)
+	(:ic
+		(no-robots-in-office ?R ?I)
+			(:condition
+				(:statement
+					(?I (at ?R) office)))
+	)
+)

@@ -6,19 +6,20 @@ Solve a problem by running one of the following commands from SpiderPlan root:
 
 Social Acceptability:
 
-	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/social-acceptability/use-case-1.uddl
-	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/social-acceptability/use-case-2.uddl 
-	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/social-acceptability/use-case-3.uddl  
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/Use-Case-SA-1.uddl
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/Use-Case-SA-2.uddl 
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/Use-Case-SA-3.uddl  
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/Use-Case-SA-4.uddl  
 
 Proactive:
 
-	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/proactivity/use-case-1.uddl
-	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/proactivity/use-case-2.uddl 
-	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/proactivity/use-case-3.uddl  
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/Use-Case-PA-1.uddl
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/Use-Case-PA-2.uddl 
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/Use-Case-PA-3.uddl  
 
 Context Awareness:
 
-	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/context-awareness/use-case-1.uddl 
-	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/context-awareness/use-case-2.uddl 
-	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/context-awareness/use-case-3.uddl 
-	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/context-awareness/use-case-4.uddl 
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/Use-Case-CA-1.uddl 
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/Use-Case-CA-2.uddl 
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/Use-Case-CA-3.uddl 
+	./run.sh domains/human-aware-planning-use-cases/planner.spider domains/human-aware-planning-use-cases/Use-Case-CA-4.uddl 
