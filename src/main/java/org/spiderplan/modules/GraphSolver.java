@@ -225,9 +225,36 @@ public class GraphSolver extends Module implements SolverInterface { //TODO: sto
 			if ( !isConsistent ) {
 				break;
 			}
+		
 			r = gC.getConstraint();
+
 			Term graph = r.getArg(0);
-			if ( gC.getRelation().equals(GraphRelation.Path) ) {
+			if ( gC.getRelation().equals(GraphRelation.HasEdge)) {
+				Term V_from = r.getArg(1);
+				Term V_to = r.getArg(2);
+				Term label = r.getArg(3);
+				
+				AbstractGraph<Term, String> G = graphs.get(graph);
+				
+				boolean foundEdge = false;
+
+				if ( G.getOutEdges(V_from) != null ) {	
+					for ( String edge : G.getOutEdges(V_from) ) {
+						if ( G.getEndpoints(edge).getSecond().equals(V_to) ) {
+							Term edgeLabel = Term.parse(edge.split("] ")[1]);
+							if ( edgeLabel.equals(label)) {
+								foundEdge = true;
+								break;
+							}
+						}
+					}
+				}
+				
+				if ( !foundEdge ) {
+					isConsistent = false;
+				}
+				
+			} else if ( gC.getRelation().equals(GraphRelation.Path) ) {
 				if ( verbose ) Logger.msg(getName(), "    Checking: " + gC, 1);
 				AbstractGraph<Term, String> G = graphs.get(graph);
 				

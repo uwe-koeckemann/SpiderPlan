@@ -32,6 +32,9 @@ import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
+import org.spiderplan.representation.expressions.ValueLookup;
+import org.spiderplan.representation.expressions.causal.OpenGoal;
+import org.spiderplan.representation.expressions.causal.Task;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.parser.Compile;
 import org.spiderplan.temporal.TemporalNetworkTools;
@@ -125,14 +128,30 @@ public class RunSingleProblem {
 			}
 	
 			IncrementalSTPSolver csp = new IncrementalSTPSolver( 0, temporalHorizon );
+			for ( OpenGoal g : res.get(OpenGoal.class) ) {
+				res.add(g.getStatement());
+			}
+			for ( Task g : res.get(Task.class) ) {
+				res.add(g.getStatement());
+			}
 			System.out.println( csp.isConsistent(res, result.getTypeManager()) );
+			
+//			System.out.println(res);
 			
 			TemporalNetworkVisualizer tnv = new TemporalNetworkVisualizer();
 			tnv.draw(res);
 			
-			TemporalNetworkTools.dumbTimeLineData(res, csp.getPropagatedTemporalIntervals(), "stp.txt");
+			ValueLookup valueLookup = new ValueLookup();
+			csp.getPropagatedTemporalIntervals(valueLookup);
+			
+			TemporalNetworkTools.dumbTimeLineData(res, valueLookup, "stp.txt");
 
 			res.export("solution.uddl");
+			
+			System.out.println("===========================================================");
+			System.out.println("= Calculated Values");
+			System.out.println("===========================================================");
+			System.out.println(res.getUnique(ValueLookup.class));
 		}
 						
 		System.out.println("===========================================================");

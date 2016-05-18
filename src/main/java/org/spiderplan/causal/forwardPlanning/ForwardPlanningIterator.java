@@ -48,12 +48,12 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.causal.DiscardedPlan;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.domain.VariableDomainRestriction;
 import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
-import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.OrderedPlan;
@@ -581,7 +581,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		Map<Atomic,String> sESTargmax = new HashMap<Atomic,String>();
 		Map<Atomic,Statement> argmax = new HashMap<Atomic,Statement>();
 		
-		TemporalIntervalLookup tiLookup = initDB.get(TemporalIntervalLookup.class).get(0); 
+		ValueLookup tiLookup = initDB.getUnique(ValueLookup.class); 
 		
 		print("Getting latest changing statements for initial state...", 3);
 		for ( Statement s : initDB.get(Statement.class) ) {

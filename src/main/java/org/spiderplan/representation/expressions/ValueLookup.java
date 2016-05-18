@@ -52,7 +52,8 @@ public class ValueLookup extends Expression implements Unique, Mutable {
 	
 	Map<Term,Long> intValues;
 	Map<Term,Double> floatValues;
-	
+	Map<Term,Long[]> intervals;
+		
 	/**
 	 * Create a new lookup.
 	 */
@@ -60,6 +61,7 @@ public class ValueLookup extends Expression implements Unique, Mutable {
 		super(ExpressionTypes.Math);
 		this.intValues = new HashMap<Term, Long>();
 		this.floatValues = new HashMap<Term, Double>();
+		this.intervals = new HashMap<Term, Long[]>();
 	}
 	
 	/**
@@ -97,6 +99,55 @@ public class ValueLookup extends Expression implements Unique, Mutable {
 	}
 	
 	/**
+	 * Get earliest start time (EST) of an interval.
+	 * @param interval
+	 * @return EST
+	 */
+	public long getEST( Term interval ) {
+		return this.intervals.get(interval)[0];
+	}
+	/**
+	 * Get latest start time (LST) of an interval.
+	 * @param interval
+	 * @return LST
+	 */
+	public long getLST( Term interval ) {
+		return this.intervals.get(interval)[1];
+	}
+	/**
+	 * Get earliest end time (EET) of an interval.
+	 * @param interval
+	 * @return EET
+	 */
+	public long getEET( Term interval ) {
+		return this.intervals.get(interval)[2];
+	}
+	/**
+	 * Get latest end time (LET) of an interval.
+	 * @param interval
+	 * @return LET
+	 */
+	public long getLET( Term interval ) {
+		return this.intervals.get(interval)[3];
+	}
+	
+	/**
+	 * Get bounds as long array
+	 * @param interval 
+	 * @return bounds array
+	 */
+	public long[] getBoundsArray( Term interval ) {
+		long[] r = new long[4];
+		r[0] = this.intervals.get(interval)[0];
+		r[1] = this.intervals.get(interval)[1];
+		r[2] = this.intervals.get(interval)[2];
+		r[3] = this.intervals.get(interval)[3];
+		return r;
+	}
+	
+
+	
+	/**
 	 * Add an integer value.
 	 * @param variable
 	 * @param value
@@ -111,6 +162,16 @@ public class ValueLookup extends Expression implements Unique, Mutable {
 	 */
 	public void putFloat( Term variable, double value ) {
 		this.floatValues.put(variable, value);
+	}
+	
+	/**
+	 * Add an interval.
+	 * @param intervalTerm term representing interval 
+	 * @param bounds bounds of the interval
+	 *  
+	 */
+	public void putInterval( Term intervalTerm, Long[] bounds ) {
+		this.intervals.put(intervalTerm, bounds);
 	}
 	
 	/**
@@ -140,6 +201,15 @@ public class ValueLookup extends Expression implements Unique, Mutable {
 		return floatValues.containsKey(variable);
 	}
 	
+	/**
+	 * Check if interval is known.
+	 * @param interval
+	 * @return <code>true</code> if interval is known, <code>false</code> otherwise
+	 */
+	public boolean hasInterval( Term interval ) {
+		return intervals.containsKey(interval);
+	}
+	
 	@Override
 	public ValueLookup copy() {
 		ValueLookup copy = new ValueLookup();
@@ -148,6 +218,9 @@ public class ValueLookup extends Expression implements Unique, Mutable {
 		}
 		for ( Term k : this.floatValues.keySet() ) {
 			copy.putFloat(k, floatValues.get(k));
+		}
+		for ( Term k : this.intervals.keySet() ) {
+			copy.putInterval(k, this.intervals.get(k));
 		}
 		return copy;
 	}
@@ -191,6 +264,7 @@ public class ValueLookup extends Expression implements Unique, Mutable {
 	public String toString() {	
 		List<List<String>> table = new ArrayList<List<String>>();
 		
+		int maxLenType = 8;
 		int maxLenKey = 8;
 		int maxLenVal = 5;
 		int maxLenAfterDecimalPoint = 0;
@@ -234,13 +308,31 @@ public class ValueLookup extends Expression implements Unique, Mutable {
 			row.add(strVal);
 			table.add(row);
 		}
+		for ( Term k : this.intervals.keySet() ) {
+			String strKey = k.toString(); 
+			
+			String strVal = "[" + intervals.get(k)[0] + " " + intervals.get(k)[1] + "] [" + intervals.get(k)[2] + " " + intervals.get(k)[3] + "]";
+			
+			if ( strKey.length() > maxLenKey ) {
+				maxLenKey = strKey.length();
+			}	
+			if ( strVal.length() > maxLenVal ) {
+				maxLenVal = strVal.length();
+			}	
+			
+			List<String> row = new ArrayList<String>();
+			row.add("interval");
+			row.add(strKey);
+			row.add(strVal);
+			table.add(row);
+		}
 		maxLenAfterDecimalPoint += 1;
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append(";; Computed value lookup table:");
 		
 		sb.append("\n;; | ");
-		sb.append(addSpace("Type", 5, true));
+		sb.append(addSpace("Type", maxLenType, true));
 		sb.append(" | ");
 		sb.append(addSpace("Variable", maxLenKey, true));
 		sb.append(" | ");
@@ -248,13 +340,13 @@ public class ValueLookup extends Expression implements Unique, Mutable {
 		sb.append(" |");
 		
 		sb.append("\n;; ");
-		for ( int i = 0; i < (maxLenKey + maxLenVal + maxLenAfterDecimalPoint + 5 + 10) ; i++ ) {
+		for ( int i = 0; i < (maxLenKey + maxLenVal + maxLenAfterDecimalPoint + maxLenType + 10) ; i++ ) {
 			sb.append("=");
 		}
 				
 		for ( List<String> row : table ) {
 			sb.append("\n;; | ");
-			sb.append(addSpace(row.get(0), 5, true));
+			sb.append(addSpace(row.get(0), maxLenType, true));
 			sb.append(" | ");
 			sb.append(addSpace(row.get(1), maxLenKey, true));
 			sb.append(" | ");

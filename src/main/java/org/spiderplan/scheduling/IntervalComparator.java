@@ -25,13 +25,13 @@ package org.spiderplan.scheduling;
 import java.util.Comparator;
 
 import org.spiderplan.representation.expressions.Statement;
-import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
+import org.spiderplan.representation.expressions.ValueLookup;
 
 public class IntervalComparator implements Comparator<Statement> {
 		
-	private TemporalIntervalLookup tiLookup;
+	private ValueLookup tiLookup;
 	
-	public IntervalComparator( TemporalIntervalLookup bounds ) {
+	public IntervalComparator( ValueLookup bounds ) {
 		this.tiLookup = bounds;
 	}
 	

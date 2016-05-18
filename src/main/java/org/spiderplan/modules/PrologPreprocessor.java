@@ -98,6 +98,7 @@ public class PrologPreprocessor extends Module {
 		if ( verbose ) Logger.depth++;
 
 		YapPrologAdapter yappy = new YapPrologAdapter(YAPbinaryLocation);
+		yappy.setVerbose(this.verbose, this.verbosity);
 		yappy.setKeepTimes(this.keepTimes);
 		yappy.failBehavior = this.failBehavior;
 		

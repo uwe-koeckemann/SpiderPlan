@@ -20,99 +20,103 @@ public interface DomainParser_v4Constants {
   /** RegularExpression Id. */
   int COST = 9;
   /** RegularExpression Id. */
-  int MATH = 10;
+  int OPTIMIZATION = 10;
   /** RegularExpression Id. */
-  int SET = 11;
+  int MATH = 11;
   /** RegularExpression Id. */
-  int GRAPH = 12;
+  int SET = 12;
   /** RegularExpression Id. */
-  int PROLOG = 13;
+  int GRAPH = 13;
   /** RegularExpression Id. */
-  int DOMAIN = 14;
+  int PROLOG = 14;
   /** RegularExpression Id. */
-  int GOAL = 15;
+  int DOMAIN = 15;
   /** RegularExpression Id. */
-  int TASK = 16;
+  int GOAL = 16;
   /** RegularExpression Id. */
-  int FINALLY = 17;
+  int TASK = 17;
   /** RegularExpression Id. */
-  int MINIZINC = 18;
+  int FINALLY = 18;
   /** RegularExpression Id. */
-  int RESOURCE = 19;
+  int MINIZINC = 19;
   /** RegularExpression Id. */
-  int CONDITIONAL = 20;
+  int RESOURCE = 20;
   /** RegularExpression Id. */
-  int IC = 21;
+  int CONDITIONAL = 21;
   /** RegularExpression Id. */
-  int CONDITION = 22;
+  int IC = 22;
   /** RegularExpression Id. */
-  int SAMPLING = 23;
+  int CONDITION = 23;
   /** RegularExpression Id. */
-  int ROS = 24;
+  int SAMPLING = 24;
   /** RegularExpression Id. */
-  int RESOLVER = 25;
+  int CONFIGURATIONPLANNING = 25;
   /** RegularExpression Id. */
-  int CAPACITY = 26;
+  int ROS = 26;
   /** RegularExpression Id. */
-  int INITIAL = 27;
+  int RESOLVER = 27;
   /** RegularExpression Id. */
-  int CUSTOM = 28;
+  int CAPACITY = 28;
   /** RegularExpression Id. */
-  int SIMULATE = 29;
+  int INITIAL = 29;
   /** RegularExpression Id. */
-  int STATEMENT = 30;
+  int CUSTOM = 30;
   /** RegularExpression Id. */
-  int OPERATOR = 31;
+  int SIMULATE = 31;
   /** RegularExpression Id. */
-  int PRECONDITIONS = 32;
+  int STATEMENT = 32;
   /** RegularExpression Id. */
-  int EFFECTS = 33;
+  int OPERATOR = 33;
   /** RegularExpression Id. */
-  int CONSTRAINTS = 34;
+  int PRECONDITIONS = 34;
   /** RegularExpression Id. */
-  int ROSPUBLISH = 35;
+  int EFFECTS = 35;
   /** RegularExpression Id. */
-  int ROSSUBSCRIBE = 36;
+  int CONSTRAINTS = 36;
   /** RegularExpression Id. */
-  int ROSREGACTION = 37;
+  int ROSPUBLISH = 37;
   /** RegularExpression Id. */
-  int ROSGOAL = 38;
+  int ROSSUBSCRIBE = 38;
   /** RegularExpression Id. */
-  int REUSABLE = 39;
+  int ROSREGACTION = 39;
   /** RegularExpression Id. */
-  int OP = 40;
+  int ROSGOAL = 40;
   /** RegularExpression Id. */
-  int CP = 41;
+  int REUSABLE = 41;
   /** RegularExpression Id. */
-  int OBRACKET = 42;
+  int OP = 42;
   /** RegularExpression Id. */
-  int CBRACKET = 43;
+  int CP = 43;
   /** RegularExpression Id. */
-  int OBRACE = 44;
+  int OBRACKET = 44;
   /** RegularExpression Id. */
-  int CBRACE = 45;
+  int CBRACKET = 45;
   /** RegularExpression Id. */
-  int BAR = 46;
+  int OBRACE = 46;
   /** RegularExpression Id. */
-  int COMMA = 47;
+  int CBRACE = 47;
   /** RegularExpression Id. */
-  int DOT = 48;
+  int BAR = 48;
   /** RegularExpression Id. */
-  int COLON = 49;
+  int COMMA = 49;
   /** RegularExpression Id. */
-  int PLUS = 50;
+  int DOT = 50;
   /** RegularExpression Id. */
-  int MINUS = 51;
+  int COLON = 51;
   /** RegularExpression Id. */
-  int QMARKS = 52;
+  int PLUS = 52;
   /** RegularExpression Id. */
-  int QPOINT = 53;
+  int MINUS = 53;
   /** RegularExpression Id. */
-  int NON_COMPLEX_TERM = 54;
+  int QMARKS = 54;
   /** RegularExpression Id. */
-  int STRING = 55;
+  int QPOINT = 55;
   /** RegularExpression Id. */
-  int UFLOAT = 56;
+  int NON_COMPLEX_TERM = 56;
+  /** RegularExpression Id. */
+  int STRING = 57;
+  /** RegularExpression Id. */
+  int UFLOAT = 58;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -129,6 +133,7 @@ public interface DomainParser_v4Constants {
     "\":execution\"",
     "\":temporal\"",
     "\":cost\"",
+    "\":optimization\"",
     "\":math\"",
     "\":set\"",
     "\":graph\"",
@@ -143,6 +148,7 @@ public interface DomainParser_v4Constants {
     "\":ic\"",
     "\":condition\"",
     "\":sampling\"",
+    "\":configuration-planning\"",
     "\":ros\"",
     "\":resolver\"",
     "\":capacity\"",

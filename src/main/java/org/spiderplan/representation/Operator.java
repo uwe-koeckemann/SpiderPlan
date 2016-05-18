@@ -890,7 +890,7 @@ public class Operator extends Expression implements Substitutable {
 	public boolean equals( Object o ) {
 		if ( o instanceof Operator ) {
 			Operator oO = (Operator)o;
-			return oO.intervalKey.equals(this.intervalKey) && oO.name.equals(this.name);
+			return oO.intervalKey.equals(this.intervalKey) && oO.name.equals(this.name); // && oO.getPreconditions().equals(this.getPreconditions()) && oO.getEffects().equals(this.getEffects()) && oO.getConstraints().equals(this.getConstraints());
 		}
 		return false;
 	}

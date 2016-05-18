@@ -31,11 +31,11 @@ import java.util.Vector;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PossibleIntersection;
-import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.temporal.TemporalReasoningInterface;
@@ -390,19 +390,22 @@ public class IncrementalSTPSolverArrayList implements TemporalReasoningInterface
 		return sb.toString();
 	}
 	
-	public TemporalIntervalLookup getPropagatedTemporalIntervals() {
-		Map<Term,Long[]> bounds = new HashMap<Term, Long[]>();
-		
+	/**
+	 * Get a map from temporal interval keys to the propagated bounds
+	 * of their start and end times.
+	 * @param valueLookup value lookup table to add the intervals 
+	 */
+	public void getPropagatedTemporalIntervals( ValueLookup valueLookup ) {
 		for ( Statement s : addedStatements ) {
 			Long[] bound = new Long[4];
 			bound[0] = this.getEST(s.getKey());
 			bound[1] = this.getLST(s.getKey());
 			bound[2] = this.getEET(s.getKey());
 			bound[3] = this.getLET(s.getKey());
-			bounds.put(s.getKey(), bound);
+			valueLookup.putInterval(s.getKey(), bound);
 		}
-		return new TemporalIntervalLookup(bounds);
 	}
+	
 	
 	private long sum(long a, long b) {
 		if ( a+b > H ) return H;

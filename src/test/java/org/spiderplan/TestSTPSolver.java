@@ -30,9 +30,9 @@ import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.SimpleDistanceConstraint;
-import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.expressions.temporal.TemporalIntervalQuery;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
@@ -267,7 +267,7 @@ public class TestSTPSolver extends TestCase {
 				
 		assertTrue(r.getState().equals(State.Consistent));
 		
-		TemporalIntervalLookup tiq = r.getResolverIterator().next().getConstraintDatabase().get(TemporalIntervalLookup.class).get(0);
+		ValueLookup tiq = r.getResolverIterator().next().getConstraintDatabase().getUnique(ValueLookup.class);
 		
 		assertTrue(tiq.getEST(Term.createConstant("i1")) == 1);
 		assertTrue(tiq.getLST(Term.createConstant("i1")) == 10);

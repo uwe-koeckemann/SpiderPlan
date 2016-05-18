@@ -34,7 +34,6 @@ import org.spiderplan.modules.solvers.Resolver;
 import org.spiderplan.modules.solvers.ResolverIterator;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
-import org.spiderplan.representation.expressions.ExpressionTypes;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
 import org.spiderplan.representation.expressions.causal.AppliedPlan;

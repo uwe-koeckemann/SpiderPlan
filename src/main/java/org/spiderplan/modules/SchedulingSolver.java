@@ -121,8 +121,7 @@ public class SchedulingSolver extends Module implements SolverInterface {
 	}
 
 	@Override
-	public SolverResult testAndResolve(Core core) {
-		
+	public SolverResult testAndResolve(Core core) {		
 		boolean isConsistent = true;
 		ResolverIterator resolverIterator = null;
 		

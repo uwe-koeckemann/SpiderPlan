@@ -211,7 +211,7 @@ public class ComplexTerm extends Term {
 				} else {
 					first = false;
 				}
-				r.append(args[i].toString());
+				r.append(args[i].getPrologStyleString());
 				
 			}
 			r.append(")");

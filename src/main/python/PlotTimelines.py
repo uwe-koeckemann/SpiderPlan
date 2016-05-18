@@ -76,8 +76,8 @@ def labels(y, xstart,xstop, value,color='b'):
 	#value[i] = variable[i] + " := " + value[i]
  
 if earliestTimelines:
-	timelines(y, EST, EET, 'k')
-	labels(y,EST,EET,value, 'k')	
+	timelines(y, LST, EET, 'k')
+	labels(y,LST,EET,value, 'k')	
 else:
 	timelines(y, EST, LST, 'k', vLenght=0.03)
 	timelines(y, EET, LET, 'k', vLenght=0.015)
@@ -88,7 +88,7 @@ else:
 #ax = plt.gca()
 
 if earliestTimelines:
-	delta = (EET.max() - EST.min())/10
+	delta = (EET.max() - LST.min())/10
 else:
 	delta = (LET.max() - EST.min())/10
 

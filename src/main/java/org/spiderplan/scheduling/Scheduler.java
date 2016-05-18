@@ -33,9 +33,9 @@ import org.spiderplan.modules.STPSolver;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
-import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
@@ -52,7 +52,7 @@ public abstract class Scheduler {
 	protected PeakCollectionStrategy strategy = PeakCollectionStrategy.SamplingPeakCollection;
 	
 	private Atomic resourceVariable;
-	private TemporalIntervalLookup tiLookup;
+	private ValueLookup tiLookup;
 	
 	private ConstraintDatabase currentCDB = null;
 	
@@ -71,11 +71,11 @@ public abstract class Scheduler {
 		currentCDB = cDB;
 		this.usages = new ArrayList<Statement>();
 		
-		this.tiLookup = cDB.get(TemporalIntervalLookup.class).get(0); 
-			
+		this.tiLookup = cDB.getUnique(ValueLookup.class); 
+					
 		for ( Statement s : cDB.get(Statement.class) ) {
 //			if ( s.getVariable().equals(this.resourceVariable) ) { //TODO: 
-			if ( s.getVariable().match(this.resourceVariable) != null ) { //TODO:
+			if ( s.getVariable().match(this.resourceVariable) != null ) { 
 //				if ( resourceVariable.toString().contains("meetingRoom") ) System.out.println("Considering: " + s);
 				if ( !this.usages.contains(s) ) {
 					this.usages.add(s);
@@ -219,7 +219,6 @@ public abstract class Scheduler {
 	 * @return
 	 */
 	protected List<List<Statement>> samplingPeakCollection() {
-
 		if (usages != null && !usages.isEmpty()) {
 			
 			Statement[] groundVars = usages.toArray(new Statement[usages.size()]);
@@ -324,10 +323,10 @@ public abstract class Scheduler {
 					IncrementalSTPSolver stpSolver = new IncrementalSTPSolver(0, 1000000);
 					boolean r = stpSolver.isConsistent(currentCDB, new TypeManager());
 					
-					System.out.println("i: " + groundVars[i]);
-					System.out.println(tiLookup.getEST(groundVars[i].getKey()));
-					System.out.println(tiLookup.getEET(groundVars[i].getKey()));
-					System.out.println(r);
+//					System.out.println("i: " + groundVars[i]);
+//					System.out.println(tiLookup.getEST(groundVars[i].getKey()));
+//					System.out.println(tiLookup.getEET(groundVars[i].getKey()));
+//					System.out.println(r);
 					
 //					System.out.println(stpSolver.getPropagatedTemporalIntervals());
 					

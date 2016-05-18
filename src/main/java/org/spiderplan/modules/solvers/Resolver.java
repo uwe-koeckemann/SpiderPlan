@@ -91,7 +91,7 @@ public class Resolver {
 			context.add(cDB.copy());
 		if ( s != null && !s.isEmpty() )
 			context.substitute(s);
-		
+
 		for ( Delete d : context.get(Delete.class) ) {
 			if ( !d.isAsserted() ) {
 				d.setAsserted(true);
@@ -113,7 +113,6 @@ public class Resolver {
 	 * @param r Resolver to be added to this one
 	 */
 	public void add( Resolver r ) {
-		System.out.println(this.s);
 		this.s.add(r.s);
 		this.cDB.add(r.cDB);
 	}

@@ -29,13 +29,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.spiderplan.executor.ROSProxy;
 import org.spiderplan.executor.Reactor;
 import org.spiderplan.executor.ReactorObservation;
 import org.spiderplan.executor.ReactorPerfectSimulation;
-import org.spiderplan.executor.ReactorROS;
 import org.spiderplan.executor.ReactorRandomSimulation;
 import org.spiderplan.executor.ReactorSoundPlaySpeech;
+import org.spiderplan.executor.ROS.ROSProxy;
+import org.spiderplan.executor.ROS.ReactorROS;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
@@ -46,6 +46,7 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.ExpressionTypes.ROSRelation;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
@@ -59,16 +60,13 @@ import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
-import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
-import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
-import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.UniqueID;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.statistics.Statistics;
@@ -117,7 +115,7 @@ public class ExecutionModule  extends Module {
 //	IncrementalSTPSolver execCSP;
 	IncrementalSTPSolver simCSP;
 	
-	Atomic tHorizon = new Atomic("tHorizon");
+	Atomic tHorizon = new Atomic("time");
 	
 	Statement past = new Statement(Term.createConstant("past"), tHorizon, Term.createConstant("past") );
 	Statement future = new Statement(Term.createConstant("future"), tHorizon, Term.createConstant("future") );
@@ -583,7 +581,9 @@ public class ExecutionModule  extends Module {
 			
 			throw new IllegalStateException("This should not happen!");
 		}
-		TemporalIntervalLookup propagatedTimes = execCSP.getPropagatedTemporalIntervals(); //d  execDB.get(TemporalIntervalLookup.class).get(0);
+		ValueLookup propagatedTimes = new ValueLookup(); 
+				
+		execCSP.getPropagatedTemporalIntervals(propagatedTimes); //d  execDB.get(TemporalIntervalLookup.class).get(0);
 		
 		
 //		TemporalIntervalLookup propagatedTimes = execDB.get(TemporalIntervalLookup.class).get(0);
@@ -712,7 +712,6 @@ public class ExecutionModule  extends Module {
 					addedCons = r.update(t, EST, LST, EET, LET, simDB);
 				}
 				
-				
 				if ( !r.getState().equals(Reactor.State.NotStarted) && !startedList.contains(r.getTarget()) ) {
 					startedList.add(r.getTarget());
 				}
@@ -819,7 +818,8 @@ public class ExecutionModule  extends Module {
 			
 			throw new IllegalStateException("This should not happen!");
 		}
-		TemporalIntervalLookup propagatedTimes = execCSP.getPropagatedTemporalIntervals(); //d  execDB.get(TemporalIntervalLookup.class).get(0);
+		ValueLookup propagatedTimes = new ValueLookup();
+		execCSP.getPropagatedTemporalIntervals(propagatedTimes); //d  execDB.get(TemporalIntervalLookup.class).get(0);
 		
 		
 				
@@ -1134,7 +1134,7 @@ public class ExecutionModule  extends Module {
 	
 	
 	private void removeWrittenInStone( ConstraintDatabase cdb, Set<Term> doNotAdd ) {		
-		TemporalIntervalLookup propagatedTimes = execDB.get(TemporalIntervalLookup.class).get(0);
+		ValueLookup propagatedTimes = execDB.getUnique(ValueLookup.class);
 		
 		if ( verbose ) { 
 			Logger.msg(getName(),"Searching for fixed statements...", 2);
@@ -1325,7 +1325,7 @@ public class ExecutionModule  extends Module {
 	Term ROS_NewValue = null;
 	
 	private boolean updateROS( ConstraintDatabase execDB ) {
-		TemporalIntervalLookup propagatedTimes = execDB.get(TemporalIntervalLookup.class).get(0);
+		ValueLookup propagatedTimes = execDB.getUnique(ValueLookup.class);
 		
 		boolean change = false;
 		Atomic variable;
@@ -1434,7 +1434,7 @@ public class ExecutionModule  extends Module {
 	 * Draw time-lines produced by execution 
 	 */
 	public void draw() {
-		TemporalIntervalLookup propagatedTimes = execDB.get(TemporalIntervalLookup.class).get(0);
+		ValueLookup propagatedTimes = execDB.getUnique(ValueLookup.class);
 		
 		timeLineViewer = new TimeLineViewer();
 		for ( Statement s : execDB.get(Statement.class) ) {

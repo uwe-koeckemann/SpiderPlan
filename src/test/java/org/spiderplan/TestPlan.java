@@ -33,6 +33,7 @@ import org.spiderplan.modules.solvers.Resolver;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
@@ -126,7 +127,9 @@ public class TestPlan extends TestCase {
 		
 		IncrementalSTPSolver stp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
 		stp.isConsistent(context, tM);
-		context.add(stp.getPropagatedTemporalIntervals());
+		ValueLookup valueLookup = new ValueLookup();
+		stp.getPropagatedTemporalIntervals(valueLookup);
+		context.add(valueLookup);
 		
 		ApplyPlanIterator aI = new ApplyPlanIterator(context, p, "ApplyMod", cM, false, tM);
 		
@@ -157,7 +160,9 @@ public class TestPlan extends TestCase {
 		
 		IncrementalSTPSolver stp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
 		stp.isConsistent(context, tM);
-		context.add(stp.getPropagatedTemporalIntervals());
+		ValueLookup valueLookup = new ValueLookup();
+		stp.getPropagatedTemporalIntervals(valueLookup);
+		context.add(valueLookup);
 		
 		ApplyPlanIterator aI = new ApplyPlanIterator(context, p, "ApplyMod", cM, false, tM);
 		
@@ -205,7 +210,9 @@ public class TestPlan extends TestCase {
 		
 		IncrementalSTPSolver stp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
 		stp.isConsistent(context, tM);
-		context.add(stp.getPropagatedTemporalIntervals());
+		ValueLookup valueLookup = new ValueLookup();
+		stp.getPropagatedTemporalIntervals(valueLookup);
+		context.add(valueLookup);
 				
 		ForwardPlanningIterator pI = new ForwardPlanningIterator(context, G, O, tM, cM, "Planner");
 		
@@ -315,7 +322,9 @@ public class TestPlan extends TestCase {
 		
 		IncrementalSTPSolver stp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
 		stp.isConsistent(context, tM);
-		context.add(stp.getPropagatedTemporalIntervals());
+		ValueLookup valueLookup = new ValueLookup();
+		stp.getPropagatedTemporalIntervals(valueLookup);
+		context.add(valueLookup);
 		
 		
 		ForwardPlanningIterator pI = new ForwardPlanningIterator(context, G, O, tM, cM, "Planner");

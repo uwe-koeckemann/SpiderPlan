@@ -37,10 +37,10 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
-import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -280,7 +280,7 @@ public class TemporalNetworkTools {
 	 */
 	public static Map<Atomic,List<Term>> getSequencedIntervals( ConstraintDatabase cdb ) {
 		TemporalNetworkTools tools = new TemporalNetworkTools();
-		TemporalIntervalLookup tiLookup = cdb.get(TemporalIntervalLookup.class).get(0);
+		ValueLookup tiLookup = cdb.getUnique(ValueLookup.class);
 		
 		Map<Atomic,List<TermAndEST>> sequencedValues = new HashMap<Atomic, List<TermAndEST>>();
 		
@@ -341,7 +341,7 @@ public class TemporalNetworkTools {
 			return new ArrayList<Statement>();
 		}
 		PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(cdb);
-		TemporalIntervalLookup tiLookup = cdb.get(TemporalIntervalLookup.class).get(0);
+		ValueLookup tiLookup = cdb.getUnique(ValueLookup.class);
 		
 		long tMin = 0;
 		long tMax = Global.MaxTemporalHorizon;
@@ -389,7 +389,7 @@ public class TemporalNetworkTools {
 	 * @param tiLookup Propagated earliest and latest start and end times of all intervals
 	 * @param fName Target filename
 	 */
-	public static void dumbTimeLineData( ConstraintDatabase cDB, TemporalIntervalLookup tiLookup, String fName ) {
+	public static void dumbTimeLineData( ConstraintDatabase cDB, ValueLookup tiLookup, String fName ) {
 		StringBuilder sb = new StringBuilder();
 			
 		for ( Statement s : cDB.get(Statement.class)) {

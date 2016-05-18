@@ -37,7 +37,16 @@ import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.tools.ModuleFactory;
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.ExpressionTypes.OptimizationRelation;
+import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.causal.AppliedPlan;
+import org.spiderplan.representation.expressions.cost.Cost;
+import org.spiderplan.representation.expressions.optimization.OptimizationTarget;
+import org.spiderplan.representation.logic.Atomic;
+import org.spiderplan.representation.logic.Term;
+import org.spiderplan.tools.TimeOutThread;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
@@ -54,6 +63,10 @@ public class SolverStack extends Module {
 	List<String> solverNames = new ArrayList<String>();
 	List<SolverInterface> solvers = new ArrayList<SolverInterface>();
 	
+	long timeout = -1;
+	
+	private boolean optimize = false;
+	
 	/**
 	 * Create new instance by providing name and configuration manager.
 	 * @param name The name of this {@link Module}
@@ -63,11 +76,21 @@ public class SolverStack extends Module {
 		super(name, cM);
 		
 		super.parameterDesc.add(  new ParameterDescription("solvers", "String", "", "List of modules implementing the SolverInterface that are used to find a solution.") );
-		
+		super.parameterDesc.add(  new ParameterDescription("timeout", "integer", "-1", "Time in minutes that this module will keep searching after first solution was found. Use -1 to disable timeout and exhaust search space. Implementation lets current solver finish even if timeout was reached so it may actually take longer than timeout.") );
+		super.parameterDesc.add(  new ParameterDescription("optimize", "boolean", "false", "Decides if optimization is attempted after first solution was found.") );
+			
 		
 		if ( cM.hasAttribute(name, "solvers")  ) {
 			this.solverNames = cM.getStringList(name, "solvers");
 		} 		
+		
+		if ( cM.hasAttribute(name, "timeout")  ) {
+			this.timeout = cM.getLong(name, "timeout") * 1000 * 60;
+		} 	
+		
+		if ( cM.hasAttribute(name, "optimize")  ) {
+			this.optimize = cM.getBoolean(name, "optimize");
+		} 	
 
 		for ( String mName : this.solverNames ) {
 			Module m = ModuleFactory.initModule(mName, cM);
@@ -86,162 +109,252 @@ public class SolverStack extends Module {
 			return core;
 		}
 		if ( verbose ) Logger.depth++;
-		
+				
 		boolean isConsistent = true;
+		
+		long startTime = 0;
+		boolean startedTimer = false;
 		
 		Stack<ResolverIterator> backtrackStack = new Stack<ResolverIterator>();
 		Stack<Core> coreStack = new Stack<Core>();
 
-//		if ( keepTimes ) StopWatch.start(msg("Copy"));
 		Core currentCore = new Core();
 		currentCore.setContext(core.getContext());
 		currentCore.setPlan(core.getPlan());
 		currentCore.setOperators(core.getOperators());
 		currentCore.setTypeManager(core.getTypeManager());
 		currentCore.setPredCore(core.getPredCore());
-//		if ( keepTimes ) StopWatch.stop(msg("Copy"));
+		
+		Core bestSolution = null;
 		
 		if ( keepStats ) Statistics.creatCounter(msg("Backtracking"));
 		
-	
-		SolverResult result;
-		int i = 0;
-		while ( i < solvers.size() ) {
-			if ( verbose ) Logger.msg(getName(), "Running " + ((Module)solvers.get(i)).getName(), 0);
-
-			if ( keepStats ) {
-				Statistics.increment(msg("Calling solver " + i + " " +((Module)solvers.get(i)).getName()));
-//				Statistics.addLong(msg("Solver Sequence"), Long.valueOf(i));
+		List<Expression> bestSolutionCostConstraints = new ArrayList<Expression>();
+		List<OptimizationTarget> optimizeTargets = core.getContext().get(OptimizationTarget.class);
+		
+		if ( optimizeTargets.size() > 1 ) {
+			throw new IllegalStateException("Found more than one optimization target. This module only supports a single target at the moment. It is possible to use math constraints to combine all targets into a single value that can be optimized.");
+		}
+		
+		if ( optimize ) {
+			optimize = !optimizeTargets.isEmpty();
+		} else {
+			if ( !optimizeTargets.isEmpty() ) {
+				System.out.println("[Warning] Found optimization target but optimization is turned off.");
 			}
-						
-			if ( verbose ) Logger.depth++;
-			if ( keepTimes ) StopWatch.start(msg("Test and find flaws " + solverNames.get(i)));
-			result = solvers.get(i).testAndResolve(currentCore);
-			if ( keepTimes ) StopWatch.stop(msg("Test and find flaws " + solverNames.get(i)));
-			if ( verbose ) Logger.depth--;
-					
-			if ( verbose ) Logger.msg(getName(), "    -> " + result.getState().toString(), 0);
+		}
+		
+		while ( true ) { // optimization loop
+//			System.out.println(currentCore.getContext().get(Statement.class));
 			
-			if ( !result.getState().equals(State.Inconsistent) && result.getResolverIterator() == null ) {
-				i++;
-			} else {
-				/**
-				 * Push new resolver iterator (only when Searching)
-				 */
-				if ( result.getResolverIterator() != null ) {
-					if ( verbose ) Logger.msg(getName(), "Pushing resolvers on stack level "+(backtrackStack.size()+1)+" ("+result.getResolverIterator().getName()+")", 1);
-//					if ( keepStats ) {
-//						Statistics.increment(msg("Level " +(backtrackStack.size()+1) + " pushing"));
-//						Statistics.addLong(msg("Pushing resolvers sequence"), Long.valueOf(i));
-//					}
-					
-//					if ( keepTimes ) StopWatch.start(msg("Copy"));
-					Core stackedCore = new Core();
-					stackedCore.setContext(currentCore.getContext());
-					stackedCore.setPlan(currentCore.getPlan().copy());
-					stackedCore.setOperators(currentCore.getOperators());
-					stackedCore.setTypeManager(core.getTypeManager());
-					stackedCore.setPredCore(currentCore.getPredCore());
-//					if ( keepTimes ) StopWatch.stop(msg("Copy"));
-					
-//					if ( keepTimes ) StopWatch.start(msg("Pushing resolver"));
-					coreStack.push(stackedCore);
-					backtrackStack.push(result.getResolverIterator());
-//					if ( keepTimes ) StopWatch.stop(msg("Pushing resolver"));
-				}
-				/**
-				 * Find next resolver (backtrack if needed)
-				 */				
-				if ( verbose ) Logger.msg(getName(), "Choosing next resolver...", 1);
-//				if ( keepTimes ) StopWatch.start(msg("Choosing resolver"));
-				boolean usedBacktracking = false;
-				Resolver r = null;
-				while ( backtrackStack.size() > 0 && r == null ) {
-					if ( verbose ) Logger.msg(getName(), "... trying stack level " + backtrackStack.size() + ": "+ backtrackStack.peek().getName(), 1);
-//					if ( keepStats ) Statistics.increment(msg("Level " +(backtrackStack.size()) + " peeking"));
-					if ( keepTimes ) StopWatch.start(msg("Getting resolver " + backtrackStack.peek().getName()));
-					r = backtrackStack.peek().next();
-					if ( keepTimes ) StopWatch.stop(msg("Getting resolver " + backtrackStack.peek().getName()));
-					if ( r == null ) {
-						usedBacktracking = true;
-						if ( verbose ) Logger.msg(getName(), "Backtracking: No resolver found on stack level " + backtrackStack.size() + ": "+ backtrackStack.peek().getName(), 1);
-						if ( keepStats ) {
-							Statistics.increment(msg("Backtracking"));
-//							Statistics.increment(msg("Level " +(backtrackStack.size()) + " popping"));
-						}
-						
-						/**
-						 * TODO: Add optional backjumping:
-						 * 
-						 * 1) Get failed solver (or constraint? or resolvers?)
-						 * 2) While type/constraint/resolvers fail: 
-						 * 		a) Remove added resolvers and test if failed resolvers work.
-						 * 3) If it works after n times we pop n times and take next resolver
-						 *
-						 * TODO: Add optional dynamic re-ordering:
-						 * 	1) Type x constraint fails
-						 * 	2) Estimate search space for all types y that have resolvers on stack
-						 *  3) Swap ordering to minimize expected backtracking
-						 *
-						 */
-						
-//						if ( keepTimes ) StopWatch.start(msg("Popping resolver"));
-						backtrackStack.pop();
-						coreStack.pop();
-//						if ( keepTimes ) StopWatch.stop(msg("Popping resolver"));
-					}
-				}
-//				if ( keepTimes ) StopWatch.stop(msg("Choosing resolver"));
-				/**
-				 * Apply next resolver (if one exists)
-				 */	
-				if ( r != null ) {							// found resolver to try next
-//					if ( keepTimes ) StopWatch.start(msg("Applying resolver"));
-//					if ( verbose ) {
-//						Logger.msg(getName(), "Applying resolver", 1);
-//						Logger.msg(getName(), r.toString(), 1);
-//					}
-					if ( keepStats ) {
-						Statistics.increment(msg("Applied resolvers"));
-					}
-					
-//					if ( keepTimes ) StopWatch.start(msg("Copy"));
-					currentCore = new Core();
-					currentCore.setContext(coreStack.peek().getContext().copy());
-					currentCore.setPlan(coreStack.peek().getPlan());
-					currentCore.setTypeManager(coreStack.peek().getTypeManager());
-					currentCore.setOperators(coreStack.peek().getOperators());
-					r.apply(currentCore.getContext());// this should be the only place in which currentCore.getContext() actually changes...
-					currentCore.setPredCore(coreStack.peek());
-					
-//					if ( keepTimes ) StopWatch.stop(msg("Copy"));
-					
-					// TODO: this is a hack
-					Collection<AppliedPlan> plans = r.getConstraintDatabase().get(AppliedPlan.class);
-					if ( !plans.isEmpty() ) {
-						currentCore.setPlan(plans.iterator().next().getPlan());
-					}
-//					if ( keepTimes ) StopWatch.stop(msg("Applying resolver"));
-					
-					// Consistent with resolver does not require resetting i to 0
-					// (we assume the resolver just added some information but
-					// no constraints that need to be confirmed)
-					if ( !usedBacktracking && result.getState().equals(State.Consistent) ) {
-						i++;
-					}
-				} else { 									// ran out of choices -> inconsistent
-					if ( verbose ) Logger.msg(getName(), "Empty backtrack stack: The chosen solvers cannot solve this problem", 1);
+			SolverResult result;
+			int i = 0;
+			while ( i < solvers.size() ) {
+				if ( startedTimer && (System.currentTimeMillis() > startTime+timeout) ) {
 					isConsistent = false;
-					break;
+					break; // leads to breaking outer while loop
 				}
 				
-				if ( !(!usedBacktracking && result.getState().equals(State.Consistent)) ) {
-					i = 0;				
+				
+				if ( verbose ) Logger.msg(getName(), "Running " + ((Module)solvers.get(i)).getName(), 0);
+	
+				if ( keepStats ) {
+					Statistics.increment(msg("Calling solver " + i + " " +((Module)solvers.get(i)).getName()));
+	//				Statistics.addLong(msg("Solver Sequence"), Long.valueOf(i));
 				}
-			} 
-		}		
-		
-		if ( isConsistent ) {
+				
+				if ( optimize ) {
+					for ( Expression e : bestSolutionCostConstraints ) {
+						if ( !currentCore.getContext().contains(e)) {
+							currentCore.getContext().add(e);		
+						}
+					}
+				}
+				
+							
+				if ( verbose ) Logger.depth++;
+				if ( keepTimes ) StopWatch.start(msg("Test and find flaws " + solverNames.get(i)));
+				result = solvers.get(i).testAndResolve(currentCore);
+				if ( keepTimes ) StopWatch.stop(msg("Test and find flaws " + solverNames.get(i)));
+				if ( verbose ) Logger.depth--;
+						
+				if ( verbose ) Logger.msg(getName(), "    -> " + result.getState().toString(), 0);
+				
+				if ( !result.getState().equals(State.Inconsistent) && result.getResolverIterator() == null ) {
+					i++;
+				} else {
+					/**
+					 * Push new resolver iterator (only when Searching)
+					 */
+					if ( result.getResolverIterator() != null ) {
+						if ( verbose ) Logger.msg(getName(), "Pushing resolvers on stack level "+(backtrackStack.size()+1)+" ("+result.getResolverIterator().getName()+")", 1);
+	//					if ( keepStats ) {
+	//						Statistics.increment(msg("Level " +(backtrackStack.size()+1) + " pushing"));
+	//						Statistics.addLong(msg("Pushing resolvers sequence"), Long.valueOf(i));
+	//					}
+						
+	//					if ( keepTimes ) StopWatch.start(msg("Copy"));
+						Core stackedCore = new Core();
+						stackedCore.setContext(currentCore.getContext());
+						stackedCore.setPlan(currentCore.getPlan().copy());
+						stackedCore.setOperators(currentCore.getOperators());
+						stackedCore.setTypeManager(core.getTypeManager());
+						stackedCore.setPredCore(currentCore.getPredCore());
+	//					if ( keepTimes ) StopWatch.stop(msg("Copy"));
+						
+	//					if ( keepTimes ) StopWatch.start(msg("Pushing resolver"));
+						coreStack.push(stackedCore);
+						backtrackStack.push(result.getResolverIterator());
+	//					if ( keepTimes ) StopWatch.stop(msg("Pushing resolver"));
+					}
+					/**
+					 * Find next resolver (backtrack if needed)
+					 */				
+					if ( verbose ) Logger.msg(getName(), "Choosing next resolver...", 1);
+	//				if ( keepTimes ) StopWatch.start(msg("Choosing resolver"));
+					boolean usedBacktracking = false;
+					Resolver r = null;
+					while ( backtrackStack.size() > 0 && r == null ) {
+						if ( verbose ) Logger.msg(getName(), "... trying stack level " + backtrackStack.size() + ": "+ backtrackStack.peek().getName(), 1);
+	//					if ( keepStats ) Statistics.increment(msg("Level " +(backtrackStack.size()) + " peeking"));
+						if ( keepTimes ) StopWatch.start(msg("Getting resolver " + backtrackStack.peek().getName()));
+						r = backtrackStack.peek().next();
+						if ( keepTimes ) StopWatch.stop(msg("Getting resolver " + backtrackStack.peek().getName()));
+						if ( r == null ) {
+							usedBacktracking = true;
+							if ( verbose ) Logger.msg(getName(), "Backtracking: No resolver found on stack level " + backtrackStack.size() + ": "+ backtrackStack.peek().getName(), 1);
+							if ( keepStats ) {
+								Statistics.increment(msg("Backtracking"));
+	//							Statistics.increment(msg("Level " +(backtrackStack.size()) + " popping"));
+							}
+							
+							/**
+							 * TODO: Add optional backjumping:
+							 * 
+							 * 1) Get failed solver (or constraint? or resolvers?)
+							 * 2) While type/constraint/resolvers fail: 
+							 * 		a) Remove added resolvers and test if failed resolvers work.
+							 * 3) If it works after n times we pop n times and take next resolver
+							 *
+							 * TODO: Add optional dynamic re-ordering:
+							 * 	1) Type x constraint fails
+							 * 	2) Estimate search space for all types y that have resolvers on stack
+							 *  3) Swap ordering to minimize expected backtracking
+							 *
+							 */
+							
+	//						if ( keepTimes ) StopWatch.start(msg("Popping resolver"));
+							backtrackStack.pop();
+							coreStack.pop();
+	//						if ( keepTimes ) StopWatch.stop(msg("Popping resolver"));
+						}
+					}
+	//				if ( keepTimes ) StopWatch.stop(msg("Choosing resolver"));
+					/**
+					 * Apply next resolver (if one exists)
+					 */	
+					if ( r != null ) {							// found resolver to try next
+	//					if ( keepTimes ) StopWatch.start(msg("Applying resolver"));
+	//					if ( verbose ) {
+	//						Logger.msg(getName(), "Applying resolver", 1);
+	//						Logger.msg(getName(), r.toString(), 1);
+	//					}
+						if ( keepStats ) {
+							Statistics.increment(msg("Applied resolvers"));
+						}
+						
+	//					if ( keepTimes ) StopWatch.start(msg("Copy"));
+						currentCore = new Core();
+						currentCore.setContext(coreStack.peek().getContext().copy());
+						currentCore.setPlan(coreStack.peek().getPlan());
+						currentCore.setTypeManager(coreStack.peek().getTypeManager());
+						currentCore.setOperators(coreStack.peek().getOperators());
+						r.apply(currentCore.getContext());// this should be the only place in which currentCore.getContext() actually changes...
+						currentCore.setPredCore(coreStack.peek());
+						
+	//					if ( keepTimes ) StopWatch.stop(msg("Copy"));
+						
+						// TODO: this is a hack
+						Collection<AppliedPlan> plans = r.getConstraintDatabase().get(AppliedPlan.class);
+						if ( !plans.isEmpty() ) {
+							currentCore.setPlan(plans.iterator().next().getPlan());
+						}
+	//					if ( keepTimes ) StopWatch.stop(msg("Applying resolver"));
+						
+						// Consistent with resolver does not require resetting i to 0
+						// (we assume the resolver just added some information but
+						// no constraints that need to be confirmed)
+						if ( !usedBacktracking && result.getState().equals(State.Consistent) ) {
+							i++;
+						}
+					} else { 									// ran out of choices -> inconsistent
+						if ( verbose ) Logger.msg(getName(), "Empty backtrack stack: The chosen solvers cannot solve this problem", 1);
+						isConsistent = false;
+						break;
+					}
+					
+					if ( !(!usedBacktracking && result.getState().equals(State.Consistent)) ) {
+						i = 0;				
+					}
+				} 
+			}
+			if ( !optimize ) {
+				break;
+			} else {
+				if ( !isConsistent ) {
+					break; // no more solutions exist
+				} else {
+					i = 0;
+					
+	//				System.out.println("Solution:\n"+currentCore.getContext());
+					bestSolution = new Core();
+					bestSolution.setContext(currentCore.getContext().copy());
+					bestSolution.setOperators(currentCore.getOperators());
+					bestSolution.setTypeManager(currentCore.getTypeManager());
+					bestSolution.setPlan(currentCore.getPlan());
+					
+					/**
+					 * Create cost constraints that will ensure any new solution is better than or equal to the current one
+					 * for all optimization targets.
+					 */
+					bestSolutionCostConstraints = new ArrayList<Expression>();
+					
+					ValueLookup computedValues = currentCore.getContext().get(ValueLookup.class).get(0);
+					for ( OptimizationTarget ot : optimizeTargets ) {
+//						System.out.println(computedValues);
+//						System.out.println(ot);
+						
+						long value = computedValues.getInt(ot.getTargetTerm() );
+						
+						if ( verbose ) {
+							Logger.msg(this.getName(), ot.getTargetTerm() + " = " + value, 1);
+						}
+						
+						// TODO: strictly less than and greater than only really work for one target
+						// for multiple targets at least one should be strictly less than. 
+						// otherwise current solution is not rejected
+						// -> disjunction if x_i < b_i would be easy to check in cost constraints
+						//
+						// (or (< x 10) (< y 10) (< z 5))
+						if ( ot.getRelation().equals(OptimizationRelation.Minimize) ) {
+							bestSolutionCostConstraints.add( new Cost(new Atomic("less-than", ot.getTargetTerm(), Term.createInteger(value) )) );
+						} else {
+							bestSolutionCostConstraints.add( new Cost(new Atomic("greater-than", ot.getTargetTerm(), Term.createInteger(value) )) );
+						}
+					}
+					if ( this.timeout != -1 ) {
+						startedTimer = true;
+						startTime = System.currentTimeMillis();
+					}
+				}
+			}
+		}
+				
+		if ( optimize && bestSolution != null ) {
+			if ( verbose ) Logger.msg(getName(),"Consistent", 0);
+			bestSolution.setResultingState(getName(), State.Consistent);
+			core = bestSolution;
+		} else if ( !optimize && isConsistent ) {
 			if ( verbose ) Logger.msg(getName(),"Consistent", 0);
 			currentCore.setResultingState(getName(), State.Consistent);
 			core = currentCore;

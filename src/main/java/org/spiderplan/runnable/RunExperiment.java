@@ -43,6 +43,7 @@ import org.spiderplan.representation.parser.Compile;
 import org.spiderplan.representation.parser.ConsistencyChecker;
 import org.spiderplan.representation.parser.experiment.ExperimentParser;
 import org.spiderplan.tools.Global;
+import org.spiderplan.tools.TimeOutThread;
 import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
@@ -409,36 +410,7 @@ public class RunExperiment {
 			maxTimeMillis = 1000*60*timeout;
 		}
 		
-		class TimeOutThread extends Thread {
-			
-			long startTimeMillis;
-			long maxTimeMillis;
-			boolean stopped = false;
-			
-			public TimeOutThread( long maxTimeMillis ) {
-				this.maxTimeMillis = maxTimeMillis;
-			}
-			
-			public void stopThread() {
-				this.stopped = true;
-			}
-			
-			@Override
-			public void run() {
-				startTimeMillis = System.currentTimeMillis();
-				
-				while ( !stopped && (System.currentTimeMillis()-startTimeMillis) < maxTimeMillis ) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-				if ( !stopped ) {
-					Module.setKillFlag(true);
-				}
-			}
-		};
+		
 						
 		File problemDir = new File(problemsDirectoryName);
 
@@ -530,7 +502,7 @@ public class RunExperiment {
 			Statistics.setLong("time", StopWatch.getLast("[main] Running... " + pName ));
 			
 			Statistics.store();
-			Statistics.dumpCSV("/home/uwe/results/" + expName + ".csv", attributeNames);
+			Statistics.dumpCSV("./" + expName + ".csv", attributeNames);
 			
 			StopWatch.reset();			
 			Global.resetStatics();

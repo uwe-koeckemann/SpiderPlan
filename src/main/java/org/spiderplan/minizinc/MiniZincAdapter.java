@@ -45,6 +45,56 @@ public class MiniZincAdapter {
 
 	private static boolean keepTimes = false;
 	
+	public static String runMiniZincRaw( String minizincBinaryLocation, String program, String data, boolean allSolutions, int nthSolution  ) {
+		String problemFileName = Global.workingDir+"csp"+Global.UniqueFilenamePart+".mzn";
+		String dataFileName = Global.workingDir+"csp"+Global.UniqueFilenamePart+".dzn";
+				
+		try {
+			FileWriter fstream = new FileWriter(problemFileName);
+			BufferedWriter out = new BufferedWriter(fstream);
+			out.write( program );
+			out.close();
+			fstream.close();
+			
+			if ( data != null ) {
+				fstream = new FileWriter(dataFileName);
+				out = new BufferedWriter(fstream);
+				out.write( data );
+				out.close();
+				fstream.close();
+			}
+			
+			String cmd = minizincBinaryLocation + " ";
+			if ( allSolutions ) {
+				cmd += "--all-solutions ";
+			} else if ( nthSolution != -1 ) {
+				cmd += "-i " + ((nthSolution-1)*2) + " -n " + nthSolution + " ";
+			}
+			cmd += problemFileName;
+			
+			if ( data != null ) {
+				cmd += " " + dataFileName;
+			}
+					
+			if ( keepTimes ) StopWatch.start("[MiniZinc] Starting");
+			String ret[] = ExecuteSystemCommand.call("/tmp/", cmd);
+			if ( keepTimes ) StopWatch.stop("[MiniZinc] Starting");
+		
+			if ( !ret[1].equals("") ) {
+				Logger.msg("MiniZinkAdapter", ret[1], 0); //TODO: Use Logger.err
+				return null;
+			}
+			return ret[0];
+		} catch (IOException e) {  
+			e.printStackTrace();  
+			System.exit(0);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+		return null;
+	}
+	
 	/**
 	 * Run minizinc.
 	 * 
@@ -81,68 +131,26 @@ public class MiniZincAdapter {
 	 * @return all substitutions that satisfy minizinc constraints
 	 */
 	public static Collection<Substitution> runMiniZinc( String minizincBinaryLocation, String program, String data, boolean allSolutions, int nthSolution ) {		
-		String problemFileName = Global.workingDir+"csp"+Global.UniqueFilenamePart+".mzn";
-		String dataFileName = Global.workingDir+"csp"+Global.UniqueFilenamePart+".dzn";
-				
-		try {
-			FileWriter fstream = new FileWriter(problemFileName);
-			BufferedWriter out = new BufferedWriter(fstream);
-			out.write( program );
-			out.close();
-			fstream.close();
-			
-			if ( data != null ) {
-				fstream = new FileWriter(dataFileName);
-				out = new BufferedWriter(fstream);
-				out.write( data );
-				out.close();
-				fstream.close();
-			}
-			
-			String cmd = minizincBinaryLocation + " ";
-			if ( allSolutions ) {
-				cmd += "--all-solutions ";
-			} else if ( nthSolution != -1 ) {
-				cmd += "-i " + ((nthSolution-1)*2) + " -n " + nthSolution + " ";
-			}
-			cmd += problemFileName;
-			
-			if ( data != null ) {
-				cmd += " " + dataFileName;
-			}
-					
-			if ( keepTimes ) StopWatch.start("[MiniZinc] Starting");
-			String ret[] = ExecuteSystemCommand.call("/tmp/", cmd);
-			if ( keepTimes ) StopWatch.stop("[MiniZinc] Starting");
-
-			ret[0] = ret[0].replace("==========", "").replace("\n", "");
-				
-			if ( !ret[1].equals("") ) {
-				Logger.msg("MiniZinkAdapter", ret[1], 0); //TODO: Use Logger.err
-			}
-			
-			if ( ret[0].contains("=====UNSATISFIABLE=====") ) {
-				return null;
-			} else {
-				ArrayList<Substitution> subst = new ArrayList<Substitution>();
-				for ( String s : ret[0].split("----------") ) {
-					s = s.replace("{", "").replace("}", "");
-					Substitution theta = new Substitution();
-					for ( String ft : s.split(",") ) {
-						String[] tmp = ft.split("/");
-						theta.add(Term.createVariable(tmp[0]), Term.parse(tmp[1]));
-					}
-					subst.add(theta);
+		
+		String output = runMiniZincRaw(minizincBinaryLocation, program, data, allSolutions, nthSolution);
+		
+		output = output.replace("==========", "").replace("\n", "");
+		
+		if ( output.contains("=====UNSATISFIABLE=====") ) {
+			return null;
+		} else {
+			ArrayList<Substitution> subst = new ArrayList<Substitution>();
+			for ( String s : output.split("----------") ) {
+				s = s.replace("{", "").replace("}", "");
+				Substitution theta = new Substitution();
+				for ( String ft : s.split(",") ) {
+					String[] tmp = ft.split("/");
+					theta.add(Term.createVariable(tmp[0]), Term.parse(tmp[1]));
 				}
-				return subst;
+				subst.add(theta);
 			}
-						
-		} catch (IOException e) {  
-			e.printStackTrace();  
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+			return subst;
+		}				
 	}
 	
 	/**

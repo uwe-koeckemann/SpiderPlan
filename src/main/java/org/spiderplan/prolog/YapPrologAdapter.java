@@ -228,7 +228,9 @@ public class YapPrologAdapter {
 				Collection<Substitution> qResult = query(B, query, programID, tM);
 				
 				
-				if ( qResult != null ) {
+				
+				if ( qResult != null ) {					
+//					System.out.println("===========================");
 					ArrayList<Substitution> appliedSubst = new ArrayList<>();
 					/*
 					 * Check all Terms in substituted Atomics for Prolog don't care variables (e.g. _1234).
@@ -239,8 +241,16 @@ public class YapPrologAdapter {
 					Map<Term,Type> varTypes = new HashMap<Term,Type>();
 					for ( Atomic a : qLits ) {
 						for ( int i = 0 ; i < a.getNumArgs() ; i++ ) {
-							Type t = tM.getPredicateTypes(a.getUniqueName(), i);
-							varTypes.put(a.getArg(i), t);
+							if ( a.getArg(i).isVariable() ) {
+								Type t = tM.getPredicateTypes(a.getUniqueName(), i);
+								varTypes.put(a.getArg(i), t);
+							} else if ( a.getArg(i).isComplex() ) {
+								Term ct = a.getArg(i); //TODO: this only works one level
+								for ( int j = 0 ; j < ct.getNumArgs() ; j++ ) {
+									Type t = tM.getPredicateTypes(ct.getUniqueName(), j);
+									varTypes.put(ct.getArg(j), t);
+								}
+							}
 						}
 					}
 					
@@ -283,7 +293,7 @@ public class YapPrologAdapter {
 								if ( !toNew.equals(to) ) {
 									isGround = false;
 								}
-																
+
 								if ( !isGround ) {
 									Term toAfterQ = toNew.substitute(q);
 									
@@ -293,9 +303,10 @@ public class YapPrologAdapter {
 										workStack.push(qNew);
 									} else {						// need to find matching values in domain
 										for ( Term value : varTypes.get(from).getDomain() ) {
+//											System.out.println("Possible value: " + value);
 											Substitution sub = value.match(toNew);
 											if ( sub != null ) {
-		//										System.out.println("Value " + value + " matches.");
+//												System.out.println("Value " + value + " matches.");
 												Substitution qNew = q.copy();
 												if ( qNew.add(sub) ) {
 													qNew.add(from, toNew);
@@ -312,9 +323,14 @@ public class YapPrologAdapter {
 									
 							} else {
 								if ( !needsNoCheck.contains(from) && !varTypes.get(from).contains(to) ) {
+//									System.out.println("====MISSING===");
 //									System.out.println(from);
 //									System.out.println(varTypes.get(from));
-//									System.out.println(q.getMap().get(from));
+//									System.out.println(to);
+//									System.out.println("====MISSING===");
+									if ( verbose ) {
+										Logger.msg(this.name, "Value " + q.getMap().get(from) + " not in domain of type " + varTypes.get(from) + " for variable " + from, 0);
+									}
 									isInDomain = false;
 									break;
 								}
@@ -324,6 +340,11 @@ public class YapPrologAdapter {
 						if ( isGround && isInDomain ) {  // has no Terms starting with _ (prolog don't care values)
 							appliedSubst.add(q);	
 						} 
+//						else {
+//							System.out.println("Not adding: " + q);
+//							System.out.println(isGround);
+//							System.out.println(isInDomain);
+//						}
 					}
 					
 					/*
@@ -356,7 +377,12 @@ public class YapPrologAdapter {
 					}
 				}
 			}
-//			if (o.getName().toString().contains("set-device-configuration-flag")) {
+//			System.out.println(o.getName());
+//			if ( o.getName().toString().contains("targeting") && o.getPreconditions().size() > 0 ) {
+//				for ( Operator oAdded : addList ) {
+//					System.out.println("\t"+oAdded.getName());
+//				}
+//				
 //				Loop.start();
 //			}
 		}
@@ -490,7 +516,7 @@ public class YapPrologAdapter {
 				Term t = rC.getRelation().getArg(i);
 				ArrayList<String> tmp = getAllVars(t);
 
-				for ( String tStr : tmp ) {
+				for ( String tStr : tmp ) {				
 					String newVarStr;
 					newVarStr = alreadyMapped.get(tStr);
 					if ( newVarStr == null ) {
@@ -504,9 +530,10 @@ public class YapPrologAdapter {
 						}
 						
 						alreadyMapped.put(tStr, newVarName);
-						prologCompatibilityMap.put(newVarName, t);
+						prologCompatibilityMap.put(newVarName, Term.createVariable(tStr));
 						newVarStr = newVarName;
 					}
+					
 					theta.add(Term.createVariable(tStr), Term.createVariable(newVarStr));
 					if ( ! vars.contains(newVarStr) ) {
 						vars.add(newVarStr);
@@ -535,6 +562,7 @@ public class YapPrologAdapter {
 
 		for ( int i = 1 ; i < qLits.size(); i++ ) {
 			qPred += ", " + qLits.get(i).getPrologStyleString();
+			System.out.println("\t" + qLits.get(i).getPrologStyleString());
 		}
 		qPred += ".";
 
@@ -593,7 +621,7 @@ public class YapPrologAdapter {
 
 	private Collection<Substitution> getResults() {
 		ArrayList<Substitution> resultingSubs = new ArrayList<Substitution>();
-
+		
 		try {
 			FileInputStream fstream = new FileInputStream(Global.workingDir+"answer"+Global.UniqueFilenamePart+".prolog");
 			DataInputStream in = new DataInputStream(fstream);

@@ -78,8 +78,8 @@ public class TestScheduling extends TestCase {
 		cM.set("solver","solvers","stpSolver,scheduler");
 		cM.set("stpSolver","class","STPSolver");
 		
-		cM.set("solver","verbose","true");
-		cM.set("solver","verbosity","4");
+//		cM.set("solver","verbose","true");
+//		cM.set("solver","verbosity","4");
 		
 //		cM.set("stpSolver","verbose","true");
 //		cM.set("stpSolver","verbosity","0");

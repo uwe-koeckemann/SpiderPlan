@@ -262,28 +262,11 @@ public abstract class Term {
 	
 //	protected abstract Term copy();
 	
-	public String getPrologStyleString() {
-		StringBuilder r = new StringBuilder();
-		
-		if ( this.getArgs() != null ) {
-			boolean first = true;
-			r.append(this.getName());
-			r.append("(");
-			for (int i = 0; i < this.getNumArgs(); i++) {
-				if ( !first ) {
-					r.append(",");	
-				} else {
-					first = false;
-				}
-				r.append(this.getArg(i).toString());
-				
-			}
-			r.append(")");
-			return r.toString();
-		} else {
-			return this.getName();
-		}
-	}
+	/**
+	 * Converts term to a String that is Prolog compatible.
+	 * @return
+	 */
+	public abstract String getPrologStyleString();
 	
 	public static void resetPools() {
 		ConstantIDTerm.nextID = 0;

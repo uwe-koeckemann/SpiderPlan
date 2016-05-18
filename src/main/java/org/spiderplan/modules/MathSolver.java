@@ -22,18 +22,13 @@
  *******************************************************************************/
 package org.spiderplan.modules;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Resolver;
-import org.spiderplan.modules.solvers.ResolverIterator;
-import org.spiderplan.modules.solvers.ResolverList;
 import org.spiderplan.modules.solvers.SingleResolver;
 import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
@@ -42,7 +37,6 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.ExpressionTypes.MathRelation;
 import org.spiderplan.representation.expressions.math.MathConstraint;
-import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.FloatTerm;
 import org.spiderplan.representation.logic.IntegerTerm;
@@ -91,7 +85,6 @@ public class MathSolver extends Module implements SolverInterface {
 		return core;
 	}
 	ValueLookup evalMap;
-	TemporalIntervalLookup temporalIntervals;
 	
 	private long evaluateIntegerTerm( Term expression ) {
 		
@@ -120,17 +113,17 @@ public class MathSolver extends Module implements SolverInterface {
 				|| expression.getName().equals("EET") 
 				|| expression.getName().equals("LET")) ) {
 			Long r = null;
-			if ( expression.getName().equals("EST") && temporalIntervals != null ) {
-				r = temporalIntervals.getEST(expression.getArg(0));
+			if ( expression.getName().equals("EST") && evalMap.hasInterval(expression.getArg(0)) ) {
+				r = evalMap.getEST(expression.getArg(0));
 			}
-			if ( expression.getName().equals("LST") && temporalIntervals != null ) {
-				r = temporalIntervals.getLST(expression.getArg(0));
+			if ( expression.getName().equals("LST") && evalMap.hasInterval(expression.getArg(0)) ) {
+				r = evalMap.getLST(expression.getArg(0));
 			}
-			if ( expression.getName().equals("EET") && temporalIntervals != null ) {
-				r = temporalIntervals.getEET(expression.getArg(0));
+			if ( expression.getName().equals("EET") && evalMap.hasInterval(expression.getArg(0)) ) {
+				r = evalMap.getEET(expression.getArg(0));
 			}
-			if ( expression.getName().equals("LET") && temporalIntervals != null ) {
-				r = temporalIntervals.getLET(expression.getArg(0));
+			if ( expression.getName().equals("LET") && evalMap.hasInterval(expression.getArg(0)) ) {
+				r = evalMap.getLET(expression.getArg(0));
 			}
 			if ( r == null ) {
 				throw new IllegalArgumentException("Failed to lookup value of '" + expression + "' (not yet computed?).");
@@ -193,17 +186,17 @@ public class MathSolver extends Module implements SolverInterface {
 			|| expression.getName().equals("EET") 
 			|| expression.getName().equals("LET")) ) {
 			Double r = null;
-			if ( expression.getName().equals("EST") && temporalIntervals != null ) {
-				r = (double)temporalIntervals.getEST(expression.getArg(0));
+			if ( expression.getName().equals("EST") && evalMap.hasInterval(expression.getArg(0)) ) {
+				r = (double)evalMap.getEST(expression.getArg(0));
 			}
-			if ( expression.getName().equals("LST") && temporalIntervals != null ) {
-				r = (double)temporalIntervals.getLST(expression.getArg(0));
+			if ( expression.getName().equals("LST") && evalMap.hasInterval(expression.getArg(0)) ) {
+				r = (double)evalMap.getLST(expression.getArg(0));
 			}
-			if ( expression.getName().equals("EET") && temporalIntervals != null ) {
-				r = (double)temporalIntervals.getEET(expression.getArg(0));
+			if ( expression.getName().equals("EET") && evalMap.hasInterval(expression.getArg(0)) ) {
+				r = (double)evalMap.getEET(expression.getArg(0));
 			}
-			if ( expression.getName().equals("LET") && temporalIntervals != null ) {
-				r = (double)temporalIntervals.getLET(expression.getArg(0));
+			if ( expression.getName().equals("LET") && evalMap.hasInterval(expression.getArg(0)) ) {
+				r = (double)evalMap.getLET(expression.getArg(0));
 			}
 			if ( r == null ) {
 				throw new IllegalArgumentException("Failed to lookup value of " + expression + " (not yet computed?).");
@@ -243,17 +236,17 @@ public class MathSolver extends Module implements SolverInterface {
 		
 		Collection<MathConstraint> C = core.getContext().get(MathConstraint.class);
 		
-		List<TemporalIntervalLookup> tiLookUp = core.getContext().get(TemporalIntervalLookup.class);
+//		List<TemporalIntervalLookup> tiLookUp = core.getContext().get(TemporalIntervalLookup.class);
+//		
+//		if ( !tiLookUp.isEmpty() ) {
+//			this.temporalIntervals = core.getContext().get(TemporalIntervalLookup.class).get(0);
+//		} else {
+//			this.temporalIntervals = null;
+//		}
 		
-		if ( !tiLookUp.isEmpty() ) {
-			this.temporalIntervals = core.getContext().get(TemporalIntervalLookup.class).get(0);
-		} else {
-			this.temporalIntervals = null;
-		}
+		ValueLookup valueLookUp = core.getContext().getUnique(ValueLookup.class);
 		
-		List<ValueLookup> valueLookUp = core.getContext().get(ValueLookup.class);
-		
-		if ( !valueLookUp.isEmpty() ) {
+		if ( valueLookUp != null ) {
 			this.evalMap = core.getContext().get(ValueLookup.class).get(0).copy();
 		} else {
 			this.evalMap = new ValueLookup();
@@ -434,7 +427,7 @@ public class MathSolver extends Module implements SolverInterface {
 		
 		if ( isConsistent ) {
 			if ( verbose ) Logger.msg(getName(), "Consistent", 0);
-			state = State.Consistent;
+			state = State.Consistent;  // TODO: should be searching when resolver added (only on change)
 
 		} else {
 			if ( verbose ) Logger.msg(getName(), "Inconsistent", 0);

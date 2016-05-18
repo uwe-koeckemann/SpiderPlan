@@ -27,6 +27,7 @@ import org.spiderplan.representation.expressions.*;
 import org.spiderplan.representation.expressions.execution.ros.*;
 import org.spiderplan.representation.expressions.causal.*;
 import org.spiderplan.representation.expressions.cost.*;
+import org.spiderplan.representation.expressions.optimization.*;
 import org.spiderplan.representation.expressions.domain.*;
 import org.spiderplan.representation.expressions.execution.*;
 import org.spiderplan.representation.expressions.graph.*;
@@ -40,6 +41,7 @@ import org.spiderplan.representation.expressions.resources.*;
 import org.spiderplan.representation.expressions.sampling.*;
 import org.spiderplan.representation.expressions.set.*;
 import org.spiderplan.representation.expressions.temporal.*;
+import org.spiderplan.representation.expressions.configurationPlanning.*;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.temporal.TemporalNetworkTools;
@@ -48,7 +50,7 @@ import org.spiderplan.tools.UniqueID;
 public class DomainParser_v4 
 {
   	Core c;
-  	HashMap<Term,ArrayList<Term>> groupMapping;
+  	HashMap<Term,ArrayList<Term>> groupMapping = new HashMap<Term,ArrayList<Term>>(); ;
   	Map<String,String> includeMapping;
 		static public String sourceDirectory;
 		static public boolean verbose = true;
@@ -79,6 +81,7 @@ TOKEN :
 |   < EXECUTION : ":execution" >
 |   < TEMPORAL : ":temporal" >
 |   < COST : ":cost" >
+|   < OPTIMIZATION : ":optimization" >
 |   < MATH : ":math" >
 |   < SET : ":set" >
 |   < GRAPH : ":graph" >
@@ -93,6 +96,7 @@ TOKEN :
 |   < IC: ":ic" >
 |   < CONDITION : ":condition" >
 |   < SAMPLING : ":sampling" >
+|   < CONFIGURATIONPLANNING : ":configuration-planning" >
 |   < ROS : ":ros" >
 |   < RESOLVER : ":resolver" >
 |   < CAPACITY : ":capacity" >
@@ -104,7 +108,6 @@ TOKEN :
 | 	< PRECONDITIONS : ":preconditions" > 
 | 	< EFFECTS : ":effects" >
 | 	< CONSTRAINTS : ":constraints" >
-
 |   < ROSPUBLISH : "publish-to" >
 |   < ROSSUBSCRIBE : "subscribe-to" >
 |   < ROSREGACTION : "register-action" >
@@ -384,7 +387,7 @@ ConstraintDatabase ConstraintDatabase() :
   Expression c;
   Term programID;
   ConstraintDatabase cDB = new ConstraintDatabase();
-  groupMapping = new HashMap<Term,ArrayList<Term>>();
+  //groupMapping = new HashMap<Term,ArrayList<Term>>();
   Term name;
 }
 {
@@ -393,6 +396,7 @@ ConstraintDatabase ConstraintDatabase() :
 		( LOOKAHEAD(2) 
 		  ( < TEMPORAL > 	( LOOKAHEAD(2) c = TemporalConstraint() 		{ cDB.add(c); } )+ )
 		| ( < COST > 		( LOOKAHEAD(2) c = CostConstraint() 			{ cDB.add(c); } )+ )
+		| ( < OPTIMIZATION > ( LOOKAHEAD(2) c = OptimizationExpression() 			{ cDB.add(c); } )+ )
 		| ( < RESOURCE >	( LOOKAHEAD(2) c = ResourceConstraint() 		{ cDB.add(c); } )+ )
 		| ( < GRAPH >		( LOOKAHEAD(2) c = GraphConstraint() 			{ cDB.add(c); } )+ )
 		| ( < GOAL > 		( LOOKAHEAD(2) c = GoalConstraint() 			{ cDB.add(c); } )+ )
@@ -400,6 +404,7 @@ ConstraintDatabase ConstraintDatabase() :
 		| ( < FINALLY > 	( 			   c = FinallyConstraint() 			{ cDB.add(c); } )  )
 		| ( < DOMAIN > 		( LOOKAHEAD(2) c = DomainConstraint() 			{ cDB.add(c); } )+ )
 		| ( < SAMPLING > ( LOOKAHEAD(2) c = SamplingConstraint()	{ cDB.add(c); } )+ )
+		| ( < CONFIGURATIONPLANNING > ( LOOKAHEAD(2) c = ConfigurationPlanningConstraint()	{ cDB.add(c); } )+ )
 		| ( < MATH > 		( LOOKAHEAD(2) c = MathConstraint() 			{ cDB.add(c); } )+ )
 		| ( < SET > 		( LOOKAHEAD(2) c = SetConstraint() 				{ cDB.add(c); } )+ )
 		| ( (< CONDITIONAL>|<IC>) ( 			   c = ConditionalConstraint() 		{ cDB.add(c); } )  )
@@ -460,6 +465,18 @@ Expression PrologConstraint( Term programID ) :
 		{
 			if ( verbose ) { System.out.println("[Parser] Prolog Constraint"); }
 		   	return new PrologConstraint( constraint, programID ); 
+		}
+}
+
+Expression ConfigurationPlanningConstraint( ) :
+{
+	Atomic constraint;
+}
+{
+		constraint = Atomic() 
+		{
+			if ( verbose ) { System.out.println("[Parser] Configuration Planning Constraint"); }
+		  return new ConfigurationPlanningConstraint( constraint ); 
 		}
 }
 
@@ -780,7 +797,7 @@ void Operator()  :
 		}
 		o = new Operator();
 		o.setName( name );
-		groupMapping = new HashMap<Term,ArrayList<Term>>();
+		//groupMapping = new HashMap<Term,ArrayList<Term>>();
 		
   	}
 	<OP> < PRECONDITIONS > 	(s = Statement() {   o.addPrecondition(s); 	} )* <CP> 
@@ -849,6 +866,14 @@ Expression CostConstraint() :
 }
 {
  	( cRel = Atomic() )  	{ 	return new Cost(cRel); 	}
+}
+
+Expression OptimizationExpression() :
+{
+  	Atomic cRel;
+}
+{
+ 	( cRel = Atomic() )  	{ 	return new OptimizationTarget(cRel); 	}
 }
 
 /*

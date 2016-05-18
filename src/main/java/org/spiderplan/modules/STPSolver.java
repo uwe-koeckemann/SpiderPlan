@@ -23,7 +23,6 @@
 package org.spiderplan.modules;
 
 import java.util.Map;
-import java.util.Scanner;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.configuration.ParameterDescription;
@@ -38,15 +37,15 @@ import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
+import org.spiderplan.representation.expressions.causal.Task;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.expressions.temporal.PossibleIntersection;
-import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.expressions.temporal.TemporalIntervalQuery;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
-import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
@@ -162,6 +161,9 @@ public class STPSolver extends Module implements SolverInterface {
 		 */
 		for ( OpenGoal og : cDB.get(OpenGoal.class) ) {
 			cDB.add(og.getStatement());
+		}
+		for ( Task task : cDB.get(Task.class) ) {
+			cDB.add(task.getStatement());
 		}
 //		if ( keepTimes ) StopWatch.stop("["+this.getName()+"] Initializing");
 						
@@ -296,16 +298,22 @@ public class STPSolver extends Module implements SolverInterface {
 		if ( isConsistent ) {
 			ConstraintDatabase resCDB = new ConstraintDatabase();
 			
-			TemporalIntervalLookup tiLookup = stpSolver.getPropagatedTemporalIntervals(); 
+			ValueLookup valueLookup = core.getContext().getUnique(ValueLookup.class);
+			if ( valueLookup == null ) {
+				valueLookup = new ValueLookup();
+			} else {
+				valueLookup = core.getContext().getUnique(ValueLookup.class).copy();
+			}
 			
-//			System.out.println(tiLookup);
+			stpSolver.getPropagatedTemporalIntervals(valueLookup); 
 			
-			resCDB.add(tiLookup);
+			resCDB.add(valueLookup);
+						
 			Resolver r = new Resolver(resCDB);
 			resolverIterator = new SingleResolver(r, name, cM);
 			if ( verbose ) Logger.msg(getName(), "Consistent (adding bound information resolver)", 0);
 			
-			state = State.Consistent;
+			state = State.Consistent;  // TODO: should be searching when resolver added (only on change)
 		} else {
 			
 

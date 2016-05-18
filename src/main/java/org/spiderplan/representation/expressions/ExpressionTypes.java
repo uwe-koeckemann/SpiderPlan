@@ -22,6 +22,7 @@
  *******************************************************************************/
 package org.spiderplan.representation.expressions;
 
+import org.spiderplan.representation.expressions.configurationPlanning.ConfigurationPlanningConstraint;
 import org.spiderplan.representation.expressions.cost.Cost;
 import org.spiderplan.representation.expressions.domain.DomainMemberConstraint;
 import org.spiderplan.representation.expressions.domain.TypeDomainConstraint;
@@ -29,6 +30,7 @@ import org.spiderplan.representation.expressions.domain.TypeSignatureConstraint;
 import org.spiderplan.representation.expressions.domain.Uncontrollable;
 import org.spiderplan.representation.expressions.graph.GraphConstraint;
 import org.spiderplan.representation.expressions.math.MathConstraint;
+import org.spiderplan.representation.expressions.optimization.OptimizationTarget;
 import org.spiderplan.representation.expressions.sampling.SamplingConstraint;
 import org.spiderplan.representation.expressions.set.SetConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
@@ -79,14 +81,18 @@ public class ExpressionTypes {
 	final public static Term Sampling = Term.createConstant("sampling");
 	final public static Term Simulation = Term.createConstant("simulation");
 	final public static Term ROS = Term.createConstant("ros");
+	final public static Term Optimization = Term.createConstant("optimization");
+	final public static Term ConfigurationPlanning = Term.createConstant("configuration-planning");
 
 	final public static SupportedExpressions<DomainRelation> DomainConstraints = new SupportedExpressions<DomainRelation>(Domain);
 	final public static SupportedExpressions<CostRelation> CostConstraints = new SupportedExpressions<CostRelation>(Cost);
 	final public static SupportedExpressions<GraphRelation> GraphConstraints = new SupportedExpressions<GraphRelation>(Graph);
 	final public static SupportedExpressions<SetRelation> SetConstraints = new SupportedExpressions<SetRelation>(Set);
 	final public static SupportedExpressions<MathRelation> MathConstraints = new SupportedExpressions<MathRelation>(Math);
+	final public static SupportedExpressions<OptimizationRelation> OptimizationExpressions = new SupportedExpressions<OptimizationRelation>(Optimization);
 	final public static SupportedExpressions<TemporalRelation> TemporalConstraints = new SupportedExpressions<TemporalRelation>(Temporal);
 	final public static SupportedExpressions<SamplingRelation> SamplingConstraints = new SupportedExpressions<SamplingRelation>(Sampling);
+	final public static SupportedExpressions<ConfigurationPlanningRelation> ConfigurationPlanningConstraints = new SupportedExpressions<ConfigurationPlanningRelation>(ConfigurationPlanning);
 	
 	
 	/**
@@ -95,8 +101,9 @@ public class ExpressionTypes {
 	 * 	solvers to avoid bugs that result from using string names everywhere.
 	 */
 	public enum MathRelation { EvalInt, EvalFloat, Addition, Subtraction, Multiplication, Division, Modulo, GreaterThan, GreaterThanOrEquals, LessThan, LessThanOrEquals };
+	public enum OptimizationRelation { Minimize, Maximize };
 	public enum SetRelation { Set, Add, In, NotIn, IsDomain, Equals, Subset, ProperSubset };
-	public enum GraphRelation { Directed, Undirected, Vertex, Edge, Draw, DAG, Flow, Capacity, Path, ShortestPath };
+	public enum GraphRelation { Directed, Undirected, Vertex, Edge, Draw, DAG, Flow, Capacity, Path, ShortestPath, HasEdge };
 	public enum CostRelation { Add, Sub, LessThan, LessThanOrEquals, GreaterThan, GreaterThanOrEquals };
 	public enum DomainRelation { Enum, Int, Float, Equal, NotEqual, In, NotIn, Signature, Uncontrollable };
 	public enum SamplingRelation { RandomVariable, Sample };
@@ -111,6 +118,7 @@ public class ExpressionTypes {
 		LessThan, LessThanOrEquals
 	}
 	public enum ROSRelation {  PublishTo, SubscribeTo, Goal, RegisterAction };
+	public enum ConfigurationPlanningRelation { Goal, Link, Cost, Unavailable };
 	
 //	public enum SupportedExpressionsEnum {
 //		
@@ -185,6 +193,7 @@ public class ExpressionTypes {
 		GraphConstraints.add("undirected/1", 	"(undirected G)", "G is an undirected graph.",			GraphRelation.Undirected, 		GraphConstraint.class);
 		GraphConstraints.add("vertex/2", 		"(vertex G v)", "Graph G has a vertex v.", 				GraphRelation.Vertex, 			GraphConstraint.class);
 		GraphConstraints.add("edge/4", 			"(edge G v1 v2 e)","Graph G has edge (v1,v2) with label e.",	GraphRelation.Edge, 			GraphConstraint.class);
+		GraphConstraints.add("has-edge/4", 		"(has-edge G v1 v2 e)","True if graph G has edge (v1,v2) with label e.",	GraphRelation.HasEdge, 			GraphConstraint.class);
 		GraphConstraints.add("draw/1", 			"(draw G)","Draws graph G when evaluated.", 				GraphRelation.Draw, 			GraphConstraint.class);
 		GraphConstraints.add("dag/1", 			"(dag G)","Graph G is a directed acyclic graph (DAG).",				GraphRelation.DAG, 				GraphConstraint.class);
 		GraphConstraints.add("flow/1", 			"(flow G)", "Graph G is a flow network where the sum of inputs is equal to the sum of outputs.",		GraphRelation.Flow, 			GraphConstraint.class);
@@ -213,6 +222,9 @@ public class ExpressionTypes {
 		MathConstraints.add("less-than-or-equal/2", 	"(less-than-or-equal x y)", "x <= y", 		MathRelation.LessThanOrEquals, 		MathConstraint.class);
 		MathConstraints.add("greater-than/2", 			"(greater-than x y)", "x > y", 				MathRelation.GreaterThan, 			MathConstraint.class);
 		MathConstraints.add("greater-than-or-equal/2", 	"(greater-than-or-equal x y)", "x >= y", 	MathRelation.GreaterThanOrEquals, 	MathConstraint.class);
+		
+		OptimizationExpressions.add("min/1", "(min x)", "Minimize the value associated to x.", OptimizationRelation.Minimize, OptimizationTarget.class);
+		OptimizationExpressions.add("max/1", "(max x)", "Maximize the value associated to x.", OptimizationRelation.Maximize, OptimizationTarget.class);
 		
 		TemporalConstraints.setGeneralHelpText("I1,I2 and I are intervals. ST and ET are start and end times. B1,B2,... are bound intervals. B_l and B_u are the lower and upper end of bound B.");
 		
@@ -265,10 +277,15 @@ public class ExpressionTypes {
 		
 		SamplingConstraints.add("random-variable/2", "(random-variable ?X D)" , "?X is a random variable. Domain D can be a type name, a list of elements (list e1 e2 ...) or an interval (interval lower upper).", SamplingRelation.RandomVariable, SamplingConstraint.class);
 		SamplingConstraints.add("sample/1", "(sample ?X)" , "Random variable ?X will be substituted by a random value from its domain (using a uniform distribution).", SamplingRelation.Sample, SamplingConstraint.class);
+		
+		
+		ConfigurationPlanningConstraints.add("goal/2", "(goal I x)", "Information goal x has to be achieved during interval ?I", ConfigurationPlanningRelation.Goal, ConfigurationPlanningConstraint.class);
+		ConfigurationPlanningConstraints.add("link/2", "(link x (list y1 y2 ..))", "Information x can be inferred if y1, y2, .. are known.", ConfigurationPlanningRelation.Link, ConfigurationPlanningConstraint.class);
+		ConfigurationPlanningConstraints.add("cost/2", "(cost x c)", "Using information x comes at a cost c.", ConfigurationPlanningRelation.Cost, ConfigurationPlanningConstraint.class);
+		ConfigurationPlanningConstraints.add("unavailable/1", "(unavailable x)", "Information x cannot be used.", ConfigurationPlanningRelation.Unavailable, ConfigurationPlanningConstraint.class);
 	}
 	
-	public static void printHelp() {
-		
+	public static void printHelp() {		
 		System.out.println(DomainConstraints);
 		System.out.println(CostConstraints);
 		System.out.println(GraphConstraints);

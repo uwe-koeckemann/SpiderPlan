@@ -557,6 +557,19 @@ public class ConstraintDatabase implements Collection<Expression> {
 		return r; 
 	}
 	
+	/**
+	 * Get unique expression from class.
+	 * @param c class of constraint
+	 * @return the expression if it exists, <code>null</code> otherwise
+	 */	
+	public <T extends Expression> T getUnique( Class<T> c ) {
+		@SuppressWarnings("unchecked")
+		ArrayList<T> r = (ArrayList<T>)Cmap.get(c); 
+		if ( r == null ) {
+			return null;
+		}
+		return r.get(0); 
+	}
 	
 	/**
 	 * Get map from constraint classes to their count.

@@ -28,10 +28,14 @@ import java.util.HashMap;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
+import org.spiderplan.modules.solvers.Resolver;
+import org.spiderplan.modules.solvers.SingleResolver;
 import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
+import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.ExpressionTypes.CostRelation;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.cost.Cost;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
@@ -73,6 +77,8 @@ public class CostSolver extends Module implements SolverInterface {
 
 //		this(Relation.valueOf(relForm.name()), relForm, relForm.getTerms()[1]);
 		
+		ValueLookup valueLookup = core.getContext().getUnique(ValueLookup.class);
+		
 		Collection<Cost> costCons = core.getContext().get(Cost.class);
 		HashMap<Term,Double> costs = new HashMap<Term,Double>();
 		
@@ -92,23 +98,51 @@ public class CostSolver extends Module implements SolverInterface {
 				costSymbol = relation.getArg(0);
 				valueSymbol = relation.getArg(1);
 				
-				double addedValue = 0.0;
+				Double addedValueDouble = null;
+				Long addedValueLong = null;
 				
-				if ( valueSymbol.isConstant() ) {
+				if ( !valueSymbol.isVariable() ) {
 					try  {  
-						Integer v = Integer.parseInt( valueSymbol.toString() );  
-						addedValue = v.doubleValue();  
-					} catch( Exception eNotInt ) {  
-						try  {
-							Double v = Double.parseDouble( valueSymbol.toString() );  
-							addedValue = v.doubleValue();
-						} catch( Exception eNotDouble ) {
-							throw new IllegalStateException("Value term "+valueSymbol+" in cost constraint " + cost + " is a constant but not parsable as double or int.");
+						addedValueLong = Long.parseLong( valueSymbol.toString() ); 
+					} catch( Exception e ) { }
+					try  {
+						addedValueDouble = Double.parseDouble( valueSymbol.toString() );  
+					} catch( Exception e ) { }
+					if ( addedValueLong == null ) {
+						if ( valueLookup.hasIntVariable(valueSymbol) ) {
+							addedValueLong = valueLookup.getInt(valueSymbol);
 						}
-			        }  
+					}
+					if ( addedValueDouble == null ) {
+						if ( valueLookup.hasFloatVariable(valueSymbol) ) {
+							addedValueDouble = valueLookup.getFloat(valueSymbol);
+						}
+					}						
+					
 				} else {
 					if ( verbose ) Logger.msg(getName(), "    variable value -> ignored", 1);
 				}
+				
+//				if ( valueSymbol.isConstant() ) {
+//					try  {  
+//						Integer v = Integer.parseInt( valueSymbol.toString() );  
+//						addedValue = v.doubleValue();  
+//					} catch( Exception eNotInt ) {  
+//						try  {
+//							Double v = Double.parseDouble( valueSymbol.toString() );  
+//							addedValue = v.doubleValue();
+//						} catch( Exception eNotDouble ) {
+//							throw new IllegalStateException("Value term "+valueSymbol+" in cost constraint " + cost + " is a constant but not parsable as double or int.");
+//						}
+//			        }  
+//				} else {
+//					if ( verbose ) Logger.msg(getName(), "    variable value -> ignored", 1);
+//				}
+//				System.out.println("=========================");
+//				System.out.println(valueLookup);
+//				System.out.println(valueSymbol);
+//				System.out.println(addedValueLong);
+//				System.out.println(addedValueDouble);
 				
 				Double currentValue = costs.get(costSymbol);
 				if ( currentValue == null ) {
@@ -120,8 +154,11 @@ public class CostSolver extends Module implements SolverInterface {
 				if ( cost.getRelation().equals(CostRelation.Sub) ) {
 					modifier = -1.0;
 				}
-					
-				currentValue +=	modifier * addedValue;
+				
+				if ( addedValueDouble != null )
+					currentValue +=	modifier * addedValueDouble;
+				else if ( addedValueLong != null )
+					currentValue +=	modifier * addedValueLong;
 				
 				costs.put(costSymbol, currentValue);
 			}
@@ -205,8 +242,23 @@ public class CostSolver extends Module implements SolverInterface {
 		SolverResult result;
 		
 		if ( !atLeastOneViolation ) {
+			ValueLookup vLookup = core.getContext().getUnique(ValueLookup.class);
+			if ( vLookup == null ) {
+				vLookup = new ValueLookup();
+			}
+			for ( Term costVar : costs.keySet() ) {
+				vLookup.putFloat(costVar, costs.get(costVar));
+			}
+			
+			ConstraintDatabase resCDB = new ConstraintDatabase();
+			resCDB.add(vLookup);
+			
+			Resolver resolver = new Resolver(resCDB);
+			SingleResolver singleRes = new SingleResolver(resolver, this.getName(), cM);
+			
+			
 			if ( verbose ) Logger.msg(getName(), "Consistent", 0);
-			result = new SolverResult(State.Consistent);
+			result = new SolverResult(State.Consistent, singleRes);
 		} else {
 			core.setResultingState(this.getName(), State.Inconsistent);
 			result = new SolverResult(State.Inconsistent);

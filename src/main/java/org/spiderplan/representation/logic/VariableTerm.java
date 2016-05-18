@@ -66,7 +66,9 @@ public class VariableTerm extends Term {
 	}
 	 		
 	@Override
-	public String getPrologStyleString() { return value;}
+	public String getPrologStyleString() { 
+		return value; //TODO: consider upper case 
+	}
 
 	@Override
 	public Term substitute(Substitution theta) { 

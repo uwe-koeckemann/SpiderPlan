@@ -280,10 +280,10 @@ public class Atomic {
 				} else {
 					first = false;
 				}
-				r.append(terms[i].getPrologStyleString());
-				
+				r.append(terms[i].getPrologStyleString());		
 			}
 			r.append(")");
+			
 			return r.toString();
 		} else {
 			return p + "()";

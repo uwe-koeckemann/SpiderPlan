@@ -24,6 +24,8 @@ package org.spiderplan.representation.logic;
 
 import java.util.ArrayList;
 
+import org.spiderplan.tools.profiler.Profiler;
+
 /**
  * 
  *  
@@ -133,11 +135,7 @@ public class ConstantSymbolicTerm extends Term {
     		return true;
     	}
     	
-    	if ( !(o instanceof ConstantSymbolicTerm) ) {
-//    		if ( this.toString().equals(o.toString())) {
-//    			throw new IllegalStateException("HoLeeFuk " + this.getClass().getSimpleName() + " "+ o + " vs " + o.getClass().getSimpleName() + " " + this);
-//    		}
-    		
+    	if ( !(o instanceof ConstantSymbolicTerm) ) { 		
     		return false;
     	}	
     	ConstantSymbolicTerm v = (ConstantSymbolicTerm)o;

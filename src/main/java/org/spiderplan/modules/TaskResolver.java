@@ -102,54 +102,63 @@ public class TaskResolver extends Module implements SolverInterface {
 		for ( Operator o : O ) {
 			Operator oCopy = o.copy();
 			long ID = UniqueID.getID();
-			oCopy.makeUniqueVariables(ID);		
-			Statement e = oCopy.getNameStateVariable();
-			Substitution theta = task.getStatement().matchWithoutKey(e);
-		
-			if ( theta != null ) {
-				Operator resOp = oCopy.copy();
-				resOp.substitute(theta);
-
-				/**
-				 * Create the resolver
-				 */
-				if ( tM.isConsistentVariableTermAssignment(resOp.getName(), null) ) {
-					ConstraintDatabase resDB = new ConstraintDatabase();
-
-					resOp.makeEffectIntervalKeysGround();
-					Term newKey = resOp.getLabel();
-										
+			oCopy.makeUniqueVariables(ID);	
+			for ( Statement e : oCopy.getEffects() ) {
+//			Statement e = oCopy.getNameStateVariable();
+				Substitution theta = task.getStatement().matchWithoutKey(e);
+			
+				if ( theta != null ) {
+					Operator resOp = oCopy.copy();
+					resOp.substitute(theta);
+	
 					/**
-					 * Add elements that operator provides (effects and constraints)
+					 * Create the resolver
 					 */
-					resDB.add(resOp.getNameStateVariable());
-					for ( Statement eff : resOp.getEffects() ) {
-						resDB.add(eff);
+					if ( tM.isConsistentVariableTermAssignment(resOp.getName(), null) ) {
+						ConstraintDatabase resDB = new ConstraintDatabase();
+	
+						resOp.makeEffectIntervalKeysGround();
+//						Term newKey = resOp.getLabel();
+						Term newKey = null;
+						
+						for ( Statement eff : resOp.getEffects() ) {
+							if ( eff.getVariable().equals(task.getStatement().getVariable()) && eff.getValue().equals(task.getStatement().getValue()) ) {
+								newKey = eff.getKey();
+							}
+						}
+											
+						/**
+						 * Add elements that operator provides (effects and constraints)
+						 */
+						resDB.add(resOp.getNameStateVariable());
+						for ( Statement eff : resOp.getEffects() ) {
+							resDB.add(eff);
+						}
+						resDB.addAll(resOp.getConstraints());
+						
+						/**
+						 * Preconditions become OpenGoals
+						 */
+						for ( Statement pre : resOp.getPreconditions() ) {
+							resDB.add(new OpenGoal(pre));
+						}
+						
+						/**
+						 * Add Operator
+						 */
+						resDB.add(resOp);
+														
+						theta.add(task.getStatement().getKey(), newKey);
+						
+						Task tCopy = task.copy().substitute(theta);
+						tCopy.setAsserted(true);
+						
+						resDB.add(new Asserted(tCopy));
+						
+						Resolver r = new Resolver(theta, resDB);
+						
+						resolvers.add(r);
 					}
-					resDB.addAll(resOp.getConstraints());
-					
-					/**
-					 * Preconditions become OpenGoals
-					 */
-					for ( Statement pre : resOp.getPreconditions() ) {
-						resDB.add(new OpenGoal(pre));
-					}
-					
-					/**
-					 * Add Operator
-					 */
-					resDB.add(resOp);
-													
-					theta.add(task.getStatement().getKey(), newKey);
-					
-					Task tCopy = task.copy().substitute(theta);
-					tCopy.setAsserted(true);
-					
-					resDB.add(new Asserted(tCopy));
-					
-					Resolver r = new Resolver(theta, resDB);
-					
-					resolvers.add(r);
 				}
 			}
 		}		

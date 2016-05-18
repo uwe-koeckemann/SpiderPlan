@@ -52,7 +52,7 @@ public class Planning {
 		} else if ( args.length == 1 ) {					// Experiment
 			RunExperiment.run(args[0]);	
 		} else {											// Default demo problem
-			String[] defaultArgs = { "./domains/household/planner.spider", "./domains/household/domain.uddl", "./domains/household/test-cases/test01.uddl" };
+			String[] defaultArgs = { "./domains/household/planner-p1.spider", "./domains/household/domain.uddl", "./domains/household/test-cases/test01.uddl" };
 			RunSingleProblem.run(defaultArgs);
 		}
 	}

@@ -238,6 +238,12 @@ public class Statistics {
 		
 	}
 	
+	/**
+	 * Dump data for some attributes to a comma-separated value (.csv) file.
+	 * 
+	 * @param fName Target filename
+	 * @param attOrder Attributes to include in file
+	 */
 	public static void dumpCSV( String fName, List<String> attOrder ) {
 		
 		BufferedWriter out = null;
@@ -258,7 +264,7 @@ public class Statistics {
 		    
 		    String line = printedAtts.toString();
 		    line = line.substring(1,line.length()-1);
-		    out.write(line+"\n");
+		    out.write("# " + line+"\n");
 		    
 		    for ( int i = 0 ; i < numEntries ; i++ ) {
 		    	ArrayList<String> dataLine = new ArrayList<String>();

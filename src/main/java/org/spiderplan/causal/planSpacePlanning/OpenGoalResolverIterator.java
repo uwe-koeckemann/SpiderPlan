@@ -116,6 +116,10 @@ public class OpenGoalResolverIterator extends ResolverIterator {
 
 				Resolver planResolver = ((PlanSpacePlanningNode)search.getCurrentNode()).getCombinedResolver();	
 						
+				if ( planResolver == null ) {
+					break;
+				}
+				
 				ConstraintDatabase context = originalContext.copy();
 				
 				planResolver.apply(context);

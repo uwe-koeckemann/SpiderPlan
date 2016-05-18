@@ -69,7 +69,7 @@ Planner definition, domain description and problem folder are specidied in the e
 
 * <a href="http://www.oru.se/">&Ouml;rebro University</a>
 * <a href="http://www.vr.se/inenglish">The Swedish Research Council (Project: Human-aware task planning for mobile robots)</a> 
-* <a href="http://www.kk-stiftelsen.org/">The Swedish Knowledge Foundation (Project: Ecare@Home)</a>
+* <a href="http://www.kks.se/">The Swedish Knowledge Foundation (Project: Ecare@Home)</a>
 
 
 

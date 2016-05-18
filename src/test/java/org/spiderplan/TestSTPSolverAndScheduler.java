@@ -32,10 +32,10 @@ import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.resources.ReusableResourceCapacity;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.PossibleIntersection;
-import org.spiderplan.representation.expressions.temporal.TemporalIntervalLookup;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
@@ -774,7 +774,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 		testCore = solver.run(testCore);
 		
 		assertTrue( testCore.getResultingState("solver").equals(State.Consistent) );	
-		TemporalIntervalLookup ti = testCore.getContext().get(TemporalIntervalLookup.class).get(0);
+		ValueLookup ti = testCore.getContext().getUnique(ValueLookup.class);
 		assertTrue( ti.getEST(Term.createConstant("e0")) == 300 );
 		assertTrue( ti.getEET(Term.createConstant("e0")) == 400 );
 		
