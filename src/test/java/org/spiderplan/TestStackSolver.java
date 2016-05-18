@@ -493,8 +493,9 @@ public class TestStackSolver extends TestCase {
 		 */
 		ConfigurationManager cM = new ConfigurationManager();		
 		cM.add("Solver");
-		cM.set("Solver", "class", "SolverStackOptimizer");
+		cM.set("Solver", "class", "SolverStack");
 		cM.set("Solver", "solvers", "Cost,ICSolver");
+		cM.set("Solver", "optimize", "true");
 		cM.add("Cost");
 		cM.set("Cost", "class", "CostSolver");
 		cM.add("ICSolver");
@@ -516,7 +517,7 @@ public class TestStackSolver extends TestCase {
 //		Logger.addPrintStream("IC", System.out);
 
 		SolverStack solver = new SolverStack("Solver", cM);
-		
+				
 		InteractionConstraint ic = new InteractionConstraint(new Atomic("(simple-ic)"));
 		ConstraintDatabase r1 = new ConstraintDatabase();
 		r1.add(new Cost(new Atomic("(add x 10)")));

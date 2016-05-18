@@ -562,7 +562,7 @@ public class YapPrologAdapter {
 
 		for ( int i = 1 ; i < qLits.size(); i++ ) {
 			qPred += ", " + qLits.get(i).getPrologStyleString();
-			System.out.println("\t" + qLits.get(i).getPrologStyleString());
+//			System.out.println("\t" + qLits.get(i).getPrologStyleString());
 		}
 		qPred += ".";
 

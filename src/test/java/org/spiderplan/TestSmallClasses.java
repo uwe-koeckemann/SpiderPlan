@@ -352,7 +352,7 @@ public class TestSmallClasses extends TestCase {
 		
 //		System.out.println(c.getContext());
 		
-		assertTrue(c.getContext().get(AllenConstraint.class).size() == 12);
+		assertTrue(c.getContext().get(AllenConstraint.class).size() == 13);
 	}
 	
 	
