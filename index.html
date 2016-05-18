@@ -32,13 +32,13 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h1>
-<a id="what-is-spiderplan" class="anchor" href="#what-is-spiderplan" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is SpiderPlan?</h1>
+<a id="what-is-spiderplan" class="anchor" href="#what-is-spiderplan" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is SpiderPlan?</h1>
 
 <p>SpiderPlan is a constraint-based planning framework that allows inclusion of many different types of knowledge 
 into automated planning. It also features execution and comes with an interface to the Robot Operating System (ROS).</p>
 
 <h1>
-<a id="featured-constraint-types--solvers" class="anchor" href="#featured-constraint-types--solvers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Featured Constraint Types &amp; Solvers</h1>
+<a id="featured-constraint-types--solvers" class="anchor" href="#featured-constraint-types--solvers" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Featured Constraint Types &amp; Solvers</h1>
 
 <ul>
 <li>Statements
@@ -61,7 +61,7 @@ into automated planning. It also features execution and comes with an interface 
 <li>Used for social acceptability, proactivity and context-awareness in Human-aware Planning</li>
 </ul>
 </li>
-<li>ROS
+<li>ROS (Robot Operating System)
 
 <ul>
 <li>Publish variables to ROS</li>
@@ -73,7 +73,7 @@ into automated planning. It also features execution and comes with an interface 
 </ul>
 
 <h1>
-<a id="dependencies--requirements" class="anchor" href="#dependencies--requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dependencies &amp; Requirements</h1>
+<a id="dependencies--requirements" class="anchor" href="#dependencies--requirements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Dependencies &amp; Requirements</h1>
 
 <p>The following libraries will be fetched from maven when running gradle:</p>
 
@@ -84,43 +84,49 @@ into automated planning. It also features execution and comes with an interface 
 </li>
 </ul>
 
-<p>Apart from that Python 2.x is required by some scripts (e.g. for ROS)
-and YAP Prolog <a href="http://www.dcc.fc.up.pt/~vsc/Yap/">(link)</a> is used to solve Prolog constraints.</p>
+<p>Apart from that Python 2.x is required by some scripts. YAP Prolog <a href="http://www.dcc.fc.up.pt/~vsc/Yap/">(link)</a> is used to solve Prolog constraints. And ROS Hydro <a href="http://www.ros.org/">(link)</a> is required when ising ROS constraints.</p>
 
 <h1>
-<a id="installation--test" class="anchor" href="#installation--test" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation &amp; Test</h1>
+<a id="installation--test" class="anchor" href="#installation--test" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation &amp; Test</h1>
 
-<p>1) Compile with gradle (will download all maven dependencies):</p>
+<p>All commands assume the current folder is the SpiderPlan root folder. The run.sh script will also build the project.</p>
 
-<p>'''
-...
-'''</p>
+<h2>
+<a id="build" class="anchor" href="#build" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Build:</h2>
 
-<p>2) Run a basic example:</p>
+<pre><code> ./gradlew build
+</code></pre>
 
-<p>'''
-...
-'''</p>
+<h2>
+<a id="run-default-test-case" class="anchor" href="#run-default-test-case" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Run default test case:</h2>
+
+<pre><code> ./run.sh
+</code></pre>
+
+<h2>
+<a id="running-a-single-problem" class="anchor" href="#running-a-single-problem" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Running a single problem:</h2>
+
+<p>We need to provide a planner definition (.spider) as first argument followed by any number of domain description files (.uddl).</p>
+
+<pre><code> ./run.sh ./domains/household/planner.spider ./domains/household/domain.uddl ./domains/household/test-cases/test01.uddl
+</code></pre>
+
+<h2>
+<a id="running-an-experiment" class="anchor" href="#running-an-experiment" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Running an experiment:</h2>
+
+<p>Planner definition, domain description and problem folder are specidied in the experiment definition (.experiment). Running the following line will solve all problems with the specified planner and domain and store the results in a .csv file.</p>
+
+<pre><code> ./run.sh ./domains/household/u0-p1.experiment
+</code></pre>
 
 <h1>
-<a id="solving-a-problem" class="anchor" href="#solving-a-problem" aria-hidden="true"><span class="octicon octicon-link"></span></a>Solving a problem</h1>
-
-<p>To solve a problem three things need to be provided:</p>
-
-<ul>
-<li>A domain definition (.uddl)</li>
-<li>A problem definition (.uddl)</li>
-<li>A planner definition (.spider)</li>
-</ul>
-
-<h1>
-<a id="sponsors" class="anchor" href="#sponsors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sponsors</h1>
+<a id="sponsors" class="anchor" href="#sponsors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Sponsors</h1>
 
 <ul>
 <li><a href="http://www.oru.se/">Örebro University</a></li>
 <li>
 <a href="http://www.vr.se/inenglish">The Swedish Research Council (Project: Human-aware task planning for mobile robots)</a> </li>
-<li><a href="http://www.kk-stiftelsen.org/">The Swedish Knowledge Foundation (Project: ecare@home)</a></li>
+<li><a href="http://www.kks.se/">The Swedish Knowledge Foundation (Project: Ecare@Home)</a></li>
 </ul>
       </section>
     </div>
