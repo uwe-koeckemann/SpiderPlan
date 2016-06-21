@@ -61,6 +61,12 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+/**
+ * Frame that plots (and updates) time-lines
+ * 
+ * @author Uwe Köckemann
+ *
+ */
 public class TimeLineViewer extends JFrame implements ChangeListener, ItemListener, MouseWheelListener, ActionListener {
 	private static final long serialVersionUID = 3766475783823087486L;
 	
@@ -81,10 +87,17 @@ public class TimeLineViewer extends JFrame implements ChangeListener, ItemListen
 	private boolean follow = true;
 	private boolean firstUpdate = true;
 
+	/**
+	 * Create a new time-line viewer.
+	 */
 	public TimeLineViewer() {
 		this("TimeLines");
 	}
 	
+	/**
+	 * Create a new time-line viewer.
+	 * @param name title of the frame
+	 */
 	public TimeLineViewer( String name ) {
 		this.setTitle(name);
 		this.setSize(300, 200);
@@ -167,6 +180,7 @@ public class TimeLineViewer extends JFrame implements ChangeListener, ItemListen
 	/**
 	 * Check if a {@link Track} exists
 	 * @param name Name of the Track
+	 * @return <code>true</code> if a track with the given name exists, <code>false</code> otherwise
 	 */
 	public boolean hasTrack( String name ) {
 		for ( Track t : curState.tracks ) {
@@ -187,8 +201,9 @@ public class TimeLineViewer extends JFrame implements ChangeListener, ItemListen
 	}
 	
 	/**
-	 * Check if a value with given id exists
+	 * Check if a value with given id exists.
 	 * @param id ID of the Value
+	 * @return <code>true</code> if a value with the given id exists, <code>false</code> otherwise
 	 */
 	public boolean hasValue( String id ) {
 		for ( Track t : curState.tracks ) {

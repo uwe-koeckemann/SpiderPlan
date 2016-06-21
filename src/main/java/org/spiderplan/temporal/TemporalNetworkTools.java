@@ -371,7 +371,7 @@ public class TemporalNetworkTools {
 	public static void inspect( ConstraintDatabase cDB ) {
 		IncrementalSTPSolver csp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
 		csp.debug = true;
-		csp.isConsistent(cDB, new TypeManager());
+		csp.isConsistent(cDB);
 	}
 	
 	/**

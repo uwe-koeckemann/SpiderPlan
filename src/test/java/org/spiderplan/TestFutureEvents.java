@@ -39,6 +39,7 @@ import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
 import junit.framework.TestCase;
 
+@SuppressWarnings("javadoc")
 public class TestFutureEvents extends TestCase {
 
 	@Override

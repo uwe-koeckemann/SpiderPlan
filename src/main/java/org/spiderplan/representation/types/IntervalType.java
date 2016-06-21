@@ -20,7 +20,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package org.spiderplan.representation.types;
+package org.spiderplan.representation.types;  
 
 import java.util.ArrayList;
 
@@ -28,11 +28,16 @@ import org.spiderplan.representation.logic.Term;
 
 
 /**
- * Type for temporal intervals (not restricted).
+ * Fixed type for temporal intervals (not restricted).
+ * Allows having intervals in a typed context which 
+ * rejects values outside of type domains.
  * 
  * @author Uwe Köckemann
  */
 public class IntervalType extends Type {	
+	/**
+	 * Create new interval type
+	 */
 	public IntervalType() { 
 		super.name = Term.createConstant("interval"); 
 	};

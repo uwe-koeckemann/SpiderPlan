@@ -64,9 +64,11 @@ import org.spiderplan.representation.logic.Term;
  * 
  * @author Uwe Köckemann
  */
+@SuppressWarnings("all")
 public class ExpressionTypes {
 	final public static Term Temporal = Term.createConstant("temporal");
 	final public static Term Prolog = Term.createConstant("prolog");
+	final public static Term SparQL = Term.createConstant("sparql");
 	final public static Term MiniZinc = Term.createConstant("minizinc");
 	final public static Term Resource = Term.createConstant("resource");
 	final public static Term Domain = Term.createConstant("domain");
@@ -280,8 +282,7 @@ public class ExpressionTypes {
 		
 		
 		ConfigurationPlanningConstraints.add("goal/2", "(goal I x)", "Information goal x has to be achieved during interval ?I", ConfigurationPlanningRelation.Goal, ConfigurationPlanningConstraint.class);
-		ConfigurationPlanningConstraints.add("link/2", "(link x (list y1 y2 ..))", "Information x can be inferred if y1, y2, .. are known.", ConfigurationPlanningRelation.Link, ConfigurationPlanningConstraint.class);
-		ConfigurationPlanningConstraints.add("cost/2", "(cost x c)", "Using information x comes at a cost c.", ConfigurationPlanningRelation.Cost, ConfigurationPlanningConstraint.class);
+		ConfigurationPlanningConstraints.add("link/3", "(link x (list y1 y2 ..) y)", "Information x can be inferred if y1, y2, .. are known. It costs y to use this link.", ConfigurationPlanningRelation.Link, ConfigurationPlanningConstraint.class);
 		ConfigurationPlanningConstraints.add("unavailable/1", "(unavailable x)", "Information x cannot be used.", ConfigurationPlanningRelation.Unavailable, ConfigurationPlanningConstraint.class);
 	}
 	

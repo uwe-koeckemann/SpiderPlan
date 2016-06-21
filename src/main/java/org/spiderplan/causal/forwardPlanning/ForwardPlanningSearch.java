@@ -63,7 +63,7 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 	Map<Atomic,List<Term>> s0;
 	Collection<Goal> g;
 	
-	ArrayList<StateVariableOperatorMultiState> A;
+	List<StateVariableOperatorMultiState> A;
 	ArrayList<StateVariableOperator> reducedOperators;
 
 	private TypeManager tM;
@@ -185,7 +185,7 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 	 * @param heuristicNames names of heuristics
 	 * @param useHelpfulActions boolean array that determines which heuristics will also be asked to supply helpful actions
 	 */
-	public void initSingleHeuristicPerQueue( Map<Atomic,List<Term>> s0, Collection<Goal> g, ArrayList<StateVariableOperatorMultiState> A, 
+	public void initSingleHeuristicPerQueue( Map<Atomic,List<Term>> s0, Collection<Goal> g, List<StateVariableOperatorMultiState> A, 
 									TypeManager tM, List<String> heuristicNames, boolean[] useHelpfulActions ) {
 		Logger.registerSource(super.name, super.verbosity);
 		
@@ -238,7 +238,7 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 	 * @param heuristicNames names of heuristics
 	 * @param useHelpfulActions boolean array that determines which heuristics will also be asked to supply helpful actions
 	 */
-	public void initLexicographicHeuristicOrder( Map<Atomic,List<Term>> s0, Collection<Goal> g, ArrayList<StateVariableOperatorMultiState> A, 
+	public void initLexicographicHeuristicOrder( Map<Atomic,List<Term>> s0, Collection<Goal> g, List<StateVariableOperatorMultiState> A, 
 									TypeManager tM, List<String> heuristicNames, boolean useHelpfulActions ) {
 		Logger.registerSource(super.name, super.verbosity);
 		

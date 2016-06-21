@@ -86,7 +86,7 @@ public class FindConflictsWithFutureEvents extends Module {
 		}
 		if ( verbose ) Logger.depth++;
 		
-		csp.isConsistent(core.getContext(), core.getTypeManager());	
+		csp.isConsistent(core.getContext());	
 		
 		/**
 		 * TODO: Switch to initial context should work as well and be more clear

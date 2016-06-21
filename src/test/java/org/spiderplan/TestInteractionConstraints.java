@@ -43,6 +43,7 @@ import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import junit.framework.TestCase;
 
+@SuppressWarnings("javadoc")
 public class TestInteractionConstraints extends TestCase {
 	
 	boolean yapExists = true;

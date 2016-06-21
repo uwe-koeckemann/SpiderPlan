@@ -22,9 +22,7 @@
  *******************************************************************************/
 package org.spiderplan;
 
-import org.spiderplan.modules.DomainSolver;
 import org.spiderplan.modules.FinallySolver;
-import org.spiderplan.modules.SolverStack;
 import org.spiderplan.modules.SolverStack;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
@@ -37,20 +35,14 @@ import org.spiderplan.representation.expressions.cost.Cost;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
 import org.spiderplan.representation.expressions.misc.Finally;
 import org.spiderplan.representation.expressions.optimization.OptimizationTarget;
-import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
-import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.statistics.Statistics;
 
 import junit.framework.TestCase;
 
-/**
- * Testing evaluation of domain constraints using the {@link DomainSolver}.
- *  
- * @author Uwe Köckemann
- */
+@SuppressWarnings("javadoc")
 public class TestStackSolver extends TestCase {
 
 	@Override
@@ -517,7 +509,7 @@ public class TestStackSolver extends TestCase {
 //		Logger.addPrintStream("IC", System.out);
 
 		SolverStack solver = new SolverStack("Solver", cM);
-				
+
 		InteractionConstraint ic = new InteractionConstraint(new Atomic("(simple-ic)"));
 		ConstraintDatabase r1 = new ConstraintDatabase();
 		r1.add(new Cost(new Atomic("(add x 10)")));

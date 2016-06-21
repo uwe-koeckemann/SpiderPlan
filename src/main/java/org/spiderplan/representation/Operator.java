@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.spiderplan.causal.forwardPlanning.ForwardPlanningSearch;
 import org.spiderplan.causal.forwardPlanning.StateVariableOperator;
 import org.spiderplan.causal.forwardPlanning.StateVariableOperatorMultiState;
 import org.spiderplan.representation.expressions.Expression;
@@ -594,6 +595,7 @@ public class Operator extends Expression implements Substitutable {
 	/**
 	 * Get a slightly less simplified version of this {@link Operator}, reduced to preconditions and effects in 
 	 * form of state variable mappings. All {@link Expression}s are  ignored.
+	 * @param usedVars Variables that should be kept by new operator
 	 * @return A {@link StateVariableOperator} that can be used e.g. by {@link ForwardPlanningSearch}.
 	 */
 	public StateVariableOperatorMultiState getStateVariableBasedOperatorWithSingleEffectValue( Collection<String> usedVars ) {
@@ -673,7 +675,8 @@ public class Operator extends Expression implements Substitutable {
 	/**
 	 * Sets all open variables to the most relaxed values
 	 * where possible (e.g. bounds of {@link AllenConstraint}s
-	 * and amounts of {@link ResourceUsage}s).
+	 * and amounts of resources used.
+	 * @param cDB Constraint database needed to check if variables are resources
 	 */
 	public void setOpenVariablesToMostRelaxed( ConstraintDatabase cDB ) {
 		HashMap<Atomic,Integer> rrCapacities = new HashMap<Atomic,Integer>();

@@ -187,7 +187,7 @@ public class STPSolver extends Module implements SolverInterface {
 		 * Run Temporal Reasoner
 		 */		
 		if ( keepTimes ) StopWatch.start("["+this.getName()+"] Running incremental STP solver");
-		isTemporalConsistent = stpSolver.isConsistent( cDB, core.getTypeManager() );
+		isTemporalConsistent = stpSolver.isConsistent(cDB);
 		if ( keepTimes ) StopWatch.stop("["+this.getName()+"] Running incremental STP solver");
 		
 //		System.out.println(StopWatch.getLast("["+this.getName()+"] Running incremental STP solver"));
@@ -304,7 +304,7 @@ public class STPSolver extends Module implements SolverInterface {
 			} else {
 				valueLookup = core.getContext().getUnique(ValueLookup.class).copy();
 			}
-			
+//			System.out.println(valueLookup);
 			stpSolver.getPropagatedTemporalIntervals(valueLookup); 
 			
 			resCDB.add(valueLookup);

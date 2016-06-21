@@ -29,7 +29,7 @@ package org.spiderplan.tools.visulization.timeLineViewer;
 
 import java.util.ArrayList;
 
-public class State {
+class State {
 	ArrayList<Track> tracks = new ArrayList<Track>();
 	
 	/**

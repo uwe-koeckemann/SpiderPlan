@@ -44,6 +44,10 @@ public class GenericComboIterator<T> implements Iterator<List<T>>, Iterable<List
 	
 	List<List<T>> in;
 
+	/**
+	 * Create iterator by providing choices. 
+	 * @param toCombine list of lists of choices
+	 */
 	public GenericComboIterator( List<List<T>> toCombine ) {
 		this.in = toCombine;
 		
@@ -71,6 +75,10 @@ public class GenericComboIterator<T> implements Iterator<List<T>>, Iterable<List
 		}
 	}
 	
+	/**
+	 * Calculates and returns the number of combinations of the input choices.
+	 * @return the number of combinations
+	 */
 	public int getNumCombos() {
 		int n = 1;
 		for ( int i = 0 ; i < slotSizes.length ; i++ ) {

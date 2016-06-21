@@ -39,6 +39,10 @@ public class IntegerTerm extends Term {
 		this.value = n;
 	}
 	
+	/**
+	 * Get value of this term
+	 * @return the value
+	 */
 	public long getValue() {
 		return value;
 	}
@@ -130,9 +134,9 @@ public class IntegerTerm extends Term {
 		return this.value.toString();
 	}
 	
-	public boolean nameEquals( IntegerTerm t ) {
-		return value.equals(t.value);
-	}
+//	public boolean nameEquals( IntegerTerm t ) {
+//		return value.equals(t.value);
+//	}
 	
 	protected Term copy() {
 		return this;

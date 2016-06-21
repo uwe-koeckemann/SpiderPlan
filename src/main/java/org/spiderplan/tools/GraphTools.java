@@ -29,15 +29,23 @@ import java.util.Set;
 
 import org.spiderplan.representation.graph.DirectedGraph;
 import org.spiderplan.representation.graph.UndirectedGraph;
-import org.spiderplan.representation.logic.Atomic;
-
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 
+/**
+ * @author Uwe Köckemann
+ *
+ * @param <V> Class of nodes
+ * @param <E> Class of edges
+ */
 public class GraphTools<V,E> {
 	
+	/**
+	 * Get the graph of strongly connected components.
+	 * @param g input graph
+	 * @return strongly connected components 
+	 */
 	public ArrayList<Graph<V,E>> getStronglyConnectedComponents( Graph<V,E> g ) {
 		ArrayList<V> vList = new ArrayList<V>();
 		vList.addAll(g.getVertices());
@@ -98,6 +106,11 @@ public class GraphTools<V,E> {
 		return r;
 	}
 	
+	/**
+	 * Reverse all edges in a directed graph.
+	 * @param g input graph
+	 * @return inverse graph
+	 */
 	public Graph<V,E> reverseDirGraph( Graph<V,E> g ) {
 		DirectedSparseMultigraph<V, E> gr = new DirectedSparseMultigraph<V, E>();
 		for ( E e : g.getEdges() ) {
@@ -106,6 +119,10 @@ public class GraphTools<V,E> {
 		return gr;
 	}
 	
+	/**
+	 * Remove duplicate edges from input.
+	 * @param g input graph
+	 */
 	public void removeMultiEdges( Graph<V,E> g ) {
 		HashSet<E> remList = new HashSet<E>();
 		
@@ -126,6 +143,12 @@ public class GraphTools<V,E> {
 		}
 	}
 	
+	/**
+	 * Compute the set of reachable vertices given an initial vertex.
+	 * @param g input graph
+	 * @param vInit initial vertex
+	 * @return set of reachable vertices
+	 */
 	public Set<V> reachableSet( Graph<V,E> g, V vInit ) {
 		ArrayList<V> fringe = new ArrayList<V>();
 		HashSet<V> reached = new HashSet<V>();
@@ -147,6 +170,12 @@ public class GraphTools<V,E> {
 		return reached;
 	}
 	
+	/**
+	 * Count the number of reachable vertices given an initial vertex.
+	 * @param g input graph
+	 * @param vInit initial vertex
+	 * @return number of reachable vertices
+	 */
 	public int reachableFrom( Graph<V,E> g, V vInit ) {
 		ArrayList<V> fringe = new ArrayList<V>();
 		HashSet<V> reached = new HashSet<V>();
@@ -168,6 +197,11 @@ public class GraphTools<V,E> {
 		return reached.size();
 	}
 
+	/**
+	 * Copy method for a sparse multi graph
+	 * @param in
+	 * @return the copy
+	 */
 	public UndirectedSparseMultigraph<V,E> copyUndirSparseMultiGraph( Graph<V,E> in ) {
 		UndirectedGraph<V,E> c = new UndirectedGraph<V,E>();
 		
@@ -179,17 +213,22 @@ public class GraphTools<V,E> {
 		}
 		return c;
 	}
-	public UndirectedSparseGraph<V,E> copyUndirSparseGraph( Graph<V,E> in ) {
-		UndirectedSparseGraph<V,E> c = new UndirectedSparseGraph<V,E>();
-		
-		for ( V v : in.getVertices() ) {
-			c.addVertex(v);
-		}
-		for ( E e : in.getEdges() ) {
-			c.addEdge(e, in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
-		}
-		return c;
-	}
+//	public UndirectedSparseGraph<V,E> copyUndirSparseGraph( Graph<V,E> in ) {
+//		UndirectedSparseGraph<V,E> c = new UndirectedSparseGraph<V,E>();
+//		
+//		for ( V v : in.getVertices() ) {
+//			c.addVertex(v);
+//		}
+//		for ( E e : in.getEdges() ) {
+//			c.addEdge(e, in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
+//		}
+//		return c;
+//	}
+	/**
+	 * Copy method for a directed sparse multi graph
+	 * @param in
+	 * @return the copy
+	 */
 	public DirectedGraph<V,E> copyDirSparseMultiGraph( Graph<V,E> in ) {
 		DirectedGraph<V,E> c = new DirectedGraph<V,E>();
 		
@@ -201,76 +240,75 @@ public class GraphTools<V,E> {
 		}
 		return c;
 	}
+//	public static DirectedGraph<Atomic,Atomic> copyDirSparseMultiGraphStrings( Graph<Atomic,Atomic> in ) {
+//		DirectedGraph<Atomic,Atomic> c = new DirectedGraph<Atomic,Atomic>();
+//		
+//		for ( Atomic v : in.getVertices() ) {
+//			c.addVertex(v);
+//		}
+//		for ( Atomic e : in.getEdges() ) {
+//			c.addEdge(e, in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
+//		}
+//		return c;
+//	}
 	
-	public static DirectedGraph<Atomic,Atomic> copyDirSparseMultiGraphStrings( Graph<Atomic,Atomic> in ) {
-		DirectedGraph<Atomic,Atomic> c = new DirectedGraph<Atomic,Atomic>();
-		
-		for ( Atomic v : in.getVertices() ) {
-			c.addVertex(v);
-		}
-		for ( Atomic e : in.getEdges() ) {
-			c.addEdge(e, in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
-		}
-		return c;
-	}
+//	public static DirectedGraph<Atomic,Atomic> getNewDirSparseMultiGraphStrings( Graph<Atomic,Atomic> in ) {
+//		DirectedGraph<Atomic,Atomic> c = new DirectedGraph<Atomic,Atomic>();
+//		
+//		for ( Atomic v : in.getVertices() ) {
+//			c.addVertex(v);
+//		}
+//		for ( Atomic e : in.getEdges() ) {
+//			c.addEdge(e, in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
+//		}
+//		return c;
+//	}
 	
-	public static DirectedGraph<Atomic,Atomic> getNewDirSparseMultiGraphStrings( Graph<Atomic,Atomic> in ) {
-		DirectedGraph<Atomic,Atomic> c = new DirectedGraph<Atomic,Atomic>();
-		
-		for ( Atomic v : in.getVertices() ) {
-			c.addVertex(v);
-		}
-		for ( Atomic e : in.getEdges() ) {
-			c.addEdge(e, in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
-		}
-		return c;
-	}
+//	public static UndirectedGraph<Atomic,Atomic> copyUndirSparseMultiGraphStrings( Graph<Atomic,Atomic> in ) {
+//		UndirectedGraph<Atomic,Atomic> c = new UndirectedGraph<Atomic,Atomic>();
+//		
+//		for ( Atomic v : in.getVertices() ) {
+//			c.addVertex(v);
+//		}
+//		for ( Atomic e : in.getEdges() ) {
+//			c.addEdge(e, in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
+//		}
+//		return c;
+//	}
 	
-	public static UndirectedGraph<Atomic,Atomic> copyUndirSparseMultiGraphStrings( Graph<Atomic,Atomic> in ) {
-		UndirectedGraph<Atomic,Atomic> c = new UndirectedGraph<Atomic,Atomic>();
-		
-		for ( Atomic v : in.getVertices() ) {
-			c.addVertex(v);
-		}
-		for ( Atomic e : in.getEdges() ) {
-			c.addEdge(e, in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
-		}
-		return c;
-	}
+//	public static UndirectedGraph<Atomic,Atomic> getNewUndirSparseMultiGraphStrings( Graph<Atomic,Atomic> in ) {
+//		UndirectedGraph<Atomic,Atomic> c = new UndirectedGraph<Atomic,Atomic>();
+//		
+//		for ( Atomic v : in.getVertices() ) {
+//			c.addVertex(v);
+//		}
+//		for ( Atomic e : in.getEdges() ) {
+//			c.addEdge(e, in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
+//		}
+//		return c;
+//	}
 	
-	public static UndirectedGraph<Atomic,Atomic> getNewUndirSparseMultiGraphStrings( Graph<Atomic,Atomic> in ) {
-		UndirectedGraph<Atomic,Atomic> c = new UndirectedGraph<Atomic,Atomic>();
-		
-		for ( Atomic v : in.getVertices() ) {
-			c.addVertex(v);
-		}
-		for ( Atomic e : in.getEdges() ) {
-			c.addEdge(e, in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
-		}
-		return c;
-	}
+//	public static UndirectedSparseGraph<Atomic,Atomic> copyUndirSparseGraphStrings( Graph<Atomic,Atomic> in ) {
+//		UndirectedSparseGraph<Atomic,Atomic> c = new UndirectedSparseGraph<Atomic,Atomic>();
+//		
+//		for ( Atomic v : in.getVertices() ) {
+//			c.addVertex(v);
+//		}
+//		for ( Atomic e : in.getEdges() ) {
+//			c.addEdge(e,in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
+//		}
+//		return c;
+//	}
 	
-	public static UndirectedSparseGraph<Atomic,Atomic> copyUndirSparseGraphStrings( Graph<Atomic,Atomic> in ) {
-		UndirectedSparseGraph<Atomic,Atomic> c = new UndirectedSparseGraph<Atomic,Atomic>();
-		
-		for ( Atomic v : in.getVertices() ) {
-			c.addVertex(v);
-		}
-		for ( Atomic e : in.getEdges() ) {
-			c.addEdge(e,in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
-		}
-		return c;
-	}
-	
-	public static UndirectedSparseGraph<Atomic,Atomic> getNewUndirSparseGraphStrings( Graph<Atomic,Atomic> in ) {
-		UndirectedSparseGraph<Atomic,Atomic> c = new UndirectedSparseGraph<Atomic,Atomic>();
-		
-		for ( Atomic v : in.getVertices() ) {
-			c.addVertex(v);
-		}
-		for ( Atomic e : in.getEdges() ) {
-			c.addEdge(e,in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
-		}
-		return c;
-	}
+//	public static UndirectedSparseGraph<Atomic,Atomic> getNewUndirSparseGraphStrings( Graph<Atomic,Atomic> in ) {
+//		UndirectedSparseGraph<Atomic,Atomic> c = new UndirectedSparseGraph<Atomic,Atomic>();
+//		
+//		for ( Atomic v : in.getVertices() ) {
+//			c.addVertex(v);
+//		}
+//		for ( Atomic e : in.getEdges() ) {
+//			c.addEdge(e,in.getEndpoints(e).getFirst(), in.getEndpoints(e).getSecond());
+//		}
+//		return c;
+//	}
 }

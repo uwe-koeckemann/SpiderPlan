@@ -219,8 +219,7 @@ public class StopWatch {
 	 * @return A {@link String} showing the sum of all timer entries and the number of entries
 	 */
 	public static String allSums2Str() {
-		String s = "=== StopWatch (sums) ===\n";
-		
+		String s = "";
 		ArrayList<String> keys = new ArrayList<String>();
 		keys.addAll(recordedTimes.keySet());
 		Collections.sort(keys);

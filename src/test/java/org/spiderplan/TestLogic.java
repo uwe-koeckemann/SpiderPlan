@@ -33,6 +33,7 @@ import org.spiderplan.representation.types.TypeManager;
 
 import junit.framework.TestCase;
 
+@SuppressWarnings("javadoc")
 public class TestLogic extends TestCase {
 	
 	

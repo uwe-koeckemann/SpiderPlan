@@ -27,6 +27,13 @@ import java.util.Collection;
 
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 
+/**
+ * Simple extension of undirected sparse multi graph
+ * @author Uwe Köckemann
+ *
+ * @param <V> Vertex class
+ * @param <E> Edge class
+ */
 public class UndirectedGraph<V, E> extends UndirectedSparseMultigraph<V, E> {
 	private static final long serialVersionUID = 1L;
 

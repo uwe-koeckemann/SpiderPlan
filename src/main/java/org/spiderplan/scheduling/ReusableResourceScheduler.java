@@ -26,10 +26,19 @@ import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.logic.Atomic;
 
 
+/**
+ * Implements a scheduler for reusable resources.
+ * @author Uwe Köckemann
+ */
 public class ReusableResourceScheduler extends Scheduler {
 	
 	private int capacity;
 	
+	/**
+	 * 
+	 * @param resourceVariable
+	 * @param capacity
+	 */
 	public ReusableResourceScheduler( Atomic resourceVariable, int capacity ) {
 		super(resourceVariable);
 		this.capacity = capacity;		

@@ -34,6 +34,7 @@ import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.types.TypeManager;
 import junit.framework.TestCase;
 
+@SuppressWarnings("javadoc")
 public class TestProbabilisticConstraints extends TestCase {
 
 	@Override

@@ -29,7 +29,7 @@ package org.spiderplan.tools;
  *
  * @param <T>
  */
-public class SortableTuple<T> implements Comparable<SortableTuple<T>> {
+class SortableTuple<T> implements Comparable<SortableTuple<T>> {
 	public Integer value;
 	public T object;
 	

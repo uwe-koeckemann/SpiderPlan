@@ -29,7 +29,7 @@
 
 package org.spiderplan.tools.visulization.timeLineViewer;
 
-public class Value {
+class Value {
 	public String id;
 	public String name;
 	public int start;

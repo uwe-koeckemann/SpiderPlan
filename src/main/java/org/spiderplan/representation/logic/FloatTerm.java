@@ -134,9 +134,9 @@ public class FloatTerm extends Term {
 		return this.value.toString();
 	}
 	
-	public boolean nameEquals( FloatTerm t ) {
-		return value.equals(t.value);
-	}
+//	public boolean nameEquals( FloatTerm t ) {
+//		return value.equals(t.value);
+//	}
 	
 	protected Term copy() {
 		return this;

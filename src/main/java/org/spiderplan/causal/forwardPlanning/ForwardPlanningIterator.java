@@ -56,7 +56,6 @@ import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.representation.plans.OrderedPlan;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.plans.SequentialPlan;
 import org.spiderplan.representation.types.TypeManager;
@@ -403,7 +402,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 
 				if ( verbose ) print("Testing partial plan...", 0);
 
-				OrderedPlan pPlan = ((ForwardPlanningNode)planner.getCurrentNode()).getPlan();	
+				SequentialPlan pPlan = ((ForwardPlanningNode)planner.getCurrentNode()).getPlan();	
 //				if ( resetUniqueIDs ) UniqueID.reset();
 
 				ArrayList<Operator> allOps = new ArrayList<Operator>();
@@ -492,7 +491,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			 */
 			if ( verbose ) print("Success", 0);
 
-			OrderedPlan pPlan = ((ForwardPlanningNode)planner.getGoalNode()).getPlan();	
+			SequentialPlan pPlan = ((ForwardPlanningNode)planner.getGoalNode()).getPlan();	
 //			if ( resetUniqueIDs ) UniqueID.reset();
 
 			ArrayList<Operator> allOps = new ArrayList<Operator>();
@@ -962,7 +961,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 //			Collections.reverse(sortedList);
 //		Collections.shuffle(sortedList);
 		
-		ArrayList<StateVariableOperatorMultiState> A = new ArrayList<StateVariableOperatorMultiState>();
+		List<StateVariableOperatorMultiState> A = new ArrayList<StateVariableOperatorMultiState>();
 		if ( verbose ) print("Applicable actions:", 4);
 		for ( String k : sortedList ) {
 			Operator a = map.get(k);
@@ -978,6 +977,54 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		}
 				
 		if ( verbose ) super.print("Found "+ A.size() +" ground operators", 1);
+		
+		
+		if ( verbose ) super.print("Removing operators that cannot contribute to goals...", 1);
+		
+		List<StateVariableOperatorMultiState> filteredA = new ArrayList<StateVariableOperatorMultiState>();
+		Map<Atomic,List<Term>> possibleSubGoals = new HashMap<Atomic,List<Term>>();
+		for ( Goal goal : g ) {
+			for ( SingleGoal sg : goal.getSingleGoals() ) {
+				Atomic var = sg.getVariable();
+				Term val = sg.getValue();
+				if ( !possibleSubGoals.keySet().contains(var) ) {
+					possibleSubGoals.put(var, new ArrayList<Term>());
+				}
+				possibleSubGoals.get(var).add(val);
+			}
+		}
+		boolean change = true;
+		while ( change ) {
+			change = false;
+			List<StateVariableOperatorMultiState> remList = new ArrayList<StateVariableOperatorMultiState>();
+			
+			for ( StateVariableOperatorMultiState a : A ) {
+				
+				for ( Atomic e_key : a.getEffects().keySet() ) {
+					List<Term> values = possibleSubGoals.get(e_key); 
+					if ( values != null ) {
+						for ( Term e_value : a.getEffects().get(e_key) ) {
+							if ( values.contains(e_value) ) {
+								remList.add(a);
+								filteredA.add(a);
+								change = true;
+								
+								for ( Atomic p_key : a.getPreconditions().keySet() ) {
+									if ( !possibleSubGoals.keySet().contains(p_key) ) {
+										possibleSubGoals.put(p_key, new ArrayList<Term>());
+									}
+									possibleSubGoals.get(p_key).add(a.getPreconditions().get(p_key));
+								}
+							}
+						}
+					}
+				}
+			}
+			A.removeAll(remList);
+		}
+		
+		A = filteredA;
+		if ( verbose ) super.print("Left with "+ A.size() +" ground operators", 1);
 					
 		planner = new ForwardPlanningSearch();
 

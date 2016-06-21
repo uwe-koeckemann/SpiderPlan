@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
@@ -39,9 +38,8 @@ import org.spiderplan.representation.expressions.temporal.PossibleIntersection;
 import org.spiderplan.representation.expressions.temporal.SimpleDistanceConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.representation.types.TypeManager;
-import org.spiderplan.temporal.TemporalReasoningInterface;
 import org.spiderplan.tools.logging.Logger;
+import org.spiderplan.tools.stopWatch.StopWatch;
 
 /**
  * Solver for {@link AllenConstraint} and {@link SimpleDistanceConstraint}.
@@ -49,7 +47,7 @@ import org.spiderplan.tools.logging.Logger;
  * @author Uwe Köckemann
  *
  */
-public class IncrementalSTPSolver implements TemporalReasoningInterface {
+public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 	
 	private String name = "incSTP";
 	private boolean verbose = false;
@@ -76,7 +74,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 	private int tpOrigin = 0;
 		
 	private boolean needFromScratch = false;
-	@SuppressWarnings("unused")
+//	@SuppressWarnings("unused")
 	private boolean keepTimes = false;
 	@SuppressWarnings("unused")
 	private boolean keepStats = false;
@@ -102,8 +100,12 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		reset();
 	}
 		
-	@Override
-	public boolean isConsistent( ConstraintDatabase cDB, TypeManager tM ) {
+	/**
+	 * Test temporal consistency of a constraint-database
+	 * @param cDB the constraint database
+	 * @return <code>true</code> if the CDB is consistent, <code>false</code> otherwise
+	 */
+	public boolean isConsistent( ConstraintDatabase cDB ) {
 		propagationRequired = false;
 		
 		List<Statement> newStatements;
@@ -114,7 +116,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		
 		if ( !debug ) {
 			if ( useLinearRevert ) {
-				// if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (linear)");
+				if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (linear)");
 				
 				revertToIndex = dHistory.size()-1;
 				List<Integer> beginIndex = null;
@@ -128,7 +130,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 						revertToIndex--;
 					}
 				}
-				// if ( keepTimes ) StopWatch.stop("[incSTP] 1) Finding revert level (linear)");
+				if ( keepTimes ) StopWatch.stop("[incSTP] 1) Finding revert level (linear)");
 				
 				if ( revertToIndex == -1 ) { // history does not contain suitable reverting point
 					if ( verbose ) Logger.msg(this.name, "Propagating from scratch...", 2);
@@ -145,10 +147,10 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 						if ( verbose ) Logger.msg(this.name, "Reverting to " + revertToIndex + "/" + (dHistory.size()-1), 2);
 						if ( verbose ) Logger.msg(this.name, "Begin index: " + beginIndex.toString(), 2);
 						
-						// if ( keepTimes ) StopWatch.start("[incSTP] 1-a) Reverting");
+						if ( keepTimes ) StopWatch.start("[incSTP] 1-a) Reverting");
 						this.revert(revertToIndex);
 						this.bookmark();
-						// if ( keepTimes ) StopWatch.stop("[incSTP] 1-a) Reverting");
+						if ( keepTimes ) StopWatch.stop("[incSTP] 1-a) Reverting");
 					}
 					if ( beginIndex.get(0) == addedStatements.size() 
 							&& beginIndex.get(1) == addedAllenConstraints.size() 
@@ -162,7 +164,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 				newAllenConstraints = cDB.get(AllenConstraint.class).subList(beginIndex.get(1), cDB.get(AllenConstraint.class).size());
 				newSimpleDistanceConstraints = cDB.get(SimpleDistanceConstraint.class).subList(beginIndex.get(2), cDB.get(SimpleDistanceConstraint.class).size());
 			} else {
-				// if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (quadratic)");
+				if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (quadratic)");
 				
 				List<Statement> cdbStatements = cDB.get(Statement.class);				
 				List<AllenConstraint> cdbAllenConstraints = cDB.get(AllenConstraint.class);
@@ -185,7 +187,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 						revertToIndex--;
 					}
 				}
-				// if ( keepTimes ) StopWatch.stop("[incSTP] 1) Finding revert level (quadratic)");
+				if ( keepTimes ) StopWatch.stop("[incSTP] 1) Finding revert level (quadratic)");
 				
 	//			System.out.println("Result: "  + revertToIndex);
 				
@@ -205,11 +207,11 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 					
 					if ( revertToIndex < dHistory.size()-1 ) {
 						if ( verbose ) Logger.msg(this.name, "Reverting to " + revertToIndex + "/" + (dHistory.size()-1), 2);
-						// if ( keepTimes ) StopWatch.start("[incSTP] 1-a) Reverting");
+						if ( keepTimes ) StopWatch.start("[incSTP] 1-a) Reverting");
 						this.revert(revertToIndex);
 						this.bookmark();
 										
-						// if ( keepTimes ) StopWatch.stop("[incSTP] 1-a) Reverting");
+						if ( keepTimes ) StopWatch.stop("[incSTP] 1-a) Reverting");
 					}
 					if ( cdbStatements.size() == addedStatementsHistory.get(revertToIndex).size() && cdbAllenConstraints.size() == addedAllenConstraintsHistory.get(revertToIndex).size() ) {
 						// nothing new
@@ -279,13 +281,13 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		List<Long[]> addedConstraints = new ArrayList<Long[]>();
 		
 //		if ( propagationRequired ) {			
-			// if ( keepTimes ) StopWatch.start("[incSTP] Matrix setup");		
+			if ( keepTimes ) StopWatch.start("[incSTP] Matrix setup");		
 			addedConstraints.addAll(setupDistanceMatrix(newStatements));
-			// if ( keepTimes ) StopWatch.stop("[incSTP] Matrix setup");
+			if ( keepTimes ) StopWatch.stop("[incSTP] Matrix setup");
 			
-			// if ( keepTimes ) StopWatch.start("[incSTP] Generating simple distance constraints");
+			if ( keepTimes ) StopWatch.start("[incSTP] Generating simple distance constraints");
 			addedConstraints.addAll(this.getNewDistanceConstraints(newAllenConstraints));
-			// if ( keepTimes ) StopWatch.stop("[incSTP] Generating simple distance constraints");
+			if ( keepTimes ) StopWatch.stop("[incSTP] Generating simple distance constraints");
 			
 			addedConstraints.addAll(this.convertSimpleDistanceConstraints(newSimpleDistanceConstraints));
 			
@@ -294,7 +296,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 			} 
 //		}
 		
-		// if ( keepTimes ) StopWatch.start("[incSTP] Propagation");
+		if ( keepTimes ) StopWatch.start("[incSTP] Propagation");
 		boolean isConsistent = true;
 //		if ( propagationRequired ) {
 			for ( Long[] con : addedConstraints ) {
@@ -312,7 +314,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 				}
 			}
 //		}
-		// if ( keepTimes ) StopWatch.stop("[incSTP] Propagation");
+		if ( keepTimes ) StopWatch.stop("[incSTP] Propagation");
 		
 		if ( isConsistent && propagationRequired && !debug ) {
 			this.bookmark();
@@ -895,55 +897,60 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		}
 	}
 
+	/**
+	 * Set a name for this solver (used for logging)
+	 * @param name the name
+	 */
 	public void setName( String name ) {
 		this.name = name;
 	}
 	
-	@Override
-	public boolean isTemporalConsistent() {
-		return !this.needFromScratch;
-	}
-
-	@Override
-	public boolean isResourceConsistent() {
-		throw new IllegalAccessError("This is not implemented...");
-	}
-
-	@Override
-	public ArrayList<Expression> getSchedulingDecisions() {
-		throw new IllegalAccessError("This is not implemented...");
-	}
-
-	@Override
-	public boolean hasInterval(Term k) {
-		return tpStart.containsKey(k);
-	}
-
-	@Override
+	/**
+	 * Get earliest start-time (EST) of an interval
+	 * @param interval 
+	 * @return earliest start-time
+	 */
 	public long getEST(Term interval) {
 		int st = tpStart.get(interval);
 		return -d[st][tpOrigin];
 	}
 
-	@Override
+	/**
+	 * Get latest start-time (LST) of an interval
+	 * @param interval 
+	 * @return latest start-time
+	 */
 	public long getLST(Term interval) {
 		int st = tpStart.get(interval);
 		return d[tpOrigin][st];
 	}
 
-	@Override
+	/**
+	 * Get earliest end-time (EET) of an interval
+	 * @param interval 
+	 * @return earliest end-time
+	 */
 	public long getEET(Term interval) {
 		int et = tpStart.get(interval)+1;
 		return -d[et][tpOrigin];
 	}
 
-	@Override
+	/**
+	 * Get latest end-time (LET) of an interval
+	 * @param interval 
+	 * @return latest end-time
+	 */
 	public long getLET(Term interval) {
 		int et = tpStart.get(interval)+1;
 		return d[tpOrigin][et];
 	}
 
-	@Override
+	
+	/**
+	 * Get array with earliest and latest start and end times of an interval (EST, LST, EET, LET).
+	 * @param interval
+	 * @return array containing earliest and latest start and end times
+	 */
 	public long[] getBoundsArray(Term interval) {
 		int st = tpStart.get(interval);
 		int et = st+1;
@@ -957,28 +964,46 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		return r;
 	}
 
-	@Override
+	/**
+	 * Get temporal constraint representing earliest and latest start and end times of an interval (EST, LST, EET, LET).
+	 * @param interval
+	 * @return constraint enforcing earliest and latest start and end times
+	 */
 	public AllenConstraint getBoundsConstraint(Term interval) {
 		long[] bounds = getBoundsArray(interval);
 		return new AllenConstraint(interval, TemporalRelation.At, new Interval(bounds[0],bounds[1]), new Interval(bounds[2],bounds[3]));
 	}
 	
+	/**
+	 * Get earliest time considered by temporal reasoner
+	 * @return the origin
+	 */
 	public long getOrigin() {
 		return O;
 	}
+	/**
+	 * Get latest time considered by temporal reasoner
+	 * @return the temporal horizon
+	 */
 	public long getHorizon() {
 		return H;
 	}
-	
-	public boolean usedPropagation() {
-		return propagationRequired;
-	}
-	
+		
+	/**
+	 * Get the number of backups of the distance matrix that have been created.
+	 * @return history size
+	 */
 	public int getHistorySize() {
 		return dHistory.size();
 	}
 
-	@Override
+	
+	/**
+	 * Tests if an intersection is possible in the propagated temporal network
+	 * 
+	 * @param pi possible intersection query
+	 * @return <code>true</code> if all intervals in <code>pi</code> have an earliest time intersection, <code>false</code> otherwise
+	 */
 	public boolean possibleIntersection(PossibleIntersection pi) {
 		long minEET = Long.MAX_VALUE;
 		long maxEST = 0;
@@ -1010,7 +1035,14 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		}
 	}
 
-	@Override
+	
+	/**
+	 * Get the makespan of a propagated CDB (maximum of all earliest end-times)
+	 * optionally ignoring a set of statements.
+	 * @param cDB 
+	 * @param ignoredStatements
+	 * @return maximum of all considered earliest end-times
+	 */
 	public long getMakespan(ConstraintDatabase cDB, ArrayList<Statement> ignoredStatements) {
 		long maxEET = 0;
 		long EET;
@@ -1025,7 +1057,11 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		return maxEET;
 	}
 
-	@Override
+	
+	/**
+	 * Calculate and return temporal rigidity.
+	 * @return the rigidity
+	 */
 	public double getRigidity() {
 		int numTimePoints = this.d.length;
 		double rigidity[] = new double[numTimePoints];
@@ -1043,24 +1079,30 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 		return Math.sqrt(sigma * ((double)2/(numTimePoints * (numTimePoints + 1))));
 	}
 	
+	/**
+	 * How many backups are taken before the earliest ones are deleted.
+	 * @param max maximum size of distance matrix history
+	 */
 	public void setMaxHistorySize( int max ) {
 		this.maxHistorySize = max;
 	}
 
-	@Override
+	/**
+	 * Decide if stop-watch should be used
+	 * @param keepTimes
+	 */
 	public void setKeepTimes(boolean keepTimes) {
 		this.keepTimes = keepTimes;	
 	}
 
-	@Override
+	/**
+	 * Decide if statistics should be kept
+	 * @param keepStats
+	 */
 	public void setKeepStatistics(boolean keepStats) {
 		this.keepStats = keepStats;
 	}
-	
-//	protected String msg( String s ) {
-//		return "["+name+"] "+s;
-//	}
-	
+		
 	/**
 	 * Set this solver's verbose mode.
 	 * @param verbose
@@ -1070,12 +1112,12 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 	}
 	
 	/**
-	 * Get list of {@link Statement}s whose intervals include t.
+	 * Get list of statements whose intervals include time-point <code>t</code>.
 	 * In case this is true for multiple assignments, the earlier
 	 * one is preferred.
 	 *  
 	 * @param t Time point of the snapshot
-	 * @return
+	 * @return list of statements whose values hold at time <code>t</code>
 	 */
 	public ArrayList<Statement> getTemporalSnapshot( long t ) {
 		ArrayList<Statement> r = new ArrayList<Statement>();
@@ -1113,7 +1155,7 @@ public class IncrementalSTPSolver implements TemporalReasoningInterface {
 	 * Similar to getTemporalSnapshot(t) but will consider variables whose intervals 
 	 * do not contain t but start after it (i.e., the future).
 	 * @param t Time point of the snapshot
-	 * @return
+	 * @return list of all statements whose intervals include <code>t</code> or start after <code>t</code>
 	 */
 	public ArrayList<Statement> getTemporalSnapshotWithFuture( long t ) {
 		ArrayList<Statement> r = new ArrayList<Statement>();

@@ -40,6 +40,7 @@ import org.spiderplan.search.MultiHeuristicNodeComparatorLexicographic;
 
 import junit.framework.TestCase;
 
+@SuppressWarnings("javadoc")
 public class TestForwardPlanning extends TestCase {
 
 	@Override

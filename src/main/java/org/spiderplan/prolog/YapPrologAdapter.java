@@ -103,7 +103,6 @@ public class YapPrologAdapter {
 		
 	private Map<String,Term> prologCompatibilityMap = new HashMap<String,Term>();
 	
-	@SuppressWarnings("unused")
 	private boolean verbose = false;
 	@SuppressWarnings("unused")
 	private int verbosity = 0;

@@ -90,6 +90,8 @@ import edu.uci.ics.jung.visualization.util.Animator;
  *
  * @author Tom Nelson
  * @author Uwe Köckemann
+ * @param <V> Class for nodes
+ * @param <E> Class for edges
  */
 
 
@@ -97,7 +99,41 @@ public class GraphFrame<V,E> extends JFrame implements Transformer<E,String>,Cha
 
 	private static final long serialVersionUID = 3896624751126451811L;
 	
-	public enum LayoutClass { Static, Circle, DAG, Spring, Spring2, FR, FR2, ISOM, KK, PolarPoint }; 
+	/**
+	 * Different graph layouts.
+	 * @author Uwe Köckemann
+	 */
+	public enum LayoutClass { /**
+	 * Static layout
+	 */
+	Static, /**
+	 * Circle layout
+	 */
+	Circle, /**
+	 * DAG layout
+	 */
+	DAG, /**
+	 * Spring layout
+	 */
+	Spring, /**
+	 * Spring2 layout
+	 */
+	Spring2, /**
+	 * FR layout
+	 */
+	FR, /**
+	 * FR2 layout
+	 */
+	FR2, /**
+	 * ISOM layout
+	 */
+	ISOM, /**
+	 * KK layout
+	 */
+	KK, /**
+	 * Polar point layout
+	 */
+	PolarPoint }; 
 	private LayoutClass layoutClass;
 	
 	private enum Mode { Picking, Transformation };
@@ -126,14 +162,38 @@ public class GraphFrame<V,E> extends JFrame implements Transformer<E,String>,Cha
 	
 	private int subGraphCounter = 0;
 	
+	/**
+	 * Create a graph frame.
+	 * @param graph
+	 * @param history optional history of the graph
+	 * @param title 
+	 * @param lC the layout
+	 * @param edgeLabels map from edges to string labels
+	 */
 	public GraphFrame( AbstractTypedGraph<V,E> graph, Vector<AbstractTypedGraph<V,E>> history, String title, LayoutClass lC , Map<E,String> edgeLabels ) {
 		this(graph, history, title, lC, edgeLabels, 600, 600);
 	}
 	
+	/**
+	 * Create a graph frame.
+	 * @param graph
+	 * @param history optional history of the graph
+	 * @param title
+	 * @param lC the layout
+	 */
 	public GraphFrame( AbstractTypedGraph<V,E> graph, Vector<AbstractTypedGraph<V,E>> history, String title, LayoutClass lC  ) {
 		this(graph, history, title, lC, null, 600, 600);
 	}
 
+	/**
+	 * @param graph
+	 * @param history optional history of the graph
+	 * @param title 
+	 * @param lC the layout
+	 * @param edgeLabels map from edges to string labels
+	 * @param w width of the window
+	 * @param h height of the window
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public GraphFrame( AbstractTypedGraph<V,E> graph, Vector<AbstractTypedGraph<V,E>> history, String title, LayoutClass lC , Map<E,String> edgeLabels, int w, int h ) {
 		super(title);
@@ -520,7 +580,7 @@ public class GraphFrame<V,E> extends JFrame implements Transformer<E,String>,Cha
      * copy the visible part of the graph to a file as a jpeg image
      * @param file
      */
-    public void writeJPEGImage(String name, String type) {
+    private void writeJPEGImage(String name, String type) {
     	
     	File file = new File(name);
     	

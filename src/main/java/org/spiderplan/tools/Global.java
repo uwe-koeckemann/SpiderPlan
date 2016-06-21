@@ -26,10 +26,16 @@ import org.spiderplan.causal.forwardPlanning.goals.DisjunctiveGoal;
 import org.spiderplan.causal.forwardPlanning.goals.SingleGoal;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
+/**
+ * Collection of things that should be globally accessible.
+ * Also used to reset static objects. 
+ * 
+ * @author Uwe Köckemann
+ *
+ */
 public class Global {
 
 	/**
@@ -43,8 +49,15 @@ public class Global {
 	 */
 	public static String UniqueFilenamePart = "";
 	
+	/**
+	 * Maximum temporal horizon
+	 */
 	public static final long MaxTemporalHorizon = 1000000000;
 	
+	/**
+	 * Used to remember initial context. 
+	 * TODO: this is a work around that should be removed at some point 
+	 */
 	public static ConstraintDatabase initialContext;
 	
 	/**
@@ -56,7 +69,7 @@ public class Global {
 		DisjunctiveGoal.resetID();
 		UniqueID.reset();
 		UniqueID.reset();
-		Term.resetPools();
+//		Term.resetPools();
 		Logger.reset();
 		StopWatch.reset();
 //		Atomic.resetStatics();

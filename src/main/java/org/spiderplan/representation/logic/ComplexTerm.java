@@ -177,9 +177,9 @@ public class ComplexTerm extends Term {
 		return this.value + "/" + this.args.length;
 	}
 	
-	public boolean nameEquals( ComplexTerm t ) {
-		return value.equals(t.value);
-	}
+//	public boolean nameEquals( ComplexTerm t ) {
+//		return value.equals(t.value);
+//	}
 	
 //	protected Term copy() {
 //		ComplexTerm c = new ComplexTerm(); 

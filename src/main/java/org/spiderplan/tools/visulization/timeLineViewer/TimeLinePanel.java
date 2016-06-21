@@ -37,7 +37,7 @@ import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import javax.swing.JPanel;
 
-public class TimeLinePanel extends JPanel {
+class TimeLinePanel extends JPanel {
 	private static final long serialVersionUID = -268214621165273296L;
 	
 	private State viewState;

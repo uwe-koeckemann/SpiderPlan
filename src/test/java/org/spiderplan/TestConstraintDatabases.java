@@ -38,13 +38,7 @@ import org.spiderplan.representation.logic.Term;
 import org.spiderplan.temporal.TemporalNetworkTools;
 import junit.framework.TestCase;
 
-
-/**
- * Test-cases for {@link ConstraintDatabase} instances.
- * 
- * @author Uwe Köckemann
- *
- */
+@SuppressWarnings("javadoc")
 public class TestConstraintDatabases extends TestCase {
 
 	@Override

@@ -29,17 +29,25 @@ import javax.swing.text.Document;
 
 /**
  * Forwards {@link PrintStream} to a {@link JTextArea}.
- * Has autoscroll option which can be switched on/off in the GUI.
+ * Has auto-scroll option which can be switched on/off in the GUI.
  * 
  * @author Uwe Köckemann
  *
  */
 public class TextAreaPrintStream extends PrintStream {
 	
+	/**
+	 * Toggle auto-scroll of text area on new lines
+	 */
 	public boolean autoscroll = true;
 	
 	private JTextArea textArea;
 	
+	/**
+	 * Create new text area for a print stream 
+	 * @param textArea
+	 * @param ps
+	 */
 	public TextAreaPrintStream( JTextArea textArea, PrintStream ps ) {
 		super(ps);
 		this.textArea = textArea;

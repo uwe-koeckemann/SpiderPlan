@@ -46,15 +46,35 @@ import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
+/**
+ * Runs a couple of tests on a {@link ConstraintDatabase} to see if there are
+ * problems in the domain definition (used directly after compilation)
+ * @author Uwe Köckemann
+ *
+ */
 public class ConsistencyChecker {
 	
+	/**
+	 * Toggle console output
+	 */
 	public static boolean verbose = true;
+	/**
+	 * Toggle stop-watch usage
+	 */
 	public static boolean keepTimes = false;
+	/**
+	 * Toggle ignore warnings
+	 */
 	public static boolean ignoreWarnings = false;
 	
 	private int numChars = 80;
 	private int warnings = 0;
 	
+	/**
+	 * Check a {@link Core} for problems
+	 * @param c the core
+	 * @return <code>true</code> is there are no problems, <code>false</code> otherwise
+	 */
 	public boolean check( Core c ) {
 		warnings = 0;
 		
@@ -437,13 +457,13 @@ public class ConsistencyChecker {
 //			if ( temporalConstraintsGround ) {
 			IncrementalSTPSolver csp = new IncrementalSTPSolver(0,Global.MaxTemporalHorizon);
 			boolean consistent;
-			consistent = csp.isConsistent(check, tM);
+			consistent = csp.isConsistent(check);
 			
 			if ( verbose && consistent ) {
 				System.out.println("[OK]");
 			} else if ( !consistent ) {
 				csp.debug = true;
-				csp.isConsistent(check, tM);
+				csp.isConsistent(check);
 				System.out.println("[FAIL]");
 			}
 //			} else {

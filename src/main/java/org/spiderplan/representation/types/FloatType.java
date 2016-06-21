@@ -32,7 +32,13 @@ import org.spiderplan.representation.logic.Term;
  * @author Uwe Köckemann
  */
 public class FloatType extends Type { 
+	/**
+	 * Minimum allowed value
+	 */
 	public double min = 0.0;
+	/**
+	 * Maximum allowed value
+	 */
 	public double max = 1.0;
 	
 	@Override

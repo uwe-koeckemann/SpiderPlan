@@ -24,7 +24,7 @@ package org.spiderplan;
 
 import java.util.ArrayList;
 import junit.framework.TestCase;
-import org.spiderplan.tools.logging.Logger;
+
 import org.spiderplan.tools.stopWatch.StopWatch;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
@@ -40,8 +40,8 @@ import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.modules.solvers.Core.State;
-//import org.spiderplan.temporal.metaCSP.MetaCSPAdapterWithHistory;
 
+@SuppressWarnings("javadoc")
 public class TestSTPSolverAndScheduler extends TestCase {
 	TypeManager tM = new TypeManager();
 	ConstraintDatabase context;
@@ -84,7 +84,6 @@ public class TestSTPSolverAndScheduler extends TestCase {
 
 	@Override
 	public void tearDown() throws Exception {
-		Logger.stop = false;
 	}
 
 

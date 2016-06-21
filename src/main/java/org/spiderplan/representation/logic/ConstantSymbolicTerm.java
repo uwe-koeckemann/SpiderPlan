@@ -24,8 +24,6 @@ package org.spiderplan.representation.logic;
 
 import java.util.ArrayList;
 
-import org.spiderplan.tools.profiler.Profiler;
-
 /**
  * 
  *  

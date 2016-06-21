@@ -102,14 +102,33 @@ public class LoggerFrame extends JFrame implements ListSelectionListener, Compon
 	int controls_h = 30;
 	int left_w = 200;
 	
+	/**
+	 * Create new frame with title and list of log sources.
+	 * @param title
+	 * @param sources
+	 */
 	public LoggerFrame( String title, ArrayList<String> sources ) {
 		this( title, sources, false, 0, 0, 0, "" );
 	}
 	
+	/**
+	 * Create new frame with default title
+	 * @param sources
+	 */
 	public LoggerFrame( ArrayList<String> sources ) {
 		this( "Logger", sources, false, 0, 0, 0, "" );
 	}
 	
+	/**
+	 * Create new frame
+	 * @param title 
+	 * @param sources
+	 * @param staticFrame 
+	 * @param from
+	 * @param to
+	 * @param maxLevel
+	 * @param filterStr
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public LoggerFrame( String title, ArrayList<String> sources, boolean staticFrame, int from, int to, int maxLevel, String filterStr ) {
 		super(title);

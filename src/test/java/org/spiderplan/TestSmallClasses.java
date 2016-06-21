@@ -22,8 +22,24 @@
  *******************************************************************************/
 package org.spiderplan;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.util.FileManager;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Resolver;
@@ -44,13 +60,7 @@ import org.spiderplan.tools.SimpleParsing;
 
 import junit.framework.TestCase;
 
-/**
- * Test cases for small classes that do not require 
- * more than a few tests.
- * 
- * @author Uwe Köckemann
- *
- */
+@SuppressWarnings("javadoc")
 public class TestSmallClasses extends TestCase {
 
 	@Override
@@ -353,6 +363,54 @@ public class TestSmallClasses extends TestCase {
 //		System.out.println(c.getContext());
 		
 		assertTrue(c.getContext().get(AllenConstraint.class).size() == 13);
+	}
+	
+	public void testSparQL() throws IOException {
+		// create an empty model
+		 Model model = ModelFactory.createDefaultModel();
+
+		 InputStream in = FileManager.get().open( "./foaf.rdf" );
+		 if (in == null) {
+		     throw new IllegalArgumentException("File: " + "./foaf.rdf" + " not found");
+	 	}
+		model.read(in, null);  
+		
+		
+		byte[] encoded = Files.readAllBytes(Paths.get("./query.sparql"));
+		String queryStr =  new String(encoded, Charset.defaultCharset());
+		
+		System.out.println(queryStr);
+
+		List <QuerySolution> resultList;
+		Query query = QueryFactory.create(queryStr);
+		QueryExecution qexec = QueryExecutionFactory.create(query, model);
+
+		List<Term> argList = new ArrayList<Term>();
+		argList.add(Term.createVariable("homepage"));
+		
+		try {	
+			ResultSet resultSet = qexec.execSelect();	
+			System.out.println(resultSet.hasNext());
+			resultList = ResultSetFormatter.toList(resultSet);
+			for ( QuerySolution sol : resultList ) {
+				for ( Term arg : argList ) {
+					Term value = Term.createConstant(sol.getResource(arg.toString()).toString());
+					System.out.println(arg + " := " + value);
+				}
+			}
+		}
+		catch(Exception e) {
+			resultList = null;
+		}
+		finally{
+			qexec.close();
+		}
+						
+//		List <QuerySolution> solutionList = getQueryResultSet(program.toString());
+//		String[] sensingInfo = new String[2];
+//		sensingInfo[0] = solutionList.get(0).getResource("s").toString().split(SmartHomeOntology.URI_ENTITY_SPLITTER)[1];
+//		sensingInfo[1] = solutionList.get(0).getResource("foi").toString().split(SmartHomeOntology.URI_ENTITY_SPLITTER)[1];
+		
 	}
 	
 	

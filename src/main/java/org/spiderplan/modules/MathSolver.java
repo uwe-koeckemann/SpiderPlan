@@ -23,8 +23,6 @@
 package org.spiderplan.modules;
 
 import java.util.Collection;
-import java.util.List;
-
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
@@ -163,7 +161,7 @@ public class MathSolver extends Module implements SolverInterface {
 		
 		if ( expression instanceof IntegerTerm ) {
 			IntegerTerm value = (IntegerTerm)expression;
-			return (double)value.getValue();
+			return value.getValue();
 		} 
 		
 		if ( expression instanceof FloatTerm ) {

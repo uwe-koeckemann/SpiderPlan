@@ -30,7 +30,6 @@ import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import junit.framework.TestCase;
 
@@ -39,6 +38,7 @@ import junit.framework.TestCase;
  * 
  * @author Uwe Köckemann
  */
+@SuppressWarnings("javadoc")
 public class TestIncrementalSTPSolver extends TestCase {
 	
 	Term INF = Term.createConstant("inf");
@@ -71,7 +71,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(Term.createInteger(1), Term.createConstant("inf"))));		
 		
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
-		boolean test = incSTP.isConsistent(cDB,null);
+		boolean test = incSTP.isConsistent(cDB);
 		
 		assertTrue(test);
 		
@@ -89,7 +89,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(Term.createInteger(20), Term.createInteger(20)) ));
 			
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
-		boolean test = incSTP.isConsistent(cDB,null);
+		boolean test = incSTP.isConsistent(cDB);
 		
 		assertFalse(test);
 		
@@ -98,7 +98,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(Term.createInteger(5), Term.createInteger(5)) ));
 		cDB.add(s1);
 		
-		test = incSTP.isConsistent(cDB,null);
+		test = incSTP.isConsistent(cDB);
 		
 		assertTrue(test);
 		assertTrue(incSTP.getEST(I1) == 0);
@@ -129,7 +129,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(Term.createInteger(1), Term.createConstant("inf"))));
 		
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
-		boolean test = incSTP.isConsistent(cDB,null);
+		boolean test = incSTP.isConsistent(cDB);
 		
 		assertTrue(test);
 	
@@ -154,11 +154,11 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(L1, INF) )
 		);
 		
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertFalse(test);
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertFalse(test);
-		test = incSTP.isConsistent(cDB2, null);
+		test = incSTP.isConsistent(cDB2);
 		assertTrue(test);
 		
 		// Different CDB should lead to from scratch propagation
@@ -168,7 +168,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		cDB.add(new AllenConstraint(I3, I1,TemporalRelation.Before,
 				new Interval(L1, INF) )
 		);
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertTrue(test);
 	}
 	
@@ -195,7 +195,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(Term.createInteger(1), Term.createConstant("inf"))));
 
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
-		boolean test = incSTP.isConsistent(cDB,null);
+		boolean test = incSTP.isConsistent(cDB);
 		
 		assertTrue(test);
 		
@@ -220,11 +220,11 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(L1, INF) )
 		);
 		
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertFalse(test);
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertFalse(test);
-		test = incSTP.isConsistent(cDB2, null);
+		test = incSTP.isConsistent(cDB2);
 		assertTrue(test);
 		
 		// Different CDB should lead to from scratch propagation
@@ -234,7 +234,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		cDB.add(new AllenConstraint(I3, I1,TemporalRelation.After,
 				new Interval(L1, INF) )
 		);
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertTrue(test);
 	}
 	
@@ -250,7 +250,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		cDB.add( new AllenConstraint(I1, TemporalRelation.Release, new Interval(Term.createInteger(5),Term.createInteger(5))));
 
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,20L);
-		boolean test = incSTP.isConsistent(cDB,null);
+		boolean test = incSTP.isConsistent(cDB);
 		
 		assertTrue(test);
 		
@@ -266,7 +266,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		
 		cDB.add( new AllenConstraint(I2, TemporalRelation.Release, new Interval(Term.createInteger(2),Term.createInteger(2))));
 	
-		assertFalse(incSTP.isConsistent(cDB,null));
+		assertFalse(incSTP.isConsistent(cDB));
 	}
 	
 	
@@ -289,7 +289,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(Term.createInteger(1), Term.createConstant("inf"))));		
 
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
-		boolean test = incSTP.isConsistent(cDB,null);
+		boolean test = incSTP.isConsistent(cDB);
 		
 		assertTrue(test);
 		
@@ -314,11 +314,11 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(L0, INF) )
 		);
 		
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertFalse(test);
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertFalse(test);
-		test = incSTP.isConsistent(cDB2, null);
+		test = incSTP.isConsistent(cDB2);
 		assertTrue(test);
 		
 		// Different CDB should lead to from scratch propagation
@@ -328,7 +328,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		cDB.add(new AllenConstraint(I3, I1,TemporalRelation.Meets,
 				new Interval(L0, INF) )
 		);
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertTrue(test);
 	}
 	
@@ -350,7 +350,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(Term.createInteger(1), Term.createConstant("inf"))));
 
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
-		boolean test = incSTP.isConsistent(cDB,null);
+		boolean test = incSTP.isConsistent(cDB);
 		
 		assertTrue(test);
 		
@@ -373,11 +373,11 @@ public class TestIncrementalSTPSolver extends TestCase {
 		
 		cDB.add(new AllenConstraint(I3, I1,TemporalRelation.MetBy));
 		
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertFalse(test);
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertFalse(test);
-		test = incSTP.isConsistent(cDB2, null);
+		test = incSTP.isConsistent(cDB2);
 		assertTrue(test);
 		
 		// Different CDB should lead to from scratch propagation
@@ -385,7 +385,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		cDB.add(s1);
 		cDB.add(s3);
 		cDB.add(new AllenConstraint(I3, I1,TemporalRelation.MetBy));
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertTrue(test);
 	}
 	
@@ -412,7 +412,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(Term.createInteger(1), Term.createConstant("inf"))));
 
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
-		boolean test = incSTP.isConsistent(cDB,null);
+		boolean test = incSTP.isConsistent(cDB);
 		
 		assertTrue(test);
 	
@@ -437,11 +437,11 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(L0, INF) )
 		);
 		
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertFalse(test);
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertFalse(test);
-		test = incSTP.isConsistent(cDB2, null);
+		test = incSTP.isConsistent(cDB2);
 		assertTrue(test);
 		
 		// Different CDB should lead to from scratch propagation
@@ -451,7 +451,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		cDB.add(new AllenConstraint(I3, I1,TemporalRelation.BeforeOrMeets,
 				new Interval(L0, INF) )
 		);
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertTrue(test);
 	}
 	
@@ -477,7 +477,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(Term.createInteger(1), Term.createConstant("inf"))));
 
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
-		boolean test = incSTP.isConsistent(cDB,null);
+		boolean test = incSTP.isConsistent(cDB);
 		
 		assertTrue(test);
 		
@@ -502,11 +502,11 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(L0, INF) )
 		);
 		
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertFalse(test);
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertFalse(test);
-		test = incSTP.isConsistent(cDB2, null);
+		test = incSTP.isConsistent(cDB2);
 		assertTrue(test);
 		
 		// Different CDB should lead to from scratch propagation
@@ -516,7 +516,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		cDB.add(new AllenConstraint(I3, I1,TemporalRelation.MetByOrAfter,
 				new Interval(L0, INF) )
 		);
-		test = incSTP.isConsistent(cDB, null);
+		test = incSTP.isConsistent(cDB);
 		assertTrue(test);
 	}
 	
@@ -537,7 +537,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
 
-		assertTrue(incSTP.isConsistent(cDB,null));
+		assertTrue(incSTP.isConsistent(cDB));
 
 		assertTrue(incSTP.getEST(I1) == 0);
 		assertTrue(incSTP.getLST(I1) == 8);
@@ -569,7 +569,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
 
-		assertTrue(incSTP.isConsistent(cDB,null));
+		assertTrue(incSTP.isConsistent(cDB));
 
 		assertTrue(incSTP.getEST(I1) == 0);
 		assertTrue(incSTP.getLST(I1) == 8);
@@ -598,7 +598,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
 
-		assertTrue(incSTP.isConsistent(cDB,null));
+		assertTrue(incSTP.isConsistent(cDB));
 		
 
 
@@ -629,7 +629,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
 
-		assertTrue(incSTP.isConsistent(cDB,null));
+		assertTrue(incSTP.isConsistent(cDB));
 		
 
 
@@ -660,7 +660,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
 
-		assertTrue(incSTP.isConsistent(cDB,null));
+		assertTrue(incSTP.isConsistent(cDB));
 
 		assertTrue(incSTP.getEST(I1) == 1);
 		assertTrue(incSTP.getLST(I1) == 9);
@@ -689,7 +689,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
 
-		assertTrue(incSTP.isConsistent(cDB,null));
+		assertTrue(incSTP.isConsistent(cDB));
 
 		assertTrue(incSTP.getEST(I1) == 1);
 		assertTrue(incSTP.getLST(I1) == 9);
@@ -714,7 +714,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
 
-		assertTrue(incSTP.isConsistent(cDB,null));
+		assertTrue(incSTP.isConsistent(cDB));
 
 		assertTrue(incSTP.getEST(I1) == 0);
 		assertTrue(incSTP.getLST(I1) == 7);
@@ -739,7 +739,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,10L);
 
-		assertTrue(incSTP.isConsistent(cDB,null));
+		assertTrue(incSTP.isConsistent(cDB));
 
 		assertTrue(incSTP.getEST(I1) == 0);
 		assertTrue(incSTP.getLST(I1) == 7);
@@ -768,7 +768,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,40L);
 		
-		assertTrue(incSTP.isConsistent(cDB,null));
+		assertTrue(incSTP.isConsistent(cDB));
 		
 		assertTrue(incSTP.getEST(I1) == 5);
 		assertTrue(incSTP.getLST(I1) == 10);
@@ -786,7 +786,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 		cDB.add( new AllenConstraint(I2, TemporalRelation.Deadline, 
 				new Interval(Term.createInteger(25),Term.createInteger(25))));
 		
-		assertTrue(incSTP.isConsistent(cDB,null));
+		assertTrue(incSTP.isConsistent(cDB));
 		
 		assertTrue(incSTP.getEST(I1) == 5);
 		assertTrue(incSTP.getLST(I1) == 10);
@@ -802,7 +802,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(Term.createInteger(5),Term.createInteger(5)),
 				new Interval(Term.createInteger(25),Term.createInteger(25))));
 		
-		assertTrue(incSTP.isConsistent(cDB,null));
+		assertTrue(incSTP.isConsistent(cDB));
 		
 		assertTrue(incSTP.getEST(I1) == 5);
 		assertTrue(incSTP.getLST(I1) == 5);
@@ -818,7 +818,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(Term.createInteger(25),Term.createInteger(25)),
 				new Interval(Term.createInteger(30),Term.createInteger(30))));
 		
-		assertFalse(incSTP.isConsistent(cDB,null));
+		assertFalse(incSTP.isConsistent(cDB));
 	}
 	
 	public void test018_Rigidity() {
@@ -837,10 +837,10 @@ public class TestIncrementalSTPSolver extends TestCase {
 		
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,40L);
 		
-		assertTrue(incSTP.isConsistent(cDB,null));
+		assertTrue(incSTP.isConsistent(cDB));
 		
 		IncrementalSTPSolver csp = new IncrementalSTPSolver(0, 40);
-		csp.isConsistent(cDB, new TypeManager());
+		csp.isConsistent(cDB);
 		
 		assertTrue(csp.getRigidity() == incSTP.getRigidity());
 		
@@ -870,9 +870,9 @@ public class TestIncrementalSTPSolver extends TestCase {
 		cDB.add( new AllenConstraint(I2, TemporalRelation.Deadline, 
 				new Interval(Term.createInteger(25),Term.createInteger(25))));
 		
-		assertTrue(incSTP.isConsistent(cDB,null));
+		assertTrue(incSTP.isConsistent(cDB));
 		
-		csp.isConsistent(cDB, new TypeManager());
+		csp.isConsistent(cDB);
 
 			
 		assertTrue(incSTP.getEST(I1) == 5);
@@ -906,8 +906,8 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(Term.createInteger(5),Term.createInteger(5)),
 				new Interval(Term.createInteger(25),Term.createInteger(25))));
 		
-		assertTrue(incSTP.isConsistent(cDB,null));
-		csp.isConsistent(cDB, new TypeManager());
+		assertTrue(incSTP.isConsistent(cDB));
+		csp.isConsistent(cDB);
 			
 		assertTrue(Math.abs(csp.getRigidity() - incSTP.getRigidity()) < 0.00000001);
 			
@@ -935,7 +935,7 @@ public class TestIncrementalSTPSolver extends TestCase {
 				new Interval(Term.createInteger(25),Term.createInteger(25)),
 				new Interval(Term.createInteger(30),Term.createInteger(30))));
 		
-		assertFalse(incSTP.isConsistent(cDB,null));
+		assertFalse(incSTP.isConsistent(cDB));
 	}
 //	System.out.println("EST(I1) " + incSTP.getEST(I1));
 //	System.out.println("LST(I1) " + incSTP.getLST(I1));
@@ -974,33 +974,33 @@ public class TestIncrementalSTPSolver extends TestCase {
 		IncrementalSTPSolver incSTP = new IncrementalSTPSolver(0L,50L);
 		
 		assertTrue(incSTP.getHistorySize() == 0);
-		assertTrue(incSTP.isConsistent(cDB1,null));
+		assertTrue(incSTP.isConsistent(cDB1));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB1,null));
+		assertTrue(incSTP.isConsistent(cDB1));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB1,null));
+		assertTrue(incSTP.isConsistent(cDB1));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB1,null));
+		assertTrue(incSTP.isConsistent(cDB1));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB1,null));
+		assertTrue(incSTP.isConsistent(cDB1));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB2,null));
+		assertTrue(incSTP.isConsistent(cDB2));
 		assertTrue(incSTP.getHistorySize() == 2);
-		assertTrue(incSTP.isConsistent(cDB3,null));
+		assertTrue(incSTP.isConsistent(cDB3));
 		assertTrue(incSTP.getHistorySize() == 3);
-		assertTrue(incSTP.isConsistent(cDB4,null));
+		assertTrue(incSTP.isConsistent(cDB4));
 		assertTrue(incSTP.getHistorySize() == 4);
-		assertTrue(incSTP.isConsistent(cDB4,null));
+		assertTrue(incSTP.isConsistent(cDB4));
 		assertTrue(incSTP.getHistorySize() == 4);
-		assertTrue(incSTP.isConsistent(cDB5,null));
+		assertTrue(incSTP.isConsistent(cDB5));
 		assertTrue(incSTP.getHistorySize() == 5);
-		assertTrue(incSTP.isConsistent(cDB2,null));
+		assertTrue(incSTP.isConsistent(cDB2));
 		assertTrue(incSTP.getHistorySize() == 2);
 		
-		assertTrue(incSTP.isConsistent(cDB5,null));
+		assertTrue(incSTP.isConsistent(cDB5));
 		assertTrue(incSTP.getHistorySize() == 3);
 		
-		assertTrue(incSTP.isConsistent(cDB3alt,null));
+		assertTrue(incSTP.isConsistent(cDB3alt));
 		assertTrue(incSTP.getHistorySize() == 3);
 	}
 	
@@ -1032,33 +1032,33 @@ public class TestIncrementalSTPSolver extends TestCase {
 		incSTP.setMaxHistorySize(1);
 		
 		assertTrue(incSTP.getHistorySize() == 0);
-		assertTrue(incSTP.isConsistent(cDB1,null));
+		assertTrue(incSTP.isConsistent(cDB1));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB1,null));
+		assertTrue(incSTP.isConsistent(cDB1));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB1,null));
+		assertTrue(incSTP.isConsistent(cDB1));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB1,null));
+		assertTrue(incSTP.isConsistent(cDB1));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB1,null));
+		assertTrue(incSTP.isConsistent(cDB1));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB2,null));
+		assertTrue(incSTP.isConsistent(cDB2));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB3,null));
+		assertTrue(incSTP.isConsistent(cDB3));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB4,null));
+		assertTrue(incSTP.isConsistent(cDB4));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB4,null));
+		assertTrue(incSTP.isConsistent(cDB4));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB5,null));
+		assertTrue(incSTP.isConsistent(cDB5));
 		assertTrue(incSTP.getHistorySize() == 1);
-		assertTrue(incSTP.isConsistent(cDB2,null));
-		assertTrue(incSTP.getHistorySize() == 1);
-		
-		assertTrue(incSTP.isConsistent(cDB5,null));
+		assertTrue(incSTP.isConsistent(cDB2));
 		assertTrue(incSTP.getHistorySize() == 1);
 		
-		assertTrue(incSTP.isConsistent(cDB3alt,null));
+		assertTrue(incSTP.isConsistent(cDB5));
+		assertTrue(incSTP.getHistorySize() == 1);
+		
+		assertTrue(incSTP.isConsistent(cDB3alt));
 		assertTrue(incSTP.getHistorySize() == 1);
 	}
 	

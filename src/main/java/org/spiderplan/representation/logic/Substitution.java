@@ -40,6 +40,9 @@ import org.spiderplan.tools.SimpleParsing;
 public class Substitution {
 	private Map<Term,Term> map = new HashMap<Term,Term>();
 	
+	/**
+	 * Create new empty substitution
+	 */
 	public Substitution() {}
 	
 	/**
@@ -58,7 +61,7 @@ public class Substitution {
 	
 	/**
 	 * Apply this {@link Substitution} to {@link Term} <i>t</i>.
-	 * @param t The {@link Term}to be substituted.
+	 * @param from The {@link Term} to substitute
 	 * @return new {@link Term} if substitute for <i>t</i> exists, <i>t</i> otherwise.
 	 */
 	public Term substitute( Term from ) {
@@ -85,7 +88,8 @@ public class Substitution {
 	 * Add a new substitution to mapping providing two {@link Term} for <i>from</i> and <i>to</i>.
 	 * Only adds if no loop of substitutions is created.
 	 * Overwrites any existing substitution of <i>from</i>.
-	 * @param s Input {@link String}
+	 * @param from {@link Term} that will be replaced 
+	 * @param to {@link Term} that will be substituted
 	 */
 	public void add(Term from, Term to) {
 		if ( from == null || to == null ) {
@@ -100,7 +104,9 @@ public class Substitution {
 	 * Add a new substitution to mapping providing two variable {@link Term}s for <i>X</i> and <i>Y</i> 
 	 * If <i>X</i> is already substituted by another value <i>Z</i> then we recursively try to
 	 * add <i>Y/Z</i> instead.
-	 * @param s Input {@link String}
+	 * @param from 
+	 * @param to 
+	 * @return  <code>true</code> if the substitution remains consistent 
 	 */
 	public boolean addAndMergeVariables(Term from, Term to) {
 		Term toPrev = map.get(from);
@@ -163,10 +169,10 @@ public class Substitution {
 	}
 	
 	/**
-	 * Check if a substitution would create a circle.
-	 * @param from
-	 * @param to
-	 * @return
+	 * Check if a substitution would create a circle (e.g., adding X/Y to {Y/X} would do so).
+	 * @param from {@link Term} that will be replaced 
+	 * @param to {@link Term} that will be substituted
+	 * @return <code>true</code> if adding from/to to this substitution would cause a loop
 	 */
 	public boolean addingWouldCauseLoop(Term from, Term to) {
 		Set<Term> cloud = new HashSet<Term>();
@@ -194,6 +200,10 @@ public class Substitution {
 		return false;
 	}
 	
+	/**
+	 * Remove a part of the substitution
+	 * @param from {@link Term} to remove from substitutions
+	 */
 	public void remove( Term from ) {
 		this.map.remove(from);
 	}
@@ -252,32 +262,37 @@ public class Substitution {
 		return true;
 	}
 	
-	public void removeVar2VarSubstitutions() {
-		ArrayList<Term> removeList = new ArrayList<Term>();
-		for ( Term from : map.keySet() ) {
-			Term to = from;
-			if ( to.isVariable() ) {
-				removeList.add(from);
-			}
-		}
-		for ( Term r : removeList ) {
-			map.remove(r);
-		}
-	}
-		
-	public boolean containsOnlyVar2VarSubstitutions() {
-		for ( Term from : this.map.keySet() ) {
-			Term to = map.get(from);
-			if ( !from.isVariable() ) {
-				return false;
-			}
-			if ( !to.isVariable() ) {
-				return false;
-			}
-		}
-		return true;
-	}
+//	public void removeVar2VarSubstitutions() {
+//		ArrayList<Term> removeList = new ArrayList<Term>();
+//		for ( Term from : map.keySet() ) {
+//			Term to = from;
+//			if ( to.isVariable() ) {
+//				removeList.add(from);
+//			}
+//		}
+//		for ( Term r : removeList ) {
+//			map.remove(r);
+//		}
+//	}
+
+//	public boolean containsOnlyVar2VarSubstitutions() {
+//		for ( Term from : this.map.keySet() ) {
+//			Term to = map.get(from);
+//			if ( !from.isVariable() ) {
+//				return false;
+//			}
+//			if ( !to.isVariable() ) {
+//				return false;
+//			}
+//		}
+//		return true;
+//	}
 	
+	/**
+	 * Returns a string version of this substitution.
+	 * TODO: only used by unit tests and should be removed in the future
+	 * @return string map
+	 */
 	public Map<String,String> getStringMap() {
 		Map<String,String> r = new HashMap<String, String>();
 		
@@ -287,6 +302,10 @@ public class Substitution {
 		return r;
 	}
 	
+	/**
+	 * Get the map of this substitution
+	 * @return the map
+	 */
 	public Map<Term,Term> getMap() {
 		return map;
 	}

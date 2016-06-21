@@ -42,6 +42,7 @@ import org.spiderplan.tools.ExecuteSystemCommand;
 
 import junit.framework.TestCase;
 
+@SuppressWarnings("javadoc")
 public class TestPrologSolver extends TestCase {
 	
 	Term bkbName = Term.createConstant("prolog");

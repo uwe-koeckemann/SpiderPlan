@@ -119,8 +119,7 @@ public class ExecuteSystemCommand {
 	}
 	
 	/**
-	 * Execute command <code>cmd</code> in directory <code>dir</code> 
-	 * @param dir Directory in which command will be executed.
+	 * Execute command <code>cmd</code> 
 	 * @param cmd Command to be executed.
 	 * @return Array of type String where first element is STDOUT and second element STERR
 	 */

@@ -27,9 +27,14 @@ package org.spiderplan.scheduling;
  */
 public class Bounds {
 
-	public long min;
-	public long max;
+	long min;
+	long max;
 	
+	/**
+	 * Create a new bound.
+	 * @param min Lower bound
+	 * @param max Upper bound
+	 */
 	public Bounds(long min, long max) {
 		this.min = min;
 		this.max = max;

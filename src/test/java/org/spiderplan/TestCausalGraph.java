@@ -45,6 +45,7 @@ import org.spiderplan.tools.SimpleParsing;
 
 import junit.framework.TestCase;
 
+@SuppressWarnings("javadoc")
 public class TestCausalGraph extends TestCase {
 	
 	TypeManager tM;		

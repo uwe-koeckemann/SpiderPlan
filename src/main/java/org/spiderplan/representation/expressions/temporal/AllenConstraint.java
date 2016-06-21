@@ -397,7 +397,7 @@ public class AllenConstraint extends Expression implements Matchable, Substituta
 	 * Access a specific bound interval that quantifies 
 	 * the distance between specific parts of the interval.
 	 * <p>
-	 * See {@link ExpressionTypes.TemporalRelation} for details
+	 * See {@link TemporalRelation} for details
 	 * on the meaning of bounds. 
 	 * 
 	 * @param n index of the bound interval

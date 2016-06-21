@@ -25,7 +25,6 @@ package org.spiderplan;
 import org.spiderplan.modules.MathSolver;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
-import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.ValueLookup;

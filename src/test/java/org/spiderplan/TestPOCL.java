@@ -38,6 +38,7 @@ import org.spiderplan.representation.logic.*;
 import org.spiderplan.representation.types.TypeManager;
 import junit.framework.TestCase;
 
+@SuppressWarnings("javadoc")
 public class TestPOCL extends TestCase {
 
 	@Override

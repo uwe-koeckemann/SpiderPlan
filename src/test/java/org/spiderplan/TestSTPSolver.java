@@ -22,7 +22,6 @@
  *******************************************************************************/
 package org.spiderplan;
 
-import org.spiderplan.modules.MathSolver;
 import org.spiderplan.modules.STPSolver;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
@@ -40,11 +39,7 @@ import org.spiderplan.representation.types.TypeManager;
 
 import junit.framework.TestCase;
 
-/**
- * Test the {@link MathSolver} module that test all types of graph related constraints.
- * 
- * @author Uwe Köckemann
- */
+@SuppressWarnings("javadoc")
 public class TestSTPSolver extends TestCase {
 
 	@Override

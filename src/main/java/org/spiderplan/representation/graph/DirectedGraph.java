@@ -27,6 +27,13 @@ import java.util.Collection;
 
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 
+/**
+ * Simple extension of directed sparse multi graph
+ * @author Uwe Köckemann
+ *
+ * @param <V> Vertex class
+ * @param <E> Edge class
+ */
 public class DirectedGraph<V, E> extends DirectedSparseMultigraph<V, E> {
 	private static final long serialVersionUID = 2L;
 

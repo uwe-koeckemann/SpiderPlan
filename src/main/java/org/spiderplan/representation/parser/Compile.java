@@ -28,33 +28,30 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.tools.ModuleFactory;
-import org.spiderplan.representation.Operator;
-import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
-import org.spiderplan.representation.expressions.prolog.PrologConstraint;
-import org.spiderplan.representation.expressions.temporal.AllenConstraint;
-import org.spiderplan.representation.expressions.temporal.SimpleDistanceConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.parser.domain_v4.DomainParser_v4;
 import org.spiderplan.representation.parser.pddl.PDDLParser;
 import org.spiderplan.representation.parser.planner.ParseException;
 import org.spiderplan.representation.parser.planner.PlannerParser;
-import org.spiderplan.representation.types.IntegerType;
 import org.spiderplan.representation.types.IntervalType;
-import org.spiderplan.representation.types.Type;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.Global;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
+/**
+ * Parses domain and planner definitions.
+ * 
+ * @author Uwe Köckemann
+ *
+ */
 public class Compile {
 
 	/**
@@ -89,19 +86,41 @@ public class Compile {
 	private static HashMap<String,String> bkbLookUp;
 	private static int nextBKB_ID = 0;
 	
+	/**
+	 * Toggle console output
+	 */
 	public static boolean verbose = false;
+	/**
+	 * Toggle stop-watch to measure compile times
+	 */
 	public static boolean keepTimes = false;
+	/**
+	 * Print times measured by stop-watch directly
+	 */
 	public static boolean printTimes = false;
 	
+	/**
+	 * Get the compiled {@link Core}
+	 * @return the core
+	 */
 	public static Core getCore() {
 		return c;
 	}
 	
+	/**
+	 * Get planner definition
+	 * @return configuration of the planner
+	 */
 	public static ConfigurationManager getPlannerConfig() {
 		return oM;
 	}
 	
-	public static Core compile( String fileName ) throws org.spiderplan.representation.parser.pddl.ParseException {
+	/**
+	 * Compile a single file
+	 * @param fileName name of the file
+	 * @return {@link Core} containing all compiled information
+	 */
+	public static Core compile( String fileName ) {
 		bkbLookUp = new HashMap<String, String>();
 		Core c = new Core();
 		c.setTypeManager(new TypeManager());
@@ -109,6 +128,11 @@ public class Compile {
 		return c;
 	}
 	 
+	/**
+	 * Compile a list of domain definition files and a single planner definition
+	 * @param domainFilenames list of filenames of domain files
+	 * @param plannerFilename planner definition filename
+	 */
 	public static void compile( ArrayList<String> domainFilenames, String plannerFilename ) {
 		boolean isPDDL = false;
 		
@@ -424,236 +448,220 @@ public class Compile {
 	  * Adds temporal Meets constraints between changes of the same variable to avoid symbolic value 
 	  * scheduling conflicts.
 	  */
-	 private static void PDDLpostProcessing() {
-		 Term programID = Term.createConstant("pddlKB");
-		 ArrayList<Atomic> moveToBK = new ArrayList<Atomic>();
-		for ( Statement s : c.getContext().get(Statement.class) ) {
-			boolean canChange = false;
-			
-			for ( Statement s2 : c.getContext().get(Statement.class) ) {
-				if ( !s.equals(s2) && s.getVariable().equals(s2.getVariable()) && !s.getValue().equals(s2.getValue())) {
-					canChange = true;
-				}
-			}
-			
-			if ( !canChange ) {
-				for ( Operator o : c.getOperators() ) {
-					for ( Statement e : o.getEffects() ) {
-						canChange = (s.getVariable().match(e.getVariable()) != null);
-						if ( canChange ) {
-							break;
-						}
-					}
-					if ( canChange ) {
-						break;
-					}
-				}
-				
-				if ( !canChange ) {
-					if ( !moveToBK.contains(s.getVariable())) {
-						moveToBK.add(s.getVariable());
-					}
-				}
-			}
-		}
-		
-		for ( Atomic var : moveToBK ) {
-			/**
-			 * Move static facts from statements to asserted constraints
-			 */
-			ArrayList<Statement> remList = new ArrayList<Statement>();
-			ArrayList<Term> remKeys = new ArrayList<Term>();
-			for ( Statement s : c.getContext().get(Statement.class) ) {
-				if ( s.getVariable().equals(var) ) {
-					remList.add(s);
-					remKeys.add(s.getKey());
-					if ( s.getValue().toString().equals("true")) {
-						PrologConstraint rC = new PrologConstraint(var,programID);
-						rC.setAsserted(true);
-						c.getContext().add(rC);
-						if ( verbose ) {
-							System.out.println("Moving unchangable fact " + s + " to constraint " + rC);
-						}
-					}
-				}
-			}
-			c.getContext().removeAll(remList);			
-			HashSet<Expression> remSet = new HashSet<Expression>();
-			for ( AllenConstraint tC : c.getContext().get(AllenConstraint.class) ) {
-				if ( remKeys.contains(tC.getFrom()) || remKeys.contains(tC.getTo()) ) {
-					remSet.add(tC);
-				}				
-			}
-			c.getContext().removeAll(remSet);
-
-			/**
-			 * Move preconditions on static facts from preconditions to constraints
-			 * and remove associated temporal constraints.
-			 */
-			for ( Operator o : c.getOperators() ) {
-				remList = new ArrayList<Statement>();
-				ArrayList<Expression> remListCon = new ArrayList<Expression>();
-				for ( Statement p : o.getPreconditions() ) {
-					if ( p.getVariable().match(var) != null ) {
-						PrologConstraint rC = new PrologConstraint(p.getVariable(),programID);
-						remList.add(p);
-						
-						for ( Expression con : o.getConstraints() ) {
-							if ( con instanceof AllenConstraint ) {
-								AllenConstraint tC = (AllenConstraint)con;
-								if ( tC.getFrom().equals(p.getKey()) || ( tC.isBinary() && tC.getTo().equals(p.getKey())) ) {
-									remListCon.add(tC);
-								}
-							}
-							if ( con instanceof SimpleDistanceConstraint ) {
-								SimpleDistanceConstraint tC = (SimpleDistanceConstraint)con;
-								if ( tC.getFrom().equals(p.getKey()) || tC.getTo().equals(p.getKey()) ) {
-									remListCon.add(tC);
-								}
-							}
-						}
-						
-						o.addConstraint(rC);
-						
-						if ( verbose ) {
-							System.out.println("Replacing precondition " + p + " by constraint " + rC);
-						}
-						
-						if ( p.getValue().equals("false")) {
-							throw new IllegalStateException("Negative precondition "+p+" on unchangable variable "+p.getVariable()+". Not supported and probably not necessary.");
-						}																
-					}
-				}
-		
-				o.getPreconditions().removeAll(remList);
-				o.getConstraints().removeAll(remListCon);
-			}
-		}
-		
-		/**
-		 * Add Meets constraints to chains of changes to avoid scheduling where possible:
-		 */
-		for ( Operator o : c.getOperators() ) {
-			HashMap<Atomic,ArrayList<Term>> usages = new HashMap<Atomic, ArrayList<Term>>();
-			
-			for ( Statement p : o.getPreconditions() ) {
-				if ( !usages.containsKey(p.getVariable())) {
-					usages.put(p.getVariable(), new ArrayList<Term>());
-				} 
-				usages.get(p.getVariable()).add(p.getKey());
-			}
-			String prevConType = "";
-			String conType = "";
-			for ( Statement e : o.getEffects() ) {
-				if ( !usages.containsKey(e.getVariable())) {
-					usages.put(e.getVariable(), new ArrayList<Term>());
-				} 
-				for ( Expression con : o.getConstraints() ) {
-					if ( con instanceof AllenConstraint ) {
-						AllenConstraint tC = (AllenConstraint)con;
-						conType = tC.getRelation().toString();
-						break;
-					}
-				}
-				/**
-				 * If an "at end" (Meets) constraint comes before "at start"
-				 * we switch the order here so we can add Meets constraints
-				 * along the sequence of changes.
-				 */
-				if ( prevConType.equals("Meets") ) {
-					int numUsages = usages.get(e.getVariable()).size();
-					usages.get(e.getVariable()).add(numUsages-1, e.getKey());
-				} else {
-					usages.get(e.getVariable()).add(e.getKey());
-				}
-				prevConType = conType;
-			}
-				
-			/**
-			 * Each assignment meets the next one:
-			 */
-			if ( verbose ) {
-				System.out.println("Chaining changes:");
-			}
-			for ( Atomic k : usages.keySet() ) {
-				ArrayList<Term> keySequence = usages.get(k);	 					
-				if ( keySequence.size() > 1 ) {
-					for ( int i = 0 ; i < keySequence.size()-1 ; i++ ) {
-						AllenConstraint tC = new AllenConstraint(keySequence.get(i), keySequence.get(i+1), org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation.Meets );
-						o.addConstraint(tC);
-						if ( verbose ) {
-							System.out.println("    " + tC);
-						}
-					}
-				}
-			}
-		}	
-		
-		/**
-		 * Get all ground occurrences of all integer types so we can fix the max value.
-		 */
-		TypeManager tM = c.getTypeManager();
-		ArrayList<Type> intTypes = new ArrayList<Type>();
-		HashMap<Type,ArrayList<Term>> allGroundOccurences = new HashMap<Type, ArrayList<Term>>();
-		
-		for ( Term tName : tM.getTypeNames() ) {
-			Type t = tM.getTypeByName(tName);
-			if ( t instanceof IntegerType ) {
-				allGroundOccurences.put(t, new ArrayList<Term>());
-				intTypes.add(t);
-			}
-		}
-		
-		ArrayList<PrologConstraint> allRelCons = new ArrayList<PrologConstraint>();
-		allRelCons.addAll(c.getContext().get(PrologConstraint.class));
-//		allRelCons.addAll(c.getGoalContext().get(RelationalConstraint.class));
-		//allRelCons.addAll(c.get(RelationalConstraint.class));
-		for ( Operator o : c.getOperators() ) {
-			for ( Expression con : o.getConstraints() ) {
-				if ( con instanceof PrologConstraint ) {
-					allRelCons.add((PrologConstraint)con);
-				}
-			}
-		}
-		
-		Type t;
-		
-		for ( PrologConstraint rC : allRelCons ) {
-			Atomic rel = rC.getRelation();
-			for ( int i = 0 ; i < rel.getNumArgs() ; i++ ) {
-//				System.out.println("Rel: " + rel + " at " + i);
-				t = tM.getPredicateTypes(rel.getUniqueName(), i);
-				if ( allGroundOccurences.containsKey(t) ) { 
-					if ( rel.getArg(i).isGround() ) {
-						allGroundOccurences.get(t).add(rel.getArg(i));
-					}
-				}
-			}
-		}
-		
-		
-		for ( Statement s : c.getContext().get(Statement.class) ) {
-			for ( int i = 0 ; i < s.getVariable().getNumArgs() ; i++ ) {
-				t = tM.getPredicateTypes(s.getVariable().getUniqueName(), i);
-				if ( allGroundOccurences.containsKey(t) ) { 
-					if ( s.getVariable().getArg(i).isGround() ) {
-						allGroundOccurences.get(t).add(s.getVariable().getArg(i));
-					}
-				}
-			}
-			t = tM.getPredicateTypes(s.getVariable().getUniqueName(), -1);
-			if ( allGroundOccurences.containsKey(t) ) { 
-				if ( s.getValue().isGround() ) {
-					allGroundOccurences.get(t).add(s.getValue());
-				}
-			}
-		}
-//		for ( Statement s : c.getGoalContext().getStatements() ) {
-//			for ( int i = 0 ; i < s.getVariable().getTerms().length ; i++ ) {
+//	 private static void PDDLpostProcessing() {
+//		 Term programID = Term.createConstant("pddlKB");
+//		 ArrayList<Atomic> moveToBK = new ArrayList<Atomic>();
+//		for ( Statement s : c.getContext().get(Statement.class) ) {
+//			boolean canChange = false;
+//			
+//			for ( Statement s2 : c.getContext().get(Statement.class) ) {
+//				if ( !s.equals(s2) && s.getVariable().equals(s2.getVariable()) && !s.getValue().equals(s2.getValue())) {
+//					canChange = true;
+//				}
+//			}
+//			
+//			if ( !canChange ) {
+//				for ( Operator o : c.getOperators() ) {
+//					for ( Statement e : o.getEffects() ) {
+//						canChange = (s.getVariable().match(e.getVariable()) != null);
+//						if ( canChange ) {
+//							break;
+//						}
+//					}
+//					if ( canChange ) {
+//						break;
+//					}
+//				}
+//				
+//				if ( !canChange ) {
+//					if ( !moveToBK.contains(s.getVariable())) {
+//						moveToBK.add(s.getVariable());
+//					}
+//				}
+//			}
+//		}
+//		
+//		for ( Atomic var : moveToBK ) {
+//			/**
+//			 * Move static facts from statements to asserted constraints
+//			 */
+//			ArrayList<Statement> remList = new ArrayList<Statement>();
+//			ArrayList<Term> remKeys = new ArrayList<Term>();
+//			for ( Statement s : c.getContext().get(Statement.class) ) {
+//				if ( s.getVariable().equals(var) ) {
+//					remList.add(s);
+//					remKeys.add(s.getKey());
+//					if ( s.getValue().toString().equals("true")) {
+//						PrologConstraint rC = new PrologConstraint(var,programID);
+//						rC.setAsserted(true);
+//						c.getContext().add(rC);
+//						if ( verbose ) {
+//							System.out.println("Moving unchangable fact " + s + " to constraint " + rC);
+//						}
+//					}
+//				}
+//			}
+//			c.getContext().removeAll(remList);			
+//			HashSet<Expression> remSet = new HashSet<Expression>();
+//			for ( AllenConstraint tC : c.getContext().get(AllenConstraint.class) ) {
+//				if ( remKeys.contains(tC.getFrom()) || remKeys.contains(tC.getTo()) ) {
+//					remSet.add(tC);
+//				}				
+//			}
+//			c.getContext().removeAll(remSet);
+//
+//			/**
+//			 * Move preconditions on static facts from preconditions to constraints
+//			 * and remove associated temporal constraints.
+//			 */
+//			for ( Operator o : c.getOperators() ) {
+//				remList = new ArrayList<Statement>();
+//				ArrayList<Expression> remListCon = new ArrayList<Expression>();
+//				for ( Statement p : o.getPreconditions() ) {
+//					if ( p.getVariable().match(var) != null ) {
+//						PrologConstraint rC = new PrologConstraint(p.getVariable(),programID);
+//						remList.add(p);
+//						
+//						for ( Expression con : o.getConstraints() ) {
+//							if ( con instanceof AllenConstraint ) {
+//								AllenConstraint tC = (AllenConstraint)con;
+//								if ( tC.getFrom().equals(p.getKey()) || ( tC.isBinary() && tC.getTo().equals(p.getKey())) ) {
+//									remListCon.add(tC);
+//								}
+//							}
+//							if ( con instanceof SimpleDistanceConstraint ) {
+//								SimpleDistanceConstraint tC = (SimpleDistanceConstraint)con;
+//								if ( tC.getFrom().equals(p.getKey()) || tC.getTo().equals(p.getKey()) ) {
+//									remListCon.add(tC);
+//								}
+//							}
+//						}
+//						
+//						o.addConstraint(rC);
+//						
+//						if ( verbose ) {
+//							System.out.println("Replacing precondition " + p + " by constraint " + rC);
+//						}
+//						
+//						if ( p.getValue().equals("false")) {
+//							throw new IllegalStateException("Negative precondition "+p+" on unchangable variable "+p.getVariable()+". Not supported and probably not necessary.");
+//						}																
+//					}
+//				}
+//		
+//				o.getPreconditions().removeAll(remList);
+//				o.getConstraints().removeAll(remListCon);
+//			}
+//		}
+//		
+//		/**
+//		 * Add Meets constraints to chains of changes to avoid scheduling where possible:
+//		 */
+//		for ( Operator o : c.getOperators() ) {
+//			HashMap<Atomic,ArrayList<Term>> usages = new HashMap<Atomic, ArrayList<Term>>();
+//			
+//			for ( Statement p : o.getPreconditions() ) {
+//				if ( !usages.containsKey(p.getVariable())) {
+//					usages.put(p.getVariable(), new ArrayList<Term>());
+//				} 
+//				usages.get(p.getVariable()).add(p.getKey());
+//			}
+//			String prevConType = "";
+//			String conType = "";
+//			for ( Statement e : o.getEffects() ) {
+//				if ( !usages.containsKey(e.getVariable())) {
+//					usages.put(e.getVariable(), new ArrayList<Term>());
+//				} 
+//				for ( Expression con : o.getConstraints() ) {
+//					if ( con instanceof AllenConstraint ) {
+//						AllenConstraint tC = (AllenConstraint)con;
+//						conType = tC.getRelation().toString();
+//						break;
+//					}
+//				}
+//				/**
+//				 * If an "at end" (Meets) constraint comes before "at start"
+//				 * we switch the order here so we can add Meets constraints
+//				 * along the sequence of changes.
+//				 */
+//				if ( prevConType.equals("Meets") ) {
+//					int numUsages = usages.get(e.getVariable()).size();
+//					usages.get(e.getVariable()).add(numUsages-1, e.getKey());
+//				} else {
+//					usages.get(e.getVariable()).add(e.getKey());
+//				}
+//				prevConType = conType;
+//			}
+//				
+//			/**
+//			 * Each assignment meets the next one:
+//			 */
+//			if ( verbose ) {
+//				System.out.println("Chaining changes:");
+//			}
+//			for ( Atomic k : usages.keySet() ) {
+//				ArrayList<Term> keySequence = usages.get(k);	 					
+//				if ( keySequence.size() > 1 ) {
+//					for ( int i = 0 ; i < keySequence.size()-1 ; i++ ) {
+//						AllenConstraint tC = new AllenConstraint(keySequence.get(i), keySequence.get(i+1), org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation.Meets );
+//						o.addConstraint(tC);
+//						if ( verbose ) {
+//							System.out.println("    " + tC);
+//						}
+//					}
+//				}
+//			}
+//		}	
+//		
+//		/**
+//		 * Get all ground occurrences of all integer types so we can fix the max value.
+//		 */
+//		TypeManager tM = c.getTypeManager();
+//		ArrayList<Type> intTypes = new ArrayList<Type>();
+//		HashMap<Type,ArrayList<Term>> allGroundOccurences = new HashMap<Type, ArrayList<Term>>();
+//		
+//		for ( Term tName : tM.getTypeNames() ) {
+//			Type t = tM.getTypeByName(tName);
+//			if ( t instanceof IntegerType ) {
+//				allGroundOccurences.put(t, new ArrayList<Term>());
+//				intTypes.add(t);
+//			}
+//		}
+//		
+//		ArrayList<PrologConstraint> allRelCons = new ArrayList<PrologConstraint>();
+//		allRelCons.addAll(c.getContext().get(PrologConstraint.class));
+////		allRelCons.addAll(c.getGoalContext().get(RelationalConstraint.class));
+//		//allRelCons.addAll(c.get(RelationalConstraint.class));
+//		for ( Operator o : c.getOperators() ) {
+//			for ( Expression con : o.getConstraints() ) {
+//				if ( con instanceof PrologConstraint ) {
+//					allRelCons.add((PrologConstraint)con);
+//				}
+//			}
+//		}
+//		
+//		Type t;
+//		
+//		for ( PrologConstraint rC : allRelCons ) {
+//			Atomic rel = rC.getRelation();
+//			for ( int i = 0 ; i < rel.getNumArgs() ; i++ ) {
+////				System.out.println("Rel: " + rel + " at " + i);
+//				t = tM.getPredicateTypes(rel.getUniqueName(), i);
+//				if ( allGroundOccurences.containsKey(t) ) { 
+//					if ( rel.getArg(i).isGround() ) {
+//						allGroundOccurences.get(t).add(rel.getArg(i));
+//					}
+//				}
+//			}
+//		}
+//		
+//		
+//		for ( Statement s : c.getContext().get(Statement.class) ) {
+//			for ( int i = 0 ; i < s.getVariable().getNumArgs() ; i++ ) {
 //				t = tM.getPredicateTypes(s.getVariable().getUniqueName(), i);
 //				if ( allGroundOccurences.containsKey(t) ) { 
-//					if ( s.getVariable().getTerms()[i].isGround() ) {
-//						allGroundOccurences.get(t).add(s.getVariable().getTerms()[i]);
+//					if ( s.getVariable().getArg(i).isGround() ) {
+//						allGroundOccurences.get(t).add(s.getVariable().getArg(i));
 //					}
 //				}
 //			}
@@ -664,60 +672,76 @@ public class Compile {
 //				}
 //			}
 //		}
-		
-		for ( Operator o : c.getOperators() ) {
-			for ( Statement s : o.getPreconditions() ) {
-				for ( int i = 0 ; i < s.getVariable().getNumArgs() ; i++ ) {
-					t = tM.getPredicateTypes(s.getVariable().getUniqueName(), i);
-					if ( allGroundOccurences.containsKey(t) ) { 
-						if ( s.getVariable().getArg(i).isGround() ) {
-							allGroundOccurences.get(t).add(s.getVariable().getArg(i));
-						}
-					}
-				}
-				t = tM.getPredicateTypes(s.getVariable().getUniqueName(), -1);
-				if ( allGroundOccurences.containsKey(t) ) { 
-					if ( s.getValue().isGround() ) {
-						allGroundOccurences.get(t).add(s.getValue());
-					}
-				}				
-			}
-			for ( Statement s : o.getEffects() ) {
-				for ( int i = 0 ; i < s.getVariable().getNumArgs() ; i++ ) {
-					t = tM.getPredicateTypes(s.getVariable().getUniqueName(), i);
-					if ( allGroundOccurences.containsKey(t) ) { 
-						if ( s.getVariable().getArg(i).isGround() ) {
-							allGroundOccurences.get(t).add(s.getVariable().getArg(i));
-						}
-					}
-				}
-				t = tM.getPredicateTypes(s.getVariable().getUniqueName(), -1);
-				if ( allGroundOccurences.containsKey(t) ) { 
-					if ( s.getValue().isGround() ) {
-						allGroundOccurences.get(t).add(s.getValue());
-					}
-				}
-			}
-		}	
-		
-		long maxVal = 0;
-		long usedVal;
-		for ( Type type : intTypes ) {
-			IntegerType tInt = (IntegerType)type;
-			maxVal = 0;
-			for ( Term val : allGroundOccurences.get(type) ) {
-				usedVal = Long.valueOf(val.toString()).longValue();
-				if ( usedVal > maxVal ) {
-					maxVal = usedVal;
-				}
-			}
-			
-			if ( verbose ) {
-				System.out.println("Updating max. value of " + tInt.getName() + " to " + maxVal);
-			}
-			
-			tInt.max = maxVal;			
-		}		
-	 }
+////		for ( Statement s : c.getGoalContext().getStatements() ) {
+////			for ( int i = 0 ; i < s.getVariable().getTerms().length ; i++ ) {
+////				t = tM.getPredicateTypes(s.getVariable().getUniqueName(), i);
+////				if ( allGroundOccurences.containsKey(t) ) { 
+////					if ( s.getVariable().getTerms()[i].isGround() ) {
+////						allGroundOccurences.get(t).add(s.getVariable().getTerms()[i]);
+////					}
+////				}
+////			}
+////			t = tM.getPredicateTypes(s.getVariable().getUniqueName(), -1);
+////			if ( allGroundOccurences.containsKey(t) ) { 
+////				if ( s.getValue().isGround() ) {
+////					allGroundOccurences.get(t).add(s.getValue());
+////				}
+////			}
+////		}
+//		
+//		for ( Operator o : c.getOperators() ) {
+//			for ( Statement s : o.getPreconditions() ) {
+//				for ( int i = 0 ; i < s.getVariable().getNumArgs() ; i++ ) {
+//					t = tM.getPredicateTypes(s.getVariable().getUniqueName(), i);
+//					if ( allGroundOccurences.containsKey(t) ) { 
+//						if ( s.getVariable().getArg(i).isGround() ) {
+//							allGroundOccurences.get(t).add(s.getVariable().getArg(i));
+//						}
+//					}
+//				}
+//				t = tM.getPredicateTypes(s.getVariable().getUniqueName(), -1);
+//				if ( allGroundOccurences.containsKey(t) ) { 
+//					if ( s.getValue().isGround() ) {
+//						allGroundOccurences.get(t).add(s.getValue());
+//					}
+//				}				
+//			}
+//			for ( Statement s : o.getEffects() ) {
+//				for ( int i = 0 ; i < s.getVariable().getNumArgs() ; i++ ) {
+//					t = tM.getPredicateTypes(s.getVariable().getUniqueName(), i);
+//					if ( allGroundOccurences.containsKey(t) ) { 
+//						if ( s.getVariable().getArg(i).isGround() ) {
+//							allGroundOccurences.get(t).add(s.getVariable().getArg(i));
+//						}
+//					}
+//				}
+//				t = tM.getPredicateTypes(s.getVariable().getUniqueName(), -1);
+//				if ( allGroundOccurences.containsKey(t) ) { 
+//					if ( s.getValue().isGround() ) {
+//						allGroundOccurences.get(t).add(s.getValue());
+//					}
+//				}
+//			}
+//		}	
+//		
+//		long maxVal = 0;
+//		long usedVal;
+//		for ( Type type : intTypes ) {
+//			IntegerType tInt = (IntegerType)type;
+//			maxVal = 0;
+//			for ( Term val : allGroundOccurences.get(type) ) {
+//				usedVal = Long.valueOf(val.toString()).longValue();
+//				if ( usedVal > maxVal ) {
+//					maxVal = usedVal;
+//				}
+//			}
+//			
+//			if ( verbose ) {
+//				System.out.println("Updating max. value of " + tInt.getName() + " to " + maxVal);
+//			}
+//			
+//			tInt.max = maxVal;			
+//		}		
+//	 }
 
 }

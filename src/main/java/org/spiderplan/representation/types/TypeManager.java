@@ -41,8 +41,8 @@ import org.spiderplan.tools.GenericComboBuilder;
 
 /**
  * Used to register types and their domains and to store the {@link Type}s of arguments of 
- * {@link StateVariableAssignment}s, {@link Atomic}s, etc. 
- * @author Uwe K&ouml;ckemann
+ * {@link Atomic}s, etc. 
+ * @author Uwe Köckemann
  */
 public class TypeManager {
 	
@@ -54,8 +54,10 @@ public class TypeManager {
 	
 	private final static Term BooleanTerm = Term.createConstant("boolean");
 	
-	public TypeManager() {
-	}
+	/**
+	 * Create new type manager.
+	 */
+	public TypeManager() { }
 	
 	/**
 	 * Collects and adds all type information from a {@link ConstraintDatabase} and 
@@ -177,6 +179,12 @@ public class TypeManager {
 		this.addNewType(newType);
 	}
 	
+	/**
+	 * Add a new integer type.
+	 * @param name Name of the type.
+	 * @param min Minimum value
+	 * @param max Maximum value
+	 */
 	public void addIntegerType( String name, int min, int max ) {
 		IntegerType newType = new IntegerType();
 		newType.name = Term.createConstant(name);
@@ -262,10 +270,20 @@ public class TypeManager {
 		typeLookUp.put(predName, tList);
 	}
 	
+	/**
+	 * Test if a variable exists.
+	 * @param name unique name of the variable (i.e., name/arity)
+	 * @return <code>true</code> if variable exists, <code>false</code> otherwise
+	 */
 	public boolean hasVariable( String name ) {
 		return this.varNames.contains(name);
 	}
 	
+	/**
+	 * Get a type by its name.
+	 * @param tName type name
+	 * @return the type
+	 */
 	public Type getTypeByName( Term tName ) {
 		if ( !types.containsKey(tName) ) {
 			throw new IllegalStateException("Type " + tName + " does not exist.");
@@ -280,10 +298,22 @@ public class TypeManager {
 //		return types.get(tName);
 //	}
 //	
+	/**
+	 * Check if a type exists.
+	 * @param tName name of the type
+	 * @return <code>true</code> if type exists, <code>false</code> otherwise
+	 */
 	public boolean hasTypeWithName( Term tName ) {
 		return types.containsKey(tName);
 	}
 	
+	/**
+	 * Get all objects of a specific type that are used 
+	 * as arguments in a a state-variable.
+	 * @param tName the type's name
+	 * @param a the state-variable
+	 * @return all objects of the given type's domain
+	 */
 	public Collection<Term> getAllObjectsFromDomains( Term tName, Atomic a ) {
 		Collection<Term> r = new ArrayList<Term>();
 		
@@ -318,7 +348,6 @@ public class TypeManager {
 	 * @param predID Predicate ID of the form p/4, where 4 is the arity.
 	 * @param i Index of the requested {@link Type}. Use -1 for return value.
 	 * @return List of {@link Type}s of the predicate including return type as last element.
-	 * @throws UnknownThing 
 	 */
 	public Type getPredicateTypes( String predID, int i ) {
 		if ( !typeLookUp.containsKey(predID) ) {
@@ -341,6 +370,10 @@ public class TypeManager {
 		return r;
 	}
 	
+	/**
+	 * Returns the names of all known types.
+	 * @return list of type names
+	 */
 	public ArrayList<Term> getTypeNames() {
 		return typeNames;
 	}
@@ -485,10 +518,11 @@ public class TypeManager {
 	}
 	
 	/**
-	 * Get all substitutions that that yield a ground {@link Atomic} when applied
-	 * to input {@link Atomic} a
-	 * @param a
-	 * @return
+	 * Get all substitutions that make a given state-variable ground.
+	 * This method only considers values in the domains of each argument's
+	 * type.
+	 * @param a the state-variable
+	 * @return list of substitutions
 	 */
 	public ArrayList<Substitution> getAllGroundSubstitutions( Atomic a ) {
 		ArrayList<Substitution> r = new ArrayList<Substitution>();
@@ -526,12 +560,11 @@ public class TypeManager {
 	}
 	
 	/**
-	 * Return all possible ground instances of {@link Atomic} v given the type domains
-	 * stored in this {@link TypeManager}.
+	 * Return all possible ground instances of a state-variable given the types 
+	 * of all arguments.
 	 * 
-	 * @param v {@link Atomic} to be grounded.
-	 * @return
-	 * @throws UnknownThing
+	 * @param v state-variable
+	 * @return ground versions of the state-variable
 	 */
 	public Collection<Atomic> getAllGroundAtomics( Atomic v ) {
 		Set<Atomic> r = new HashSet<Atomic>();
@@ -544,6 +577,13 @@ public class TypeManager {
 		return r;
 	}
 	
+	/**
+	 * Returns a lookup of all variables used in a state-variable
+	 * to the domains of these variables.
+	 *  
+	 * @param a the state-variable
+	 * @return map from variables to their domains 
+	 */
 	public Map<Term,ArrayList<Term>> getAllVariablesAndDomains( Atomic a ) {
 		Map<Term,ArrayList<Term>> r = new HashMap<Term, ArrayList<Term>>();
 		
@@ -558,6 +598,14 @@ public class TypeManager {
 		return r;
 	}
 	
+	/**
+	 * Returns a lookup of all variables used in a term
+	 * to the domains of these variables. Complex terms 
+	 * may contain multiple variables.
+	 *  
+	 * @param t the the term
+	 * @return map from variables to their domains 
+	 */
 	public Map<Term,ArrayList<Term>> getAllVariablesAndDomains( Term t ) {
 		Map<Term,ArrayList<Term>> r = new HashMap<Term, ArrayList<Term>>();
 		
@@ -620,9 +668,12 @@ public class TypeManager {
 	private HashSet<String> nonResourcesVars = new HashSet<String>();
 	
 	/**
-	 * Check if all assignments in a {@link Statement} are consistent with their domains.
-	 * @param s A {@link Statement}
-	 * @return <code>true</code> if all assignments are consistent with their domains <code>false</code> otherwise.
+	 * Check if a state-variable and value pair is consistent with its
+	 * type's domains.
+	 * 
+	 * @param var the variable 
+	 * @param val the value
+	 * @return <code>true</code> if all assignments are consistent with their domains, <code>false</code> otherwise
 	 */
 	public boolean isConsistentVariableTermAssignment( Atomic var, Term val ) {
 		for ( int i = 0 ; i < var.getNumArgs(); i++ ) {

@@ -38,7 +38,12 @@ import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.tools.ModuleFactory;
-import org.spiderplan.representation.ConstraintDatabase;
+import org.spiderplan.representation.expressions.ValueLookup;
+import org.spiderplan.representation.expressions.ExpressionTypes.ConfigurationPlanningRelation;
+import org.spiderplan.representation.expressions.causal.OpenGoal;
+import org.spiderplan.representation.expressions.causal.Task;
+import org.spiderplan.representation.expressions.configurationPlanning.ConfigurationPlanningConstraint;
+import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.parser.Compile;
 import org.spiderplan.representation.parser.ConsistencyChecker;
 import org.spiderplan.representation.parser.experiment.ExperimentParser;
@@ -345,7 +350,6 @@ public class RunExperiment {
 		long maxTimeMillis = -1;
 		
 		String expName = null;
-		String domainFilename = null;
 		String problemsDirectoryName = null;
 		String plannerFilename = null;
 		String attributesString = null;
@@ -397,12 +401,17 @@ public class RunExperiment {
 			throw new IllegalArgumentException("Missing information in file " + expFilename + ": attributes");
 		}
 		
+		ArrayList<String> domainFilenames = new ArrayList<>();
+		
 		/**
 		 * Optional information
 		 */		
 		if ( optionsMap.containsKey("domain") ) {
 			System.out.println("Domain: " + expBaseDir + optionsMap.get("domain"));
-			domainFilename = expBaseDir + optionsMap.get("domain");
+			String tmpFilenames[] = optionsMap.get("domain").split("\\|");
+			for ( String fName : tmpFilenames ) {
+				domainFilenames.add(expBaseDir + fName);
+			}
 		} 
 		if ( optionsMap.containsKey("timeout") ) {
 			System.out.println("Timeout: " + optionsMap.get("timeout"));
@@ -434,19 +443,19 @@ public class RunExperiment {
 		for ( String problem : problemList ) {
 			int lastIndex = problem.split("/").length-1;
 			String pName = problem.split("/")[lastIndex].split("\\.")[0];
-			int lastIndexDomain = domainFilename.split("/").length-1;
-			String dName = domainFilename.split("/")[lastIndexDomain].split("\\.")[0];
+//			int lastIndexDomain = domainFilename.split("/").length-1;
+//			String dName = domainFilename.split("/")[lastIndexDomain].split("\\.")[0];
 			expCount++;
 							
 			Compile.verbose = false;
 			
 			ModuleFactory.forgetStaticModules();
 			
-			ArrayList<String> domainFilenames = new ArrayList<>();
-			domainFilenames.add(domainFilename);
-			domainFilenames.add(problem);
+			ArrayList<String> allUDDLFilenames = new ArrayList<>();
+			allUDDLFilenames.addAll(domainFilenames);
+			allUDDLFilenames.add(problem);
 			
-			Compile.compile( domainFilenames, plannerFilename);
+			Compile.compile( allUDDLFilenames, plannerFilename);
 				
 			ConfigurationManager oM = Compile.getPlannerConfig();
 			oM.overrideOption("verbose", "false"); // make sure all modules are silenced			
@@ -454,6 +463,20 @@ public class RunExperiment {
 			Module main = ModuleFactory.initModule("main", oM);
 					
 			Core initCore = Compile.getCore();
+			
+			/**
+			 * TODO: adhoc
+			 */
+			int numGoals = 0;
+			numGoals += initCore.getContext().get(OpenGoal.class).size();
+			numGoals += initCore.getContext().get(Task.class).size();
+			for ( ConfigurationPlanningConstraint cpC : initCore.getContext().get(ConfigurationPlanningConstraint.class) ) {
+				if ( cpC.getRelation().equals(ConfigurationPlanningRelation.Goal) ) {
+					numGoals++;
+				}
+			}			
+			
+			Statistics.setLong("goals", (long)numGoals);
 			
 	        Calendar cal = Calendar.getInstance();
 	        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
@@ -498,8 +521,37 @@ public class RunExperiment {
 						
 			Statistics.setString("result", r.getResultingState("main").toString());
 			Statistics.setString("problem", pName+".uddl");
-			Statistics.setString("domain", dName);
+			Statistics.setString("domain", domainFilenames.toString());
 			Statistics.setLong("time", StopWatch.getLast("[main] Running... " + pName ));
+			
+			ValueLookup vLookUp = r.getContext().getUnique(ValueLookup.class);
+			
+			for ( String att : attributeNames ) {
+				Long valLong = Statistics.getLong(att);
+				Double valDouble = Statistics.getDouble(att);
+				String valString = Statistics.getString(att);
+				Long valCounter = Statistics.getCounter(att);
+				
+				if ( valLong == null && valDouble == null && valString == null && valCounter == null ) {
+					System.out.println("Looking for attribute: " + att);
+					
+					Term attTerm = Term.parse(att);
+					
+					valLong = vLookUp.getInt(attTerm);
+					if ( valLong != null ) {
+						Statistics.setLong(att, valLong);
+					}
+					valDouble = vLookUp.getFloat(attTerm);
+					if ( valDouble != null ) {
+						Statistics.setDouble(att, valDouble);
+					}
+					if ( vLookUp.hasInterval(attTerm)) {
+						long[] boundsArray = vLookUp.getBoundsArray(attTerm);
+						String bStr = "[[" + boundsArray[0] + " " + boundsArray[1] + "] [" + boundsArray[2] + " " + boundsArray[3] + "]]";
+						Statistics.setString(att, bStr);
+					}
+				}
+			}
 			
 			Statistics.store();
 			Statistics.dumpCSV("./" + expName + ".csv", attributeNames);

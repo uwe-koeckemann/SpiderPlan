@@ -37,6 +37,7 @@ import org.spiderplan.representation.expressions.minizinc.*;
 import org.spiderplan.representation.expressions.misc.*;
 import org.spiderplan.representation.expressions.programs.*;
 import org.spiderplan.representation.expressions.prolog.*;
+import org.spiderplan.representation.expressions.ontology.*;
 import org.spiderplan.representation.expressions.resources.*;
 import org.spiderplan.representation.expressions.sampling.*;
 import org.spiderplan.representation.expressions.set.*;
@@ -86,6 +87,7 @@ TOKEN :
 |   < SET : ":set" >
 |   < GRAPH : ":graph" >
 |   < PROLOG : ":prolog" >
+|   < SPARQL: ":sparql" >
 |   < DOMAIN : ":domain" >
 |   < GOAL : ":goal" >
 |   < TASK : ":task" >
@@ -414,6 +416,7 @@ ConstraintDatabase ConstraintDatabase() :
 		| ( < INCLUDE > 	( LOOKAHEAD(2) c = IncludeProgram() 			{ cDB.add(c); } )+ )
 		| ( < STATEMENT > 	( LOOKAHEAD(2) c = Statement()	 				{ cDB.add(c); } )+ ) 
 		| ( < PROLOG >	 programID = Term()  ( LOOKAHEAD(2) c = PrologConstraint(programID) 	{ cDB.add(c); } )+ )
+		| ( < SPARQL >	 ( LOOKAHEAD(2) c = SparQLQuery() 	{ cDB.add(c); } )+ )
 		| ( < MINIZINC > programID = Term()  ( LOOKAHEAD(2) c = MiniZincInput(programID) 	{ cDB.add(c); } )+ )
 		)
 	  <CP>
@@ -513,6 +516,22 @@ Expression MiniZincInput( Term programID ) :
 	{
 		if ( verbose ) { System.out.println("[Parser] MiniZinc Constraint"); }
 	   	return new MiniZincInput( constraint, programID ); 
+	}
+}
+
+Expression SparQLQuery( ) :
+{
+	List<Term> targetVariables = new ArrayList<Term>();
+	Term programID;
+	Term modelID;
+	Term tmp;
+}
+{
+	<OP> programID = Term() modelID = Term()
+	(tmp = Term() { targetVariables.add(tmp); })* <CP>
+	{
+		if ( verbose ) { System.out.println("[Parser] SparQLQuery"); }
+	  return new SparQLQuery( targetVariables, programID, modelID ); 
 	}
 }
 
@@ -749,15 +768,10 @@ Expression IncludeProgram() :
 	 	try {
 	 		String fileName = includedProgramFile.image.substring(1,includedProgramFile.image.length()-1);
 
-			System.out.println(fileName);
-			System.out.println(sourceDirectory);
-
 			if ( fileName.startsWith(".") ) {	
 				fileName = sourceDirectory + fileName;
 				fileName = fileName.replace("/./", "/");
 			}
-
-			System.out.println(fileName);
 
 	 		String program = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
 	 		return new IncludedProgram(name, program );

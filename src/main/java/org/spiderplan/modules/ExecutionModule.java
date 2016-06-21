@@ -344,7 +344,7 @@ public class ExecutionModule  extends Module {
 //			throw new IllegalStateException("Execution failure: Temporal inconsistency in execution CDB.");
 //		}
 		
-		if ( !simCSP.isConsistent(simDB, tM) ) {
+		if ( !simCSP.isConsistent(simDB) ) {
 			throw new IllegalStateException("Execution failure: Temporal inconsistency in simulation CDB.");
 		}
 		/*
@@ -457,10 +457,10 @@ public class ExecutionModule  extends Module {
 			ConstraintDatabase fromScratch = this.getFromScrathDB();
 			
 			IncrementalSTPSolver execCSP = new IncrementalSTPSolver(0, this.tMax);
-			if ( !execCSP.isConsistent(fromScratch, tM) ) {
+			if ( !execCSP.isConsistent(fromScratch) ) {
 				IncrementalSTPSolver csp = new IncrementalSTPSolver(0, this.tMax);
 				csp.debug = true;
-				csp.isConsistent(fromScratch, tM);
+				csp.isConsistent(fromScratch);
 				
 				for ( Statement s : execDB.get(Statement.class) ) {
 					System.out.println("[S] " + s);
@@ -567,10 +567,10 @@ public class ExecutionModule  extends Module {
 		 * screw over reactor timings. can we add past and future constraints to fromScratchDB to avoid propagation here?
 		 */
 		IncrementalSTPSolver execCSP = new IncrementalSTPSolver(0, this.tMax);
-		if ( !execCSP.isConsistent(execDB, tM) ) {
+		if ( !execCSP.isConsistent(execDB) ) {
 			IncrementalSTPSolver csp = new IncrementalSTPSolver(0, this.tMax);
 			csp.debug = true;
-			csp.isConsistent(execDB, tM);
+			csp.isConsistent(execDB);
 			
 			for ( Statement s : execDB.get(Statement.class) ) {
 				System.out.println("[S] " + s);
@@ -804,10 +804,10 @@ public class ExecutionModule  extends Module {
 		}
 		
 		IncrementalSTPSolver execCSP = new IncrementalSTPSolver(0, this.tMax);
-		if ( !execCSP.isConsistent(execDB, tM) ) {
+		if ( !execCSP.isConsistent(execDB) ) {
 			IncrementalSTPSolver csp = new IncrementalSTPSolver(0, this.tMax);
 			csp.debug = true;
-			csp.isConsistent(execDB, tM);
+			csp.isConsistent(execDB);
 			
 			for ( Statement s : execDB.get(Statement.class) ) {
 				System.out.println("[S] " + s);

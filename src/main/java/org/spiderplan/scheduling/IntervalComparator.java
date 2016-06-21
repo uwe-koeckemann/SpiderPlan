@@ -27,12 +27,22 @@ import java.util.Comparator;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ValueLookup;
 
+/**
+ * Compare statements based on the earliest start-times of
+ * their intervals.
+ * @author Uwe Köckemann
+ */
 public class IntervalComparator implements Comparator<Statement> {
 		
 	private ValueLookup tiLookup;
 	
-	public IntervalComparator( ValueLookup bounds ) {
-		this.tiLookup = bounds;
+	/**
+	 * Create new comparator by providing a lookup containing 
+	 * the start-times of all intervals
+	 * @param tiLookup value lookup containing earliest start-times  (usually created by temporal propagation) 
+	 */
+	public IntervalComparator( ValueLookup tiLookup ) {
+		this.tiLookup = tiLookup;
 	}
 	
 	@Override

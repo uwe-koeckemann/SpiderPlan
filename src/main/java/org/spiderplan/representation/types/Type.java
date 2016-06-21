@@ -26,7 +26,6 @@ import java.util.ArrayList;
 
 import org.spiderplan.representation.logic.Term;
 
-
 /**
  * Super-class to all types 
  * @author Uwe Köckemann
@@ -34,14 +33,35 @@ import org.spiderplan.representation.logic.Term;
 public abstract class Type {
 	protected Term name;
 		
+	/**
+	 * Returns type name as a term.
+	 * @return the name
+	 */
 	public Term getName() { return name; };
+	/**
+	 * Set name of this type.
+	 * @param name the name
+	 */
 	public void setName( Term name ) { this.name = name; };
 	
+	/**
+	 * Set name of this type with a string.
+	 * @param name
+	 */
 	public void setName( String name ) { this.name = Term.createConstant(name); };
 	
+	/**
+	 * Test if this type's domain contains value.
+	 * @param s the value
+	 * @return <code>true</code> if the type's domain contains <code>s</code>, <code>false</code> otherwise
+	 */
 	public abstract boolean contains(Term s);
+	/**
+	 * Returns the domain of this type.
+	 * @return the domain
+	 */
 	public abstract ArrayList<Term> getDomain();
-//	public abstract ArrayList<String> getStringDomain();
+
 	@Override
 	public abstract String toString();
 }

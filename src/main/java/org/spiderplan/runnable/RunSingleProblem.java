@@ -24,21 +24,15 @@ package org.spiderplan.runnable;
 
 import java.util.ArrayList;
 import org.spiderplan.tools.Global;
-import org.spiderplan.tools.logging.LogEntry;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
-import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.ValueLookup;
-import org.spiderplan.representation.expressions.causal.OpenGoal;
-import org.spiderplan.representation.expressions.causal.Task;
-import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.parser.Compile;
 import org.spiderplan.temporal.TemporalNetworkTools;
-import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.profiler.Profiler;
 import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
@@ -68,11 +62,9 @@ public class RunSingleProblem {
 		}
 		
 		Logger.reset();
-		Logger.keepAllLogs = true;		
 		ModuleFactory.forgetStaticModules();
 		
-		LogEntry.addID2String = true;
-		
+	
 		System.out.println("Planner:\n\t" + plannerFilename);
 		
 		System.out.println("Domain & Problem Files:");
@@ -121,20 +113,20 @@ public class RunSingleProblem {
 			System.out.println(StopWatch.getAvg("[main] Running...")/1000.0 + "s");
 			System.out.println("Output signal of main module: " + result.getResultingState("main"));
 						
-			long temporalHorizon = 200000;
-			PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(result);
-			if ( pI != null ) {
-				temporalHorizon = pI.getHorizonValue();
-			}
+//			long temporalHorizon = 200000;
+//			PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(result);
+//			if ( pI != null ) {
+//				temporalHorizon = pI.getHorizonValue();
+//			}
 	
-			IncrementalSTPSolver csp = new IncrementalSTPSolver( 0, temporalHorizon );
-			for ( OpenGoal g : res.get(OpenGoal.class) ) {
-				res.add(g.getStatement());
-			}
-			for ( Task g : res.get(Task.class) ) {
-				res.add(g.getStatement());
-			}
-			System.out.println( csp.isConsistent(res, result.getTypeManager()) );
+//			IncrementalSTPSolver stpSolver = new IncrementalSTPSolver( 0, temporalHorizon );
+//			for ( OpenGoal g : res.get(OpenGoal.class) ) {
+//				res.add(g.getStatement());
+//			}
+//			for ( Task g : res.get(Task.class) ) {
+//				res.add(g.getStatement());
+//			}
+//			System.out.println( stpSolver.isConsistent(res, result.getTypeManager()) );
 			
 //			System.out.println(res);
 			
@@ -142,22 +134,28 @@ public class RunSingleProblem {
 			tnv.draw(res);
 			
 			ValueLookup valueLookup = new ValueLookup();
-			csp.getPropagatedTemporalIntervals(valueLookup);
+//			stpSolver.getPropagatedTemporalIntervals(valueLookup);
 			
 			TemporalNetworkTools.dumbTimeLineData(res, valueLookup, "stp.txt");
 
 			res.export("solution.uddl");
 			
-			System.out.println("===========================================================");
-			System.out.println("= Calculated Values");
-			System.out.println("===========================================================");
-			System.out.println(res.getUnique(ValueLookup.class));
+			ValueLookup vLookUp = res.getUnique(ValueLookup.class);
+			if ( vLookUp != null ) {
+				System.out.println("===========================================================");
+				System.out.println("= Calculated Values");
+				System.out.println("===========================================================");
+				System.out.println();
+			}
 		}
-						
-		System.out.println("===========================================================");
-		System.out.println("= Statistics");
-		System.out.println("===========================================================");
-		System.out.println(Statistics.getString());
+		
+		String statsStr = Statistics.getString();
+		if ( !statsStr.equals("") ) {
+			System.out.println("===========================================================");
+			System.out.println("= Statistics");
+			System.out.println("===========================================================");
+			System.out.println();
+		}
 		
 		System.out.println("===========================================================");
 		System.out.println("= Times");

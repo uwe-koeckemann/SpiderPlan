@@ -48,6 +48,9 @@ import java.util.Vector;
  */
 public class Logger {
 
+	/**
+	 * Current log depth
+	 */
 	public static int depth = 0;
 	
 	private static Vector<Vector<LogEntry>> history = new Vector<Vector<LogEntry>>();
@@ -59,8 +62,8 @@ public class Logger {
 	
 	protected static HashMap<String,Vector<PrintStream>> outStreamMap = new HashMap<String, Vector<PrintStream>>();
 		
-	public static boolean keepAllLogs = true;
-	public static boolean stop = false;
+//	public static boolean keepAllLogs = true;
+//	public static boolean stop = false;
 	
 	private Logger() {}
 	
@@ -75,14 +78,15 @@ public class Logger {
 		}
 	}
 	
+	/**
+	 * Reset the logger.
+	 */
 	public static void reset() {
 		history = new Vector<Vector<LogEntry>>();
 		logLevelMap = new HashMap<String, Integer>(); 
 		outStreamMap = new HashMap<String, Vector<PrintStream>>();
-		keepAllLogs = true;
 		currentLandmark = 0;
 		isInitialized = false;
-		stop = false;
 		
 		init();
 	}
@@ -136,29 +140,25 @@ public class Logger {
 	 * @param source
 	 * @param msg
 	 * @param level Level of this message. Lower levels are considered more important.
-	 * @param depth Depth of the tabbing of this message
 	 */
 	public static void msg( String source, String msg, int level ) {
 		init();
 		if ( !outStreamMap.containsKey(source) ) {
 			registerSource(source, level);
 		}
-		if ( !Logger.stop ) {
-			try {
-				boolean hasMinLevel = level <= logLevelMap.get(source);
-				if ( keepAllLogs || hasMinLevel ) {
-					LogEntry le = new LogEntry(source, msg, level, depth);
-					history.get(currentLandmark).add(le);
-					if ( hasMinLevel ) {
-						for ( PrintStream  out : outStreamMap.get(source) ) {
-							out.println(le.toString());
-						}
-					}
+		try {
+			boolean hasMinLevel = level <= logLevelMap.get(source);
+			LogEntry le = new LogEntry(source, msg, level, depth);
+			history.get(currentLandmark).add(le);
+			if ( hasMinLevel ) {
+				for ( PrintStream  out : outStreamMap.get(source) ) {
+					out.println(le.toString());
 				}
-			} catch ( NullPointerException e ) {
-				System.err.println("Unknown source: " + source);
-				e.printStackTrace();
 			}
+			
+		} catch ( NullPointerException e ) {
+			System.err.println("Unknown source: " + source);
+			e.printStackTrace();
 		}
 	}
 		
@@ -205,7 +205,8 @@ public class Logger {
 
 	/**
 	 * Put sequence of landmarks on {@link PrintStream} and override logLevel
-	 * @param landmarkID
+	 * @param fromLandmarkID 
+	 * @param toLandmarkID 
 	 * @param ps
 	 * @param customLevel
 	 */
@@ -262,7 +263,7 @@ public class Logger {
 	
 	/**
 	 * Get all registered sources
-	 * @return
+	 * @return all log sources that are known to the logger
 	 */
 	public static ArrayList<String> getAllSources() {
 		ArrayList<String> list = new ArrayList<String>();
@@ -283,6 +284,7 @@ public class Logger {
 	
 	/**
 	 * Create a GUI frame that streams all available sources 
+	 * @param name title of the GUI frame
 	 */
 	public static void drawWithName( String name ) {
 		ArrayList<String> sources = getAllSources();

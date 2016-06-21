@@ -29,6 +29,17 @@ dependencies{
   compile 'net.sf.jung:jung-visualization:2.0.1'
   compile 'jfree:jfreechart:1.0.13'
   compile 'junit:junit:4.12'
+  
+  // The production code uses the SLF4J logging API at compile time
+  compile 'org.slf4j:slf4j-api:1.7.13'
+  // http://mvnrepository.com/artifact/com.google.guava/guava
+	//compile group: 'com.google.guava', name: 'guava', version: '19.0'
+    // http://mvnrepository.com/artifact/net.sourceforge.owlapi/owlapi-distribution
+	compile group: 'net.sourceforge.owlapi', name: 'owlapi-distribution', version:'3.5.4'
+	// http://mvnrepository.com/artifact/org.apache.jena/jena-arq
+	compile group: 'org.apache.jena', name: 'jena-arq', version: '3.1.0'
+	//java library for HMM
+	//compile 'io.github.adrianulbona:hmm:0.1.0'	
 }
 
 run {

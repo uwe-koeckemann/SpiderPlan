@@ -45,6 +45,7 @@ import junit.framework.TestCase;
  * 
  * @author Uwe Köckemann
  */
+@SuppressWarnings("javadoc")
 public class TestScheduling extends TestCase {
 	
 	Term INF = Term.createConstant("inf");

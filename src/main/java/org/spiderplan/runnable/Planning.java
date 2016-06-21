@@ -22,8 +22,6 @@
  *******************************************************************************/
 package org.spiderplan.runnable;
 
-import java.util.Arrays;
-
 /**
  * Main class that takes files from command line arguments and either 
  * uses them to run an experiment (single file) or solve a problem  

@@ -62,7 +62,7 @@ r.reverse()
 y = (np.array(r) + 1) / float(len(variable) + 1)
 
 #Plot function
-def timelines(y, xstart, xstop, color='b', linestyles=u'solid', vLenght=0.015):
+def timelines(y, xstart, xstop, color='b', linestyles=u'solid', vLenght=0.03):
     plt.hlines(y, xstart, xstop, color, lw=4, linestyles=linestyles)
     plt.vlines(xstart, y+vLenght, y-vLenght, color, lw=2, linestyles=linestyles)
     plt.vlines(xstop, y+vLenght, y-vLenght, color, lw=2, linestyles=linestyles)
@@ -76,8 +76,8 @@ def labels(y, xstart,xstop, value,color='b'):
 	#value[i] = variable[i] + " := " + value[i]
  
 if earliestTimelines:
-	timelines(y, LST, EET, 'k')
-	labels(y,LST,EET,value, 'k')	
+	timelines(y, EST, EET, 'k')
+	labels(y,EST,EET,value, 'k')	
 else:
 	timelines(y, EST, LST, 'k', vLenght=0.03)
 	timelines(y, EET, LET, 'k', vLenght=0.015)
@@ -88,7 +88,7 @@ else:
 #ax = plt.gca()
 
 if earliestTimelines:
-	delta = (EET.max() - LST.min())/10
+	delta = (EST.max() - EET.min())/10
 else:
 	delta = (LET.max() - EST.min())/10
 

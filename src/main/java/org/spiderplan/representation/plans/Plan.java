@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.spiderplan.causal.forwardPlanning.ForwardPlanningSearch;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Expression;
@@ -42,13 +43,15 @@ import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.Type;
 import org.spiderplan.representation.types.TypeManager;
-import org.spiderplan.tools.visulization.GraphFrame;
 
-
-import edu.uci.ics.jung.graph.AbstractTypedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-
-
+/**
+ * Represents a plan and a set of constraints required by this plan.
+ * Usually the constraint set includes temporal constraints that resemble
+ * causal links.
+ * 
+ * @author Uwe Köckemann
+ *
+ */
 public class Plan {
 	
 	private ArrayList<Operator> A = new ArrayList<Operator>();	
@@ -60,54 +63,97 @@ public class Plan {
 	private final static Term NewPreconditionInterval = Term.createVariable("KEY_P");
 	private final static Term NewEffectInterval = Term.createVariable("KEY_E");
 	
+	/**
+	 * Create new empty plan.
+	 */
 	public Plan() {}	
 	
+	/**
+	 * Get the list of actions of this plan.
+	 * @return list of operators
+	 */
 	public ArrayList<Operator> getActions() {
 		return A;
 	}
 	
+	/**
+	 * Get the constraints of this plan.
+	 * @return set of constraints
+	 */
 	public ConstraintDatabase getConstraints() {
 		return C;
 	}
 	
+	/**
+	 * Add an action to this plan.
+	 * @param a action to be added
+	 */
 	public void addAction( Operator a ) {
 		A.add(a);
 	}
 	
+	/**
+	 * Remove the ith action from this plan.
+	 * @param i
+	 */
 	public void removeAction( int i ) {
 		A.remove(i);
 	}
 	
+	/**
+	 * Add a list of actions to the plan.
+	 * @param A
+	 */
 	public void addActions( ArrayList<Operator> A ) {
 		this.A.addAll(A);
 	}
 	
+	/**
+	 * Add a constraint to the plan.
+	 * @param c
+	 */
 	public void addConstraint( Expression c ) {
 		C.add(c);
 	}
 	
+	/**
+	 * Remove a constraint from the plan.
+	 * @param c
+	 */
 	public void removeConstraint( Expression c ) {
 		C.remove(c);
 	}	
 	
+	/**
+	 * Add a set of constraints to the plan.
+	 * @param C
+	 */
 	public void addConstraints( Collection<Expression> C ) {
 		this.C.addAll(C);
 	}
 		
-	public Plan( OrderedPlan p, Collection<Operator> O, long planID ) {	
+	/**
+	 * Create plan from a sequential plan. 
+	 * Sequential plans are created by heuristic forward planners ({@link ForwardPlanningSearch}).
+	 * 
+	 * @param p sequential plan
+	 * @param O set of operator definitions
+	 * @param planID ID of the plan to keep actions unique
+	 */
+	public Plan( SequentialPlan p, Collection<Operator> O, long planID ) {	
 		HashMap<String,List<Statement>> lastChangingStatement = new HashMap<String, List<Statement>>();
 		Substitution theta = new Substitution();
 		long nextFreeID = 0;
 		
 		for ( int i = 0 ; i < p.length() ; i++ ) {
-			for ( int j = 0 ; j < p.size(i); j++ ) {
+//			for ( int j = 0 ; j < p.size(i); j++ ) {
 				/*
 				 * Find operator, substitute & add
 				 */
 				Operator a = null;
 
 				for ( Operator o : O ) {
-					Substitution sub = o.getName().match(p.getAtomic(i, j)); 
+					Substitution sub = o.getName().match(p.getAtomic(i)); 
 					if ( sub != null ) {
 						a = o.copy();
 						break;
@@ -115,10 +161,10 @@ public class Plan {
 				}
 				
 				if ( a == null ) {
-					throw new IllegalStateException("Operator " + p.getAtomic(i, j).toString() + " does not exist.");
+					throw new IllegalStateException("Operator " + p.getAtomic(i).toString() + " does not exist.");
 				}
 	
-				a.substitute(p.getSubstitution(i, j));
+				a.substitute(p.getSubstitution(i));
 				a.makeUniqueVariables(planID);
 				a.makeUniqueVariables(nextFreeID++);
 //				a.makeUniqueEffectKeys(UniqueID.getID());
@@ -184,7 +230,7 @@ public class Plan {
 					}
 					lastChangingStatement.get(eff.getVariable().toString()).add(eff);
 				}
-			}
+//			}
 		}
 		this.substitute(theta);
 
@@ -229,6 +275,12 @@ public class Plan {
 		return app;
 	}
 	
+	
+	/**
+	 * Return a sub-plan of length n (i.e., including the first n actions).
+	 * @param n
+	 * @return the sub-plan
+	 */
 	public Plan getSubPlan( int n ) {
 		Plan p = new Plan();
 		for ( int i = 0 ; i < n ; i++ ) {
@@ -266,7 +318,7 @@ public class Plan {
 	 * a sub-sequence of, or is equal to this {@link Plan}.
 	 * 
 	 * @param sub
-	 * @return
+	 * @return <code>true</code> if sub can be matched to a sub-sequence of this plan, <code>false</code> otherwise
 	 */
 	public boolean isMatchingSubPlan( Plan sub ) {
 //		if ( sub.getActions().size() != this.getActions().size() ) {
@@ -313,6 +365,10 @@ public class Plan {
 //		return true;
 //	}
 	
+	/**
+	 * Create a sequential plan from this plan.
+	 * @return a sequential plan
+	 */
 	public SequentialPlan getSequentialPlan() {
 		SequentialPlan p = new SequentialPlan();
 		
@@ -325,6 +381,8 @@ public class Plan {
 	
 	/**
 	 * Merge plan into a single operator that is ground except for precondition keys.
+	 * @param name name of the new operator
+	 * @return operator definition that includes the entire plan
 	 */
 	public Operator mergeIntoOperator( String name ) {
 		Operator o = new Operator();
@@ -801,33 +859,37 @@ public class Plan {
 		return o;
 	}
 		
-	public void draw() {
-		AbstractTypedGraph<String, String> g;
-//		Vector<AbstractTypedGraph<String,String>> history = new Vector<AbstractTypedGraph<String,String>>(); 	
-		
-		HashMap<String,String> edgeLabels = new HashMap<String, String>();
-		g = new DirectedSparseMultigraph<String,String>();
-//		GraphTools<String,String> cG = new GraphTools<String,String>();
-		int c = 0;
-		for ( Operator a : A ) {
-			for ( Statement pre : a.getPreconditions() ) {
-				g.addEdge(""+(c++), pre.toString(), a.getNameStateVariable().toString() );
-				edgeLabels.put(""+(c-1), "p");
-			}
-			for ( Statement eff : a.getEffects() ) {
-				g.addEdge(""+(c++), a.getNameStateVariable().toString(), eff.toString());
-				edgeLabels.put(""+(c-1), "e");
-			}
-		}
-		for ( AllenConstraint con : C.get(AllenConstraint.class) ) {
-			AllenConstraint tC = con;
-			g.addEdge(""+(c++), getStatement(tC.getFrom()).toString(), getStatement(tC.getTo()).toString() ); 
-			edgeLabels.put(""+(c-1), tC.getRelation().toString());
-		}
-		
-		new GraphFrame<String,String>(g, null,  "Plan", GraphFrame.LayoutClass.ISOM, edgeLabels);
-	}
+//	public void draw() {
+//		AbstractTypedGraph<String, String> g;
+////		Vector<AbstractTypedGraph<String,String>> history = new Vector<AbstractTypedGraph<String,String>>(); 	
+//		
+//		HashMap<String,String> edgeLabels = new HashMap<String, String>();
+//		g = new DirectedSparseMultigraph<String,String>();
+////		GraphTools<String,String> cG = new GraphTools<String,String>();
+//		int c = 0;
+//		for ( Operator a : A ) {
+//			for ( Statement pre : a.getPreconditions() ) {
+//				g.addEdge(""+(c++), pre.toString(), a.getNameStateVariable().toString() );
+//				edgeLabels.put(""+(c-1), "p");
+//			}
+//			for ( Statement eff : a.getEffects() ) {
+//				g.addEdge(""+(c++), a.getNameStateVariable().toString(), eff.toString());
+//				edgeLabels.put(""+(c-1), "e");
+//			}
+//		}
+//		for ( AllenConstraint con : C.get(AllenConstraint.class) ) {
+//			AllenConstraint tC = con;
+//			g.addEdge(""+(c++), getStatement(tC.getFrom()).toString(), getStatement(tC.getTo()).toString() ); 
+//			edgeLabels.put(""+(c-1), tC.getRelation().toString());
+//		}
+//		
+//		new GraphFrame<String,String>(g, null,  "Plan", GraphFrame.LayoutClass.ISOM, edgeLabels);
+//	}
 	
+	/**
+	 * Returns a copy of this plan.
+	 * @return the copy
+	 */
 	public Plan copy() {
 		Plan pC = new Plan();
 		for ( Operator a : A ) {
@@ -838,35 +900,39 @@ public class Plan {
 		return pC;
 	}
 	
-	private Statement getStatement( Term key ) {
-		for ( Operator a : A ) {
-			for ( Statement p : a.getPreconditions() ) {
-				if ( p.getKey().equals(key) ) {
-					return p;
-				}
-			}
-			for ( Statement e : a.getEffects() ) {
-				if ( e.getKey().equals(key) ) {
-					return e;
-				}
-			}
-		}
-		return null;
-	}
+//	private Statement getStatement( Term key ) {
+//		for ( Operator a : A ) {
+//			for ( Statement p : a.getPreconditions() ) {
+//				if ( p.getKey().equals(key) ) {
+//					return p;
+//				}
+//			}
+//			for ( Statement e : a.getEffects() ) {
+//				if ( e.getKey().equals(key) ) {
+//					return e;
+//				}
+//			}
+//		}
+//		return null;
+//	}
 	
-	public boolean hasMatchingNames( Plan p ) {
-		if ( this.getActions().size() != p.getActions().size() ) {
-			return false;
-		}
-		for ( int i = 0 ; i < this.getActions().size() ; i++ ) {
-			Substitution theta = this.getActions().get(i).getName().match(p.getActions().get(i).getName());
-			if ( theta == null ) {
-				return false;
-			}
-		}
-		return true;
-	}
+//	public boolean hasMatchingNames( Plan p ) {
+//		if ( this.getActions().size() != p.getActions().size() ) {
+//			return false;
+//		}
+//		for ( int i = 0 ; i < this.getActions().size() ; i++ ) {
+//			Substitution theta = this.getActions().get(i).getName().match(p.getActions().get(i).getName());
+//			if ( theta == null ) {
+//				return false;
+//			}
+//		}
+//		return true;
+//	}
 
+	/**
+	 * Apply a substitution to this plan.
+	 * @param theta the substitution
+	 */
 	public void substitute(Substitution theta) {
 		for ( Operator a : A ) {
 			a.substitute(theta);

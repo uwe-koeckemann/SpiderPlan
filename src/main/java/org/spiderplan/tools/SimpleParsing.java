@@ -43,7 +43,8 @@ public class SimpleParsing {
 	/**
 	 * Split String around comma that are not inside parenthesis.
 	 * @param resultsLine
-	 * @return
+	 * @param separator 
+	 * @return list of strings
 	 */
 	public static ArrayList<String> complexSplit( String resultsLine, String separator ) {
 		ArrayList<String> results = new ArrayList<String>();
@@ -95,7 +96,7 @@ public class SimpleParsing {
 	 * Create a map of assignments from {@link Atomic} to {@link Term} from
 	 * a {@link String}.
 	 * @param s {@link String} of the form "p(a,b)<-c;p(b,c)<-a;..."
-	 * @return
+	 * @return map from state-variables to values
 	 */
 	public static Map<Atomic,Term> createMap( String s ) {
 		Map<Atomic,Term> r = new HashMap<Atomic, Term>();
@@ -112,7 +113,7 @@ public class SimpleParsing {
 	/**
 	 * Create a {@link StateVariableOperator} from a {@link String}
 	 * @param s {@link String} of the form name(narg1,...,nargn)<p>p1(p1arg1...);---;pn(pnarg1...)<e>e1(e1arg1,...);...;en(enarg1,...)
-	 * @return
+	 * @return state-variable operator
 	 */
 	public static StateVariableOperator createSVO( String s ) {
 		Atomic name = new Atomic(s.split("<p>")[0]);

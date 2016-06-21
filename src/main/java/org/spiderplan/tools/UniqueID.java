@@ -22,12 +22,26 @@
  *******************************************************************************/
 package org.spiderplan.tools;
 
+/**
+ * Static class that provides unique IDs.
+ * Mostly used to make interval terms unique.
+ *  
+ * @author Uwe Köckemann
+ */
 public class UniqueID {
 	static private long ID = 0;
 	
+	/**
+	 * Increment ID and return new one.
+	 * @return a new ID
+	 */
 	public static long getID() {
 		return ++ID;
 	}
+	/**
+	 * Get the last used ID (without incrementing).
+	 * @return the previously used ID
+	 */
 	public static long getLastID() {
 		return ID;
 	}

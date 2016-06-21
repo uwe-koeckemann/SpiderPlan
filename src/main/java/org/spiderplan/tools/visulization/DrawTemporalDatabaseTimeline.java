@@ -25,24 +25,30 @@ package org.spiderplan.tools.visulization;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.visulization.timeLineViewer.TimeLineViewer;
 
+/**
+ * Visualization of time-lines (statements and temporal constraints)
+ * @author Uwe Köckemann
+ */
 public class DrawTemporalDatabaseTimeline {
 	
-	public static void drawTimeline( ConstraintDatabase tDB, TypeManager tM ) {
+	/**
+	 * Draw time-lines of a constraint-database.
+	 * @param tDB the constraint database
+	 */
+	public static void drawTimeline( ConstraintDatabase tDB ) {
 
 		IncrementalSTPSolver csp = new IncrementalSTPSolver(0,1000);
 	
-		csp.isConsistent(tDB, tM);
+		csp.isConsistent(tDB);
 	
 		TimeLineViewer timeLineViewer = new TimeLineViewer();
 		for ( Statement s : tDB.get(Statement.class) ) {
 			String tName = s.getVariable().toString();
 			String value = s.getValue().toString(); 
 			Term id = s.getKey();
-			System.out.println(s);
 			long[] bounds = csp.getBoundsArray(id);
 			
 			if ( ! timeLineViewer.hasTrack(tName) ) {

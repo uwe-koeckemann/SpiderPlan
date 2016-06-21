@@ -35,6 +35,7 @@ import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import junit.framework.TestCase;
 
+@SuppressWarnings("javadoc")
 public class TestOperator extends TestCase {
 
 	Term bkbName = Term.createConstant("prolog");

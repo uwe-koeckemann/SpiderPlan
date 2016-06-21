@@ -28,6 +28,7 @@ import org.spiderplan.modules.solvers.Core.State;
 
 import junit.framework.TestCase;
 
+@SuppressWarnings("javadoc")
 public class TestFlowRules extends TestCase {
 
 	@Override

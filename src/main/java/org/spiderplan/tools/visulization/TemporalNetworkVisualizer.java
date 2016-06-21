@@ -52,7 +52,8 @@ public class TemporalNetworkVisualizer {
 	private Map<String,String> edgeLabels;
 	
 	/**
-	 * Draw a GraphFrame of the Statements (Nodes) and TemporalConstraints (Edges) in this TemporalDatabase.
+	 * Draw a GraphFrame of the Statements (Nodes) and AllenConstraints (Edges) in this constraint database.
+	 * @param cdb the constraint database
 	 */
 	public void draw( ConstraintDatabase cdb ) {
 		ConstraintDatabase cdbCopy = cdb.copy();
@@ -60,10 +61,11 @@ public class TemporalNetworkVisualizer {
 			cdbCopy.add(og.getStatement());
 		}
 		this.takeSnapshot(cdbCopy);
-		new GraphFrame<String,String>(g, history,  "Temporal Database", GraphFrame.LayoutClass.FR, edgeLabels);
+		new GraphFrame<String,String>(g, history,  "Temporal Network", GraphFrame.LayoutClass.FR, edgeLabels);
 	}
 	/**
 	 * Draw a GraphFrame of the Statements (Nodes) and TemporalConstraints (Edges) in this TemporalDatabase.
+	 * @param cdb the constraint database
 	 * @param title Title of the frame.
 	 */
 	public void draw( ConstraintDatabase cdb, String title ) {
@@ -74,6 +76,7 @@ public class TemporalNetworkVisualizer {
 	/**
 	 * Saves a copy of this TemporalDatabase to history. History can be accessed e.g.
 	 * after using draw() to visualize this TemporalDatabase
+	 * @param cdb the constraint database
 	 */
 	public void takeSnapshot( ConstraintDatabase cdb ) {
 		if ( history == null ) {

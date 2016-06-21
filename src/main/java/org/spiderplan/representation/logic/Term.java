@@ -25,6 +25,8 @@ package org.spiderplan.representation.logic;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import org.spiderplan.tools.UniqueID;
+
 /**
  * {@link Term}s are symbols that represent objects. A {@link Term} can be a constant 
  * (e.g. <code>robot</code>) a variable (e.g. <code>X</code>) or complex (e.g. <code>storage(robot)</code>, <code>storage(R)</code>).
@@ -39,14 +41,29 @@ public abstract class Term {
 	
 	protected Term() { }
 			
+	/**
+	 * Create an integer term (from a long value)
+	 * @param n the integer
+	 * @return the created term
+	 */
 	public static Term createInteger( long n ) {
 		return new IntegerTerm(n);
 	}
 	
+	/**
+	 * Create a float term (from a double value)
+	 * @param n the float 
+	 * @return the created term
+	 */
 	public static Term createFloat( double n ) {
 		return new FloatTerm(n);
 	}
 	
+	/**
+	 * Create a variable term
+	 * @param name name of the variable
+	 * @return the created term
+	 */
 	public static Term createVariable( String name ) {
 		name = name.replace("?", "");
 		Term v =  new VariableTerm(name);
@@ -54,6 +71,11 @@ public abstract class Term {
 		return v;
 	}
 	
+	/**
+	 * Create a constant term
+	 * @param name name of the constant
+	 * @return the created term
+	 */
 	public static Term createConstant( String name ) {		
 		Term v =  new ConstantSymbolicTerm(name);
 		if ( Character.isDigit(name.charAt(0)) ) {
@@ -69,6 +91,12 @@ public abstract class Term {
 //		return v;
 //	}
 	
+	/**
+	 * Create a symbolic term (variable or constant)
+	 * @param name name of the term
+	 * @param isVariable whether or not the term is a variable
+	 * @return the created term
+	 */
 	public static Term createSymbolic( String name, boolean isVariable ) {
 		if ( isVariable ) {
 			return Term.createVariable(name);
@@ -77,10 +105,21 @@ public abstract class Term {
 		}
 	}
 		
+	/**
+	 * Create a complex term 
+	 * @param name name of the term
+	 * @param args arguments of the term
+	 * @return the created term
+	 */
 	public static Term createComplex( String name, Term... args ) {
 		return new ComplexTerm(name,args);
 	}
 	
+	/**
+	 * Parse a term from a string
+	 * @param s the string
+	 * @return the created term
+	 */
 	public static Term parse( String s ) {	
 		s = s.replace("{", "(list ").replace("}", ")").replace("  ", " ");
 		s = s.replace("[", "(interval ").replace("]", ")").replace("  ", " ");
@@ -147,12 +186,29 @@ public abstract class Term {
 		}
 	}
 	
+	/**
+	 * Allow substitution of constants (by default only variables are substituted)
+	 * @param isAllowed 
+	 */
 	public static void setAllowConstantSubstitution( boolean isAllowed ) {
 		allowConstantSubstitutions = isAllowed;
 	}
 		
+	/**
+	 * Get the ith argument of a complex term
+	 * @param i index of the argument
+	 * @return the argument term
+	 */
 	public abstract Term getArg( int i );
+	/**
+	 * Get the number of arguments (or arity) of a complex term
+	 * @return number of arguments 
+	 */
 	public abstract int getNumArgs();	
+	/**
+	 * Get name of a term 
+	 * @return the name
+	 */
 	public abstract String getName();
 	
 	protected abstract Term[] getArgs();
@@ -230,10 +286,19 @@ public abstract class Term {
 	 */
 	public abstract ArrayList<Term> getVariables();
 	 
+	/**
+	 * Get the unique name of a term (i.e., name/arity)
+	 * @return the unique name
+	 */
 	public String getUniqueName() {
 		return this.getName() + "/" + this.getNumArgs();
 	}
 	
+	/**
+	 * Test if name of this term equals the name of another
+	 * @param t the term to compare to
+	 * @return <code>true</code> if both terms have the same name, <code>false</code> otherwise
+	 */
 	public boolean nameEquals( Term t ) {
 		return this.getName().equals(t.getName());
 	}
@@ -246,6 +311,10 @@ public abstract class Term {
 	 */
 	public abstract Term substitute( Substitution theta );
 		
+	/**
+	 * Create a constant from a variable term
+	 * @return constant if term is a variable, unchanged term otherwise
+	 */
 	public Term makeConstant() {
 		if ( this.isVariable() ) {
 			return Term.createConstant(this.getName().replace("?", ""));
@@ -253,6 +322,11 @@ public abstract class Term {
 		return this;
 	}
 	
+	/**
+	 * Make a variable term unique by attaching "_ID" to its name
+	 * @param ID unique ID (usually from {@link UniqueID})
+	 * @return Modified variable or unchanged term if term was not a variable
+	 */
 	public Term makeUnique( long ID ) {
 		if ( this.isVariable() ) {
 			return Term.createVariable(this.getName() + "_" + ID);
@@ -264,15 +338,18 @@ public abstract class Term {
 	
 	/**
 	 * Converts term to a String that is Prolog compatible.
-	 * @return
+	 * @return A Prolog version of the term (capitalized variable, prefix notation)
 	 */
 	public abstract String getPrologStyleString();
 	
-	public static void resetPools() {
-		ConstantIDTerm.nextID = 0;
-//		Term.variablePool.clear();
-//		Term.constantPool.clear();
-	}
+	/**
+	 * 
+	 */
+//	public static void resetPools() {
+//		ConstantIDTerm.nextID = 0;
+////		Term.variablePool.clear();
+////		Term.constantPool.clear();
+//	}
     
 	@Override
 	public abstract String toString();

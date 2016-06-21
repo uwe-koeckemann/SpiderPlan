@@ -34,10 +34,15 @@ public class LogEntry {
 	int level;	
 	int depth;
 	long ID;
-	
-	public static boolean addID2String = false;
+
 	private static long nextID = 0;
 	
+	/**
+	 * Create a new log entry.
+	 * @param source origin of the log
+	 * @param message log message
+	 * @param level log level
+	 */
 	public LogEntry( String source, String message, int level ) {
 		this.source = source;
 		this.message = message;
@@ -45,7 +50,13 @@ public class LogEntry {
 		this.depth = 0;
 		this.ID = nextID++;		
 	}
-	
+	/**
+	 * Create a new log entry.
+	 * @param source origin of the log
+	 * @param message log message
+	 * @param level log level
+	 * @param depth used to tab logs
+	 */
 	public LogEntry( String source, String message, int level, int depth ) {
 		this.source = source;
 		this.message = message;
@@ -58,9 +69,7 @@ public class LogEntry {
 	public String toString() {
 		String tabs = getTabbing( depth );
 		String IDstr = "";
-		if ( addID2String ) {
-			 IDstr = "[" + addLeadingZeros(ID) + "]";
-		}
+		IDstr = "[" + addLeadingZeros(ID) + "]";
 		
 		return IDstr+tabs+"[" + source + "] " + message.replace("\n", "\n"+IDstr+tabs+"[" + source + "] ");
 		
@@ -80,13 +89,5 @@ public class LogEntry {
 			r = "0" + r;
 		}
 		return r;
-	}
-	
-	public int getLevel() {
-		return level;
-	}
-	
-	public static long getLastID() {
-		return nextID-1;
 	}
 }

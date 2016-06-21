@@ -32,7 +32,13 @@ import org.spiderplan.representation.logic.Term;
  * @author Uwe Köckemann
  */
 public class IntegerType extends Type { 
+	/**
+	 * Minimum allowed value
+	 */
 	public long min = 0;
+	/**
+	 * Maximum allowed value
+	 */
 	public long max = 1;
 	
 	@Override

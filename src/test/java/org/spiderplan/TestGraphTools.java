@@ -31,6 +31,7 @@ import edu.uci.ics.jung.graph.Graph;
 
 import junit.framework.TestCase;
 
+@SuppressWarnings("javadoc")
 public class TestGraphTools extends TestCase {
 
 	@Override

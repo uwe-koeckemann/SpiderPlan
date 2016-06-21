@@ -30,10 +30,10 @@ import java.util.ArrayList;
  * @author Uwe Köckemann
  *
  */
-public class Track {
+class Track {
 	public String name;
 	public ArrayList<Value> values = new ArrayList<Value>();
-	
+
 	public Track( String name ) {
 		this.name = name;
 	}

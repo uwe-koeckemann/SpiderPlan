@@ -61,6 +61,11 @@ public class Statistics {
 	
 	private Statistics() {}
 	
+	/**
+	 * Add a long value
+	 * @param key
+	 * @param val
+	 */
 	public static void addLong( String key, Long val ) {
 		if ( !longValues.containsKey(key) ) {
 			longValues.put(key,new ArrayList<Long>());
@@ -68,6 +73,11 @@ public class Statistics {
 		longValues.get(key).add(val);
 	}
 	
+	/**
+	 * Add a double value
+	 * @param key
+	 * @param val
+	 */
 	public static void addDouble( String key, Double val ) {
 		if ( !doubleValues.containsKey(key) ) {
 			doubleValues.put(key,new ArrayList<Double>());
@@ -75,10 +85,18 @@ public class Statistics {
 		doubleValues.get(key).add(val);
 	}
 	
+	/**
+	 * Create a new counter
+	 * @param key
+	 */
 	public static void creatCounter( String key ) {
 		counters.put(key,Long.valueOf(0));
 	}
 	
+	/**
+	 * Increment a counter
+	 * @param key
+	 */
 	public static void increment( String key ) {
 		if ( !counters.containsKey(key) ) {
 			counters.put(key,Long.valueOf(1));
@@ -86,12 +104,27 @@ public class Statistics {
 			counters.put(key, Long.valueOf(counters.get(key).longValue()+1));
 		}
 	}
+	/**
+	 * Set a long value
+	 * @param key
+	 * @param val
+	 */
 	public static void setLong( String key, Long val ) {
 		longValue.put(key,val);
 	}
+	/**
+	 * Set a double value.
+	 * @param key
+	 * @param val
+	 */
 	public static void setDouble( String key, Double val ) {
 		doubleValue.put(key,val);
 	}
+	/**
+	 * Add to existing long value.
+	 * @param key
+	 * @param val
+	 */
 	public static void addToLong( String key, Long val ) {
 		if ( longValue.containsKey(key) ) {
 			longValue.put(key,Long.valueOf(longValue.get(key).longValue()+val));
@@ -99,6 +132,11 @@ public class Statistics {
 			longValue.put(key,val);
 		}
 	}
+	/**
+	 * Add to existing double value.
+	 * @param key
+	 * @param val
+	 */
 	public static void addToDouble( String key, Double val ) {
 		if ( doubleValue.containsKey(key) ) {
 			doubleValue.put(key,Double.valueOf(doubleValue.get(key).doubleValue()+val));
@@ -107,27 +145,62 @@ public class Statistics {
 		}
 	}
 	
+	/**
+	 * Set string value.
+	 * @param key
+	 * @param val
+	 */
 	public static void setString( String key, String val ) {
 		strings.put(key,val);
 	}
 	
+	/**
+	 * Get all long values from a list.
+	 * @param key
+	 * @return list of long values
+	 */
 	public static List<Long> getAllLong( String key ) {
 		return longValues.get(key);
 	}
-	
+	/**
+	 * Get all double values from a list.
+	 * @param key
+	 * @return list of double values
+	 */
 	public static List<Double> getAllDouble( String key ) {
 		return doubleValues.get(key);
 	}
 	
+	/**
+	 * Get counter value.
+	 * @param key
+	 * @return counter value
+	 */
 	public static Long getCounter( String key ) {
 		return counters.get(key);
 	}
+	
+	/**
+	 * Get long value
+	 * @param key
+	 * @return long value
+	 */
 	public static Long getLong( String key ) {
 		return longValue.get(key);
 	}
+	/**
+	 * Get double value.
+	 * @param key
+	 * @return double value
+	 */
 	public static Double getDouble( String key ) {
 		return doubleValue.get(key);
 	}
+	/**
+	 * Get string value
+	 * @param key
+	 * @return string value
+	 */
 	public static String getString( String key ) {
 		return strings.get(key);
 	}
@@ -141,6 +214,10 @@ public class Statistics {
 		renameRules.put(from, to);
 	}
 	
+	/**
+	 * Store all data in history and reset all statistics.
+	 * Used to keep data inbetween experiments.
+	 */
 	public static void store() {
 		numEntries++;
 		
@@ -159,6 +236,9 @@ public class Statistics {
 		strings = new HashMap<String, String>();
 	}
 	
+	/**
+	 * Reset everything.
+	 */
 	public static void reset() {
 		longValues.clear();
 		doubleValues.clear();
@@ -179,6 +259,11 @@ public class Statistics {
 		numEntries = 0;
 	}
 	
+	/**
+	 * All attributes are written to a CSV file. 
+	 * @param fName target filename 
+	 * @param attOrder order of attributes
+	 */
 	public static void dumpCSVAllAtts( String fName, List<String> attOrder ) {
 		Set<String> allAtts = new HashSet<String>();
 		for ( Map<String,?> m : allLongValue ) {
@@ -309,6 +394,10 @@ public class Statistics {
 		return "?";
 	}
 	
+	/**
+	 * Get a string representation of all stored data.
+	 * @return a string
+	 */
 	public static String getString() {
 		String r = "";
 		if ( !counters.isEmpty() ) {

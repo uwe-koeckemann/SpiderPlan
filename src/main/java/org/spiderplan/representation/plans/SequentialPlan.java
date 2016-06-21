@@ -37,13 +37,16 @@ import org.spiderplan.tools.UniqueID;
  * substitution works the same on all operators. This means
  * the plan can be understood by any other representation easily. 
  */
-public class SequentialPlan extends OrderedPlan {
+public class SequentialPlan {
 	private ArrayList<Atomic> names = new ArrayList<Atomic>();
 	private ArrayList<Substitution> substitutions = new ArrayList<Substitution>();
 	private ArrayList<Integer> uniqueKeys = new ArrayList<Integer>();
-	
-
-	
+		
+	/**
+	 * Test if this plan is part of another plan.
+	 * @param p a plan
+	 * @return <code>true</code> if this plan is contained in the other, <code>false</code> otherwise
+	 */
 	public boolean isPartOf( SequentialPlan p ) {
 		if ( this.length() > p.length() ) {
 			return false;
@@ -59,100 +62,50 @@ public class SequentialPlan extends OrderedPlan {
 		return true;
 	}
 		
-	@Override
+	
+	/**
+	 * Add an action name and a substitution.
+	 * @param name name of the action
+	 * @param theta a substitution
+	 */
 	public void add(Atomic name, Substitution theta) {
 		Integer ID = new Integer((int)UniqueID.getID());
 		this.add(name, theta, ID);
 	}
 
-	@Override
-	public void add(int i, Atomic name, Substitution theta) {
-		Integer ID = new Integer((int)UniqueID.getID());
-		this.add(i, name, theta, ID);
-	}
-	
-	@Override 
-	public void add(Atomic name, Substitution theta, Integer ID) {
+	private void add(Atomic name, Substitution theta, Integer ID) {
 		this.names.add(name);
 		this.substitutions.add(theta);
 		this.uniqueKeys.add(ID);		
 	}
   
-	@Override
-	public void add(int i, Atomic name, Substitution theta, Integer ID) {
-		this.names.add(i,name);
-		this.substitutions.add(i,theta);
-		this.uniqueKeys.add(i,ID);
-	}
-	
-	@Override
-	public void remove( int i ) {
-		this.names.remove(i);
-		this.substitutions.remove(i);
-		this.uniqueKeys.remove(i);
-	}
-	
-	@Override
-	public void remove( int i, int j ) {
-		this.names.remove(i);
-		this.substitutions.remove(i);
-		this.uniqueKeys.remove(i);
-	}
 
-	@Override
-	public ArrayList<String> getNames(int i) {
-		ArrayList<String> r = new ArrayList<String>();
-		r.add(this.names.get(i).name());
-		return r;
-	}
-
-	@Override
-	public ArrayList<Substitution> getSubstitutions(int i) {
-		ArrayList<Substitution> r = new ArrayList<Substitution>();
-		r.add(this.substitutions.get(i));
-		return r;
-	}
-
-	@Override
-	public ArrayList<Integer> getUniqueIDs(int i) {
-		ArrayList<Integer> r = new ArrayList<Integer>();
-		r.add(this.uniqueKeys.get(i));
-		return r;
-	}
-	
-	public void setUniqueID( int i, int j, Integer key ) {
-		if ( j == 0 ) {
-			this.uniqueKeys.remove(i);
-			this.uniqueKeys.add(i, key);
-		}
-	}
-	
-	public boolean matches( SequentialPlan p ) {
-		if ( this.length() != p.length() ) {
-			return false;
-		}
-		for ( int i = 0 ; i < p.length() ; i++ ) {
-			Atomic a1 = this.getAtomic(i, 0);
-			Atomic a2 = p.getAtomic(i, 0);
-			Substitution t1 = this.getSubstitution(i, 0);
-			Substitution t2 = p.getSubstitution(i, 0);
-			
-			a1 = a1.substitute(t1);
-			a2 = a2.substitute(t2);
-			
-			if ( a1.match(a2) == null) {
-				return false;
-			}
-		}
-		return true;
-	}
+//	public boolean matches( SequentialPlan p ) {
+//		if ( this.length() != p.length() ) {
+//			return false;
+//		}
+//		for ( int i = 0 ; i < p.length() ; i++ ) {
+//			Atomic a1 = this.getAtomic(i, 0);
+//			Atomic a2 = p.getAtomic(i, 0);
+//			Substitution t1 = this.getSubstitution(i, 0);
+//			Substitution t2 = p.getSubstitution(i, 0);
+//			
+//			a1 = a1.substitute(t1);
+//			a2 = a2.substitute(t2);
+//			
+//			if ( a1.match(a2) == null) {
+//				return false;
+//			}
+//		}
+//		return true;
+//	}
 
 	/**
-	 * Determines if the {@link Plan} sub is matching 
-	 * a sub-sequence of or equal to this {@link Plan}.
+	 * Determines if plan <code>sub</code> is matching 
+	 * a sub-sequence of or equal to this plan.
 	 * 
-	 * @param sub
-	 * @return
+	 * @param sub a plan
+	 * @return <code>true</code> if sub matches a sub-sequence of this plan, <code>false</code> otherwise
 	 */
 	public boolean isMatchingSubPlan( SequentialPlan sub ) {
 		if ( sub.names.size() != this.names.size() ) {
@@ -184,7 +137,7 @@ public class SequentialPlan extends OrderedPlan {
 	 * a sub-sequence of or equal to this {@link Plan}.
 	 * 
 	 * @param sub
-	 * @return
+	 * @return <code>true</code> if sub matches a the end of this plan, <code>false</code> otherwise
 	 */
 	public boolean matchesEndOf( SequentialPlan sub ) {		
 		if ( sub.names.size() < this.names.size() ) {
@@ -214,44 +167,33 @@ public class SequentialPlan extends OrderedPlan {
 		return true;
 	}
 
-	@Override
-	public String getName(int i, int j) {
-		if ( j == 0 )
-			return this.names.get(i).name();
-		else
-			return null;
+	//@Override
+//	public String getName(int i, int j) {
+//		if ( j == 0 )
+//			return this.names.get(i).name();
+//		else
+//			return null;
+//	}
+//
+//	//@Override
+	/**
+	 * Get substitution of the ith action.
+	 * @param i index of action
+	 * @return substitution associated to that action
+	 */
+	public Substitution getSubstitution(int i) {
+		return this.substitutions.get(i);
 	}
 
-	@Override
-	public Substitution getSubstitution(int i, int j) {
-		if ( j == 0 )
-			return this.substitutions.get(i);
-		else
-			return null;
-	}
-
-	@Override
-	public Integer getUniqueID(int i, int j) {
-		if ( j == 0 )
-			return this.uniqueKeys.get(i);
-		else
-			return null;
-	}
-	
-	@Override
+	/**
+	 * Get the length of this plan
+	 * @return the length
+	 */
 	public int length() {
 		return this.names.size();
 	}
-
-	@Override
-	public int size(int i) {
-		if ( i < this.length() )
-			return 1;
-		else
-			return 0;
-	}
 	
-	@Override
+	//@Override
 	public String toString() {
 		String r = "";
 		for ( int i = 0 ; i < names.size() ; i++ ) {
@@ -263,54 +205,34 @@ public class SequentialPlan extends OrderedPlan {
 			return "Empty plan";
 		}
 	}
+
+//	public SequentialPlan copy() {
+//		SequentialPlan c = new SequentialPlan();
+//		
+//		for ( int i = 0 ; i < names.size() ; i++ ) {
+//			c.names.add( new Atomic(this.names.get(i).toString()) );
+//			c.substitutions.add(this.substitutions.get(i).copy());
+//			c.uniqueKeys.add( new Integer( this.uniqueKeys.get(i)));
+//		}
+//		
+//		return c;
+//	}
+	
+	/**
+	 * Get name of the ith action
+	 * @param i
+	 * @return action name
+	 */
+	public Atomic getAtomic(int i) {
+		return this.names.get(i);
+	}
 	
 
-	
-	@Override
-	public SequentialPlan copy() {
-		SequentialPlan c = new SequentialPlan();
-		
-		for ( int i = 0 ; i < names.size() ; i++ ) {
-			c.names.add( new Atomic(this.names.get(i).toString()) );
-			c.substitutions.add(this.substitutions.get(i).copy());
-			c.uniqueKeys.add( new Integer( this.uniqueKeys.get(i)));
-		}
-		
-		return c;
-	}
-
-	@Override
-	public boolean contains(int i, Atomic name )  {
-		Atomic oName = this.getAtomic(i, 0);
-		return oName.toString().equals(name.toString());
-	}
-
-	@Override
-	public ArrayList<Atomic> getAtomics(int i) {
-		ArrayList<Atomic> r = new ArrayList<Atomic>();
-		r.add(this.names.get(i));
-		return r;
-	}
-	@Override
-	public SequentialPlan getSequentialPlan() {
-		return this;
-	}
-
-	@Override
-	public Atomic getAtomic(int i, int j) {
-		if ( j == 0 )
-			return this.names.get(i);
-		else 
-			return null;
-	}
-	
-	@Override
+	/**
+	 * Check if this plan is empty.
+	 * @return <code>true</code> is the plan contains no actions, <code>false</code> otherwise
+	 */
 	public boolean isEmpty() {
-		for ( int i = 0 ; i < this.length() ; i++ ) {
-			if ( this.size(i) > 0 ) {
-				return false;
-			}
-		}
-		return true;
+		return this.names.isEmpty();
 	}
 }

@@ -45,6 +45,16 @@ public class MiniZincAdapter {
 
 	private static boolean keepTimes = false;
 	
+	/**
+	 * Run MiniZinc program and return console output as string.
+	 * 
+	 * @param minizincBinaryLocation location of binary
+	 * @param program program string
+	 * @param data data string
+	 * @param allSolutions whether or not all solutions should be generated
+	 * @param nthSolution return only nth solution
+	 * @return console output of MiniZinc solver
+	 */
 	public static String runMiniZincRaw( String minizincBinaryLocation, String program, String data, boolean allSolutions, int nthSolution  ) {
 		String problemFileName = Global.workingDir+"csp"+Global.UniqueFilenamePart+".mzn";
 		String dataFileName = Global.workingDir+"csp"+Global.UniqueFilenamePart+".dzn";

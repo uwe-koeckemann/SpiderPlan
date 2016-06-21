@@ -30,93 +30,95 @@ public interface DomainParser_v4Constants {
   /** RegularExpression Id. */
   int PROLOG = 14;
   /** RegularExpression Id. */
-  int DOMAIN = 15;
+  int SPARQL = 15;
   /** RegularExpression Id. */
-  int GOAL = 16;
+  int DOMAIN = 16;
   /** RegularExpression Id. */
-  int TASK = 17;
+  int GOAL = 17;
   /** RegularExpression Id. */
-  int FINALLY = 18;
+  int TASK = 18;
   /** RegularExpression Id. */
-  int MINIZINC = 19;
+  int FINALLY = 19;
   /** RegularExpression Id. */
-  int RESOURCE = 20;
+  int MINIZINC = 20;
   /** RegularExpression Id. */
-  int CONDITIONAL = 21;
+  int RESOURCE = 21;
   /** RegularExpression Id. */
-  int IC = 22;
+  int CONDITIONAL = 22;
   /** RegularExpression Id. */
-  int CONDITION = 23;
+  int IC = 23;
   /** RegularExpression Id. */
-  int SAMPLING = 24;
+  int CONDITION = 24;
   /** RegularExpression Id. */
-  int CONFIGURATIONPLANNING = 25;
+  int SAMPLING = 25;
   /** RegularExpression Id. */
-  int ROS = 26;
+  int CONFIGURATIONPLANNING = 26;
   /** RegularExpression Id. */
-  int RESOLVER = 27;
+  int ROS = 27;
   /** RegularExpression Id. */
-  int CAPACITY = 28;
+  int RESOLVER = 28;
   /** RegularExpression Id. */
-  int INITIAL = 29;
+  int CAPACITY = 29;
   /** RegularExpression Id. */
-  int CUSTOM = 30;
+  int INITIAL = 30;
   /** RegularExpression Id. */
-  int SIMULATE = 31;
+  int CUSTOM = 31;
   /** RegularExpression Id. */
-  int STATEMENT = 32;
+  int SIMULATE = 32;
   /** RegularExpression Id. */
-  int OPERATOR = 33;
+  int STATEMENT = 33;
   /** RegularExpression Id. */
-  int PRECONDITIONS = 34;
+  int OPERATOR = 34;
   /** RegularExpression Id. */
-  int EFFECTS = 35;
+  int PRECONDITIONS = 35;
   /** RegularExpression Id. */
-  int CONSTRAINTS = 36;
+  int EFFECTS = 36;
   /** RegularExpression Id. */
-  int ROSPUBLISH = 37;
+  int CONSTRAINTS = 37;
   /** RegularExpression Id. */
-  int ROSSUBSCRIBE = 38;
+  int ROSPUBLISH = 38;
   /** RegularExpression Id. */
-  int ROSREGACTION = 39;
+  int ROSSUBSCRIBE = 39;
   /** RegularExpression Id. */
-  int ROSGOAL = 40;
+  int ROSREGACTION = 40;
   /** RegularExpression Id. */
-  int REUSABLE = 41;
+  int ROSGOAL = 41;
   /** RegularExpression Id. */
-  int OP = 42;
+  int REUSABLE = 42;
   /** RegularExpression Id. */
-  int CP = 43;
+  int OP = 43;
   /** RegularExpression Id. */
-  int OBRACKET = 44;
+  int CP = 44;
   /** RegularExpression Id. */
-  int CBRACKET = 45;
+  int OBRACKET = 45;
   /** RegularExpression Id. */
-  int OBRACE = 46;
+  int CBRACKET = 46;
   /** RegularExpression Id. */
-  int CBRACE = 47;
+  int OBRACE = 47;
   /** RegularExpression Id. */
-  int BAR = 48;
+  int CBRACE = 48;
   /** RegularExpression Id. */
-  int COMMA = 49;
+  int BAR = 49;
   /** RegularExpression Id. */
-  int DOT = 50;
+  int COMMA = 50;
   /** RegularExpression Id. */
-  int COLON = 51;
+  int DOT = 51;
   /** RegularExpression Id. */
-  int PLUS = 52;
+  int COLON = 52;
   /** RegularExpression Id. */
-  int MINUS = 53;
+  int PLUS = 53;
   /** RegularExpression Id. */
-  int QMARKS = 54;
+  int MINUS = 54;
   /** RegularExpression Id. */
-  int QPOINT = 55;
+  int QMARKS = 55;
   /** RegularExpression Id. */
-  int NON_COMPLEX_TERM = 56;
+  int QPOINT = 56;
   /** RegularExpression Id. */
-  int STRING = 57;
+  int NON_COMPLEX_TERM = 57;
   /** RegularExpression Id. */
-  int UFLOAT = 58;
+  int STRING = 58;
+  /** RegularExpression Id. */
+  int UFLOAT = 59;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -138,6 +140,7 @@ public interface DomainParser_v4Constants {
     "\":set\"",
     "\":graph\"",
     "\":prolog\"",
+    "\":sparql\"",
     "\":domain\"",
     "\":goal\"",
     "\":task\"",

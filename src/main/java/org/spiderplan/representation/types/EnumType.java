@@ -32,8 +32,11 @@ import org.spiderplan.representation.logic.Term;
  * @author Uwe Köckemann
  */
 public class EnumType extends Type {
-	public ArrayList<Term> D = new ArrayList<Term>();
+	protected ArrayList<Term> D = new ArrayList<Term>();
 	
+	/**
+	 * Create new type
+	 */
 	public EnumType() {}; 
 	
 //	public EnumType( String name, String domainCSV ) {

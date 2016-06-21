@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
-import org.spiderplan.modules.STPSolver;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
@@ -38,37 +37,46 @@ import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.representation.types.TypeManager;
-import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
-import org.spiderplan.tools.Loop;
 
 /**
  * Note: Code based on scheduling code of the metacsp project (http://metacsp.org/) 
  */
 public abstract class Scheduler {
 	
-	public enum PeakCollectionStrategy { BinaryPeakCollection, SamplingPeakCollection };
+	/**
+	 * Strategies for peak collection
+	 * @author Uwe Köckemann
+	 */
+	public enum PeakCollectionStrategy { /**
+	 * For resources with unit capacity.
+	 */
+	BinaryPeakCollection, /**
+	 * Sampling approach.s
+	 */
+	SamplingPeakCollection };
 	
 	protected PeakCollectionStrategy strategy = PeakCollectionStrategy.SamplingPeakCollection;
 	
 	private Atomic resourceVariable;
 	private ValueLookup tiLookup;
-	
-	private ConstraintDatabase currentCDB = null;
-	
+		
 	private List<Statement> usages;
 	
+	/**
+	 * Create a new scheduler for a state-variable
+	 * @param resourceVariable the variable
+	 */
 	public Scheduler( Atomic resourceVariable ) {
 		this.resourceVariable = resourceVariable;
 	}
 	
 	/**
-	 * Update the list of statements using the resource.
+	 * Proposes resolvers for a single flaw in a constraint database
 	 * 
-	 * @param cDB
+	 * @param cDB the constraint database
+	 * @return list of resolvers if there exists a flaw, empty list if there exists no flaws, and <code>null</code> if there exists a flaw without resolvers
 	 */
 	public List<AllenConstraint> resolveFlaw( ConstraintDatabase cDB ) {
-		currentCDB = cDB;
 		this.usages = new ArrayList<Statement>();
 		
 		this.tiLookup = cDB.getUnique(ValueLookup.class); 
@@ -317,36 +325,14 @@ public abstract class Scheduler {
 				long i_max = tiLookup.getEET(groundVars[i].getKey());
 				Bounds b_i = null;
 				
-				try {
-					b_i = new Bounds(i_min, i_max);	
-				} catch ( Exception e ) {
-					IncrementalSTPSolver stpSolver = new IncrementalSTPSolver(0, 1000000);
-					boolean r = stpSolver.isConsistent(currentCDB, new TypeManager());
-					
-//					System.out.println("i: " + groundVars[i]);
-//					System.out.println(tiLookup.getEST(groundVars[i].getKey()));
-//					System.out.println(tiLookup.getEET(groundVars[i].getKey()));
-//					System.out.println(r);
-					
-//					System.out.println(stpSolver.getPropagatedTemporalIntervals());
-					
-					Loop.start();
-				}
-				
+				b_i = new Bounds(i_min, i_max);	
 						
 				for (int j = i+1; j < groundVars.length; j++) {
 					long j_min = tiLookup.getEST(groundVars[j].getKey());
 					long j_max = tiLookup.getEET(groundVars[j].getKey());
 					
 					Bounds b_j = new Bounds(j_min, j_max);
-					
-//					System.out.println("==============");
-//					System.out.println(b_i);
-//					System.out.println(b_j);
-//					System.out.println(b_i.intersectStrict(b_j));
-//					
-//					System.out.println(isConflicting(new Statement[] {groundVars[i], groundVars[j]}));
-					
+
 					if ( b_i.intersectStrict(b_j) != null && isConflicting(new Statement[] {groundVars[i], groundVars[j]})) {
 						List<Statement> conflict = new ArrayList<Statement>();
 						conflict.add(groundVars[i]);
@@ -362,13 +348,13 @@ public abstract class Scheduler {
 		return new ArrayList<List<Statement>>();
 	}
 	
-	public final boolean intersectStrict( long aMin, long aMax, long bMin, long bMax) {
-		final long _min = Math.max(aMin, bMin);
-		final long _max = Math.min(aMax, bMax);
-		if(_min < _max) return true;
-		return false;
-	}
-	
+//	private final boolean intersectStrict( long aMin, long aMax, long bMin, long bMax) {
+//		final long _min = Math.max(aMin, bMin);
+//		final long _max = Math.min(aMax, bMax);
+//		if(_min < _max) return true;
+//		return false;
+//	}
+
 	/**
 	 * Test if set of Terms violates capacity
 	 * @param peak

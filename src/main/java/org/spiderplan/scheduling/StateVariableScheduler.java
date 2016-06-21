@@ -26,10 +26,19 @@ import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.logic.Atomic;
 
 
+/**
+ * Implements scheduler for values of state-variables.
+ * 
+ * @author Uwe Köckemann
+ */
 public class StateVariableScheduler extends Scheduler {
 	
-	public StateVariableScheduler( Atomic resourceVariable ) {
-		super(resourceVariable);
+	/**
+	 * Create a new scheduler for a single state-variable.
+	 * @param stateVariable the state-variable
+	 */
+	public StateVariableScheduler( Atomic stateVariable ) {
+		super(stateVariable);
 		super.strategy = PeakCollectionStrategy.BinaryPeakCollection;
 	}
 

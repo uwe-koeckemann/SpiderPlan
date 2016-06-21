@@ -45,6 +45,7 @@ import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
 import junit.framework.TestCase;
 
+@SuppressWarnings("javadoc")
 public class TestPlan extends TestCase {
 	
 	
@@ -126,7 +127,7 @@ public class TestPlan extends TestCase {
 		tM.attachTypes("y=type");
 		
 		IncrementalSTPSolver stp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
-		stp.isConsistent(context, tM);
+		stp.isConsistent(context);
 		ValueLookup valueLookup = new ValueLookup();
 		stp.getPropagatedTemporalIntervals(valueLookup);
 		context.add(valueLookup);
@@ -159,7 +160,7 @@ public class TestPlan extends TestCase {
 		cM.add("ApplyMod");
 		
 		IncrementalSTPSolver stp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
-		stp.isConsistent(context, tM);
+		stp.isConsistent(context);
 		ValueLookup valueLookup = new ValueLookup();
 		stp.getPropagatedTemporalIntervals(valueLookup);
 		context.add(valueLookup);
@@ -209,7 +210,7 @@ public class TestPlan extends TestCase {
 		cM.add("Planner");
 		
 		IncrementalSTPSolver stp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
-		stp.isConsistent(context, tM);
+		stp.isConsistent(context);
 		ValueLookup valueLookup = new ValueLookup();
 		stp.getPropagatedTemporalIntervals(valueLookup);
 		context.add(valueLookup);
@@ -321,7 +322,7 @@ public class TestPlan extends TestCase {
 		cM.add("Planner");
 		
 		IncrementalSTPSolver stp = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
-		stp.isConsistent(context, tM);
+		stp.isConsistent(context);
 		ValueLookup valueLookup = new ValueLookup();
 		stp.getPropagatedTemporalIntervals(valueLookup);
 		context.add(valueLookup);

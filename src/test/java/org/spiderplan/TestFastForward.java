@@ -36,6 +36,7 @@ import org.spiderplan.representation.types.TypeManager;
 
 import junit.framework.TestCase;
 
+@SuppressWarnings("javadoc")
 public class TestFastForward extends TestCase {
 
 	@Override
