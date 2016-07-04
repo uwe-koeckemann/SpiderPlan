@@ -1,0 +1,24 @@
+(:initial-context
+	(:configuration-planning
+		(goal G1 c6)
+		(goal G2 c19)
+		(goal G3 c19)
+		(goal G4 c20)
+		(goal G5 c22)
+	)
+	(:statement
+		(G1 (inferring c6))
+		(G2 (inferring c19))
+		(G3 (inferring c19))
+		(G4 (inferring c20))
+		(G5 (inferring c22))
+	)
+	(:temporal
+		(at G1 [0 7453] [7533 inf])
+		(at G2 [0 212] [280 inf])
+		(at G3 [0 8999] [9071 inf])
+		(at G4 [0 8426] [8518 inf])
+		(at G5 [0 8948] [9041 inf])
+
+	)
+)

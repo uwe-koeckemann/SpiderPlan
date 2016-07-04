@@ -1,0 +1,81 @@
+;; Created from:
+;;
+;; eating(John,t) :− fridgeDoor(_, Open, T1),
+;; 									 fridgeDoor(_, Closed, T2),
+;; 									 kitchenSeat(John, Pressed, t),
+;; 									 T 1 < T2 < t.
+;;
+;; -> Moved door state into fridgeDoor predicate to make clear it's the
+;;		same sensor
+;;
+;; Problem 1: Is fridgeDoor really a sensor? If it is a concept that needs 
+;; 						processing of a real sensor another layer of operators could be required.
+;; 						E.g.: turn on sensor, stream values to node inferring "fridgeDoorOpen", etc.
+;;									processing nodes could be multi-purpose but slower to process and turn on
+
+(:initial-context
+	(:domain
+		(enum human { John })
+		(enum sensorID { kitchenDoor kitchenSeat })
+		(sig (eating human))
+		(sig (fridgeDoorOpen))
+		(sig (fridgeDoorClosed))
+		(sig (kitchenSeatPressed human))
+	)
+	(:statement
+		
+	)
+	(:goal
+		(?G (eating John))
+	)
+	(:temporal
+		(at ?G [100 100] [200 200])
+	)
+)
+
+(:operator ;; creates window during which eating can be inferred with above rule
+	(eating-op ?H - human)
+	(:preconditions
+		(?P1 (state ?SensorID1) on)
+		(?P2 (state ?SensorID2) on)
+	)
+	(:effects
+		(?E (eating ?H))
+	)
+	(:constraints
+		(:temporal
+			(equals ?THIS ?E)
+			(before ?P1 ?P2 [1 5])
+			(equals ?P2 ?E)
+		)
+		(:prolog sensor-kb
+			(sensorID fridgeDoor ?SensorID1)
+			(sensorID kitchenSeat ?SensorID2)
+		)
+	)
+)
+
+;; this could be more elaborate:
+;;		- switchOnTime could depend on class (rather than sensorID)
+;; 		- sensors could be switched to different modes (on-demand, streaming, off, ...?)
+(:operator ;; turn sensor on for limited time then turn it off
+	(switch-on-off ?S - sensorID)
+	(:preconditions
+		(?P (state ?SensorID) off)
+	)
+	(:effects
+		(?E1 (state ?SensorID) on)
+		(?E2 (state ?SensorID) off)
+	)
+	(:constraints
+		(:temporal
+			(equals ?THIS ?E1)
+			(before ?P ?E1 [?TminOn ?TmaxOn])
+			(before ?E1 ?E2 [?TminOff ?TmaxOff])
+		)
+		(:prolog sensor-kb
+			(switchOnTime ?SensorID ?TminOn ?TmaxOn)
+			(switchOffTime ?SensorID ?TminOff ?TmaxOff)
+		)
+	)
+)

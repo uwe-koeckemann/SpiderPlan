@@ -1,0 +1,386 @@
+
+
+(:initial-context
+	(:include (kb "./kb.prolog"))
+
+	(:domain
+		;; Inhabitants
+		(enum human { john })
+
+		;; Environment
+		(enum location { kitchen bedroom livingRoom bathroom })
+		(enum bed { bedJohn })
+		(enum chair {kitchenChair})
+		(enum door {fridgeDoor})
+		(enum tv {tvJohn})
+		(enum shower {showerJohn})
+		(enum stove {stoveJohn})
+		(enum waterTap {bathroomTabJohn kitchenTabJohn})
+		(enum objects { bed chair stove tv shower waterTap window door } )
+		;; Sensors
+
+		(enum sensorID 
+			{ 
+				(camera location)
+				;; Mobile sensors
+				robot  
+
+				;; Location-based sensors
+				(pir location)
+				(environmentalSensor location) ;; temperature, humidity
+				(luminositySensor location)
+
+				;; Object-based sensors
+				(doorSensor door)
+				(windowSensor window)
+				(pressureSensor chair)
+				(pressureSensor bed)
+
+				(waterCurrentSensor shower)
+				(waterCurrentSensor waterTap)
+
+				(electricCurrentSensor tv)
+				(electricCurrentSensor stove)
+
+				;; Wearable sensors
+				(activityTracker human)
+			}
+		)
+		(enum inferenceRequirement { none atLocation facingHumanAtLocation })
+		(enum nodeClass { lowPowerProcessor generalPurposeProcessor })
+		;;;;;;;;;;;;;;;;;;;
+		;; Concepts
+		;;;;;;;;;;;;;;;;;;;
+		(enum concept 
+			{ 
+				(activity human)
+				(activityLevel human)  
+
+				(eating human)
+				(showering human)
+				(sleeping human)
+				(cooking human)
+
+				(doorState door) 
+				(windowState window) 
+				(chairState chair) 
+				(bedState bed) 
+
+				(temperature location)
+				(humidity location)
+				(airQuality location)
+				(luminosity location)
+
+				(humanPressence location)
+
+				(using waterTap)
+				(using shower)
+				(using tv)
+				(using stove)
+			}
+		)
+		(enum state {on off})
+		;;;;;;;;;;;;;;;;;;;
+		;; Devices
+		;;;;;;;;;;;;;;;;;;;
+		(enum device {sensorID})
+		(enum agent {human device none})
+		(enum entity {none device human robot bed chair stove tv shower waterTap window door})
+		
+		(int ms [0 20000])
+		(int energy [0 200000])
+		(int costID [0 10000])
+		(int usage [0 10])
+
+		(sig (at entity) location)
+		(sig (facing device) entity)
+		(sig (adjacent location location))
+		(sig (facingEntityAtLocation human))
+		(sig (isMobile device))
+		(sig (canRotate device))
+		(sig (inferring concept))
+		(sig (deviceEnergyConsumption device energy))
+		(sig (device-state device) state)
+		(sig (hasNodeClass nodeClass))
+		(sig (capabilityBase sensorID inferenceRequirement concept))
+		(sig (capabilityTwo concept concept concept))
+		(sig (capabilityThree concept concept concept concept))
+	)
+	(:statement
+		;;(past (time) past)
+		;;(future (time) future)
+
+		(s1 (at john) kitchen)
+		(s2 (at robot) kitchen)
+		(s3 (facing robot) none)
+
+		(s4 (at (camera bedroom)) bedroom)
+		(s5 (at (camera livingRoom)) livingRoom)
+		(s6 (at (camera kitchen)) kitchen)
+
+		(s7 (at bedJohn) bedroom)
+		(s8 (at kitchenChair) kitchen)
+		(s9 (at fridgeDoor) kitchen)
+		(s10 (at tvJohn) livingRoom)
+		(s11 (at showerJohn) bathroom)
+		(s12 (at stoveJohn) kitchen)
+		(s13 (at bathroomTabJohn) bathroom)
+		(s14 (at kitchenTabJohn) kitchen)
+	)
+
+	(:temporal
+		(planning-interval [0 inf])
+	)
+
+	(:graph
+		(directed G)
+		(dag G)
+	)
+
+	(:finally
+		(:graph
+			(draw G)
+		)
+	)
+
+	(:optimization
+		(min energy)
+	)
+
+	(:ic
+		(attach-costs ?Device ?I)
+		(:condition
+			(:statement
+				(?I (device-state ?Device) on)
+			)
+			(:prolog kb 
+				(deviceEnergyConsumption ?Device ?CostPerTimeUnit)
+			)
+		)
+		(:resolver
+			(:domain
+				;; assure that each instance of this operator uses a unique cost ID
+				(new-object ?CostID costID)
+			)
+			(:math 
+				(eval-int (energyCostTotal ?CostID) (mult (sub (EET ?I) (LST ?I)) ?CostPerTimeUnit))
+			)
+			(:cost
+				(add energy (energyCostTotal ?CostID))
+			)
+		)
+	)
+)
+	
+(:operator 
+	(infer-sensor ?SensorID - sensorID ?C - concept)
+	(:preconditions )
+	(:effects
+		(?E1 (inferring ?C))
+		(?E2 (device-state ?SensorID) on)	)
+	(:constraints
+		(:temporal
+			(equals ?THIS ?E1)
+			(during ?THIS ?E2 [1 inf] [1 inf])
+		)
+		(:prolog kb
+			(capabilityBase ?SensorID none ?C)
+		)
+		(:graph
+			(edge G ?SensorID ?C input-for)
+		)
+	)
+)
+
+(:operator 
+	(infer-mobile-sensor ?SensorID - sensorID ?C - concept ?E - entity ?L - location)
+	(:preconditions 
+		(?P2 (at ?SensorID) ?L)
+		(?P3 (facing ?SensorID) ?E)
+	)
+	(:effects
+		(?E1 (inferring ?C))
+		(?E3 (device-state ?SensorID) on)	
+	)
+	(:constraints
+		(:temporal
+			(equals ?THIS ?E1)
+			(during ?THIS ?E3 [1 inf] [1 inf])
+
+			(during ?THIS ?P2 [1 inf] [1 inf])
+			(during ?THIS ?P3 [1 inf] [1 inf])
+		)
+		(:prolog kb
+			(capabilityBase ?SensorID (facingEntityAtLocation ?O) ?C)
+		)
+		(:graph
+			(edge G ?SensorID ?C input-for)
+		)
+	)
+)
+
+(:operator ;; infer a concept from two other concepts
+	(infer-from-1 ?C - concept ?Cbase - concept)
+	(:preconditions
+		(?P1 (inferring ?Cbase))
+	)
+	(:effects
+		(?E1 (inferring ?C))
+	)
+	(:constraints
+		(:temporal
+			(equals ?THIS ?E1)
+			(during ?THIS ?P1 [1 inf] [1 inf])
+		)
+		(:prolog kb
+			(capabilityOne ?Cbase ?C)
+		)
+		(:graph
+			(edge G ?Cbase ?C input-for)
+		)
+	)
+)
+
+(:operator ;; infer a concept from two other concepts
+	(infer-from-2 ?C - concept ?Cbase1 - concept ?Cbase2 - concept)
+	(:preconditions
+		(?P1 (inferring ?Cbase1))
+		(?P2 (inferring ?Cbase2))
+	)
+	(:effects
+		(?E1 (inferring ?C))
+	)
+	(:constraints
+		(:temporal
+			(equals ?THIS ?E1)
+			(during ?THIS ?P1 [1 inf] [1 inf])
+			(during ?THIS ?P2 [1 inf] [1 inf])
+		)
+		(:prolog kb
+			(capabilityTwo ?Cbase1 ?Cbase2 ?C)
+		)
+		(:graph
+			(edge G ?Cbase1 ?C input-for)
+			(edge G ?Cbase2 ?C input-for)
+		)
+	)
+)
+
+(:operator ;; infer a concept from three other concepts
+	(infer-from-3 ?C - concept ?Cbase1 - concept ?Cbase2 - concept ?Cbase3 - concept)
+	(:preconditions
+		(?P1 (inferring ?Cbase1))
+		(?P2 (inferring ?Cbase2))
+		(?P3 (inferring ?Cbase3))
+	)
+	(:effects
+		(?E1 (inferring ?C))
+	)
+	(:constraints
+		(:temporal
+			(equals ?THIS ?E1)
+			(during ?THIS ?P1 [1 inf] [1 inf])
+			(during ?THIS ?P2 [1 inf] [1 inf])
+			(during ?THIS ?P3 [1 inf] [1 inf])
+		)
+		(:prolog kb
+			;; node of specific class in current configuration can use the three base concepts to infer the target concept:
+			(capabilityThree ?Cbase1 ?Cbase2 ?Cbase3 ?C) 
+		)
+		(:graph
+			(edge G ?Cbase1 ?C input-for)
+			(edge G ?Cbase2 ?C input-for)
+			(edge G ?Cbase3 ?C input-for)
+		)
+	)
+)
+
+(:operator 
+	(move-device ?Device - device ?L1 - location ?L2 - location)
+	(:preconditions
+		(?P1 (at ?Device) ?L1)
+	)
+	(:effects
+		(?E1 (at ?Device) ?L2)
+	)
+	(:constraints
+		(:temporal
+			(meets ?P1 ?THIS)
+			(meets ?THIS ?E1)
+		)
+		(:prolog kb
+			(isMobile ?Device)
+			(adjacent ?L1 ?L2)
+		)
+	)
+)
+
+(:operator ;; face a device towards someone/something
+	(face-device ?Device - device ?A - entity ?L - location)
+	(:preconditions
+		(?P1 (facing ?Device) none)
+		(?P2 (at ?Device) ?L)
+		(?P3 (at ?A) ?L)
+	)
+	(:effects
+		(?E1 (facing ?Device) ?A)
+	)
+	(:constraints
+		(:temporal
+			(meets ?P1 ?THIS)
+			(meets ?P1 ?E1)
+			(equals ?E1 ?THIS)
+			(during ?THIS ?P2 [1 inf] [1 inf])
+			(during ?THIS ?P3 [1 inf] [1 inf])
+		)
+		(:prolog kb
+			(canRotate ?Device)
+		)
+	)
+)
+
+(:operator ;; face a device towards an agent
+	(stop-face-device ?Device - device ?A - entity ?L - location)
+	(:preconditions
+		(?P1 (facing ?Device) ?A)
+		(?P2 (at ?Device) ?L)
+		(?P3 (at ?A) ?L)
+	)
+	(:effects
+		(?E1 (facing ?Device) none)
+	)
+	(:constraints
+		(:temporal
+			(meets ?P1 ?THIS)
+			(meets ?P1 ?E1)
+			(equals ?E1 ?THIS)
+			(during ?THIS ?P2 [1 inf] [1 inf])
+			(during ?THIS ?P3 [1 inf] [1 inf])
+		)
+		(:prolog kb
+			(canRotate ?Device)
+		)
+	)
+)
+
+;;(:operator ;; split a goal interval into two temporal intervals
+;;	(split-goal ?C)
+;;	(:preconditions	)
+;;	(:effects
+;;		(?E (?inferring ?C))
+;;	)
+;;	(:constraints
+;;		(:goal
+;;			(?G1 (?inferring ?C))
+;;			(?G2 (?inferring ?C))
+;;		)
+;;		(:temporal
+;;			(starts ?G1 ?E [0 0] [0 inf])
+;;			(finishes ?G2 ?E [0 0] [0 inf])	
+;;			(overlaps ?G1 ?G2)
+;;		)
+;;	)
+;;)
+
+
+

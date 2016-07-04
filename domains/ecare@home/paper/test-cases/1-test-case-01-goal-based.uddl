@@ -1,0 +1,8 @@
+(:initial-context
+	(:goal
+		(?G (inferring c1_2))
+	)
+	(:temporal
+		(at ?G [0 10] [20 30])
+	)
+)

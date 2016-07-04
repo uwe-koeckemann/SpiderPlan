@@ -1,0 +1,1 @@
+./run.sh ./domains/ecare@home/planner-htn.spider ./domains/ecare@home/paper/domain-generated.uddl ./domains/ecare@home/paper/domain-shared.uddl ./domains/ecare@home/paper/domain-htn-based-methods.uddl ./domains/ecare@home/paper/task-problem001.uddl

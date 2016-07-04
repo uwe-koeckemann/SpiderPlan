@@ -1,0 +1,44 @@
+;; Created from:
+;;
+;; eating(John,t) :− fridgeDoorOpen(_, T1),
+;; 									 fridgeDoorClosed(_, T 2),
+;; 									 kitchenSeatPressed(John, t),
+;; 									 T 1 < T 2 < t.
+;;
+;; Problem: This is about the inference not about the configuation.
+;; -> Could fridgeDoorOpen, etc. also represent sensors?
+
+(:initial-context
+	(:domain
+		(enum human { John })
+		(sig (eating human))
+		(sig (fridgeDoorOpen))
+		(sig (fridgeDoorClosed))
+		(sig (kitchenSeatPressed human))
+	)
+	(:statement
+		
+	)
+	(:goal
+		(?G (eating John))
+	)
+)
+
+(:operator
+	(eating-op ?H - human)
+	(:preconditions
+		(?P1 (fridgeDoorOpen))
+		(?P2 (fridgeDoorClosed))
+		(?P3 (kitchenSeatPressed ?H))
+	)
+	(:effects
+		(?E (eating ?H))
+	)
+	(:constraints
+		(:temporal
+			(before ?P1 ?P2 [1 5])
+			(before ?P2 ?P3 [1 5])
+			(equals ?P3 ?E)
+		)
+	)
+)

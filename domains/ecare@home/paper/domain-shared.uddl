@@ -1,0 +1,233 @@
+(:initial-context
+	(:include (kb "./kb.prolog"))
+
+	(:domain
+		(enum location)
+		(enum objects)
+		(enum sensor)
+		(enum concept)
+		(enum configuration)
+
+
+		(enum requirement { none (hasConfig configuration) (atLocation location) (reqTargeting objects)  } )
+		(enum state { on off })
+		(enum entity {objects sensor})
+		(enum information {sensor concept})
+	
+		(int ms [0 20000])
+		(int cost [0 10000])
+
+		;; Fluent
+		(sig (at entity) location)
+		(sig (config sensor) configuration)
+		(sig (targeting sensor) objects)
+	
+		(sig (inferring concept))
+		(sig (sensor-state sensor) state)
+		
+
+		;; Static
+		(sig (reqTargeting objects))
+		(sig (atLocation location))
+		(sig (hasConfig configuration))
+
+		(sig (adjacent location location))
+
+		(sig (canTarget sensor))
+		(sig (isMobile sensor))
+		(sig (isMovable entity))
+		(sig (hasManipulator sensor))
+
+		;(sig (link concept conceptList))
+
+		(sig (capabilitySensor sensor requirement concept cost))
+		(sig (capability1 concept concept cost))
+		(sig (capability2 concept concept concept cost))
+		(sig (capability3 concept concept concept concept cost))
+		(sig (capability4 concept concept concept concept concept cost))
+		(sig (capability5 concept concept concept concept concept concept cost))
+		(sig (capability6 concept concept concept concept concept concept concept cost))
+		(sig (capability7 concept concept concept concept concept concept concept concept cost))
+		(sig (capability8 concept concept concept concept concept concept concept concept concept cost))
+	)
+
+	(:temporal
+		(planning-interval [0 inf])
+	)
+
+	(:graph
+		(directed G)
+		(dag G)
+	)
+
+	;;(:optimization
+		;;(min energy)
+	;;)
+
+	(:ic
+		(attach-costs ?Info ?I)
+		(:condition
+			(:statement
+				(?I (inferring ?Info) on)
+			)
+			(:prolog kb 
+				(requiredEnergy ?Info ?CostPerTimeUnit)
+			)
+		)
+		(:resolver
+			(:domain
+				;; assure that each instance of this operator uses a unique cost ID
+				(new-object ?CostID costID)
+			)
+			(:math ;; the following only works if we know that EET > LST 
+				(eval-int (energyCostTotal ?CostID) (mult (sub (EET ?I) (LST ?I)) ?CostPerTimeUnit))
+			)
+			(:cost
+				(add energy (energyCostTotal ?CostID))
+			)
+		)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Configuration Operators
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(:operator ;; change configuration of a sensor
+	(configure-sensor ?Sensor - sensor ?C1 - configuration ?C2 - configuration)
+	(:preconditions
+		(?P (config ?Sensor) ?C1)
+	)
+	(:effects
+		(?E (config ?Sensor) ?C2)
+	)
+	(:constraints
+		(:temporal
+			(meets ?P ?THIS)
+			(meets ?THIS ?E)
+			(duration ?THIS [10 10])
+		)
+	)
+)
+
+(:operator ;; move a mobile sensor
+	(move-sensor ?Sensor - sensor ?L1 - location ?L2 - location)
+	(:preconditions
+		(?P1 (at ?Sensor) ?L1)
+	)
+	(:effects
+		(?E1 (at ?Sensor) ?L2)
+	)
+	(:constraints
+		(:temporal
+			(meets ?P1 ?THIS)
+			(meets ?THIS ?E1)
+		)
+		(:prolog kb
+			(isMobile ?Sensor)
+			(adjacent ?L1 ?L2)
+		)
+	)
+)
+
+(:operator ;; target a sensor at an object
+	(target-sensor ?Sensor - sensor ?Object - objects ?L - location)
+	(:preconditions
+		(?P1 (targeting ?Sensor) none)
+		(?P2 (at ?Sensor) ?L)
+		(?P3 (at ?Object) ?L)
+	)
+	(:effects
+		(?E1 (targeting ?Sensor) ?Object)
+	)
+	(:constraints
+		(:temporal
+			(meets ?P1 ?THIS)
+			(meets ?P1 ?E1)
+			(equals ?E1 ?THIS)
+			(during ?THIS ?P2 [1 inf] [1 inf])
+			(during ?THIS ?P3 [1 inf] [1 inf])
+		)
+		(:prolog kb
+			(canTarget ?Sensor)
+		)
+	)
+)
+
+(:operator ;; stop targeting object
+	(stop-target-sensor ?Sensor - sensor ?Object - objects ?L - location)
+	(:preconditions
+		(?P1 (targeting ?Sensor) ?Object)
+		(?P2 (at ?Sensor) ?L)
+		(?P3 (at ?Object) ?L)
+	)
+	(:effects
+		(?E1 (targeting ?Sensor) none)
+	)
+	(:constraints
+		(:temporal
+			(meets ?P1 ?THIS)
+			(meets ?P1 ?E1)
+			(equals ?E1 ?THIS)
+			(during ?THIS ?P2 [1 inf] [1 inf])
+			(during ?THIS ?P3 [1 inf] [1 inf])
+		)
+		(:prolog kb
+			(canTarget ?Sensor)
+		)
+	)
+)
+
+(:operator ;; move a mobile sensor
+	(pick-object ?Sensor - sensor ?L - location ?Object - objects)
+	(:preconditions
+		(?P1 (at ?Sensor) ?L)
+		(?P2 (at ?Object) ?L)
+		(?P3 (carries ?Sensor) nothing)
+	)
+	(:effects
+		(?E1 (at ?Object) ?Sensor)
+		(?E2 (carries ?Sensor) ?Object)
+	)
+	(:constraints
+		(:temporal
+			(duration ?THIS [10 10])
+			(during ?THIS ?P1 [1 inf] [1 inf])
+			(meets ?P2 ?THIS)
+			(meets ?P3 ?THIS)	
+			
+			(meets ?THIS ?E1)
+			(equals ?E1 ?E2)
+		)
+		(:prolog kb
+			(hasManipulator ?Sensor)
+			(isMovable ?Object)
+		)
+	)
+)
+
+(:operator ;; move a mobile sensor
+	(put-object ?Sensor - sensor ?L - location ?Object - objects)
+	(:preconditions
+		(?P1 (at ?Sensor) ?L)
+		(?P2 (at ?Object) ?Sensor)
+		(?P3 (carries ?Sensor) ?Object)
+	)
+	(:effects
+		(?E1 (at ?Object) ?L)
+		(?E2 (carries ?Sensor) nothing)
+	)
+	(:constraints
+		(:temporal
+			(duration ?THIS [10 10])
+			(during ?THIS ?P1 [1 inf] [1 inf])
+			(meets ?P2 ?THIS)
+			(meets ?P3 ?THIS)
+			(meets ?THIS ?E1)
+			(equals ?E1 ?E2)
+		)
+		(:prolog kb
+			(hasManipulator ?Sensor)
+			(isMovable ?Object)
+		)
+	)
+)

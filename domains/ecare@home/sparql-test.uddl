@@ -1,0 +1,38 @@
+;; [] unnamed variable
+
+
+;; https://jena.apache.org/documentation/query/
+;; http://owlapi.sourceforge.net/
+
+(:initial-context
+
+	(:include my-query "./my-query.sparql")
+
+	(:include ontology "./smarthome.owl")
+
+	(:sparql
+		(query my-query ?x ?y ?z)
+
+		(prefix smh './smarthome.owl')
+
+		(select ?x ?y ?z 
+			(where (list 
+				?x (rdf type) (sensor pressure)
+				?y (rdf type) (object led)
+				?y (smh mountedOn) ?oven
+				?oven (rdf type) (object oven)
+			 ))
+		)
+
+	)
+)
+
+			;;(filter ... )
+			;;(bind expression as ?result)
+			;;(minus ...)
+			;;(filter (not exists { ... }
+		;;(ask ...)
+		;;(construct ...)
+		;;(describe ...)
+		;;(order by ?x)
+		;;(group by ?x)

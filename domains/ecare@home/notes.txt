@@ -1,0 +1,46 @@
+Redundancy
+-> Certainty of inference?
+-> Aggregate concepts
+Execution, connection to WP1 (how to wake up, set up comm., use processing nodes)
+Create common domain
+Also include stream reasoning
+Contingencies
+
+TODO: 
+- Aggregate concepts 
+  - Global concept (smoking) requires multiple local ones (smoking at location)
+  - John smokes <=> disjunction over all l in L: John smokes at l
+- Certainty
+  - Combine multiple ways to infer concept to have higher likelyhood of correct inference
+  - Would require encoding likelyhood in state-space somehow
+- Why choose alternatives?
+  - Sensors might be "forced off" (out of battery, maintainance, ...)
+  - Communication temporarily impossible
+  - Divide one goal into multiple intervals? 
+    - Example: Use chair sensor first, then kitchen camera.
+    - Possible solution: Decompose single goal in two (using operator or method?)
+      - When to use this operator? (-> When nothing else works)
+      - Could also help when fixing problems online
+- Constraint type for network connectivity
+  - Network may change over time
+  - Can we have a fixed network with dynamic aspects? (e.g., removing edges for intervals?)
+- Constraint type for ontology queries
+- More operators with preconditions?
+- Constraint type for ASP stream reasoning
+- How to connect to WP1?
+- What is executed?
+  - Devices turned on and off
+  - Robot moving
+  - Sensors facing entities
+  - Possobilities:
+    - Inference tasks (machine m uses topic1..n to infer c)
+
+- Fixing sensor malfunctions
+  - Realize problem: resrouce conflict with ((device-state ?S) malfunctioning)
+  - Re-planning: Need to remove currently executed operator(s)
+    - Create new goals for rest of interval
+    - Do not remove intervals already executed?
+    - Both cases require to split goals into two intervals...
+    - It may not be possible to completely achieve previous goal (fixing takes time)
+  - Do not use malfunctioning operators when replanning
+  - 

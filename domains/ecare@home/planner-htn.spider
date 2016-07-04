@@ -1,0 +1,79 @@
+FlowModule main:		
+	modules = "PrologPreprocessor,Solver";
+	rules = { 
+		Start => PrologPreprocessor;
+		PrologPreprocessor => Solver ;
+		Solver => Solver.Consistent => Success  ;
+		Solver => Solver.Inconsistent => Fail  ;
+	};
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=1;
+		
+SolverStack Solver:		
+	solvers = "Domain,Temporal,Scheduler,TaskResolver,Planner";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=3;
+	
+		
+SolverStack ConsistencyChecker:		
+	solvers = "Temporal,Scheduler";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=3;
+	
+PrologPreprocessor PrologPreprocessor:
+	keepStatistics=true;
+	verbose=true;
+	verbosity=2;
+	
+DomainSolver Domain:	
+	keepStatistics=true;
+	verbose=true;
+	verbosity=4;
+
+STPSolver Temporal:
+	useBookmarks=false;
+	keepTimes=true;
+	static=false;
+	initNumActivities=600;
+	numActivitiesInc=200;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=10;
+	
+SchedulingSolver Scheduler:
+	verbose=true;
+	verbosity=4;
+
+OpenGoalResolverAllFlaws Planner:
+	queueStyle="MultiQueue";
+	heuristics="HAddReuse";
+	consistencyChecker="ConsistencyChecker";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;	
+	verbosity=3;
+	
+ForwardPlanningModule Planner1:
+	lookAhead=0;
+	queueStyle="MultiQueue";
+	heuristics="CausalGraph,FastForward"; 
+	consistencyChecker="ConsistencyChecker";
+	multiEffectSupport=true;
+	yahspLookahead=true;
+	//t0=0;
+	uniqueInitialState=true;
+	nodeEquality="ResultingStateBased";
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=true;//false; 
+	verbosity=4;
+
+TaskResolver TaskResolver:
+	verbose=true;
+	verbosity=3;

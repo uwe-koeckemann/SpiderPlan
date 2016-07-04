@@ -1,0 +1,6 @@
+name				= "goal-based-test";
+planner			= "./planner-goal-based.spider";
+domain			= "./domain-generated.uddl|./domain-goal-based-operators.uddl|./domain-shared.uddl";
+problems		= "./problems/goal-based/";
+timeout			= 10;
+attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total], goals/Goals, link-cost/Cost, [Solver] Backtracking/BacktrackingCounter";

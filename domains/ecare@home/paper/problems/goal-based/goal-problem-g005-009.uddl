@@ -1,0 +1,17 @@
+(:initial-context
+	(:goal
+		(G1 (inferring c26))
+		(G2 (inferring c21))
+		(G3 (inferring c14))
+		(G4 (inferring c22))
+		(G5 (inferring c18))
+	)
+	(:temporal
+		(at G1 [0 7049] [7103 inf])
+		(at G2 [0 1467] [1530 inf])
+		(at G3 [0 383] [446 inf])
+		(at G4 [0 9403] [9497 inf])
+		(at G5 [0 4397] [4469 inf])
+
+	)
+)

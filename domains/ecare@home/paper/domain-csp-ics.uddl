@@ -1,0 +1,155 @@
+(:initial-context
+	(:include (kb "./kb.prolog"))
+
+	(:forall
+		(:condition 
+		)
+		(:add
+
+		)
+	)
+
+	(:ic ;; Use sensor without condition
+		(sensor-link ?S ?C ?Cost)
+		(:condition 
+			(:prolog kb (capabilitySensor ?S none ?C ?Cost))
+		)
+		(:resolver 
+			(:configuration-planning (link ?S {?C} ?Cost))
+		)
+	)
+	(:ic ;; Use sensor that requires to target an object
+		(sensor-link-target ?S ?C ?Object ?Cost)
+		(:condition 
+			(:prolog kb (capabilitySensor ?S (reqTargeting ?Object) ?C ?Cost))
+		)
+		(:resolver 
+			(:configuration-planning (link ?S {?C} ?Cost))
+			(:ic ;; If this information link is used a goal will be added to target the sensor at the right object
+				(target-goal ?I ?S ?Object ?C)
+				(:condition
+					(:statement (?I (link ?S {?C})))
+				)
+				(:resolver
+					(:goal (?G (targeting ?S) ?Object))
+					(:temporal (during ?I ?G [1 inf] [1 inf]))
+				)
+			)
+		)
+	)
+	(:ic ;; Use sensor that requires to be at some location
+		(sensor-link-location ?S ?C ?Object ?Cost)
+		(:condition 
+			(:prolog kb (capabilitySensor ?S (atLocation ?Location) ?C ?Cost))
+		)
+		(:resolver 
+			(:configuration-planning (link ?S {?C} ?Cost))
+			(:ic ;; If this information link is used a goal will be added to move the sensor to the right location
+				(target-goal ?I ?S ?Location ?C)
+				(:condition
+					(:statement (?I (link ?S {?C})))
+				)
+				(:resolver
+					(:goal (?G (at ?S) ?Location))
+					(:temporal (during ?I ?G [1 inf] [1 inf]))
+				)
+			)
+		)
+	)
+
+	(:ic ;; Use sensor that requires some configuration
+		(sensor-link-configuration ?S ?C ?Configuration ?Cost)
+		(:condition 
+			(:prolog kb (capabilitySensor ?S (hasConfig ?Configuration) ?C ?Cost))
+		)
+		(:resolver 
+			(:configuration-planning (link ?S {?C} ?Cost))
+			(:ic ;; If this information link is used a goal will be added to achieve the right configuration
+				(target-goal ?I ?S ?Configuration ?C)
+				(:condition
+					(:statement (?I (link ?S {?C})))
+				)
+				(:resolver
+					(:goal (?G (config ?S) ?Configuration))
+					(:temporal (during ?I ?G [1 inf] [1 inf]))
+				)
+			)
+		)
+	)
+
+	(:ic
+		(concept-link-1 ?Cbase1 ?Ctarget ?Cost)
+		(:condition 
+			(:prolog kb (capability1 ?Cbase1 ?Ctarget ?Cost))
+		)
+		(:resolver 
+			(:configuration-planning (link ?Ctarget {?Cbase1} ?Cost))
+		)
+	)
+	(:ic
+		(concept-link-2 ?Cbase1 ?Cbase2 ?Ctarget ?Cost)
+		(:condition 
+			(:prolog kb (capability2 ?Cbase1 ?Cbase2 ?Ctarget ?Cost))
+		)
+		(:resolver 
+			(:configuration-planning (link ?Ctarget {?Cbase1 ?Cbase2} ?Cost))
+		)
+	)
+	(:ic
+		(concept-link-3 ?Cbase1 ?Cbase2 ?Cbase3 ?Ctarget ?Cost)
+		(:condition 
+			(:prolog kb (capability3 ?Cbase1 ?Cbase2 ?Cbase3 ?Ctarget ?Cost))
+		)
+		(:resolver 
+			(:configuration-planning (link ?Ctarget {?Cbase1 ?Cbase2 ?Cbase3} ?Cost))
+		)
+	)
+	(:ic
+		(concept-link-4 ?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Ctarget ?Cost)
+		(:condition 
+			(:prolog kb (capability4 ?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Ctarget ?Cost))
+		)
+		(:resolver 
+			(:configuration-planning (link ?Ctarget {?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4} ?Cost))
+		)
+	)
+	(:ic
+		(concept-link-5 ?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Cbase5 ?Ctarget ?Cost)
+		(:condition 
+			(:prolog kb (capability5 ?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Cbase5 ?Ctarget ?Cost))
+		)
+		(:resolver 
+			(:configuration-planning (link ?Ctarget {?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Cbase5} ?Cost))
+		)
+	)
+	(:ic
+		(concept-link-6 ?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Cbase5 ?Cbase6 ?Ctarget ?Cost)
+		(:condition 
+			(:prolog kb (capability6 ?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Cbase5 ?Cbase6 ?Ctarget ?Cost))
+		)
+		(:resolver 
+			(:configuration-planning (link ?Ctarget {?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Cbase5 ?Cbase6} ?Cost))
+		)
+	)
+	(:ic
+		(concept-link-7 ?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Cbase5 ?Cbase6 ?Cbase7 ?Ctarget ?Cost)
+		(:condition 
+			(:prolog kb (capability7 ?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Cbase5 ?Cbase6 ?Cbase7 ?Ctarget ?Cost))
+		)
+		(:resolver 
+			(:configuration-planning (link ?Ctarget {?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Cbase5 ?Cbase6 ?Cbase7} ?Cost))
+		)
+	)
+	(:ic
+		(concept-link-8 ?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Cbase5 ?Cbase6 ?Cbase7 ?Cbase8 ?Ctarget ?Cost)
+		(:condition 
+			(:prolog kb (capability8 ?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Cbase5 ?Cbase6 ?Cbase7 ?Cbase8 ?Ctarget ?Cost))
+		)
+		(:resolver 
+			(:configuration-planning (link ?Ctarget {?Cbase1 ?Cbase2 ?Cbase3 ?Cbase4 ?Cbase5 ?Cbase6 ?Cbase7 ?Cbase8} ?Cost))
+		)
+	)
+)
+
+
+

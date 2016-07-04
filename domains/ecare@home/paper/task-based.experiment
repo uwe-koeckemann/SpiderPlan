@@ -1,0 +1,6 @@
+name				= "task-based-test";
+planner			= "./planner-htn.spider";
+domain			= "./domain-generated.uddl|./domain-htn-based-methods.uddl|./domain-shared.uddl";
+problems		= "./problems/task-based/";
+timeout			= 10;
+attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

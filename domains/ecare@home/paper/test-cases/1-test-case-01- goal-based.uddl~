@@ -1,0 +1,7 @@
+(:initial-context
+	(:goal
+		(?G (inferring s1))
+	)
+	(:temporal
+	)
+)
