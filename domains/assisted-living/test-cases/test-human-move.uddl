@@ -1,0 +1,14 @@
+(initial-context
+	(statement
+		(s1 (at Hans) bedroom)
+	)
+	(goal
+		(g1 (at Hans) kitchen)
+	)
+	(temporal
+		(planning-interval [0 2000])
+		(release s1 [0 0])
+	)
+)
+
+		

@@ -1,0 +1,67 @@
+;; Domain to showcase configuration planning
+
+(functionality 
+	(take-picture-of ?Robot ?Object)
+	(:constraints
+		(:goals
+			(?Pre (has-view-on ?Robot ?Object))
+		)
+		(:temporal
+			(during ?THIS ?Pre)
+		)
+		(:domain
+			(new-object ?ID picture-ids)
+		)
+		(configuration
+			(input
+				(date-time ?DateTime)
+			)
+			(output 
+				(image (picture-of ?Object ?ID ?DateTime raw))
+			)
+		)
+	)
+)
+
+(functionality
+	(process-picture ?Machine)
+	(:constraints
+		(:goals
+			(?Pre running ?Machine)
+		)
+		(:temporal
+			(during ?THIS ?Pre)
+		)
+		(:prolog
+			(hasGPU ?Machine)
+		)
+		(configuration
+			(input
+				(image (picture-of ?Object ?ID ?DateTime raw))
+			)
+			(output 
+				(image (picture-of ?Object ?ID ?DateTime processed))
+			)
+		)
+	)
+)
+
+(functionality 
+	(display-picture-of ?Object ?Machine ?State)
+	(:constraints
+		(:goals
+			(?Pre running ?Machine)
+		)
+		(:temporal
+			(during ?THIS ?Pre)
+		)
+		(:prolog
+			(hasDisplay ?Machine)
+		)
+		(configuration
+			(input
+				(image (picture-of ?Object ?ID-out ?DateTime-out ?State))
+			)		
+		)
+	)
+)

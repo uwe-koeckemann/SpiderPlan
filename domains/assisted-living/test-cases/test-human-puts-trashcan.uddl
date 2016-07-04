@@ -1,0 +1,20 @@
+(initial-context
+	(statement
+		(s1 (at Hans) livingroom)
+		(s3 (object-location trashcan) kitchen)
+		(s2 (at r1) kitchen)
+		(s4 (sensor-pressure-switch r1) false)
+	)
+	(goal
+		(g1 (object-location trashcan) r1)
+	)
+	(temporal
+		(planning-interval [0 2000])
+		(release s1 [0 0])
+		(release s2 [0 0])
+		(release s3 [0 0])
+		(release s4 [0 0])
+	)
+)
+
+		

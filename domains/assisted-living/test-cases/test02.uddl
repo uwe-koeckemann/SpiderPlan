@@ -1,0 +1,26 @@
+(initial-context
+	(statement
+		(s1 (at Hans) livingroom)
+		(s2 (at r1) kitchen)
+		(s3 (object-location trash-can) kitchen)
+		(s4 (sensor-pressure-switch r1) false)
+		(s5 (state kitchen tidy) false)
+		(s6 (state bedroom tidy) false)
+		(s7 (state livingroom tidy) false)
+		(sDone (say all-done))
+	)
+	(goal
+		(g1 (state kitchen tidy))
+		(g2 (state livingroom tidy))
+	)
+	(temporal
+		(planning-interval [0 2000])
+		(release s1 [0 0])
+		(release s2 [0 0])
+		(release s3 [0 0])
+		(during sDone g1 [1 inf] [1 inf])
+		(during sDone g2 [1 inf] [1 inf])
+	)
+)
+
+		

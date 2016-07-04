@@ -1,0 +1,6 @@
+# Scaling up number of satisfied conditions for an IC with two statements in condition. Resolvers never fail.
+name				= "SA-NC-2INT";
+planner			= "./planner.spider";
+domain			= "./domain-2vars.uddl";
+problems		= "./no-conflict/SA-NC-2INT";
+attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

@@ -1,0 +1,6 @@
+# Scaling up number of statements in condition of IC.
+name				= "VarScale";
+planner			= "./planner.spider";
+domain			= "./domain-var-scale.uddl";
+problems		= "./var-scale-test";
+attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

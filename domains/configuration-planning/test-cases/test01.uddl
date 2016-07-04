@@ -1,0 +1,29 @@
+;; First test with all-in-one machine and easy problem
+
+(:initial-context
+	(:domain
+		(enum type-machine { terminal1 })
+		(enum type-target { target1 })
+	)
+	(:statement
+		(s1 (running terminal1))
+		(s2 (has-view-on terminal1 target1))
+	)
+	(:goal
+		(?Goal (displayed terminal1 (picture-of target1 processed)))
+	)
+	(:temporal
+		(at s1 [50 50] [250 250])
+		(at s2 [50 50] [250 250])
+		(at ?Goal [100 120] [200 200])
+	)
+	(:include
+		( kb
+			<begin-escape-syntax>
+				equipped(terminal1,camera).
+				equipped(terminal1,gpu).
+				equipped(terminal1,display).
+			<end-escape-syntax>
+		)
+	)
+)

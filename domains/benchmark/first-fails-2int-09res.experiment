@@ -1,0 +1,6 @@
+# IC uses 2 statements and has 9 resolvers, only last resolver works
+name				= "SA-FF-2INT-09RES";
+planner			= "./planner.spider";
+domain			= "./first-fails/domain-2vars-09res.uddl";
+problems		= "./first-fails/SA-FF-2INT";
+attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

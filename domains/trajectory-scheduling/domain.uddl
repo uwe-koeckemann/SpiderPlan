@@ -1,0 +1,42 @@
+;; How to model NDT stuff?
+
+;; How to define spatial part of conflict?
+
+
+
+(:initial-context
+	(:statement
+		(i1 envelope(robot1) e1)
+		(i2 envelope(robot2) e2)
+	)
+	(probabilistic ;; or spatial?
+		(gaussian-2d e1 data1)
+		(gaussian-2d e2 data2)		
+	)
+	(:ic
+		(robot-collision-avoidance ?R1 ?R2 ?E1 ?E2 ?I1 ?I2)
+		(:condition
+			(:statement
+				(?I1 envelope(?R1) ?E1)
+				(?I2 envelope(?R2) ?E2)
+			)
+			(:temporal
+				(possible-intersection {?I1 ?I2})
+			)
+			(spatial ;; or probabilistic?
+				(overlaps {?E1 ?E2})
+			)
+		)
+		(:resolver
+			(:temporal
+				(before-or-meets ?I1 ?I2 [0 inf])
+			)
+		)
+		(:resolver
+			(:temporal
+				(before-or-meets ?I2 ?I1 [0 inf])
+			)
+		)
+	)
+)
+

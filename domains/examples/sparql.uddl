@@ -1,0 +1,21 @@
+(:initial-context
+	(:domain 
+		(enum name)
+	)
+	(:include 
+		(model "./sparql-data.rdf")
+		(sparql-query-2 "./sparql-query-2.sparql")
+	)
+	(:sparql
+		(sparql-query-2 model ?name ?friend)
+	)
+)
+(:operator (search ?name - name ?friend - name)
+	(:preconditions)
+	(:effects)
+	(:constraints
+		(:sparql
+			(sparql-query-2 model ?name ?friend)
+		)
+	)
+)

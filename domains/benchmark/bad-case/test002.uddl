@@ -1,0 +1,16 @@
+(:initial-context
+	(:statement
+		(0 (x1))
+		(1 (x2))
+		(2 (x1))
+		(3 (x2))
+	)
+	(:temporal
+		(at 0 [0 3] [0 3])
+		(at 1 [0 3] [0 3])
+		(duration 0 [1 1])
+		(duration 1 [1 1])
+		(at 2 [4 4] [6 6])
+		(at 3 [4 4] [6 6])
+	)
+)

@@ -1,0 +1,5 @@
+(:initial-context
+	(:temporal
+		(planning-interval [0 2000])
+	)
+)

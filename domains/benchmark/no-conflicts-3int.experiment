@@ -1,0 +1,6 @@
+# Scaling up number of satisfied conditions for an IC with three statements in condition. Resolvers never fail.
+name				= "SA-NC-3INT";
+planner			= "./domains/benchmark/planner-experiment.spider";
+domain			= "./domains/benchmark/social-acceptability/domain-3vars.uddl";
+problems		= "./domains/benchmark/social-acceptability/SA-NC-3INT";
+attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

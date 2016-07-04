@@ -1,0 +1,6 @@
+# Burn-in used before running the real benchmark experiments.
+name				= "burn-in";
+planner			= "./planner.spider";
+domain			= "./domain-2vars.uddl";
+problems		= "./burn-in";
+attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

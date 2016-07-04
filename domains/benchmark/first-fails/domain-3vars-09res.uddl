@@ -1,0 +1,79 @@
+(:initial-context
+	(:domain 
+		(sig (x1))
+		(sig (x2))
+		(sig (x3))
+	)
+
+	(:temporal
+		(planning-interval [0 2000])
+	)
+
+	(:conditional
+		(social-acceptability-class-3 ?I1 ?I2 ?I3)
+		(:condition 
+			(:statement 
+				(?I1 (x1))
+				(?I2 (x2))
+				(?I3 (x3))
+			)
+			(:temporal 
+				(possible-intersection {?I1 ?I2 ?I3})
+			)
+		)
+		(:resolver
+			(:temporal
+				(before ?I1 ?I2 [1 inf])
+				(before ?I1 ?I3 [1 inf])
+			)
+		)
+		(:resolver
+			(:temporal
+				(before ?I1 ?I2 [1 inf])
+				(before ?I1 ?I3 [1 inf])
+			)
+		)
+		(:resolver
+			(:temporal
+				(before ?I1 ?I2 [1 inf])
+				(before ?I1 ?I3 [1 inf])
+			)
+		)
+		(:resolver
+			(:temporal
+				(before ?I1 ?I2 [1 inf])
+				(before ?I1 ?I3 [1 inf])
+			)
+		)
+		(:resolver
+			(:temporal
+				(before ?I1 ?I2 [1 inf])
+				(before ?I1 ?I3 [1 inf])
+			)
+		)
+		(:resolver
+			(:temporal
+				(before ?I1 ?I2 [1 inf])
+				(before ?I1 ?I3 [1 inf])
+			)
+		)
+		(:resolver
+			(:temporal
+				(before ?I1 ?I2 [1 inf])
+				(before ?I1 ?I3 [1 inf])
+			)
+		)
+		(:resolver
+			(:temporal
+				(before ?I1 ?I2 [1 inf])
+				(before ?I1 ?I3 [1 inf])
+			)
+		)
+		(:resolver
+			(:temporal
+				(after ?I1 ?I2 [1 inf])
+				(after ?I1 ?I3 [1 inf])	
+			)
+		)
+	)
+)

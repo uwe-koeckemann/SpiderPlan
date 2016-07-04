@@ -1,0 +1,39 @@
+;; Third test (camera available during 4 intervals but only one works)
+
+(:initial-context
+	(:domain
+		(enum type-machine { terminal1 server1 camera1 })
+		(enum type-target { target1 })
+	)
+	(:statement
+		(s1 (running terminal1))
+		(s2 (running server1))
+		(s3 (running camera1))
+		(s4 (running camera1))
+		(s5 (running camera1))
+		(s6 (running camera1))
+		(s7 (has-view-on camera1 target1))
+	)
+	(:goal
+		(?Goal (displayed terminal1 (picture-of target1 processed)))
+	)
+	(:temporal
+		(at s1 [50 50] [150 150])
+		(at s2 [100 100] [150 150])
+		(at s3 [0 0] [20 20])
+		(at s4 [30 30] [40 40])
+		(at s5 [50 50] [60 60])
+		(at s6 [110 110] [140 140])
+		(at s7 [50 50] [250 250])
+		(at ?Goal [120 120] [140 140])
+	)
+	(:include
+		( kb
+			<begin-escape-syntax>
+				equipped(camera1,camera).
+				equipped(server1,gpu).
+				equipped(terminal1,display).
+			<end-escape-syntax>
+		)
+	)
+)

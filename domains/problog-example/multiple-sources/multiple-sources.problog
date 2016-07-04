@@ -1,0 +1,7 @@
+0.45::known(interval,eating(john)) :- infer(interval,eating(john,kitchen)).
+0.45::known(interval,eating(john)) :- infer(interval,eating(john,livingroom)).
+
+infer(interval,eating(john,kitchen)).
+
+query(known(interval,eating(john))).
+

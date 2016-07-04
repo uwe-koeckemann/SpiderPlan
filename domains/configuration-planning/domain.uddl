@@ -1,0 +1,101 @@
+;; Domain to showcase configuration planning 
+
+;; Configuration planning reduced to temporal planning
+
+;; Open problems:
+;;	- how to establish streamed connections from this?
+
+(:initial-context
+	(:domain
+		;; Provided by problem
+		(enum type-machine)
+		(enum type-target)
+		;; Fixed types
+		(enum type-hardware { display gpu camera })
+		(enum type-processing-stage { raw processed })
+		(enum type-image { (picture-of type-target type-processing-stage) })
+		;; Operator signatures
+		(sig (get-image-stream-of type-machine type-target))
+		(sig (process-image-stream type-target type-machine))
+		(sig (display type-image type-machine))
+		;; Variable signatures
+		(sig (has-view-on type-machine type-target))
+		(sig (running type-machine))
+		(sig (image type-image))
+		(sig (displayed type-machine type-image))
+		(sig (equipped type-machine type-hardware))
+	)
+)
+
+(:operator 
+	(get-image-stream-of ?Machine ?Target)
+	(:preconditions
+		(?Pre1 (has-view-on ?Machine ?Target))
+		(?Pre2 (running ?Machine))
+	)
+	(:effects
+		(?OutStream (image (picture-of ?Target raw)))
+	)
+	(:constraints
+		(:temporal
+			(during ?THIS ?Pre1 [1 inf] [1 inf])
+			(during ?THIS ?Pre2 [1 inf] [1 inf])
+			(equals ?THIS ?OutStream)
+		)
+		(:prolog kb
+			(equipped ?Machine camera)
+		)
+		;;(channel
+		;;	(publish ?Machine (image (picture-of ?Target raw)) ?OutStream)
+		;;)
+	)
+)
+
+(:operator
+	(process-image-stream ?Target ?Machine)
+	(:preconditions
+		(?Pre (running ?Machine))
+		(?InStream (image (picture-of ?Target raw)))
+	)
+	(:effects
+		(?OutStream (image (picture-of ?Target processed)))
+	)	
+	(:constraints
+		(:temporal
+			(during ?THIS ?Pre [1 inf] [1 inf])
+			(equals ?THIS ?OutStream)
+			(overlaps ?InStream ?OutStream [1 10])
+		)
+		(:prolog kb
+			(equipped ?Machine gpu)
+		)
+		;;(channel
+		;;	(subscribe ?Machine (image (picture-of ?Target raw)) ?InStream)
+		;;	(publish ?Machine (image (picture-of ?Target processed)) ?OutStream)
+		;;)
+	)
+)
+
+(:operator 
+	(display ?Image ?Machine)
+	(:preconditions
+		(?Pre (running ?Machine))
+		(?InStream (image ?Image))
+	)
+	(:effects
+		(?Eff (displayed ?Machine ?Image))
+	)
+	(:constraints
+		(:temporal
+			(during ?THIS ?Pre [1 inf] [1 inf])
+			(equals ?THIS ?Eff)
+			(overlaps ?InStream ?Eff [1 10])
+		)
+		(:prolog kb
+			(equipped ?Machine display)
+		)
+		;;(channel
+		;;	(subscribe ?Machine (image (picture-of ?Target processed)) ?InStream)
+		;;)
+	)
+)

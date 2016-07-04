@@ -1,0 +1,103 @@
+;;roslaunch turtlebot_gazebo turtlebot_playground.launch
+;;roslaunch turtlebot_gazebo gmapping_demo.launch
+;;roslaunch turtlebot_rviz_launchers view_navigation.launch
+;;roslaunch turtlebot_navigation move_base_laser.launch
+;;
+
+
+(initial-context
+	(domain 
+		(enum object {tv couch})
+		(enum location {living-room})
+		(enum activity {relaxing})
+		(int intValue [0 100])
+
+		(sig (move1))
+		(sig (move2))
+		(sig (get-sequence intValue))
+		(sig (sensor location object) boolean)
+		(sig (activity) activity)
+	)
+	(ros
+		(subscribe-to 
+			(sensor living-room couch) 
+			?B_couch 
+			couch_sensor 
+			(Bool b ?B_couch) 
+		)
+		(subscribe-to (sensor living-room tv) ?B_tv tv_sensor (Bool b ?B_tv) )
+		(publish-to 
+			(activity) 
+			?Activity 
+			activity 
+			(String a ?Activity) 
+		)
+
+		(publish-to 
+			(activity) 
+			?Activity 
+			sound_play 
+			(String a ?Activity) 
+		)
+		;;(service (AddTwoInts s (int a 10) (int b 20)) (int sum ?Sum)) 
+
+		(register-action
+			/turtlebot_1/move_base
+			MoveBaseAction 
+		)
+
+;; 		(is-goal ;; any variable can become a goal that is send to ROS when a matching statement starts execution
+;; 			(get-sequence ?N)
+;; 			fibonacci
+;; 			FibonacciAction
+;; 			(FibonacciGoal g (int order ?N))
+;; 			(FibonacciResult done (int sequence ?S))
+;; 		)
+
+		(is-goal ;; any variable can become a goal that is send to ROS when a matching statement starts execution
+			(move1)
+			/turtlebot_1/move_base
+			MoveBaseAction
+			(MoveBaseGoal g (PoseStamped target_pose (Header header (String frame_id /map)) (Pose pose (Point position (float x 2.0) (float y 0.0)) (Quaternion orientation (float w 1.0)))))
+		)
+		(is-goal ;; any variable can become a goal that is send to ROS when a matching statement starts execution
+			(move2)
+			/turtlebot_1/move_base
+			MoveBaseAction
+			(MoveBaseGoal g (PoseStamped target_pose (Header header (String frame_id /map)) (Pose pose (Point position (float x -1.0) (float y -1.0)) (Quaternion orientation (float w 1.0)))))
+		)
+		;;(register-action-server 
+		;;	MoveBaseAction 
+		;;	move_base_server_id
+		;;)
+
+		;;(is-goal ;; moving r1 from anywhere to the kitchen creates a goal with fixed coordinates
+		;;	(move r1 ?L kitchen)
+		;;	move_base_r1
+		;;	MoveBaseAction
+		;;	(MoveBaseGoal goal (Pose target_pose (Point position (float x 1.0) (float y 2.0) (float z 3.0)) (Quaternion orientation (float x 4.0) (float y 5.0) (float z 6.0) (float w 7.0))))
+		;;)
+	)
+	(conditional
+		(recognize-relaxing ?I1 ?I2)
+		(condition
+			(statement
+				( ?I1 (sensor living-room couch) )
+				( ?I2 (sensor living-room tv) )
+			)
+			(temporal
+				(during ?I2 ?I1 [1 inf] [1 inf])
+			)
+		)
+		(resolver
+			(statement
+				(?IR (activity) relaxing)
+			)
+			(temporal
+				(equals ?IR ?I2)
+			)
+		)
+	)
+)
+
+		

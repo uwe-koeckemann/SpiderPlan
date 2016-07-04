@@ -1,0 +1,29 @@
+(initial-context
+	(statement
+		(s1 (at Jenny) livingroom)
+		(s2 (at r1) livingroom)
+		(s3 (object-location trash-can) kitchen)
+		(s4 (sensor-pressure-switch r1) false)
+		(s5 (state kitchen tidy) false)
+		(s6 (state bedroom tidy) false)
+		(s7 (state livingroom tidy) false)
+		(sDone (say all-done))
+	)
+	(goal
+		(g1 (state kitchen tidy))
+		(g2 (state livingroom tidy))
+		(g3 (state bedroom tidy))
+		(gFinal (object-location trash-can) kitchen)
+	)
+	(temporal
+		(release s1 [0 0])
+		(release s2 [0 0])
+		(release s3 [0 0])
+		(overlaps g1 gFinal [1 inf])
+		(overlaps g2 gFinal [1 inf])
+		(overlaps g3 gFinal [1 inf])
+		(during sDone gFinal [1 inf] [1 inf])		
+	)
+)
+
+		

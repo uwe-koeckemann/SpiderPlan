@@ -1,0 +1,30 @@
+(:initial-context
+	(:lists
+		(list L1 {a b c})
+		(list L2 {a b})
+
+		(contains-list L1 L2)
+		
+		(contains L1 a)
+		(contains L1 b)
+		(contains L1 c)
+		(contains L2 a)
+		(contains L2 b)
+
+		(size L1 3)
+		(size L2 2)
+
+		(list L3 {d e f})
+
+		(concat L4 L1 L3)
+		
+		(size L4 6)
+
+		(contains L4 a)
+		(contains L4 b)
+		(contains L4 c)	
+		(contains L4 d)
+		(contains L4 e)
+		(contains L4 f)
+	)
+)

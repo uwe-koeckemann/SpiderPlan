@@ -1,0 +1,22 @@
+(initial-context
+	(statement
+		(i1 (move1))
+		(i2 (move2))
+		(i3 (move1))
+		(i4 (move2))
+		(i5 (move1))
+		(i6 (move2))	
+	)
+	(temporal
+		(release i1 [4 inf])
+		(before i1 i2 [1 inf])
+		(before i2 i3 [1 inf])
+		(before i3 i4 [1 inf])
+		(before i4 i5 [1 inf])
+		(before i5 i6 [1 inf])
+
+		(planning-interval [0 2000])
+	)
+)
+
+		

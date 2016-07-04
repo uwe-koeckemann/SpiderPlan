@@ -1,0 +1,134 @@
+;; Domain to showcase configuration planning
+
+;; General issues:
+
+
+;; - handling of time
+;;		-> Information goals may have constraints on the time of requested information
+
+;; - information time (samples at specific date-time VS timeseries from time t1 to t2)
+;; 		-> maybe all information should be reduced to a term and time can be part of that term. 
+;;				Examples: (timeseries sensor-0 [t_start t_end] raw) or (timeseries sensor-0 [t_start t_end] filtered)
+;;		-> times could depend on interval bounds. may need a timeseries of humidity data for the interval that the shower is used
+;;		-> timeseries repair when interrupted? possible with new information goal... update times of old timeseries and setup information
+;; 					goal for new one asap until the end of the original timeseries
+;;		-> available of information depends on time
+
+
+;;	- information without time spec. may change over time (e.g. (value-of sensor-0))
+;;		-> does this type of information input/output make sense here?
+::		-> could always add time but goals can be less constrained
+::				Example: (image (picture-of (door-between bedroom livingroom) ?ID ?Time ?State)) does not care about time or state of image
+
+;;	- error handling "during" information
+;;		-> how to notice? (ROS subscribe to monitoring?)
+;;		-> how to fix? (re-route information channels) 
+;;				Example: use robot camera instead of fixed camera
+;;		-> original information goal may not be satisfiable (e.g. timeseries interrupted after already started)
+
+;; - linking functionalities to execution 
+;; 		-> e.g. use ROS service / topics for basic inputs?
+
+;; - information availability
+;;		-> functionalities cannot use information before it has been recorded
+;; 				Example: process-picture below should realize when information is not available during (running ?Machine)
+;;		-> use intervals for information availability: Not Available -> Recording -> Available
+;;		-> each functionality is automatically constraints to require availability of inputs
+;;		-> However: timeseries can be processed while being recorded
+
+
+;; - template sensor inputs that can be loaded from sensor ontology
+
+;; - how does this link to communication scheduling?
+
+;; - functionalities VS operators
+;; 		-> functionalities may post goals but have no effects
+;; 		-> operators may have information inputs and outputs
+;; 		-> advantage: avoids unnecessary operators for planning
+
+;; - how is this different from planning?
+;;		-> once information is available it is not deleted
+;;		-> however: functionalities with preconditions require planning to provide output
+
+;; - conversion of date-time into execution time 
+;; 		-> use simple set of conversion constraints
+
+
+(:initial-context
+
+	;; possible solution for conversion of date and time to execution time
+	;; (not really necessary, but hey)
+	(date-time 
+		(t0 (date-time (date 2015 9 1) (time 0 0 0)))
+		(unit s)
+		(date-time-2-execution-time (date-time (date 2015 9 1) (time 16  0 0)) ?T_min)
+		(date-time-2-execution-time (date-time (date 2015 9 1) (time 16 30 0)) ?T_max)
+	)
+	(configuration
+		(input 
+			;; Information goal -> processed picture of door between bedroom and livingroom between time ?T_min and ?T_Max
+			(image (picture-of (door-between bedroom livingroom) ?ID [?T_min ?T_Max] processed)) 
+		)
+	)
+)
+
+(functionality 
+	(take-picture-of ?Robot ?Target)
+	(:constraints
+		(:goals
+			(?Pre (has-view-on ?Robot ?Target))
+		)
+		(:domain
+			(new-object ?ID picture-ids)
+		)
+		(:temporal
+			(during ?THIS ?Pre [1 inf] [1 inf])
+			(at ?THIS [?T_min ?T_max] [?T_min ?T_max]) ;; make sure picture is taken during requested time frame
+		)
+		(configuration
+			(output 
+				(image (picture-of ?Target ?ID [?T_min ?T_max] raw))
+			)
+		)
+	)
+)
+
+(functionality
+	(process-picture ?Machine)
+	(:constraints
+		(:goals
+			(?Pre1 running ?Machine)
+		)
+		(:temporal
+			(during ?THIS ?Pre1 [1 inf] [1 inf])
+		)
+		(:prolog
+			(hasGPU ?Machine)
+		)
+		(configuration
+			(input
+				(image (picture-of ?Target ?ID ?Time raw))
+			)
+			(output 
+				(image (picture-of ?Target ?ID ?Time processed))
+			)
+		)
+	)
+)
+
+(functionality ;; could be an operator that displays and image create the information goal to begin with
+	(display-picture-on ?Image ?Machine)
+	(:constraints
+		(:goals
+			(?P running ?Machine)
+		)
+		(:prolog
+			(hasDisplay ?Machine)
+		)
+		(configuration
+			(input
+				(image ?Image) ;; does not care about details of image
+			)		
+		)
+	)
+)

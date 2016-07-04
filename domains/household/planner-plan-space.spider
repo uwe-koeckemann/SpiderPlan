@@ -1,0 +1,103 @@
+/**
+ *	Checking Interaction Constraints after causal reasoning finished, but
+ *  use backjumping module to find right baacktracking point.
+ * 	Uses alternative version of ICC module that uses single node search.
+ */
+
+FlowModule main:		
+	modules = "PrologPreprocessor,FromScratchSolver";
+	rules = { 
+		Start => PrologPreprocessor;
+		PrologPreprocessor => FromScratchSolver;
+		FromScratchSolver => FromScratchSolver.Consistent => Success  ;
+		FromScratchSolver => FromScratchSolver.Inconsistent => Fail  ;
+	};
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=1;
+		
+SolverStack FromScratchSolver:		
+	solvers = "Domain,Costs,Prolog,Temporal,ReusableResources,Interaction,Planner";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=3;
+	
+SolverStack Solver2:		
+	solvers = "Domain,Costs,Temporal,Interaction2";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=0;
+
+SolverStack Solver3:		
+	solvers = "Domain,Costs,Temporal";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=0;
+	
+InteractionConstraintSolver Interaction:
+	consistencyChecker="Solver2";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=4;
+	
+InteractionConstraintSolver Interaction2:
+	consistencyChecker="Solver3";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=4;
+	
+PrologPreprocessor PrologPreprocessor:
+	keepStatistics=true;
+	verbose=true;
+	verbosity=3;
+	
+PrologSolver Prolog:
+	keepStatistics=true;
+	verbose=true;
+	verbosity=1;
+
+OpenGoalResolverAllFlaws Planner:
+	heuristics="HAddReuse"; 
+	consistencyChecker="ConsistencyChecker";
+	nodeEquality="ResultingStateBased";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;	
+	verbosity=3;
+	
+SolverStack ConsistencyChecker:		
+	solvers = "Temporal,ReusableResources";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=0;
+	
+STPSolver Temporal:
+	useBookmarks=false;
+	keepTimes=true;
+	static=false;
+	initNumActivities=600;
+	numActivitiesInc=200;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=10;
+	
+SchedulingSolver ReusableResources:
+	verbose=true;
+	verbosity=1;
+
+DomainSolver Domain:	
+	keepStatistics=true;
+	verbose=true;
+	verbosity=4;
+	
+CostSolver Costs:
+	keepStatistics=true;
+	verbose=true;
+	verbosity=0;

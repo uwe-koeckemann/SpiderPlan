@@ -1,0 +1,77 @@
+FlowModule main:		
+	modules = "PrologPreprocessor,Solver";
+	rules = { 
+		Start => PrologPreprocessor;
+		PrologPreprocessor => Solver;
+		Solver => Solver.Consistent => Success  ;
+		Solver => Solver.Inconsistent => Fail  ;
+	};
+	keepTimes=false;
+	keepStatistics=false;
+	verbose=false;//true;
+	verbosity=3;
+		
+SolverStack Solver:		
+	solvers = "Domain,Costs,Sets,Temporal,Interaction";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=false;//true;
+	verbosity=3;
+	
+SolverStack Solver2:		
+	solvers = "Domain,Costs,Sets,Temporal,Interaction2";
+	keepTimes=true;
+	keepStatistics=false;
+	verbose=false;//true;
+	verbosity=3;
+
+SolverStack Solver3:		
+	solvers = "Domain,Costs,Sets,Temporal";
+	keepTimes=false;
+	keepStatistics=false;
+	verbose=false;//true;
+	verbosity=3;
+	
+InteractionConstraintSolver Interaction:
+	consistencyChecker="Solver2";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=false;//true;
+	verbosity=4;
+	
+InteractionConstraintSolver Interaction2:
+	consistencyChecker="Solver3";
+	keepTimes=false;
+	keepStatistics=false;
+	verbose=false;//true;
+	verbosity=4;
+		
+PrologPreprocessor PrologPreprocessor:
+	keepStatistics=true;
+	verbose=false;//true;
+	verbosity=4;
+		
+STPSolver Temporal:
+	useBookmarks=false;
+	keepTimes=true;
+	static=false;
+	initNumActivities=500;
+	numActivitiesInc=100	;
+	keepStatistics=true;
+	verbose=false;//true;
+	verbosity=1;
+
+DomainSolver Domain:	
+	keepStatistics=true;
+	verbose=false;//true;
+	verbosity=1;
+	
+SetSolver Sets:
+	keepStatistics=true;
+	verbose=false;//true;
+	verbosity=0;
+	
+CostSolver Costs:
+	keepStatistics=true;
+	verbose=false;//true;
+	verbosity=0;
