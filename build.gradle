@@ -14,8 +14,8 @@ apply plugin:'application'
 
 mainClassName = "org.spiderplan.runnable.Planning"
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories{
     mavenCentral() // Use 'maven central' for resolving your thirdparty dependencies.

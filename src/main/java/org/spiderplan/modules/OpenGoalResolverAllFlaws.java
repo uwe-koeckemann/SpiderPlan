@@ -40,8 +40,7 @@ import org.spiderplan.representation.expressions.causal.OpenGoal;
  * Uses ideas and heuristics of partial order causal link planning but threats
  * are left for temporal and resource constraints.
  * 
- * TODO:
- * - Easy integration of value selection heuristics
+ * TODO: Easy integration of value selection heuristics
  * 
  * <p>
  * Relevant papers:
