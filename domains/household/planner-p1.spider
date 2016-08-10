@@ -8,29 +8,36 @@ FlowModule main:
 	};
 	keepTimes=false;
 	keepStatistics=true;
-	verbose=false;
+	verbose=true;
 	verbosity=1;
 	
 PrologPreprocessor PrologPreprocessor:
 	keepStatistics=true;
-	verbose=false;
+	verbose=true;
 	verbosity=3;
 	
 SolverStack MainSolver:		
 	solvers = "Domain,Costs,Temporal,Scheduler,ICSolver,ForwardPlanner";
 	keepTimes=false;
 	keepStatistics=true;
-	verbose=false;
+	verbose=true;
 	verbosity=3;
 
 DomainSolver Domain:	
 	keepStatistics=true;
-	verbose=false;
+	verbose=true;
 	verbosity=4;
 	
 CostSolver Costs:
 	keepStatistics=true;
-	verbose=false;
+	verbose=true;
+	verbosity=0;
+	
+SolverStack PlannerConChecker:		
+	solvers = "Temporal";
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=true;
 	verbosity=0;
 		
 STPSolver Temporal:
@@ -38,51 +45,51 @@ STPSolver Temporal:
 	historySize=5;
 	keepTimes=false;	
 	keepStatistics=true;
-	verbose=false;
+	verbose=true;
 	verbosity=10;
 	
 SchedulingSolver Scheduler:
-	verbose=false;
+	verbose=true;
 	verbosity=1;
 	
 InteractionConstraintSolver ICSolver:
 	consistencyChecker="ICConChecker";
 	keepTimes=false;
 	keepStatistics=true;
-	verbose=false;
+	verbose=true;
 	verbosity=4;
 	
 SolverStack ICConChecker:		
 	solvers = "Domain,Costs,Temporal,ICSolver2";
 	keepTimes=false;
 	keepStatistics=true;
-	verbose=false;
+	verbose=true;
 	verbosity=0;
 	
 InteractionConstraintSolver ICSolver2:
 	consistencyChecker="ICConChecker2";
 	keepTimes=false;
 	keepStatistics=true;
-	verbose=false;
+	verbose=true;
 	verbosity=4;
 	
 SolverStack ICConChecker2:		
 	solvers = "Domain,Costs,Temporal";
 	keepTimes=false;
 	keepStatistics=true;
-	verbose=false;
+	verbose=true;
 	verbosity=0;
 	
 ForwardPlanningModule ForwardPlanner:
 	queueStyle="MultiQueue";
 	heuristics="CausalGraph,FastForward"; 
-	consistencyChecker="Temporal";
+	consistencyChecker="PlannerConChecker";
 	multiEffectSupport=false;
 	uniqueInitialState=true;
 	nodeEquality="ResultingStateBased";
 	keepTimes=false;
 	keepStatistics=true;
-	verbose=false;	
+	verbose=true;	
 	verbosity=3;
 	
 

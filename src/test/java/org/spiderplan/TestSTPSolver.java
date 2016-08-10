@@ -76,7 +76,7 @@ public class TestSTPSolver extends TestCase {
 		
 		SolverResult r = mS.testAndResolve(c);
 				
-		assertTrue(r.getState().equals(State.Consistent));
+		assertTrue(r.getState().equals(State.Searching));
 	}
 	
 	public void test2() {
@@ -102,7 +102,7 @@ public class TestSTPSolver extends TestCase {
 		
 		SolverResult r = mS.testAndResolve(c);
 				
-		assertTrue(r.getState().equals(State.Consistent));
+		assertTrue(r.getState().equals(State.Searching));
 	}
 	
 	public void test3() {
@@ -180,7 +180,7 @@ public class TestSTPSolver extends TestCase {
 		
 		SolverResult r = mS.testAndResolve(c);
 				
-		assertTrue(r.getState().equals(State.Consistent));
+		assertTrue(r.getState().equals(State.Searching));
 	}
 	
 	public void test6() {
@@ -206,7 +206,7 @@ public class TestSTPSolver extends TestCase {
 		
 		SolverResult r = mS.testAndResolve(c);
 				
-		assertTrue(r.getState().equals(State.Consistent));
+		assertTrue(r.getState().equals(State.Searching));
 	}
 	
 	public void test7() {
@@ -260,7 +260,7 @@ public class TestSTPSolver extends TestCase {
 		
 		SolverResult r = mS.testAndResolve(c);
 				
-		assertTrue(r.getState().equals(State.Consistent));
+		assertTrue(r.getState().equals(State.Searching));
 		
 		ValueLookup tiq = r.getResolverIterator().next().getConstraintDatabase().getUnique(ValueLookup.class);
 		

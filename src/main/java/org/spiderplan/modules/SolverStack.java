@@ -227,7 +227,7 @@ public class SolverStack extends Module {
 							}
 							
 							/**
-							 * TODO: Add optional backjumping:
+							 * TODO: Add optional back jumping
 							 * 
 							 * 1) Get failed solver (or constraint? or resolvers?)
 							 * 2) While type/constraint/resolvers fail: 

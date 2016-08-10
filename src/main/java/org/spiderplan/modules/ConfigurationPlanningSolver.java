@@ -169,7 +169,7 @@ public class ConfigurationPlanningSolver extends Module implements SolverInterfa
 		Map<Term,Integer> idLookup = new HashMap<Term, Integer>();
 		List<Atomic> ruleNames = new ArrayList<Atomic>();
 		
-		String pathToProgram = "/home/uwe/SpiderPlan/src/main/minizinc/configuration-planning/configuration-planning.mzn";
+		String pathToProgram = "./src/main/minizinc/configuration-planning/configuration-planning.mzn";
 		if ( verbose ) {
 			Logger.msg(getName(), "Loading MiniZinc program file from " + pathToProgram, 1);
 		}

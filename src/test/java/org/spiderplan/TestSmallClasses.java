@@ -365,53 +365,53 @@ public class TestSmallClasses extends TestCase {
 		assertTrue(c.getContext().get(AllenConstraint.class).size() == 13);
 	}
 	
-	public void testSparQL() throws IOException {
-		// create an empty model
-		 Model model = ModelFactory.createDefaultModel();
-
-		 InputStream in = FileManager.get().open( "./foaf.rdf" );
-		 if (in == null) {
-		     throw new IllegalArgumentException("File: " + "./foaf.rdf" + " not found");
-	 	}
-		model.read(in, null);  
-		
-		
-		byte[] encoded = Files.readAllBytes(Paths.get("./query.sparql"));
-		String queryStr =  new String(encoded, Charset.defaultCharset());
-		
-		System.out.println(queryStr);
-
-		List <QuerySolution> resultList;
-		Query query = QueryFactory.create(queryStr);
-		QueryExecution qexec = QueryExecutionFactory.create(query, model);
-
-		List<Term> argList = new ArrayList<Term>();
-		argList.add(Term.createVariable("homepage"));
-		
-		try {	
-			ResultSet resultSet = qexec.execSelect();	
-			System.out.println(resultSet.hasNext());
-			resultList = ResultSetFormatter.toList(resultSet);
-			for ( QuerySolution sol : resultList ) {
-				for ( Term arg : argList ) {
-					Term value = Term.createConstant(sol.getResource(arg.toString()).toString());
-					System.out.println(arg + " := " + value);
-				}
-			}
-		}
-		catch(Exception e) {
-			resultList = null;
-		}
-		finally{
-			qexec.close();
-		}
-						
-//		List <QuerySolution> solutionList = getQueryResultSet(program.toString());
-//		String[] sensingInfo = new String[2];
-//		sensingInfo[0] = solutionList.get(0).getResource("s").toString().split(SmartHomeOntology.URI_ENTITY_SPLITTER)[1];
-//		sensingInfo[1] = solutionList.get(0).getResource("foi").toString().split(SmartHomeOntology.URI_ENTITY_SPLITTER)[1];
-		
-	}
+//	public void testSparQL() throws IOException {
+//		// create an empty model
+//		 Model model = ModelFactory.createDefaultModel();
+//
+//		 InputStream in = FileManager.get().open( "./foaf.rdf" );
+//		 if (in == null) {
+//		     throw new IllegalArgumentException("File: " + "./foaf.rdf" + " not found");
+//	 	}
+//		model.read(in, null);  
+//		
+//		
+//		byte[] encoded = Files.readAllBytes(Paths.get("./query.sparql"));
+//		String queryStr =  new String(encoded, Charset.defaultCharset());
+//		
+//		System.out.println(queryStr);
+//
+//		List <QuerySolution> resultList;
+//		Query query = QueryFactory.create(queryStr);
+//		QueryExecution qexec = QueryExecutionFactory.create(query, model);
+//
+//		List<Term> argList = new ArrayList<Term>();
+//		argList.add(Term.createVariable("homepage"));
+//		
+//		try {	
+//			ResultSet resultSet = qexec.execSelect();	
+//			System.out.println(resultSet.hasNext());
+//			resultList = ResultSetFormatter.toList(resultSet);
+//			for ( QuerySolution sol : resultList ) {
+//				for ( Term arg : argList ) {
+//					Term value = Term.createConstant(sol.getResource(arg.toString()).toString());
+//					System.out.println(arg + " := " + value);
+//				}
+//			}
+//		}
+//		catch(Exception e) {
+//			resultList = null;
+//		}
+//		finally{
+//			qexec.close();
+//		}
+//						
+////		List <QuerySolution> solutionList = getQueryResultSet(program.toString());
+////		String[] sensingInfo = new String[2];
+////		sensingInfo[0] = solutionList.get(0).getResource("s").toString().split(SmartHomeOntology.URI_ENTITY_SPLITTER)[1];
+////		sensingInfo[1] = solutionList.get(0).getResource("foi").toString().split(SmartHomeOntology.URI_ENTITY_SPLITTER)[1];
+//		
+//	}
 	
 	
 //	public void testROSSub() {

@@ -39,9 +39,7 @@ import org.spiderplan.representation.logic.Term;
 
 
 /**
- * Supports several math operations for "on-the-fly" computations.
- * Output type (arg3) depends on input types (integer or float).
- * Input types must be the same. mod/3 only works for integers.
+ * Allows to provide input to a MiniZinc program. 
  * 
  * @author Uwe Köckemann
  */
@@ -50,12 +48,6 @@ public class MiniZincInput extends Expression implements Matchable, Substitutabl
 	private Atomic r;
 	private Term programID;
 	
-	private static final String[][] SUPPORTED = {  // TODO: move to ConstraintTypes
-		{"assign/2", "(assign x y)", "x = y;"},
-		{"array/2", "(array x (list x1 x2 .. xn))", "x = [x1,x2,...,xn];"}, //TODO: can be done with assign
-		{"output/1", "(outout (list y1 y2 .. yn))", "Provides a list of variables that need to be assigned by substitution that results from MiniZinc call."}
-	};
-
 	/**
 	 * Create copy of {@link MiniZincInput} gC.
 	 * @param gC a {@link MiniZincInput}
@@ -72,24 +64,8 @@ public class MiniZincInput extends Expression implements Matchable, Substitutabl
 	 */
 	public MiniZincInput( Atomic l, Term programID ) {
 		super(ExpressionTypes.MiniZinc);
-		boolean supported = false;
 		this.programID = programID;
-		for ( String[] list : SUPPORTED ) {
-			if ( l.getUniqueName().equals(list[0])) {
-				supported = true;
-			}
-		}
-		
-		if ( supported ) {
-			this.r = l;
-		} else {
-			String s = l.toString() + " ("+l.getUniqueName()+") not supported. List of supported relations:\n";
-			for ( String[] list : SUPPORTED ) {
-				s += list[0] + " : " + list[1] + "\n";
-			}
-			
-			throw new IllegalArgumentException(s);
-		}
+		ExpressionTypes.MiniZincExpressions.assertSupported(l, this.getClass());
 	}
 	
 	/**

@@ -385,20 +385,14 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 		long subPlanID = UniqueID.getID();
 		for ( Operator a : planForCut.getActions() ) {
 			keySubst.add(a.getNameStateVariable().getKey(), a.getNameStateVariable().getKey().makeUnique(subPlanID));
-			//TODO: TermChange
-//			keySubst.add(a.getNameStateVariable().getKey(), new Term(a.getNameStateVariable().getKey().toString().replaceFirst("_", "_"+(subPlanID)+"_")));
-			
+	
 			for ( Statement s : a.getPreconditions() ) {
 				if ( internallyLinked.contains( s.getKey() ) || s.getKey().isVariable() )  {
 					keySubst.add(s.getKey(), s.getKey().makeUnique(subPlanID));
-					//TODO: TermChange
-//					keySubst.add(s.getKey(), new Term(s.getKey().toString().replaceFirst("_", "_"+(subPlanID)+"_")));
 				}
 			}
 			for ( Statement s : a.getEffects() ) {
 				keySubst.add(s.getKey(), s.getKey().makeUnique(subPlanID));
-				//TODO: TermChange
-//				keySubst.add(s.getKey(), new Term(s.getKey().toString().replaceFirst("_", "_"+(subPlanID)+"_")));
 			}
 		}
 		planForCut.substitute(keySubst);

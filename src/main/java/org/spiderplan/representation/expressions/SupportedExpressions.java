@@ -28,11 +28,6 @@ import java.util.List;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
-
-// TODO: make generic to return always the right symbolic type
-// TODO: rework entries to use private class
-// TODO: allow alternative names for constraints
-// TODO: domain factory using default constructors based on Term
 /**
  * @author Uwe Köckemann
  *

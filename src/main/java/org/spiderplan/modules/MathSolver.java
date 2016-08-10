@@ -69,7 +69,7 @@ public class MathSolver extends Module implements SolverInterface {
 		
 		SolverResult result = this.testAndResolve(core);
 		
-		if ( result.getState().equals(State.Consistent) ) {
+		if ( result.getState().equals(State.Consistent) || result.getState().equals(State.Searching ) ) {
 			if ( result.getResolverIterator() != null ) {
 				core.getContext().substitute(result.getResolverIterator().next().getSubstitution());
 			}
@@ -231,17 +231,10 @@ public class MathSolver extends Module implements SolverInterface {
 	@Override
 	public SolverResult testAndResolve(Core core) {
 		boolean isConsistent = true;
+		boolean changeInValueMap = false;
 		
 		Collection<MathConstraint> C = core.getContext().get(MathConstraint.class);
-		
-//		List<TemporalIntervalLookup> tiLookUp = core.getContext().get(TemporalIntervalLookup.class);
-//		
-//		if ( !tiLookUp.isEmpty() ) {
-//			this.temporalIntervals = core.getContext().get(TemporalIntervalLookup.class).get(0);
-//		} else {
-//			this.temporalIntervals = null;
-//		}
-		
+
 		ValueLookup valueLookUp = core.getContext().getUnique(ValueLookup.class);
 		
 		if ( valueLookUp != null ) {
@@ -266,6 +259,9 @@ public class MathSolver extends Module implements SolverInterface {
 					if ( target.isVariable() ) {
 						theta.add(target, Term.createInteger(result));
 					} else {
+						if ( !evalMap.hasIntVariable(target) || evalMap.getInt(target) != result ) {
+							changeInValueMap = true;
+						}
 						evalMap.putInt(target, result);
 					}
 					
@@ -285,6 +281,9 @@ public class MathSolver extends Module implements SolverInterface {
 					if ( target.isVariable() ) {
 						theta.add(target, Term.createFloat(result));
 					} else {
+						if ( !evalMap.hasFloatVariable(target) || evalMap.getFloat(target) != result ) {
+							changeInValueMap = true;
+						}
 						evalMap.putFloat(target, result);
 					}
 					
@@ -409,23 +408,31 @@ public class MathSolver extends Module implements SolverInterface {
 		}
 		
 		State state;
-		SingleResolver r = null;
-		
-		if ( !theta.isEmpty() ) {
-			ConstraintDatabase resCDB = new ConstraintDatabase();
-			resCDB.add(evalMap);
-			Resolver resolver = new Resolver(theta, resCDB);
-			r = new SingleResolver(resolver, this.getName(),this.cM);
-		} else {
-			ConstraintDatabase resCDB = new ConstraintDatabase();
-			resCDB.add(evalMap);
-			Resolver resolver = new Resolver(resCDB);
-			r = new SingleResolver(resolver, this.getName(),this.cM);
+		SingleResolver r = null;	
+
+		if ( changeInValueMap || !theta.isEmpty() ) {
+			if ( changeInValueMap ) {
+				ConstraintDatabase resCDB = new ConstraintDatabase();	
+				resCDB.add(evalMap);
+				if ( !theta.isEmpty() ) {
+					r = new SingleResolver(new Resolver(theta, resCDB), this.getName(),this.cM);
+				} else {
+					r = new SingleResolver(new Resolver(resCDB), this.getName(),this.cM);
+				
+				}
+			} else {
+				r = new SingleResolver(new Resolver(theta), this.getName(),this.cM);
+			}
 		}
 		
 		if ( isConsistent ) {
-			if ( verbose ) Logger.msg(getName(), "Consistent", 0);
-			state = State.Consistent;  // TODO: should be searching when resolver added (only on change)
+			if ( r == null ) {
+				if ( verbose ) Logger.msg(getName(), "Consistent", 0);
+				state = State.Consistent;  
+			} else {
+				if ( verbose ) Logger.msg(getName(), "Searching", 0);
+				state = State.Searching; 
+			}
 
 		} else {
 			if ( verbose ) Logger.msg(getName(), "Inconsistent", 0);

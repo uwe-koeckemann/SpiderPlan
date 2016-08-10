@@ -31,7 +31,6 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.spiderplan.executor.CommunicationProxy;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
@@ -45,7 +44,7 @@ import org.spiderplan.tools.Loop;
  * @author Uwe Köckemann
  *
  */
-public class ROSProxy implements CommunicationProxy {
+public class ROSProxy {
 	
 	private final static int SUBSCRIBE_TO = 0;
 	private final static int PUBLISH_TO = 1;
@@ -364,8 +363,8 @@ public class ROSProxy implements CommunicationProxy {
 		return false;
 	}
 
-	@Override
-	public void initialize(ConstraintDatabase cdb) {
+//	@Override
+//	public void initialize(ConstraintDatabase cdb) {
 		
 //		/**
 //		 * ROS subscriptions
@@ -385,11 +384,10 @@ public class ROSProxy implements CommunicationProxy {
 //			ROSProxy.register_action(regAction.getServerID(), regAction.getActionName());
 //		}
 		
-	}
-
-	@Override
-	public ConstraintDatabase update(long t, ConstraintDatabase cdb) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	}
+//
+//	@Override
+//	public ConstraintDatabase update(long t, ConstraintDatabase cdb) {
+//		return null;
+//	}
 }

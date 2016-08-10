@@ -44,6 +44,7 @@ import org.spiderplan.representation.expressions.graph.GraphConstraint;
 import org.spiderplan.representation.expressions.resources.ReusableResourceCapacity;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.logic.Atomic;
+import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.scheduling.ReusableResourceScheduler;
 import org.spiderplan.scheduling.StateVariableScheduler;
 import org.spiderplan.tools.logging.Logger;
@@ -123,6 +124,7 @@ public class SchedulingSolver extends Module implements SolverInterface {
 	@Override
 	public SolverResult testAndResolve(Core core) {		
 		boolean isConsistent = true;
+		boolean foundFlaw = false;
 		ResolverIterator resolverIterator = null;
 		
 		Set<Atomic> scheduledVariables = new HashSet<Atomic>();
@@ -134,40 +136,61 @@ public class SchedulingSolver extends Module implements SolverInterface {
 		if ( verbose ) Logger.msg(getName(), "Found " + RCs.size() + " reusable resource constraints." , 1);
 		
 		for ( ReusableResourceCapacity rrc : RCs ) {
-			if ( verbose ) Logger.msg(getName(), "Testing: " + rrc , 2); 
-			scheduledVariables.add(rrc.getVariable());
+			List<ReusableResourceCapacity> groundCapacities = new ArrayList<ReusableResourceCapacity>();	
 			
-			ReusableResourceScheduler scheduler = new ReusableResourceScheduler(rrc.getVariable(), rrc.getCapacity());
-			
-			List<AllenConstraint> resolvers = scheduler.resolveFlaw(core.getContext());
-			
-			if ( resolvers == null ) {
-				isConsistent = false;
-				resolverList.clear();
-				if ( verbose ) Logger.msg(getName(), "---> No legal resolvers!" , 2); 
-				break;
+			if ( rrc.getVariable().isGround() ) {
+				groundCapacities.add(rrc);
+			} else {
+				for ( Atomic resourceVariable : core.getTypeManager().getAllGroundAtomics(rrc.getVariable()) ) {
+					groundCapacities.add(new ReusableResourceCapacity(resourceVariable, rrc.getCapacity()));
+				}
 			}
 			
-			if ( !resolvers.isEmpty() ) {
-				if ( verbose ) {
-					Logger.msg(getName(), "Need to resolve: " + rrc , 1); 
-					Logger.depth++;
+			// scheduled state-variable might not be ground so the second loop will collect all ground instances
+			// and use those as scheduling variables
+			if ( verbose ) Logger.msg(getName(), "Constraint: " + rrc , 2); 
+			
+			for ( ReusableResourceCapacity groundRRC : groundCapacities ) {
+			
+				if ( verbose ) Logger.msg(getName(), "Constraint: " + rrc + " Variable: " + groundRRC.getVariable() , 2); 
+				scheduledVariables.add(groundRRC.getVariable());
+				
+				ReusableResourceScheduler scheduler = new ReusableResourceScheduler(groundRRC.getVariable(), rrc.getCapacity());
+				
+				List<AllenConstraint> resolvers = scheduler.resolveFlaw(core.getContext());
+				
+				if ( resolvers == null ) {
+					isConsistent = false;
+					resolverList.clear();
+					if ( verbose ) Logger.msg(getName(), "---> No legal resolvers!" , 2); 
+					break;
 				}
-				for ( AllenConstraint resCon : resolvers ) {
-					if ( verbose ) Logger.msg(getName(), "Resolver: " + resCon , 1); 
-					ConstraintDatabase resolverCDB = new ConstraintDatabase();
-					resolverCDB.add(resCon);
-					resolverList.add(new Resolver(resolverCDB));
+				
+				if ( !resolvers.isEmpty() ) {
+					foundFlaw = true;
+					if ( verbose ) {
+						Logger.msg(getName(), "Need to resolve: " + groundRRC , 1); 
+						Logger.depth++;
+					}
+					for ( AllenConstraint resCon : resolvers ) {
+						if ( verbose ) Logger.msg(getName(), "Resolver: " + resCon , 1); 
+						ConstraintDatabase resolverCDB = new ConstraintDatabase();
+						resolverCDB.add(resCon);
+						resolverList.add(new Resolver(resolverCDB));
+					}
+					if ( verbose ) Logger.depth--;
+					break;
+				} else {
+					if ( verbose ) Logger.msg(getName(), "---> No conflicts found!" , 2); 
 				}
-				if ( verbose ) Logger.depth--;
+			}
+			if ( !isConsistent || foundFlaw ) {
 				break;
-			} else {
-				if ( verbose ) Logger.msg(getName(), "---> No conflicts found!" , 2); 
 			}
 		}
 		
-		if ( isConsistent ) {
-			if ( verbose ) Logger.msg(getName(), "Scheduling statements..." , 1);
+		if ( isConsistent && !foundFlaw ) {
+			if ( verbose ) Logger.msg(getName(), "Scheduling symbolic variables..." , 1);
 			for ( Statement s : core.getContext().get(Statement.class)) {
 				boolean hasNoVariables = s.getVariable().getVariableTerms().isEmpty() && s.getValue().getVariables().isEmpty();
 				if ( hasNoVariables && !scheduledVariables.contains(s.getVariable())) {
@@ -185,6 +208,7 @@ public class SchedulingSolver extends Module implements SolverInterface {
 					}
 					
 					if ( !resolvers.isEmpty() ) {
+						foundFlaw = true;
 						if ( verbose ) Logger.depth++;
 						for ( AllenConstraint resCon : resolvers ) {
 							if ( verbose ) Logger.msg(getName(), "Resolver: " + resCon , 3); 

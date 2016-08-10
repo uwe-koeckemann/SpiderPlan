@@ -42,7 +42,7 @@ import org.spiderplan.representation.types.TypeManager;
  * @author Uwe Köckemann
  *
  */
-public class Core {	// TODO: change to include link to previous core + CDB and current resolver
+public class Core {	
 	/**
 	 * Used by solvers to assign their decision regarding decidability 
 	 * of the problem posed by a {@link Core}.

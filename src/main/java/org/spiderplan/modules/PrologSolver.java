@@ -171,10 +171,6 @@ public class PrologSolver extends Module implements SolverInterface {
 					for ( Substitution sub : answer ) {
 						ConstraintDatabase cDB = new ConstraintDatabase();
 						for ( PrologConstraint c : queries.get(programID) ) {
-//							Constraint cCopy = c.copy();
-//							if ( c instanceof Substitutable ) {
-//								((Substitutable)cCopy).substitute(sub); //TODO: before: c was substituted which seemed odd...
-//							}
 							PrologConstraint cCopy = c.copy();
 							cCopy.substitute(sub);
 							Asserted a = new Asserted(cCopy);

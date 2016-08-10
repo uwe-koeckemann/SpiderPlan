@@ -30,6 +30,7 @@ import org.spiderplan.representation.expressions.domain.TypeSignatureConstraint;
 import org.spiderplan.representation.expressions.domain.Uncontrollable;
 import org.spiderplan.representation.expressions.graph.GraphConstraint;
 import org.spiderplan.representation.expressions.math.MathConstraint;
+import org.spiderplan.representation.expressions.minizinc.MiniZincInput;
 import org.spiderplan.representation.expressions.optimization.OptimizationTarget;
 import org.spiderplan.representation.expressions.sampling.SamplingConstraint;
 import org.spiderplan.representation.expressions.set.SetConstraint;
@@ -95,6 +96,7 @@ public class ExpressionTypes {
 	final public static SupportedExpressions<TemporalRelation> TemporalConstraints = new SupportedExpressions<TemporalRelation>(Temporal);
 	final public static SupportedExpressions<SamplingRelation> SamplingConstraints = new SupportedExpressions<SamplingRelation>(Sampling);
 	final public static SupportedExpressions<ConfigurationPlanningRelation> ConfigurationPlanningConstraints = new SupportedExpressions<ConfigurationPlanningRelation>(ConfigurationPlanning);
+	final public static SupportedExpressions<MiniZincRelation> MiniZincExpressions = new SupportedExpressions<MiniZincRelation>(MiniZinc);
 	
 	
 	/**
@@ -121,32 +123,8 @@ public class ExpressionTypes {
 	}
 	public enum ROSRelation {  PublishTo, SubscribeTo, Goal, RegisterAction };
 	public enum ConfigurationPlanningRelation { Goal, Link, Cost, Unavailable };
+	public enum MiniZincRelation {  Assign, Array, Output };
 	
-//	public enum SupportedExpressionsEnum {
-//		
-//		/*
-//		 * TODO Problems: No alternative names, cannot be extended
-//		 */
-//		
-//		Enum1(Domain, "enum/1","(enum t)","Type t has a finite and discrete domain.",TypeDomainConstraint.class),
-//		Enum2(Domain, "enum/2", "(enum t (list e1 e2 .. )) or (enum t {e1 e2 .. })", "Type t has a finite and discrete domain containing elements from {e1 e2 ..}. If any of the elements in the list are types themselves they will be substituted by the elements in the domain of that type.", 
-//				TypeDomainConstraint.class);
-//		
-//		private Term type;
-//		private String name;
-//		private String exampleUsage;
-//		private String helpText;
-//		private Class<? extends Expression> c;
-//		
-//		private SupportedExpressionsEnum( Term type, String name, String example, String desc, Class<? extends Expression> c ) {
-//			this.type = type;
-//			this.name = name;
-//			this.exampleUsage = example;
-//			this.helpText = desc;
-//			this.c = c;
-//		}
-//	}
-
 	static {
 		DomainConstraints.add("enum/2", 		"(enum t (list e1 e2 .. )) or (enum t {e1 e2 .. })", 
 				"Type t has a finite and discrete domain containing elements from {e1 e2 ..}. If any of the elements in the list are types themselves they will be substituted by the elements in the domain of that type.", 
@@ -279,6 +257,10 @@ public class ExpressionTypes {
 		
 		SamplingConstraints.add("random-variable/2", "(random-variable ?X D)" , "?X is a random variable. Domain D can be a type name, a list of elements (list e1 e2 ...) or an interval (interval lower upper).", SamplingRelation.RandomVariable, SamplingConstraint.class);
 		SamplingConstraints.add("sample/1", "(sample ?X)" , "Random variable ?X will be substituted by a random value from its domain (using a uniform distribution).", SamplingRelation.Sample, SamplingConstraint.class);
+				
+		MiniZincExpressions.add("assign/2", "(assign x n)", "x = n;", MiniZincRelation.Assign, MiniZincInput.class);
+		MiniZincExpressions.add("array/2", "(array x (list x1 x2 .. xn))", "x = [x1,x2,...,xn];", MiniZincRelation.Array, MiniZincInput.class);
+		MiniZincExpressions.add("output/1", "(outout (list y1 y2 .. yn))", "Provides a list of variables that need to be assigned by substitution that results from MiniZinc call.", MiniZincRelation.Array, MiniZincInput.class);
 		
 		
 		ConfigurationPlanningConstraints.add("goal/2", "(goal I x)", "Information goal x has to be achieved during interval ?I", ConfigurationPlanningRelation.Goal, ConfigurationPlanningConstraint.class);

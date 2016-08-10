@@ -133,7 +133,7 @@ public class RunSingleProblem {
 			TemporalNetworkVisualizer tnv = new TemporalNetworkVisualizer();
 			tnv.draw(res);
 			
-			ValueLookup valueLookup = new ValueLookup();
+			ValueLookup valueLookup = res.getUnique(ValueLookup.class);
 //			stpSolver.getPropagatedTemporalIntervals(valueLookup);
 			
 			TemporalNetworkTools.dumbTimeLineData(res, valueLookup, "stp.txt");
@@ -145,7 +145,7 @@ public class RunSingleProblem {
 				System.out.println("===========================================================");
 				System.out.println("= Calculated Values");
 				System.out.println("===========================================================");
-				System.out.println();
+				System.out.println(valueLookup);
 			}
 		}
 		

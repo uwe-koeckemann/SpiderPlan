@@ -786,7 +786,7 @@ public class ExecutionModule  extends Module {
 //		System.out.println(StopWatch.allLast2Str());
 		
 		/************************************************************************************************
-		 * Force some delay (TODO: adapt when doing real time)
+		 * Force some delay - TODO: adapt when doing real time
 		 ************************************************************************************************/
 		try {
 			Thread.sleep(250);

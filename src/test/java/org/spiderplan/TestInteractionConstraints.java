@@ -82,9 +82,7 @@ public class TestInteractionConstraints extends TestCase {
 		cM.set("temporalChecker","class","STPSolver");
 		cM.set("icResolver","class","InteractionConstraintSolver");
 		cM.set("icResolver","consistencyChecker","temporalChecker");
-//		cM.set("icResolver","verbose","true");
-//		cM.set("icResolver","verbosity","1");
-//		Logger.addPrintStream("icResolver", System.out);
+
 		
 		Module icResolver = ModuleFactory.initModule("icResolver",cM);
 		
@@ -152,10 +150,12 @@ public class TestInteractionConstraints extends TestCase {
 		/**
 		 * Setup Modules
 		 */
-		ConfigurationManager cM = new ConfigurationManager();		
+		ConfigurationManager cM = new ConfigurationManager();	
 		cM.set("temporalChecker","class","STPSolver");
+		cM.set("subsolver","class","SolverStack");
+		cM.set("subsolver","solvers","temporalChecker");
 		cM.set("icResolver","class","InteractionConstraintSolver");
-		cM.set("icResolver","consistencyChecker","temporalChecker");
+		cM.set("icResolver","consistencyChecker","subsolver");
 		
 		Module icResolver = ModuleFactory.initModule("icResolver",cM);
 		
@@ -515,11 +515,23 @@ public class TestInteractionConstraints extends TestCase {
 		/**
 		 * Setup Modules
 		 */
-		ConfigurationManager cM = new ConfigurationManager();		
-		cM.set("temporalChecker","class","STPSolver");
-		cM.set("icResolver","class","InteractionConstraintSolver");
-		cM.set("icResolver","consistencyChecker","temporalChecker");
+//		ConfigurationManager cM = new ConfigurationManager();		
+//		cM.set("temporalChecker","class","STPSolver");
+//		cM.set("icResolver","class","InteractionConstraintSolver");
+//		cM.set("icResolver","consistencyChecker","temporalChecker");
 		
+		ConfigurationManager cM = new ConfigurationManager();	
+		cM.set("temporalChecker","class","STPSolver");
+		cM.set("subsolver","class","SolverStack");
+		cM.set("subsolver","solvers","temporalChecker");
+		cM.set("icResolver","class","InteractionConstraintSolver");
+		cM.set("icResolver","consistencyChecker","subsolver");
+//		cM.set("icResolver","verbose","true");
+//		cM.set("icResolver","verbosity","3");
+//		cM.set("subsolver","verbose","true");
+//		cM.set("subsolver","verbosity","3");
+//		Logger.addPrintStream("icResolver",System.out);
+//		Logger.addPrintStream("subsolver",System.out);
 		Module icResolver = ModuleFactory.initModule("icResolver",cM);
 		
 		/**
@@ -618,10 +630,16 @@ public class TestInteractionConstraints extends TestCase {
 		/**
 		 * Setup Modules
 		 */
-		ConfigurationManager cM = new ConfigurationManager();		
+		ConfigurationManager cM = new ConfigurationManager();	
 		cM.set("temporalChecker","class","STPSolver");
+		cM.set("subsolver","class","SolverStack");
+		cM.set("subsolver","solvers","temporalChecker");
 		cM.set("icResolver","class","InteractionConstraintSolver");
-		cM.set("icResolver","consistencyChecker","temporalChecker");
+		cM.set("icResolver","consistencyChecker","subsolver");
+		
+//		cM.set("icResolver","verbose","true");
+//		cM.set("icResolver","verbosity","1");
+//		Logger.addPrintStream("icResolver", System.out);
 		
 		Module icResolver = ModuleFactory.initModule("icResolver",cM);
 		

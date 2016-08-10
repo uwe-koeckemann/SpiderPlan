@@ -128,7 +128,7 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 //						System.out.println(r.getConstraintDatabase());
 						testCore.setContext(current);
 //						System.out.println("Current after applying: " + current.getStatements().size() + " and " + current.getConstraints().size());
-						consistencyChecker.run(testCore);
+						testCore = consistencyChecker.run(testCore);
 					}
 				} while ( !testCore.getResultingState(consistencyCheckerName).equals(State.Consistent) ); 
 					

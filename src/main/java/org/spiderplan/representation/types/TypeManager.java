@@ -569,6 +569,11 @@ public class TypeManager {
 	public Collection<Atomic> getAllGroundAtomics( Atomic v ) {
 		Set<Atomic> r = new HashSet<Atomic>();
 		
+		if ( v.isGround() ) {
+			r.add(v);
+			return r;
+		}
+		
 		ArrayList<Substitution> groundSubst = this.getAllGroundSubstitutions(v);
 		for ( Substitution theta : groundSubst ) {
 			r.add(v.substitute(theta));

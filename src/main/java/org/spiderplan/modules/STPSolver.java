@@ -122,7 +122,7 @@ public class STPSolver extends Module implements SolverInterface {
 				ConstraintDatabase cDB = core.getContext().copy();
 				r.apply(cDB);
 				core.setContext(cDB);
-				core.setResultingState(getName(), State.Consistent); // Not State.Searching since STPSolver resolver only adds information
+				core.setResultingState(getName(), State.Searching); // Not State.Searching since STPSolver resolver only adds information
 			}
 		} else {
 			core.setResultingState( getName(), State.Inconsistent );
@@ -292,28 +292,32 @@ public class STPSolver extends Module implements SolverInterface {
 			if ( verbose ) Logger.depth--;
 		}
 	
-//		if ( keepTimes ) StopWatch.start(msg("Finishing up"));
 		State state;
 		ResolverIterator resolverIterator = null;
 		if ( isConsistent ) {
-			ConstraintDatabase resCDB = new ConstraintDatabase();
+			if ( stpSolver.changedMatrix() ) {
+				ConstraintDatabase resCDB = new ConstraintDatabase();
+				
+				ValueLookup valueLookup = core.getContext().getUnique(ValueLookup.class);
+				if ( valueLookup == null ) {
+					valueLookup = new ValueLookup();
+				} else {
+					valueLookup = core.getContext().getUnique(ValueLookup.class).copy();
+				}
+	
+				stpSolver.getPropagatedTemporalIntervals(valueLookup); 
+				
+				resCDB.add(valueLookup);
+							
+				Resolver r = new Resolver(resCDB);
+				resolverIterator = new SingleResolver(r, name, cM);
+				if ( verbose ) Logger.msg(getName(), "Consistent (adding bound information resolver)", 0);
 			
-			ValueLookup valueLookup = core.getContext().getUnique(ValueLookup.class);
-			if ( valueLookup == null ) {
-				valueLookup = new ValueLookup();
+				state = State.Searching;
 			} else {
-				valueLookup = core.getContext().getUnique(ValueLookup.class).copy();
+				resolverIterator = null;
+				state = State.Consistent;	
 			}
-//			System.out.println(valueLookup);
-			stpSolver.getPropagatedTemporalIntervals(valueLookup); 
-			
-			resCDB.add(valueLookup);
-						
-			Resolver r = new Resolver(resCDB);
-			resolverIterator = new SingleResolver(r, name, cM);
-			if ( verbose ) Logger.msg(getName(), "Consistent (adding bound information resolver)", 0);
-			
-			state = State.Consistent;  // TODO: should be searching when resolver added (only on change)
 		} else {
 			
 

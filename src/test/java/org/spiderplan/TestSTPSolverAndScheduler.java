@@ -23,8 +23,10 @@
 package org.spiderplan;
 
 import java.util.ArrayList;
+
 import junit.framework.TestCase;
 
+import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
@@ -667,7 +669,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 		testCore.setContext(context);
 		testCore = solver.run(testCore);
 		assertTrue(testCore.getResultingState("solver").equals(State.Inconsistent));
-		
+				
 		testCore.setContext(old);
 		testCore = solver.run(testCore);
 		assertTrue(testCore.getResultingState("solver").equals(State.Consistent));

@@ -414,7 +414,6 @@ public class ConstraintDatabase implements Collection<Expression> {
 			out.write(expStr);
 			out.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

@@ -415,7 +415,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 //					outPlan.substitute(subst);
 //					outCDB = outPlan.apply(outCDB);
 //					outCDB.getConstraints().addAll(causalLinks);
-//					outPlan.getConstraints().addAll(causalLinks); // TODO: Added this for NewGoalRes. 
+//					outPlan.getConstraints().addAll(causalLinks); 
 //					
 //					if ( verbose ) {
 //						print("Adding causal links: ",3);
@@ -477,7 +477,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 			outPlan.substitute(subst);
 			outCDB = outPlan.apply(outCDB);
 			outCDB.addAll(causalLinks);
-			outPlan.getConstraints().addAll(causalLinks); // TODO: Added this for NewGoalRes. 
+			outPlan.getConstraints().addAll(causalLinks); 
 						
 			if ( verbose ) {
 				print("Adding causal links: ",3);

@@ -36,6 +36,7 @@ import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
+import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.logging.Logger;
 
 import junit.framework.TestCase;
@@ -190,6 +191,10 @@ public class TestScheduling extends TestCase {
 		Statement sv1 = new Statement(I1, new Atomic("(x a)"), Term.createInteger(1));
 		Statement sv2 = new Statement(I2, new Atomic("(x a)"), Term.createInteger(1));
 		
+		TypeManager tM = new TypeManager();
+		tM.addSimpleEnumType("t", "a");
+		tM.attachTypes(new Atomic("(x t)"), null);
+		
 		cDB.add(sv1);
 		cDB.add(sv2);
 		
@@ -208,6 +213,7 @@ public class TestScheduling extends TestCase {
 		cDB.add(new ReusableResourceCapacity(new Atomic("(x ?V)"), 1));
 
 		Core testCore = new Core();
+		testCore.setTypeManager(tM);
 		testCore.setContext( cDB );
 
 		testCore = solver.run(testCore);

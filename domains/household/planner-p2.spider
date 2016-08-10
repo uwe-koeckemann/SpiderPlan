@@ -71,11 +71,18 @@ SolverStack ICConChecker2:
 	keepStatistics=true;
 	verbose=false;
 	verbosity=0;
+
+SolverStack PlannerConChecker:		
+	solvers = "Temporal";
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=0;
 	
 ForwardPlanningModule ForwardPlanner:
 	queueStyle="MultiQueue";
 	heuristics="CausalGraph,FastForward"; 
-	consistencyChecker="Temporal";
+	consistencyChecker="PlannerConChecker";
 	multiEffectSupport=false;
 	uniqueInitialState=true;
 	nodeEquality="ResultingStateBased";

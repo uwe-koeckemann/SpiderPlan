@@ -393,6 +393,7 @@ public class TemporalNetworkTools {
 		StringBuilder sb = new StringBuilder();
 			
 		for ( Statement s : cDB.get(Statement.class)) {
+			System.out.println(s);
 			sb.append(s.getVariable());
 			sb.append("|");
 			sb.append(tiLookup.getEST(s.getKey()));

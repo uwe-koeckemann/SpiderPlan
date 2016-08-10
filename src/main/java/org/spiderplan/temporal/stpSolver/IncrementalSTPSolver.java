@@ -79,6 +79,7 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 	@SuppressWarnings("unused")
 	private boolean keepStats = false;
 	private boolean propagationRequired = false;
+	private boolean usedRevert = false;
 	
 	private boolean useLinearRevert = false;
 	/**
@@ -107,6 +108,7 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 	 */
 	public boolean isConsistent( ConstraintDatabase cDB ) {
 		propagationRequired = false;
+		usedRevert = false;
 		
 		List<Statement> newStatements;
 		List<AllenConstraint> newAllenConstraints;
@@ -206,6 +208,7 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 					needFromScratch = false;
 					
 					if ( revertToIndex < dHistory.size()-1 ) {
+						usedRevert = true;
 						if ( verbose ) Logger.msg(this.name, "Reverting to " + revertToIndex + "/" + (dHistory.size()-1), 2);
 						if ( keepTimes ) StopWatch.start("[incSTP] 1-a) Reverting");
 						this.revert(revertToIndex);
@@ -943,6 +946,15 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 	public long getLET(Term interval) {
 		int et = tpStart.get(interval)+1;
 		return d[tpOrigin][et];
+	}
+	
+	/**
+	 * Check if the last run of isConsistent 
+	 * found new constraints to propagate.
+	 * @return <code>true</code> if new constraints were added, <code>false</code> otherwise
+	 */
+	public boolean changedMatrix() {
+		return propagationRequired || usedRevert;
 	}
 
 	

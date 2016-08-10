@@ -167,12 +167,7 @@ public class SparQLPreprocessor extends Module {
 //			}
 		}
 		
-		
-		/**
-		 * TODO: change this...
-		 */
-		Global.initialContext = core.getContext().copy();
-		
+	
 		/**
 		 * Possible substitutions don't arrive here for some reason
 		 */

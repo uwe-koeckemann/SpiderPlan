@@ -51,7 +51,7 @@ public abstract class Scheduler {
 	 * For resources with unit capacity.
 	 */
 	BinaryPeakCollection, /**
-	 * Sampling approach.s
+	 * Sampling approach.
 	 */
 	SamplingPeakCollection };
 	
@@ -82,9 +82,7 @@ public abstract class Scheduler {
 		this.tiLookup = cDB.getUnique(ValueLookup.class); 
 					
 		for ( Statement s : cDB.get(Statement.class) ) {
-//			if ( s.getVariable().equals(this.resourceVariable) ) { //TODO: 
-			if ( s.getVariable().match(this.resourceVariable) != null ) { 
-//				if ( resourceVariable.toString().contains("meetingRoom") ) System.out.println("Considering: " + s);
+			if ( s.getVariable().equals(this.resourceVariable) ) {
 				if ( !this.usages.contains(s) ) {
 					this.usages.add(s);
 				}
@@ -97,13 +95,6 @@ public abstract class Scheduler {
 		} else {
 			conflicts = this.samplingPeakCollection();
 		}
-//		if ( resourceVariable.toString().contains("meetingRoom") ) System.out.println("Mine num comflicts: " + conflicts.size());
-
-//		if ( conflicts.size() > 0 ) {
-//			System.out.println(this.resourceVariable);
-//			System.out.println(conflicts);
-//			System.out.println("===============================");
-//		}
 		
 		if ( conflicts.isEmpty() ) {
 			return new ArrayList<AllenConstraint>();
