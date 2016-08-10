@@ -1,0 +1,41 @@
+(:initial-context
+  (:domain
+    (int t_usage [0 10])
+    (enum t_location {A B C})
+    
+    (sig (using t_location) t_usage)
+    (sig x t_location)
+  )
+  (:statement  
+    (I1 (using A) 1)
+    (I2 (using A) 1) 
+    (I3 (using B) 1)
+    (I4 (using B) 1) 
+    (I5 (using B) 1)
+    (I6 (using C) 1) 
+    (I7 (using C) 2) 
+    
+    (I8  x A)
+    (I9  x B)
+    (I10 x C)
+  )
+  (:resource
+    (reusable (using A) 1) 
+    ;; variable (using A) has a capacity of 1
+    (reusable (using ?X) 2) 
+    ;; any variable that matches (using ?X) has a capacity of 2
+  )
+  (:temporal
+    (duration I1 [10 10])
+    (duration I2 [10 10])
+    (duration I3 [10 10])
+    (duration I4 [10 10])
+    (duration I5 [10 10])
+    (duration I6 [10 10])
+    (duration I7 [10 10])
+    (duration I8 [10 10])
+    (duration I9 [10 10])
+    (duration I10 [10 10])
+  ) 
+ )
+

@@ -1,0 +1,15 @@
+SolverStack main:		
+	solvers = "Temporal,Scheduler";
+	verbose=true;
+	verbosity=5;
+	
+STPSolver Temporal:
+	initNumActivities=600;
+	numActivitiesInc=200;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=10;
+
+SchedulingSolver Scheduler:
+	verbose=true;
+	verbosity=10;
