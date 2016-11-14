@@ -574,7 +574,7 @@ public class ConstraintDatabase implements Collection<Expression> {
 		}
 		return r.get(0); 
 	}
-	
+		
 	/**
 	 * Get map from constraint classes to their count.
 	 * @return size of all internal constraint lists

@@ -161,7 +161,8 @@ public class ForwardPlanningModule extends Module implements SolverInterface {
 		ResolverIterator resolverIterator = null;
 		
 		if ( !G.isEmpty() ) {
-			if ( core.getContext().getUnique(Plan.class).getActions().isEmpty() ) {
+			Plan p = core.getContext().getUnique(Plan.class); 
+			if ( p == null || p.getActions().isEmpty() ) {
 				state = State.Searching;
 				resolverIterator = new ForwardPlanningIterator(core.getContext(), G, core.getOperators(), core.getTypeManager(), this.cM, this.getName());
 			} else {
