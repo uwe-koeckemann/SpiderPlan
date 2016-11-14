@@ -178,7 +178,8 @@ public class ExecutionModule  extends Module {
 		}
 		if ( verbose ) Logger.depth++;
 
-		this.plan = core.getPlan();
+//		this.plan = core.getPlan();
+		this.plan = core.getContext().getUnique(Plan.class);
 		this.initialContext = core.getContext().copy();
 		
 		PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(core);
@@ -203,7 +204,7 @@ public class ExecutionModule  extends Module {
 		dFuture = new AllenConstraint(new Atomic("(deadline future (interval "+(tMax-1)+" "+(tMax-1)+"))"));
 		rFuture = new AllenConstraint(new Atomic("(deadline past (interval 1 1)"));
 		
-		for ( Operator a : core.getPlan().getActions() ) {
+		for ( Operator a : core.getContext().getUnique(Plan.class).getActions() ) {
 			execList.add(a.getNameStateVariable());
 		}
 			 	
@@ -301,7 +302,7 @@ public class ExecutionModule  extends Module {
 		/**
 		 * Reactors for effects linked to observations
 		 */
-		for ( Operator a : core.getPlan().getActions() ) {
+		for ( Operator a : core.getContext().getUnique(Plan.class).getActions() ) {
 			for ( Statement e : a.getEffects() ) {
 				if ( variablesObservedByROS.contains(e.getVariable()) ) {
 					ReactorObservation r = new ReactorObservation(e, lastChangingStatement);
@@ -361,7 +362,7 @@ public class ExecutionModule  extends Module {
 		
 		testCore.setTypeManager(tM);
 		testCore.setOperators(core.getOperators());
-		testCore.setPlan(core.getPlan().copy());
+		testCore.getContext().add(core.getContext().getUnique(Plan.class).copy());
 		
 		while ( !this.isDone() ) {		
 			long before = 0;
@@ -381,7 +382,7 @@ public class ExecutionModule  extends Module {
 		
 		core.setResultingState(this.getName(), State.Consistent);
 		core.setContext(execDB.copy());
-		core.setPlan(this.plan);
+		core.getContext().add(this.plan);
 		if ( verbose ) Logger.depth--;		
 		return core;		
 	}
@@ -428,8 +429,8 @@ public class ExecutionModule  extends Module {
 		Core execCore = new Core();
 		execCore.setTypeManager(tM);
 		execCore.setOperators(this.O);
-		execCore.setPlan(new Plan());
 		execCore.setContext(execDB.copy());		
+		execCore.getContext().add(new Plan());
 		execCore = repairSolver.run(execCore);
 				
 		needFromScratch = execCore.getResultingState(repairSolverName).equals(Core.State.Inconsistent);
@@ -474,8 +475,8 @@ public class ExecutionModule  extends Module {
 			Core fromScratchCore = new Core();
 			fromScratchCore.setTypeManager(tM);
 			fromScratchCore.setOperators(this.O);
-			fromScratchCore.setPlan(new Plan());
 			fromScratchCore.setContext(fromScratch.copy());
+			fromScratchCore.getContext().add(new Plan());
 							
 			fromScratchCore = fromScratchSolver.run(fromScratchCore);
 			
@@ -485,13 +486,13 @@ public class ExecutionModule  extends Module {
 				throw new IllegalStateException("Inconsistency when planning from scratch during execution.");
 			}	
 			
-			for ( Operator a : fromScratchCore.getPlan().getActions() ) {
+			for ( Operator a : fromScratchCore.getContext().getUnique(Plan.class).getActions() ) {
 				fromScratchSolution.add(new AllenConstraint(a.getNameStateVariable().getKey(), TemporalRelation.Release, new Interval(Term.createInteger(t), Term.createConstant("inf"))));
 			}
 	
 			execDB = fromScratchSolution;
 
-			this.plan = fromScratchCore.getPlan();
+			this.plan = fromScratchCore.getContext().getUnique(Plan.class);
 			List<Reactor> remList = new ArrayList<Reactor>();
 			for ( Reactor r : reactors ) {
 				

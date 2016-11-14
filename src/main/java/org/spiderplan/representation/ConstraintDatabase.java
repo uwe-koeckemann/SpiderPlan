@@ -49,6 +49,7 @@ import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
+import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.search.GenericSingleNodeSearch;
 import org.spiderplan.tools.GenericComboBuilder;
 import org.spiderplan.tools.GenericComboIterator;
@@ -65,6 +66,10 @@ public class ConstraintDatabase implements Collection<Expression> {
 	
 	private Map<Class<? extends Expression>,List<Expression>> Cmap = new HashMap<Class<? extends Expression>, List<Expression>>();
 	private static ArrayList<Class<? extends Expression>> KeyList = new ArrayList<Class<? extends Expression>>();
+	
+//	public ConstraintDatabase() {
+//		this.add(new Plan());
+//	}
 	
 	/**
 	 * Add another {@link ConstraintDatabase} to this one. Does not re-add existing {@link Statement}s. 
@@ -637,6 +642,9 @@ public class ConstraintDatabase implements Collection<Expression> {
 
 	@Override
 	public boolean add(Expression arg0) { 
+//		if ( arg0 == null ) {
+//			return false;
+//		}
 		List<Expression> C = Cmap.get(arg0.getClass());
 		if ( C == null || (arg0.isUnique()) ) { 
 			if ( !KeyList.contains(arg0.getClass()) ) {

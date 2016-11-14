@@ -45,6 +45,7 @@ import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
 import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.logic.Substitution;
+import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.tools.GenericComboIterator;
 import org.spiderplan.tools.logging.Logger;
@@ -487,7 +488,7 @@ public class InteractionConstraintSolverBruteForce extends Module implements Sol
 						if ( verbose ) Logger.depth++;
 						Core checkCore = new Core();
 						checkCore.setContext(enabledDB);
-						checkCore.setPlan(core.getPlan());
+						enabledDB.add(core.getContext().getUnique(Plan.class));
 						checkCore.setOperators(core.getOperators());;
 						checkCore.setTypeManager(core.getTypeManager());						
 						if ( keepTimes ) StopWatch.stop(msg("6) Preparing condition"));

@@ -36,6 +36,7 @@ import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.causal.StateVariableOverride;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Atomic;
+import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
 import org.spiderplan.tools.logging.Logger;
@@ -118,10 +119,13 @@ public class FindConflictsWithFutureEvents extends Module {
 			}
 
 			// Remove effects that have already been added
-			for ( Operator a : core.getPlan().getActions() ) {
-				for ( Statement e : a.getEffects() ) {
-					if ( futureEvents.containsKey(e.getVariable()) ) {
-						futureEvents.get(e.getVariable()).remove(e);
+			Plan p = core.getContext().getUnique(Plan.class);
+			if ( p != null ) {
+				for ( Operator a : core.getContext().getUnique(Plan.class).getActions() ) {
+					for ( Statement e : a.getEffects() ) {
+						if ( futureEvents.containsKey(e.getVariable()) ) {
+							futureEvents.get(e.getVariable()).remove(e);
+						}
 					}
 				}
 			}
@@ -167,17 +171,21 @@ public class FindConflictsWithFutureEvents extends Module {
 		ArrayList<Statement> effectsOfLastAction = new ArrayList<Statement>();
 		ArrayList<Statement> effectList = new ArrayList<Statement>();
 		ArrayList<Statement> checkList = new ArrayList<Statement>();
-		for ( Operator a : core.getPlan().getActions() ) {
-			effectsOfLastAction = a.getEffects();
-			for ( Statement e : a.getEffects() ) {
-				if ( !varHistory.containsKey(e.getVariable()) ) {
-					varHistory.put( e.getVariable(), new ArrayList<Statement>() );
+		
+		Plan p = core.getContext().getUnique(Plan.class);
+		if ( p != null  ) {
+			for ( Operator a : core.getContext().getUnique(Plan.class).getActions() ) {
+				effectsOfLastAction = a.getEffects();
+				for ( Statement e : a.getEffects() ) {
+					if ( !varHistory.containsKey(e.getVariable()) ) {
+						varHistory.put( e.getVariable(), new ArrayList<Statement>() );
+					}
+					varHistory.get(e.getVariable()).add(e);
+					
+					currentStatements.put(e.getVariable(), e);
+					effectList.add(e);
+					checkList.add(e);
 				}
-				varHistory.get(e.getVariable()).add(e);
-				
-				currentStatements.put(e.getVariable(), e);
-				effectList.add(e);
-				checkList.add(e);
 			}
 		}
 		

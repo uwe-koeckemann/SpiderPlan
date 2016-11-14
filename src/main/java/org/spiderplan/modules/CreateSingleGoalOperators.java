@@ -37,6 +37,7 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
+import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.tools.logging.Logger;
 
 /**
@@ -111,7 +112,7 @@ public class CreateSingleGoalOperators extends Module {
 					
 					if ( solution.getResultingState(planningModuleName).equals(Core.State.Consistent) ) {
 						Logger.msg(this.getName(), "Found solution: Extracting operator...", 0);
-						Operator oNew = solution.getPlan().createOperator( "solve_" + g.getVariable().name() ,  singleGoalCore.getOperators(), core.getTypeManager() );
+						Operator oNew = solution.getContext().getUnique(Plan.class).createOperator( "solve_" + g.getVariable().name() ,  singleGoalCore.getOperators(), core.getTypeManager() );
 						core.getOperators().add(oNew);
 						Logger.msg(this.getName(), "New operator:\n" + oNew, 0);
 //						Loop.start();

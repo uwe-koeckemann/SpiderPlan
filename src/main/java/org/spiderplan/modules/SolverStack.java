@@ -118,7 +118,6 @@ public class SolverStack extends Module {
 
 		Core currentCore = new Core();
 		currentCore.setContext(core.getContext());
-		currentCore.setPlan(core.getPlan());
 		currentCore.setOperators(core.getOperators());
 		currentCore.setTypeManager(core.getTypeManager());
 		currentCore.setPredCore(core.getPredCore());
@@ -205,7 +204,7 @@ public class SolverStack extends Module {
 	//					if ( keepTimes ) StopWatch.start(msg("Copy"));
 						Core stackedCore = new Core();
 						stackedCore.setContext(currentCore.getContext());
-						stackedCore.setPlan(currentCore.getPlan().copy());
+//						stackedCore.setPlan(currentCore.getPlan().copy());
 						stackedCore.setOperators(currentCore.getOperators());
 						stackedCore.setTypeManager(core.getTypeManager());
 						stackedCore.setPredCore(currentCore.getPredCore());
@@ -275,7 +274,7 @@ public class SolverStack extends Module {
 	//					if ( keepTimes ) StopWatch.start(msg("Copy"));
 						currentCore = new Core();
 						currentCore.setContext(coreStack.peek().getContext().copy());
-						currentCore.setPlan(coreStack.peek().getPlan());
+//						currentCore.setPlan(coreStack.peek().getPlan());
 						currentCore.setTypeManager(coreStack.peek().getTypeManager());
 						currentCore.setOperators(coreStack.peek().getOperators());
 						r.apply(currentCore.getContext());// this should be the only place in which currentCore.getContext() actually changes...
@@ -290,7 +289,7 @@ public class SolverStack extends Module {
 						
 						Plan plan = r.getConstraintDatabase().getUnique(Plan.class);
 						if ( plan != null ) {
-							currentCore.setPlan(plan);
+							currentCore.getContext().add(plan);
 						}
 						
 	//					if ( keepTimes ) StopWatch.stop(msg("Applying resolver"));
@@ -325,7 +324,7 @@ public class SolverStack extends Module {
 					bestSolution.setContext(currentCore.getContext().copy());
 					bestSolution.setOperators(currentCore.getOperators());
 					bestSolution.setTypeManager(currentCore.getTypeManager());
-					bestSolution.setPlan(currentCore.getPlan());
+//					bestSolution.setPlan(currentCore.getPlan());
 					
 					/**
 					 * Create cost constraints that will ensure any new solution is better than or equal to the current one

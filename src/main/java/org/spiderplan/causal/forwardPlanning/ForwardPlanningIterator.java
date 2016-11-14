@@ -360,7 +360,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 				testCore.setContext(failedCDB);
 				testCore.setTypeManager(this.tM);
 				testCore.setOperators(O);
-				testCore.setPlan(lastProposedPlan);
+				testCore.getContext().add(lastProposedPlan);
 				
 				if ( keepTimes ) StopWatch.start(msg("Running pruning module"));
 				testCore = this.pruningModule.run(testCore);
@@ -442,8 +442,8 @@ public class ForwardPlanningIterator extends ResolverIterator {
 //						app.add(new AllenConstraint(a.getLabel(), TemporalRelation.Deadline, new Interval(new Term(0),new Term(temporalHorizon))));
 //					}
 					
-					checkCore.setContext(app);
-					checkCore.setPlan(p);
+					app.add(p);
+					checkCore.setContext(app);					
 					checkCore.setTypeManager(tM);
 					checkCore = consistencyChecker.run(checkCore);
 
@@ -457,11 +457,11 @@ public class ForwardPlanningIterator extends ResolverIterator {
 				if ( !atLeastOneWorks ) {
 					if ( this.advancedPruningEnabled ) {
 						ConstraintDatabase failedCDB = originalContext.copy();
+						failedCDB.add(p);
 						Core testCore = new Core();
 						testCore.setContext(failedCDB);
 						testCore.setTypeManager(this.tM);
 						testCore.setOperators(O);
-						testCore.setPlan(p);
 						if ( keepTimes ) StopWatch.start(msg("Running pruning module"));
 						testCore = this.pruningModule.run(testCore);
 						if ( keepTimes ) StopWatch.stop(msg("Running pruning module"));

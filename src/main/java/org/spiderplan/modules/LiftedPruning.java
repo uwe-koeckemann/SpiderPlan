@@ -108,7 +108,7 @@ public class LiftedPruning extends Module {
 		Collection<DiscardedPlan> prunedPlans = new HashSet<DiscardedPlan>();
 
 		if ( methods.contains("AllVariables") ) {
-			prunedPlans.addAll(singleShotAllVariables(core.getPlan(), core));
+			prunedPlans.addAll(singleShotAllVariables(core.getContext().getUnique(Plan.class), core));
 		}
 		
 		if ( prunedPlans.isEmpty() && methods.contains("Complete") ) {	
@@ -116,7 +116,7 @@ public class LiftedPruning extends Module {
 		}
 
 		if ( !methods.contains("Complete") && methods.contains("SingleVariable") ) {
-			prunedPlans.addAll(greedyPruning(core.getPlan(), core));
+			prunedPlans.addAll(greedyPruning(core.getContext().getUnique(Plan.class), core));
 		}
 		
 		if ( keepStats ) Statistics.addLong(this.msg("#Discarded plans"), Long.valueOf(prunedPlans.size()));
@@ -145,7 +145,7 @@ public class LiftedPruning extends Module {
 		testCore.setContext(context);
 		testCore.setOperators(core.getOperators());
 		testCore.setTypeManager(core.getTypeManager());
-		testCore.setPlan(plan);
+		context.add(plan);
 		testCore = consistencyChecker.run(testCore, false, 0);				
 		return testCore.getResultingState(consistencyCheckerName).equals(Core.State.Consistent);
 	}
@@ -158,12 +158,12 @@ public class LiftedPruning extends Module {
 		while ( r != null ) {
 			ConstraintDatabase context = core.getContext().copy();
 			r.apply(context);
+			context.add(plan);
 			
 			Core testCore = new Core();
 			testCore.setContext(context);
 			testCore.setOperators(core.getOperators());
 			testCore.setTypeManager(core.getTypeManager());
-			testCore.setPlan(plan);
 			
 			testCore = consistencyChecker.run(testCore, false, 0);				
 			
@@ -325,7 +325,7 @@ public class LiftedPruning extends Module {
 		}			
 		
 		if ( keepTimes ) StopWatch.start("[LiftedPruning] lastDecision");
-		Plan plan = core.getPlan();
+		Plan plan = core.getContext().getUnique(Plan.class);
 		
 		Operator lastDecision = plan.getActions().get(plan.getActions().size()-1);
 

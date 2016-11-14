@@ -134,18 +134,18 @@ public class TestFutureEvents extends TestCase {
 		
 		cDB2.add( new PlanningInterval(Term.parse("[0 10000]")));
 		
-		testCore.setPlan(new Plan());
+		cDB2.add(new Plan());
 		Operator a = new Operator();
 		a.setName(new Atomic("change"));
 		a.addPrecondition(new Statement("(s0 p a)"));
 		a.addEffect(new Statement("(e0 p c)"));
-		testCore.getPlan().getActions().add(a);
+		cDB2.getUnique(Plan.class).getActions().add(a);
 		
 		testCore.setContext(cDB2);
 		
 		testCore = futureEventsChecker.run(testCore);
 				
-		assertTrue(testCore.getContext().size() == 12 );
+		assertTrue(testCore.getContext().size() == 13 );
 	}	
 	
 	public void testEffectConflictWithPlan() {
@@ -182,7 +182,7 @@ public class TestFutureEvents extends TestCase {
 		
 		cDB.add( new PlanningInterval(Term.parse("[0 10000]")));
 		
-		testCore.setPlan(new Plan());
+		cDB.add(new Plan());
 		Operator a = new Operator();
 		a.setName(new Atomic("change"));
 		a.addPrecondition(new Statement("(s0 p a)"));
@@ -190,7 +190,7 @@ public class TestFutureEvents extends TestCase {
 		a.addConstraint( new AllenConstraint("e0 Duration [100,100]"));
 		a.addConstraint( new AllenConstraint("s0 Meets e0"));
 		
-		testCore.getPlan().getActions().add(a);
+		cDB.getUnique(Plan.class).getActions().add(a);
 		
 		testCore.setContext(cDB);
 			

@@ -77,7 +77,7 @@ public class FindShortestConflictingPlan extends Module {
 		if ( verbose ) Logger.depth++;
 //		ConstraintCollection prunedPlans = new ConstraintCollection(StorageClass.ArrayList);
 		
-		Plan inconsistentPlan = core.getPlan();
+		Plan inconsistentPlan = core.getContext().getUnique(Plan.class);
 		
 		int minPossible = 1;
 		int maxPossible = inconsistentPlan.getActions().size();
@@ -92,7 +92,7 @@ public class FindShortestConflictingPlan extends Module {
 			partialPlan = inconsistentPlan.getSubPlan(i);
 			
 			Core testCore = core.copy();
-			testCore.setPlan(partialPlan);
+			testCore.getContext().add(partialPlan);
 			
 			if ( keepTimes ) StopWatch.start("[FindMiniConflict] testing DB");
 			testCore = consistencyChecker.run(testCore);

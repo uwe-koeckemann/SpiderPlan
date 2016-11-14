@@ -48,6 +48,7 @@ import org.spiderplan.representation.expressions.interaction.InteractionConstrai
 import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
+import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.search.GenericSingleNodeSearch;
 import org.spiderplan.tools.UniqueID;
 import org.spiderplan.tools.logging.Logger;
@@ -487,7 +488,10 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 							if ( verbose ) Logger.depth++;
 							Core checkCore = new Core();
 							checkCore.setContext(enabledDB);
-							checkCore.setPlan(core.getPlan());
+							Plan p = core.getContext().getUnique(Plan.class);
+							if ( p != null ) {
+								enabledDB.add(core.getContext().getUnique(Plan.class));
+							}
 							checkCore.setOperators(core.getOperators());;
 							checkCore.setTypeManager(core.getTypeManager());						
 							if ( keepTimes ) StopWatch.stop(msg("6) Preparing condition"));

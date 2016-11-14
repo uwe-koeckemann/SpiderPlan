@@ -67,7 +67,7 @@ public class Core {
 
 	private ConstraintDatabase context = new ConstraintDatabase();
 	private Collection<Operator> O = new HashSet<Operator>();
-	private Plan plan = new Plan();
+	private Plan plan = new Plan(); //TODO: need to make up for this!
 	private TypeManager tM;
 	
 	private Core prevCore;
@@ -79,6 +79,7 @@ public class Core {
 	 * Create a new core.
 	 */
 	public Core() {
+
 	}
 	/**
 	 * Set the context {@link ConstraintDatabase}.
@@ -86,6 +87,9 @@ public class Core {
 	 */
 	public void setContext( ConstraintDatabase context ) {
 		this.context = context;
+//		if ( this.context.getUnique(Plan.class) == null ) {
+//			this.context.add(new Plan());
+//		}
 	}
 	/**
 	 * Set the {@link Operator}s that are available to a planner
@@ -99,9 +103,9 @@ public class Core {
 	 * posed by (a predecessor of) this {@link Core}.
 	 * @param plan A {@link Plan}
 	 */
-	public void setPlan ( Plan plan ) {
-		this.plan = plan;
-	}
+//	public void setPlan ( Plan plan ) {
+//		this.plan = plan;
+//	}
 	
 	/**
 	 * Set the {@link TypeManager}
@@ -132,7 +136,7 @@ public class Core {
 	 * Get the {@link Plan}
 	 * @return A {@link Plan}
 	 */
-	public Plan getPlan() { return plan; };
+//	public Plan getPlan() { return plan; };
 	/**
 	 * Get the {@link TypeManager}
 	 * @return A {@link TypeManager}
@@ -174,7 +178,7 @@ public class Core {
 		}
 		
 		c.setOperators(O);
-		c.setPlan(this.plan.copy());
+//		c.setPlan(this.plan.copy());
 		
 		c.setTypeManager(this.tM);
 		

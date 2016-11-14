@@ -135,7 +135,7 @@ public class ForwardPlanningModule extends Module implements SolverInterface {
 			
 			Plan plan = r.getConstraintDatabase().getUnique(Plan.class);
 					
-			core.setPlan(plan); // TODO: Meh...
+			cDB.add(plan); 
 									
 			core.setContext(cDB);
 			core.setResultingState(getName(), State.Consistent);
@@ -161,7 +161,7 @@ public class ForwardPlanningModule extends Module implements SolverInterface {
 		ResolverIterator resolverIterator = null;
 		
 		if ( !G.isEmpty() ) {
-			if ( core.getPlan().getActions().isEmpty() ) {
+			if ( core.getContext().getUnique(Plan.class).getActions().isEmpty() ) {
 				state = State.Searching;
 				resolverIterator = new ForwardPlanningIterator(core.getContext(), G, core.getOperators(), core.getTypeManager(), this.cM, this.getName());
 			} else {
@@ -176,7 +176,7 @@ public class ForwardPlanningModule extends Module implements SolverInterface {
 				}
 				cM.set(this.getName(), "uniqueInitialState", "true");				
 				state = State.Searching;
-				resolverIterator = new AdaptExistingPlanIterator(core.getContext(), G, core.getPlan(), core.getOperators(), core.getTypeManager(), this.cM, this.getName());
+				resolverIterator = new AdaptExistingPlanIterator(core.getContext(), G, core.getContext().getUnique(Plan.class), core.getOperators(), core.getTypeManager(), this.cM, this.getName());
 				cM.set(getName(), "uniqueInitialState", (uniqueInitialStateSetting ? "true" : "false" )  );
 			}
 		} else {
