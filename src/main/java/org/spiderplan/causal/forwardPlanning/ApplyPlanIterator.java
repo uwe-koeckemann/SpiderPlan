@@ -213,7 +213,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 		 * we need to map open goal statements to any possible statement from plan 
 		 * or context.
 		 */
-		addGoals = true;
+		addGoals = true; //TODO: Why was this set to always true? And why did it not crash more often?
 		if ( addGoals ) {
 			for ( Statement goal : goalStatements ) {	
 				if ( verbose ) print("Goal: " + goal, 3);
@@ -283,9 +283,10 @@ public class ApplyPlanIterator extends ResolverIterator {
 						}
 					}
 				} 
-				
+								
 				if ( possibleMatches.isEmpty() ) {
-					throw new IllegalStateException("Statement (goal) " + goal.toString() + " does not exist in context. Asserted goals whose achieving statements were forgotten can throw this exception.");
+					//TODO: Adding only goals that exist instead of throwing an exception. Is this the right thing todo?
+//					throw new IllegalStateException("Statement (goal) " + goal.toString() + " does not exist in context. Asserted goals whose achieving statements were forgotten can throw this exception.");
 				}  else {
 				
 					// reverse list to try last one added first, since later effects are more likely to be intended for goals
