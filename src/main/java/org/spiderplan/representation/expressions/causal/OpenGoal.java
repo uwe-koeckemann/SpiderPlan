@@ -28,11 +28,11 @@ import java.util.Collection;
 import org.spiderplan.representation.expressions.ExpressionTypes;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interfaces.Assertable;
 import org.spiderplan.representation.expressions.interfaces.Mutable;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
 import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 
 /**

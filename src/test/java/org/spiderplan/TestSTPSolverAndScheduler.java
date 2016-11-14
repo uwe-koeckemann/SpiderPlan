@@ -26,7 +26,6 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;

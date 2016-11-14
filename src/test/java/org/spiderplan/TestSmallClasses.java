@@ -22,24 +22,9 @@
  *******************************************************************************/
 package org.spiderplan;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.ResultSetFormatter;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.util.FileManager;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Resolver;
@@ -47,6 +32,7 @@ import org.spiderplan.modules.solvers.ResolverCombination;
 import org.spiderplan.representation.ConstraintDatabase;
 
 import org.spiderplan.representation.expressions.cost.Cost;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.misc.Delete;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;

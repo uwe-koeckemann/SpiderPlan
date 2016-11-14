@@ -33,14 +33,12 @@ import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.prolog.YapPrologAdapter;
-import org.spiderplan.prolog.YapPrologAdapter.FailBehavior;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
 import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.tools.Global;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
@@ -60,8 +58,6 @@ public class PrologPreprocessor extends Module {
 	 * Sets the behavior of this {@link Module} when {@link PrologConstraint}s cannot be satisfied.
 	 * Default is {@link FailBehavior}.Ignore
 	 */
-	public FailBehavior failBehavior = FailBehavior.Ignore;
-	
 	String YAPbinaryLocation = "yap";
 	
 	private boolean preprocessICs = true;
@@ -78,9 +74,6 @@ public class PrologPreprocessor extends Module {
 		super.parameterDesc.add( new ParameterDescription("preprocessICs", "boolean", "true", "If true interaction constraints are preprocessed and replaced by logical consistent ones.") );
 		super.parameterDesc.add( new ParameterDescription("yapPath", "string", "yap", "Loction of YAP Prolog binary.") );
 							
-		if ( cM.hasAttribute(name, "failBehavior") ) {
-			failBehavior = FailBehavior.valueOf(cM.getString(name, "failBehavior"));
-		}
 		if ( cM.hasAttribute(name, "preprocessICs") ) {
 			preprocessICs = cM.getBoolean(name, "preprocessICs");
 		}
@@ -100,7 +93,7 @@ public class PrologPreprocessor extends Module {
 		YapPrologAdapter yappy = new YapPrologAdapter(YAPbinaryLocation);
 		yappy.setVerbose(this.verbose, this.verbosity);
 		yappy.setKeepTimes(this.keepTimes);
-		yappy.failBehavior = this.failBehavior;
+//		yappy.failBehavior = this.failBehavior;
 		
 		Set<Term> programIDs = new HashSet<Term>();
 		Map<Term,ConstraintDatabase> conCollection = new HashMap<Term,ConstraintDatabase>(); 

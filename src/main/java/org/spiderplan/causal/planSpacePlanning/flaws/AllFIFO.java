@@ -28,7 +28,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import org.spiderplan.representation.expressions.causal.OpenGoal;
-import org.spiderplan.representation.logic.Substitution;
+import org.spiderplan.representation.expressions.domain.Substitution;
 
 /**
  * Implements goal selection strategy based on a queue.

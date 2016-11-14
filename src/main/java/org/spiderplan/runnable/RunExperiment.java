@@ -464,9 +464,6 @@ public class RunExperiment {
 					
 			Core initCore = Compile.getCore();
 			
-			/**
-			 * TODO: adhoc
-			 */
 			int numGoals = 0;
 			numGoals += initCore.getContext().get(OpenGoal.class).size();
 			numGoals += initCore.getContext().get(Task.class).size();

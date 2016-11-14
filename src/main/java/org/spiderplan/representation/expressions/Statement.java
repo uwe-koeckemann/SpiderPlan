@@ -27,9 +27,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
 import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.SimpleParsing;
 

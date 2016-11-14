@@ -26,7 +26,7 @@ import java.util.Collection;
 
 import org.spiderplan.minizinc.MiniZincAdapter;
 import org.spiderplan.modules.GraphSolver;
-import org.spiderplan.representation.logic.Substitution;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.tools.ExecuteSystemCommand;
 
 import junit.framework.TestCase;

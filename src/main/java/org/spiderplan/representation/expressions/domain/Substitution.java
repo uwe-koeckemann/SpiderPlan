@@ -20,15 +20,21 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package org.spiderplan.representation.logic;
+package org.spiderplan.representation.expressions.domain;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
+import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.ExpressionTypes;
+import org.spiderplan.representation.expressions.interfaces.Assertable;
+import org.spiderplan.representation.expressions.interfaces.Mutable;
+import org.spiderplan.representation.logic.Atomic;
+import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.SimpleParsing;
 
 
@@ -37,13 +43,16 @@ import org.spiderplan.tools.SimpleParsing;
  * @author Uwe Köckemann
  *
  */
-public class Substitution {
+public class Substitution extends Expression implements Mutable, Assertable {
 	private Map<Term,Term> map = new HashMap<Term,Term>();
+	private boolean isAsserted = false;
 	
 	/**
 	 * Create new empty substitution
 	 */
-	public Substitution() {}
+	public Substitution() {
+		super(ExpressionTypes.Domain);
+	}
 	
 	/**
 	 * Create a new {@link Substitution} from a {@link String} representation.
@@ -52,6 +61,7 @@ public class Substitution {
 	 * @param s {@link String} representation of the {@link Substitution}
 	 */
 	public Substitution(String s) {
+		super(ExpressionTypes.Domain);
 		ArrayList<String> tmp = SimpleParsing.complexSplit(s.replace(" ","").replace("{","").replace("}",""), ",");
 		for ( int i = 0 ; i < tmp.size(); i++ ) {
 			String[] subst = tmp.get(i).split("/");
@@ -252,7 +262,6 @@ public class Substitution {
 				if ( ! t1.equals(t2)) {
 					return false;
 				}
-			// TODO: Change that may cause some problems?
 			} else if ( t1.isVariable() && t2.isVariable() ) {
 				if ( !t1.equals(t2) ) {
 					return false;
@@ -260,46 +269,6 @@ public class Substitution {
 			}
 		}
 		return true;
-	}
-	
-//	public void removeVar2VarSubstitutions() {
-//		ArrayList<Term> removeList = new ArrayList<Term>();
-//		for ( Term from : map.keySet() ) {
-//			Term to = from;
-//			if ( to.isVariable() ) {
-//				removeList.add(from);
-//			}
-//		}
-//		for ( Term r : removeList ) {
-//			map.remove(r);
-//		}
-//	}
-
-//	public boolean containsOnlyVar2VarSubstitutions() {
-//		for ( Term from : this.map.keySet() ) {
-//			Term to = map.get(from);
-//			if ( !from.isVariable() ) {
-//				return false;
-//			}
-//			if ( !to.isVariable() ) {
-//				return false;
-//			}
-//		}
-//		return true;
-//	}
-	
-	/**
-	 * Returns a string version of this substitution.
-	 * TODO: only used by unit tests and should be removed in the future
-	 * @return string map
-	 */
-	public Map<String,String> getStringMap() {
-		Map<String,String> r = new HashMap<String, String>();
-		
-		for ( Entry<Term,Term> e : this.map.entrySet() ) {
-			r.put(e.getKey().toString(), e.getValue().toString());
-		}
-		return r;
 	}
 	
 	/**
@@ -330,6 +299,7 @@ public class Substitution {
 	 * Create a copy of this {@link Substitution}
 	 * @return The copy.
 	 */
+	@Override
 	public Substitution copy() {
 		Substitution s = new Substitution();
 		
@@ -364,5 +334,45 @@ public class Substitution {
 			return "{}";
 		}
 	
+	}
+
+	@Override
+	public Collection<Term> getVariableTerms() {
+		return new ArrayList<Term>();
+	}
+
+	@Override
+	public Collection<Term> getGroundTerms() {
+		return new ArrayList<Term>();
+	}
+
+	@Override
+	public Collection<Atomic> getAtomics() {
+		return new ArrayList<Atomic>();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if ( o instanceof Substitution) {
+			Substitution s = (Substitution)o;
+			return s.map.equals(this.map);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return this.map.hashCode();
+	}
+
+	@Override
+	public boolean isAsserted() {
+		return isAsserted;
+	}
+
+	@Override
+	public Expression setAsserted(boolean asserted) {
+		this.setAsserted(true);
+		return this;
 	}
 }

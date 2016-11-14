@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 
@@ -103,11 +103,11 @@ public class TestLogic extends TestCase {
 		
 		theta = a1.match(a2);
 		
-		assertTrue( theta.getStringMap().containsKey("?x3") );
+		assertTrue( theta.getMap().containsKey(Term.parse("?x3") ));
 		assertTrue( theta.substitute(Term.parse("?x3")).equals(Term.parse("A")) );
-		assertTrue( theta.getStringMap().containsKey("?x1") );
+		assertTrue( theta.getMap().containsKey(Term.parse("?x1") ));
 		assertTrue( theta.substitute(Term.parse("?x1")).equals(Term.parse("?x4")) );
-		assertTrue( theta.getStringMap().containsKey("?x2") );
+		assertTrue( theta.getMap().containsKey(Term.parse("?x2") ));
 		assertTrue( theta.substitute(Term.parse("?x2")).equals(Term.parse("C")) );
 	}
 	
@@ -130,11 +130,11 @@ public class TestLogic extends TestCase {
 		
 		theta = a1.match(a2);
 		
-		assertTrue( theta.getStringMap().containsKey("?x1") );
+		assertTrue( theta.getMap().containsKey(Term.parse("?x1") ));
 		assertTrue( theta.substitute(Term.parse("?x1")).equals(Term.parse("A")) );
-		assertTrue( theta.getStringMap().containsKey("?x2") );
+		assertTrue( theta.getMap().containsKey(Term.parse("?x2") ));
 		assertTrue( theta.substitute(Term.parse("?x2")).equals(Term.parse("B")) );
-		assertTrue( theta.getStringMap().containsKey("?x3") );
+		assertTrue( theta.getMap().containsKey(Term.parse("?x3") ));
 		assertTrue( theta.substitute(Term.parse("?x3")).equals(Term.parse("C")) );
 	}
 	

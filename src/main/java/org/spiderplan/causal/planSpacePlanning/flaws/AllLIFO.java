@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.Stack;
 
 import org.spiderplan.representation.expressions.causal.OpenGoal;
-import org.spiderplan.representation.logic.Substitution;
+import org.spiderplan.representation.expressions.domain.Substitution;
 
 /**
  * Implements goal selection strategy based on a stack. 

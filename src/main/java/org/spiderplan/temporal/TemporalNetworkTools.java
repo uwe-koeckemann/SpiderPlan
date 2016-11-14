@@ -39,12 +39,12 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
@@ -132,12 +132,18 @@ public class TemporalNetworkTools {
 
 		Term.setAllowConstantSubstitution(true);
 		cdb.substitute(theta);
-		cdb.substitute(theta); //TODO: WTF
+//		cdb.substitute(theta); //TODO: WTF
 		Term.setAllowConstantSubstitution(false);
 		
 		return theta;
 	}
 	
+	/**
+	 * Get all statements connected to interval <code>a</code> via binary temporal constraints.
+	 * @param cdb Constraint database
+	 * @param a Interval term
+	 * @return collection of statements whose intervals appear in tempral constraints using <code>a</code>
+	 */
 	public static  Collection<Statement> directlyConnectedStatements( ConstraintDatabase cdb, Term a ) {
 		Set<Statement> r = new HashSet<Statement>();
 		for ( AllenConstraint tC : cdb.get(AllenConstraint.class) ) {
@@ -150,6 +156,13 @@ public class TemporalNetworkTools {
 		}
 		return r;	
 	}
+	/**
+	 * Get all temporal constraints between to intervals
+	 * @param cdb Constraint database
+	 * @param a Termporal interval term
+	 * @param b Temporal interval term
+	 * @return Collection of {@link AllenConstraint} constraints between <code>a</code> and <code>b</code>
+	 */
 	public static  Collection<Expression> getTemporalConstraintsBetween( ConstraintDatabase cdb, Term a, Term b ) {
 		ArrayList<Expression> r = new ArrayList<Expression>();
 		for ( AllenConstraint tC : cdb.get(AllenConstraint.class) ) {

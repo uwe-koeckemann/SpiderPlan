@@ -27,7 +27,7 @@ import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Resolver;
 import org.spiderplan.modules.solvers.ResolverIterator;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.logic.Substitution;
+import org.spiderplan.representation.expressions.domain.Substitution;
 
 /**
  * Iterator over all solutions to a minizinc problem.

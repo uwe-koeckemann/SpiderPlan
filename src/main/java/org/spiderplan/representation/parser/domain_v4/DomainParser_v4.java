@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collection;
 import java.util.Scanner;
 
 import java.nio.file.Files;
@@ -17,7 +14,6 @@ import java.io.IOException;
 import java.net.URL;
 
 import org.spiderplan.representation.*;
-import org.spiderplan.representation.types.*;
 import org.spiderplan.representation.expressions.*;
 import org.spiderplan.representation.expressions.execution.ros.*;
 import org.spiderplan.representation.expressions.causal.*;

@@ -24,8 +24,8 @@ package org.spiderplan.representation.plans;
 
 import java.util.ArrayList;
 
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.tools.UniqueID;
 
 
@@ -194,6 +194,7 @@ public class SequentialPlan {
 	}
 	
 	//@Override
+	@Override
 	public String toString() {
 		String r = "";
 		for ( int i = 0 ; i < names.size() ; i++ ) {

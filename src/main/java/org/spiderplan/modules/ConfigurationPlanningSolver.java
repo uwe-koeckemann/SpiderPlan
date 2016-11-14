@@ -22,7 +22,6 @@
  *******************************************************************************/
 package org.spiderplan.modules;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -175,7 +174,11 @@ public class ConfigurationPlanningSolver extends Module implements SolverInterfa
 		}
 		String program = "";
 		try {
-			program = new Scanner(new File(pathToProgram)).useDelimiter("\\Z").next();
+			Scanner scanner = new Scanner(new java.io.File(pathToProgram));
+			scanner.useDelimiter("\\Z");			
+			program  = scanner.next();
+			scanner.close();
+//			program = new Scanner(new File(pathToProgram)).useDelimiter("\\Z").next();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			System.exit(0);

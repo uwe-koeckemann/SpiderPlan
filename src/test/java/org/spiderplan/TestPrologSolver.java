@@ -32,10 +32,10 @@ import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.prolog.YapPrologAdapter;
 import org.spiderplan.representation.ConstraintDatabase;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.ExecuteSystemCommand;
@@ -110,14 +110,14 @@ public class TestPrologSolver extends TestCase {
 			ArrayList<Substitution> qResultList = new ArrayList<Substitution>();
 			qResultList.addAll(qResult);
 	
-			assertTrue( qResultList.get(0).getStringMap().containsKey("?A") ) ;
-			assertTrue( qResultList.get(0).getStringMap().get("?A").equals("a") ) ;
-			assertTrue( qResultList.get(0).getStringMap().containsKey("?B") ) ;
-			assertTrue( qResultList.get(0).getStringMap().get("?B").equals("a") ) ;
-			assertTrue( qResultList.get(1).getStringMap().containsKey("?A") ) ;
-			assertTrue( qResultList.get(1).getStringMap().get("?A").equals("a") ) ;
-			assertTrue( qResultList.get(1).getStringMap().containsKey("?B") ) ;
-			assertTrue( qResultList.get(1).getStringMap().get("?B").equals("b") ) ;
+			assertTrue( qResultList.get(0).getMap().containsKey(Term.parse("?A")) ) ;
+			assertTrue( qResultList.get(0).getMap().get(Term.parse("?A")).equals(Term.parse("a")) ) ;
+			assertTrue( qResultList.get(0).getMap().containsKey(Term.parse("?B")) ) ;
+			assertTrue( qResultList.get(0).getMap().get(Term.parse("?B")).equals(Term.parse("a")) ) ;
+			assertTrue( qResultList.get(1).getMap().containsKey(Term.parse("?A")) ) ;
+			assertTrue( qResultList.get(1).getMap().get(Term.parse("?A")).equals(Term.parse("a")) ) ;
+			assertTrue( qResultList.get(1).getMap().containsKey(Term.parse("?B")) ) ;
+			assertTrue( qResultList.get(1).getMap().get(Term.parse("?B")).equals(Term.parse("b")) ) ;
 		}
 	}
 	

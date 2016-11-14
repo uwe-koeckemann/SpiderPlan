@@ -11,7 +11,6 @@ import org.spiderplan.representation.expressions.ExpressionTypes;
 import org.spiderplan.representation.expressions.ExpressionTypes.DomainRelation;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
 import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 
 /**

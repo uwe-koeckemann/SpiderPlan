@@ -30,11 +30,7 @@ import org.spiderplan.modules.solvers.Module;
 
 /**
  * Manages the configuration of each {@link Module}.
- * 
- * TODO: could be made static to avoid requiring all the references and many "setVerbose", "setKeepTimes", etc. methods
- * 			-> just use the name to get the required settings when the module/heuristic/iterator is created.
- * 			-> however: take care to rest CM in-between test-cases 
- * 
+ *  
  * @author Uwe Köckemann
  *
  */

@@ -24,6 +24,8 @@ package org.spiderplan.representation.logic;
 
 import java.util.ArrayList;
 
+import org.spiderplan.representation.expressions.domain.Substitution;
+
 /**
  * {@link ComplexTerm}s are symbols that represent objects. A {@link ComplexTerm} can be a constant 
  * (e.g. <code>robot</code>) a variable (e.g. <code>X</code>) or complex (e.g. <code>storage(robot)</code>, <code>storage(R)</code>).

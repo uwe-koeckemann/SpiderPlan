@@ -37,7 +37,6 @@ import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.tools.Loop;
 
 /**
  * Note: Code based on scheduling code of the metacsp project (http://metacsp.org/) 

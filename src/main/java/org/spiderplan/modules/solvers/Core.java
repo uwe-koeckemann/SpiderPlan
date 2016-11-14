@@ -30,13 +30,12 @@ import java.util.Set;
 
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
-import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
 
 /**
  * Main data-structure manipulated by {@link Module}s. 
  * It contains a context in form of a {@link ConstraintDatabase},
- * a {@link Plan} and a {@link TypeManager}.
+ * and a {@link TypeManager}.
  * 
  * 
  * @author Uwe Köckemann
@@ -67,7 +66,6 @@ public class Core {
 
 	private ConstraintDatabase context = new ConstraintDatabase();
 	private Collection<Operator> O = new HashSet<Operator>();
-	private Plan plan = new Plan(); //TODO: need to make up for this!
 	private TypeManager tM;
 	
 	private Core prevCore;
@@ -87,9 +85,6 @@ public class Core {
 	 */
 	public void setContext( ConstraintDatabase context ) {
 		this.context = context;
-//		if ( this.context.getUnique(Plan.class) == null ) {
-//			this.context.add(new Plan());
-//		}
 	}
 	/**
 	 * Set the {@link Operator}s that are available to a planner
@@ -98,15 +93,7 @@ public class Core {
 	public void setOperators( Collection<Operator> O ) {
 		this.O = O;
 	}
-	/**
-	 * Set the plan that was created to solve the problem
-	 * posed by (a predecessor of) this {@link Core}.
-	 * @param plan A {@link Plan}
-	 */
-//	public void setPlan ( Plan plan ) {
-//		this.plan = plan;
-//	}
-	
+
 	/**
 	 * Set the {@link TypeManager}
 	 * @param tM A {@link TypeManager}
@@ -132,11 +119,7 @@ public class Core {
 	 * @return A {@link Set} of {@link Operator}s
 	 */
 	public Collection<Operator> getOperators() { return O ;};
-	/**
-	 * Get the {@link Plan}
-	 * @return A {@link Plan}
-	 */
-//	public Plan getPlan() { return plan; };
+
 	/**
 	 * Get the {@link TypeManager}
 	 * @return A {@link TypeManager}

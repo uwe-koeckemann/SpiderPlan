@@ -35,7 +35,7 @@ import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.expressions.Statement;
-import org.spiderplan.representation.logic.Substitution;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.parser.domain_v4.DomainParser_v4;
 import org.spiderplan.representation.parser.pddl.PDDLParser;
@@ -376,7 +376,12 @@ public class Compile {
 				endFileEscape = "end_file_kb";
 			}
 			
-			String content = new Scanner(new java.io.File(fName)).useDelimiter("\\Z").next();
+			java.io.File file = new java.io.File(fName);
+			Scanner scanner = new Scanner(file);
+			scanner.useDelimiter("\\Z");			
+			String content = scanner.next();
+			scanner.close();
+			
 			
 			String[] tmp = content.split("\\<"+beginEscape+"\\>");
 			
@@ -418,7 +423,12 @@ public class Compile {
 					fNameKBreal = fNameKBStr;
 				}
 				
-				String contentFileKB = new Scanner(new java.io.File(fNameKBreal)).useDelimiter("\\Z").next();
+				scanner = new Scanner(new java.io.File(fNameKBreal));
+				scanner.useDelimiter("\\Z");			
+				String contentFileKB = scanner.next();
+				scanner.close();
+				
+				//String contentFileKB = new Scanner(new java.io.File(fNameKBreal)).useDelimiter("\\Z").next();
 				
 
 				content = content.replaceFirst(Pattern.quote("<"+beginFileEscape+">" + fNameKBStr + "<"+endFileEscape+">"), key+newLines(fNameKBStr));

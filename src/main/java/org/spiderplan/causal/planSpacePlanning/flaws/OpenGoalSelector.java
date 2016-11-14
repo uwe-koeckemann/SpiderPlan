@@ -25,7 +25,7 @@ package org.spiderplan.causal.planSpacePlanning.flaws;
 import java.util.Collection;
 
 import org.spiderplan.representation.expressions.causal.OpenGoal;
-import org.spiderplan.representation.logic.Substitution;
+import org.spiderplan.representation.expressions.domain.Substitution;
 
 /**
  * Interface for flaw selection strategies.

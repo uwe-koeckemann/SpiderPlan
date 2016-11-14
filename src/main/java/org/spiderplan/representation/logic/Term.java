@@ -25,6 +25,7 @@ package org.spiderplan.representation.logic;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.tools.UniqueID;
 
 /**

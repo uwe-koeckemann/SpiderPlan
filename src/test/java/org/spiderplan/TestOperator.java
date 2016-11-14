@@ -28,10 +28,10 @@ import org.spiderplan.causal.forwardPlanning.StateVariableOperator;
 import org.spiderplan.causal.forwardPlanning.StateVariableOperatorMultiState;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import junit.framework.TestCase;
 
@@ -69,15 +69,15 @@ public class TestOperator extends TestCase {
 		
 		Substitution theta = o.match(oGround);
 		
-		assertTrue( theta.getStringMap().get("?D").equals("20") );
-		assertTrue( theta.getStringMap().get("?R").equals("r") );
-		assertTrue( theta.getStringMap().get("?A").equals("a") );
-		assertTrue( theta.getStringMap().get("?B").equals("b") );
-		assertTrue( theta.getStringMap().get("?E").equals("e") );
-		assertTrue( theta.getStringMap().get("?P").equals("p") );
-		assertTrue( theta.getStringMap().get("?V").equals("4") );
-		assertTrue( theta.getStringMap().get("?T").equals("5") );
-		assertTrue( theta.getStringMap().get("?THIS").equals("op") );		
+		assertTrue( theta.getMap().get(Term.parse("?D")).equals(Term.parse("20")) );
+		assertTrue( theta.getMap().get(Term.parse("?R")).equals(Term.parse("r")) );
+		assertTrue( theta.getMap().get(Term.parse("?A")).equals(Term.parse("a")) );
+		assertTrue( theta.getMap().get(Term.parse("?B")).equals(Term.parse("b")) );
+		assertTrue( theta.getMap().get(Term.parse("?E")).equals(Term.parse("e")) );
+		assertTrue( theta.getMap().get(Term.parse("?P")).equals(Term.parse("p")) );
+		assertTrue( theta.getMap().get(Term.parse("?V")).equals(Term.parse("4")) );
+		assertTrue( theta.getMap().get(Term.parse("?T")).equals(Term.parse("5")) );
+		assertTrue( theta.getMap().get(Term.parse("?THIS")).equals(Term.parse("op")) );		
 	}
 	
 	

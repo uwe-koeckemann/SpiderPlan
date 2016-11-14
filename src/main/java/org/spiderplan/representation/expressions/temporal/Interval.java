@@ -22,8 +22,8 @@
  *******************************************************************************/
 package org.spiderplan.representation.expressions.temporal;
 
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.logic.IntegerTerm;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.Global;
 

@@ -40,8 +40,8 @@ import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.misc.Asserted;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 

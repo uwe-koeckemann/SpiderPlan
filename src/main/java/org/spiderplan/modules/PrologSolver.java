@@ -40,9 +40,9 @@ import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.prolog.YapPrologAdapter;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.logging.Logger;
 

@@ -25,6 +25,8 @@ package org.spiderplan.representation.logic;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.spiderplan.representation.expressions.domain.Substitution;
+
 /**
  * Represents a first-order logic atomic sentence. 
  * It consists of a predicate name <i>p</i> and a list of {@link Term}s. 

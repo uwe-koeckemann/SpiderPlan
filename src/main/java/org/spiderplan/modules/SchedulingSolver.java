@@ -44,7 +44,6 @@ import org.spiderplan.representation.expressions.graph.GraphConstraint;
 import org.spiderplan.representation.expressions.resources.ReusableResourceCapacity;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.scheduling.ReusableResourceScheduler;
 import org.spiderplan.scheduling.StateVariableScheduler;
 import org.spiderplan.tools.logging.Logger;

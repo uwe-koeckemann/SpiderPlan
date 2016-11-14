@@ -41,12 +41,12 @@ import java.util.Stack;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
 import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.EnumType;
 import org.spiderplan.representation.types.IntegerType;
@@ -74,29 +74,10 @@ import org.spiderplan.tools.stopWatch.StopWatch;
 public class YapPrologAdapter {
 
 	private String name = "YapPrologAdapter";
-
-	/**
-	 * Determines what happens if yap Prolog does not fins a solution. 
-	 * 
-	 * @author Uwe Köckemann
-	 */
-	public enum FailBehavior { /**
-	 * Give a warning.
-	 */
-	Warning, /**
-	 * Exit the planner.
-	 */
-	Exit, /**
-	 * Ignore (default)
-	 */
-	Ignore };
-	
 	
 	/**
 	 * Setting for fail behavior. TODO: could be removed
 	 */
-	public FailBehavior failBehavior = FailBehavior.Warning;
-	
 	private String errorMessage = "";	
 	private ArrayList<String> qVars = new ArrayList<String> ();
 	private String qPred = "";
@@ -365,14 +346,14 @@ public class YapPrologAdapter {
 						addList.add(oCopy);
 					}	
 				} else { 
-					if ( failBehavior == FailBehavior.Warning ) {
-						Logger.msg(this.name, "[WARNING] Query failed! " + query, 0);
-					} else if ( failBehavior == FailBehavior.Exit ) {
-						Logger.msg(this.name, "[WARNING] Query failed! " + query, 0);
-						Logger.msg(this.name, "Exiting because failBehvaior is set to Exit.", 0);
-						System.err.println("Exiting because failBehvaior is set to Exit.");
-						Loop.start();
-					}
+//					if ( failBehavior == FailBehavior.Warning ) {
+					Logger.msg(this.name, "[WARNING] Query failed! " + query, 0);
+//					} else if ( failBehavior == FailBehavior.Exit ) {
+//						Logger.msg(this.name, "[WARNING] Query failed! " + query, 0);
+//						Logger.msg(this.name, "Exiting because failBehvaior is set to Exit.", 0);
+//						System.err.println("Exiting because failBehvaior is set to Exit.");
+//						Loop.start();
+//					}
 				}
 			}
 //			System.out.println(o.getName());
@@ -596,8 +577,8 @@ public class YapPrologAdapter {
 	private void runProlog() {
 		try {  
 			/* Just create answer file to overwrite old one if exists  */
-			@SuppressWarnings("unused")
 			FileWriter fAnswer = new FileWriter(Global.workingDir+"answer"+Global.UniqueFilenamePart+".prolog");
+			fAnswer.close();
 
 			String cmd = yapBinaryLocation + " -L "+Global.workingDir+"query"+Global.UniqueFilenamePart+".prolog";
 			
@@ -630,8 +611,10 @@ public class YapPrologAdapter {
 			
 			while ((strLine = br.readLine()) != null)   {
 				if ( strLine.trim().equals("[queryPred]") || strLine.trim().equals("[queryPred,queryPred]") ) {
+					br.close();
 					return new ArrayList<Substitution>();
 				} else if ( strLine.trim().equals("[-]")) {
+					br.close();
 					return null;
 				}
 

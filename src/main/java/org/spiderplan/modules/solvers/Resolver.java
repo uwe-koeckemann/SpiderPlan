@@ -23,9 +23,9 @@
 package org.spiderplan.modules.solvers;
 
 import org.spiderplan.representation.ConstraintDatabase;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.expressions.misc.Delete;
-import org.spiderplan.representation.logic.Substitution;
 
 /**
  * Describes a way to change a {@link ConstraintDatabase}

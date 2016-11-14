@@ -37,7 +37,6 @@ import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Expression;
-import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.causal.Task;
@@ -45,13 +44,10 @@ import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.expressions.temporal.PossibleIntersection;
 import org.spiderplan.representation.expressions.temporal.TemporalIntervalQuery;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
-import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
-import org.spiderplan.tools.visulization.TemporalNetworkVisualizer;
 
 
 /**

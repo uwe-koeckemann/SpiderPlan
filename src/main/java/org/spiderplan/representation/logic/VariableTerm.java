@@ -24,6 +24,8 @@ package org.spiderplan.representation.logic;
 
 import java.util.ArrayList;
 
+import org.spiderplan.representation.expressions.domain.Substitution;
+
 /**
  * 
  *  
@@ -67,7 +69,7 @@ public class VariableTerm extends Term {
 	 		
 	@Override
 	public String getPrologStyleString() { 
-		return value; //TODO: consider upper case 
+		return value.substring(0, 1).toUpperCase() + value.substring(1); 
 	}
 
 	@Override

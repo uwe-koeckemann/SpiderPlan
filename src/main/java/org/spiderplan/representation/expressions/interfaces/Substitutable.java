@@ -23,7 +23,7 @@
 package org.spiderplan.representation.expressions.interfaces;
 
 import org.spiderplan.representation.expressions.Expression;
-import org.spiderplan.representation.logic.Substitution;
+import org.spiderplan.representation.expressions.domain.Substitution;
 
 
 /**

@@ -35,6 +35,7 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interfaces.Assertable;
 import org.spiderplan.representation.expressions.interfaces.Mutable;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
@@ -43,7 +44,6 @@ import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.Type;
 import org.spiderplan.representation.types.TypeManager;
@@ -903,6 +903,7 @@ public class Plan extends Expression implements Substitutable, Mutable, Assertab
 	 * Returns a copy of this plan.
 	 * @return the copy
 	 */
+	@Override
 	public Plan copy() {
 		Plan pC = new Plan();
 		for ( Operator a : A ) {

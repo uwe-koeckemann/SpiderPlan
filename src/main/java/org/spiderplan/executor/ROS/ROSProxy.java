@@ -31,8 +31,7 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.logic.Substitution;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.Loop;
 

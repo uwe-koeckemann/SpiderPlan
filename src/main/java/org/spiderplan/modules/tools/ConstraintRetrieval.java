@@ -27,10 +27,10 @@ import java.util.ArrayList;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interfaces.Assertable;
 import org.spiderplan.representation.expressions.interfaces.Matchable;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
-import org.spiderplan.representation.logic.Substitution;
 
 /**
  * Contains some static methods to retrieve certain types of {@link Expression}s

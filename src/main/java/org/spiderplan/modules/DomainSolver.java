@@ -41,9 +41,9 @@ import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.representation.expressions.ExpressionTypes.DomainRelation;
 import org.spiderplan.representation.expressions.domain.DomainMemberConstraint;
 import org.spiderplan.representation.expressions.domain.NewObject;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.domain.VariableDomainRestriction;
 import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.Type;
 import org.spiderplan.representation.types.TypeManager;
@@ -56,7 +56,6 @@ import org.spiderplan.tools.logging.Logger;
  * of all {@link VariableDomainRestriction}s is empty there is an inconsistency. 
  * 
  * TODO: Add propagation into a single {@link VariableDomainRestriction} constraint for each variable.
- * TODO: Add substitution
  * 
  * @author Uwe Köckemann
  *
@@ -99,8 +98,6 @@ public class DomainSolver extends Module implements SolverInterface {
 		ResolverList resolverList = null;
 		
 		TypeManager tM = core.getTypeManager();
-		
-				
 		
 		boolean isConsistent = true;
 		

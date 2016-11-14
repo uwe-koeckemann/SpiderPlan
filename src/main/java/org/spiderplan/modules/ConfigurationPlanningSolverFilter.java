@@ -22,7 +22,6 @@
  *******************************************************************************/
 package org.spiderplan.modules;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-
-import javax.net.ssl.SSLSessionBindingListener;
 
 import org.spiderplan.minizinc.MiniZincAdapter;
 import org.spiderplan.modules.configuration.ConfigurationManager;
@@ -79,8 +76,6 @@ public class ConfigurationPlanningSolverFilter extends Module implements SolverI
 	
 	private ResolverIterator resolverIterator = null;
 	private ConstraintDatabase originalContext = null;
-	
-	private boolean proposeSingleGoalResolvers = true;
 	
 	String minizincBinaryLocation = "minizinc"; 
 	
@@ -177,7 +172,11 @@ public class ConfigurationPlanningSolverFilter extends Module implements SolverI
 		}
 		String program = "";
 		try {
-			program = new Scanner(new File(pathToProgram)).useDelimiter("\\Z").next();
+			Scanner scanner = new Scanner(new java.io.File(pathToProgram));
+			scanner.useDelimiter("\\Z");			
+			program  = scanner.next();
+			scanner.close();
+//			program = new Scanner(new File(pathToProgram)).useDelimiter("\\Z").next();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			System.exit(0);

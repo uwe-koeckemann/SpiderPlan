@@ -47,14 +47,13 @@ import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
 import org.spiderplan.representation.expressions.ontology.SparQLQuery;
 import org.spiderplan.representation.expressions.programs.IncludedProgram;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.GenericComboIterator;
-import org.spiderplan.tools.Global;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
 

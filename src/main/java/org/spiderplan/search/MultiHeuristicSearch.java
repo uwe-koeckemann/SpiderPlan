@@ -268,6 +268,7 @@ public abstract class MultiHeuristicSearch<T extends MultiHeuristicNode> extends
 		n = null;			// set n null so we select a node from the new space next time.
 	}
 			
+	@Override
 	public MultiHeuristicNode getCurrentNode() {
 		return this.n;
 	}

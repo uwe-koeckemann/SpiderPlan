@@ -32,19 +32,18 @@ import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Resolver;
 import org.spiderplan.modules.solvers.ResolverIterator;
-import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
 import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.expressions.misc.Delete;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
@@ -103,7 +102,7 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 	public AdaptExistingPlanIterator( ConstraintDatabase cDB, Collection<OpenGoal> G, Plan p, Collection<Operator> O, TypeManager tM, ConfigurationManager cManager, String name ) {
 		super(name, cManager);
 		
-//		throw new UnsupportedOperationException("Don't use this until the bug in the TODO is fixed...");
+//		throw new UnsupportedOperationException("Don't use this until the bug is fixed...");
 
 		this.originalContext = cDB.copy();
 		this.originalPlan = p.copy();

@@ -34,11 +34,11 @@ import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.ExpressionTypes.MathRelation;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.math.MathConstraint;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.FloatTerm;
 import org.spiderplan.representation.logic.IntegerTerm;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.logging.Logger;
 

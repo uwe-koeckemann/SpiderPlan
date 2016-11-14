@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.spiderplan.representation.logic.Substitution;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.ExecuteSystemCommand;
 import org.spiderplan.tools.Global;

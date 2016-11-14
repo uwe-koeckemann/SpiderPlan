@@ -31,11 +31,11 @@ import java.util.Set;
 
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.domain.TypeDomainConstraint;
 import org.spiderplan.representation.expressions.domain.TypeSignatureConstraint;
 import org.spiderplan.representation.expressions.resources.ReusableResourceCapacity;
 import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.GenericComboBuilder;
 

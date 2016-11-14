@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.logic.Substitution;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.search.GenericSingleNodeSearch;
 
 /**
