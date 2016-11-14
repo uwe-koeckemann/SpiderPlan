@@ -36,7 +36,6 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
-import org.spiderplan.representation.expressions.causal.AppliedPlan;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.logic.Atomic;
@@ -486,7 +485,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 				
 		if ( searchSuccess ) {
 			ConstraintDatabase rCDB = new ConstraintDatabase();
-			rCDB.add(new AppliedPlan(outPlan));
+			rCDB.add(outPlan);
 			
 			r = new Resolver(subst, outPlan.apply(rCDB));
 

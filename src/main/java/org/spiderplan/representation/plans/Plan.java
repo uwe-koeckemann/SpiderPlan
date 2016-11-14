@@ -35,6 +35,10 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.interfaces.Assertable;
+import org.spiderplan.representation.expressions.interfaces.Mutable;
+import org.spiderplan.representation.expressions.interfaces.Substitutable;
+import org.spiderplan.representation.expressions.interfaces.Unique;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
@@ -52,8 +56,10 @@ import org.spiderplan.representation.types.TypeManager;
  * @author Uwe Köckemann
  *
  */
-public class Plan {
+public class Plan extends Expression implements Substitutable, Mutable, Assertable, Unique {
 	
+	final private static Term ConstraintType = Term.createConstant("plan");
+		
 	private ArrayList<Operator> A = new ArrayList<Operator>();	
 	private ConstraintDatabase C = new ConstraintDatabase();
 	
@@ -63,75 +69,15 @@ public class Plan {
 	private final static Term NewPreconditionInterval = Term.createVariable("KEY_P");
 	private final static Term NewEffectInterval = Term.createVariable("KEY_E");
 	
+	private boolean isAsserted = false;
+	
 	/**
 	 * Create new empty plan.
 	 */
-	public Plan() {}	
-	
-	/**
-	 * Get the list of actions of this plan.
-	 * @return list of operators
-	 */
-	public ArrayList<Operator> getActions() {
-		return A;
-	}
-	
-	/**
-	 * Get the constraints of this plan.
-	 * @return set of constraints
-	 */
-	public ConstraintDatabase getConstraints() {
-		return C;
-	}
-	
-	/**
-	 * Add an action to this plan.
-	 * @param a action to be added
-	 */
-	public void addAction( Operator a ) {
-		A.add(a);
-	}
-	
-	/**
-	 * Remove the ith action from this plan.
-	 * @param i
-	 */
-	public void removeAction( int i ) {
-		A.remove(i);
-	}
-	
-	/**
-	 * Add a list of actions to the plan.
-	 * @param A
-	 */
-	public void addActions( ArrayList<Operator> A ) {
-		this.A.addAll(A);
-	}
-	
-	/**
-	 * Add a constraint to the plan.
-	 * @param c
-	 */
-	public void addConstraint( Expression c ) {
-		C.add(c);
-	}
-	
-	/**
-	 * Remove a constraint from the plan.
-	 * @param c
-	 */
-	public void removeConstraint( Expression c ) {
-		C.remove(c);
+	public Plan() {
+		super(ConstraintType);
 	}	
 	
-	/**
-	 * Add a set of constraints to the plan.
-	 * @param C
-	 */
-	public void addConstraints( Collection<Expression> C ) {
-		this.C.addAll(C);
-	}
-		
 	/**
 	 * Create plan from a sequential plan. 
 	 * Sequential plans are created by heuristic forward planners ({@link ForwardPlanningSearch}).
@@ -141,6 +87,7 @@ public class Plan {
 	 * @param planID ID of the plan to keep actions unique
 	 */
 	public Plan( SequentialPlan p, Collection<Operator> O, long planID ) {	
+		super(ConstraintType);
 		HashMap<String,List<Statement>> lastChangingStatement = new HashMap<String, List<Statement>>();
 		Substitution theta = new Substitution();
 		long nextFreeID = 0;
@@ -249,6 +196,72 @@ public class Plan {
 //			System.out.println(a);
 //		}
 	}
+	
+	/**
+	 * Get the list of actions of this plan.
+	 * @return list of operators
+	 */
+	public ArrayList<Operator> getActions() {
+		return A;
+	}
+	
+	/**
+	 * Get the constraints of this plan.
+	 * @return set of constraints
+	 */
+	public ConstraintDatabase getConstraints() {
+		return C;
+	}
+	
+	/**
+	 * Add an action to this plan.
+	 * @param a action to be added
+	 */
+	public void addAction( Operator a ) {
+		A.add(a);
+	}
+	
+	/**
+	 * Remove the ith action from this plan.
+	 * @param i
+	 */
+	public void removeAction( int i ) {
+		A.remove(i);
+	}
+	
+	/**
+	 * Add a list of actions to the plan.
+	 * @param A
+	 */
+	public void addActions( ArrayList<Operator> A ) {
+		this.A.addAll(A);
+	}
+	
+	/**
+	 * Add a constraint to the plan.
+	 * @param c
+	 */
+	public void addConstraint( Expression c ) {
+		C.add(c);
+	}
+	
+	/**
+	 * Remove a constraint from the plan.
+	 * @param c
+	 */
+	public void removeConstraint( Expression c ) {
+		C.remove(c);
+	}	
+	
+	/**
+	 * Add a set of constraints to the plan.
+	 * @param C
+	 */
+	public void addConstraints( Collection<Expression> C ) {
+		this.C.addAll(C);
+	}
+		
+	
 	
 	/**
 	 * Apply plan to a context {@link ConstraintDatabase} and return the result. Input context remains unchanged.
@@ -928,17 +941,75 @@ public class Plan {
 //		}
 //		return true;
 //	}
+	
+	@Override
+	public Collection<Term> getVariableTerms() {
+		ArrayList<Term> r = new ArrayList<Term>();
+		for ( Operator o : this.getActions() ) {
+			r.addAll(o.getVariableTerms());
+		}
+		for ( Expression c : this.getConstraints() ) {
+			r.addAll(c.getVariableTerms() );
+		}
+		return r;	
+	}
+	@Override
+	public Collection<Term> getGroundTerms() {
+		Set<Term> r = new HashSet<Term>();
+		for ( Operator o : this.getActions() ) {
+			r.addAll(o.getGroundTerms());			
+		}
+		for ( Expression c : this.getConstraints() ) {
+			r.addAll(c.getGroundTerms());
+		}
+		return r;
+	}
+	@Override
+	public Collection<Atomic> getAtomics() {
+		Set<Atomic> r = new HashSet<Atomic>();
+		for ( Operator o : this.getActions() ) {
+			r.addAll(o.getAtomics() );
+		}
+		for ( Expression c : this.getConstraints() ) {
+			r.addAll(c.getAtomics() );
+		}
+		return r;
+	}
 
+	@Override
+	public boolean isAssertable() { return true; }
+	
+	@Override
+	public boolean isMutable() { return true; }
+	
+	@Override
+	public boolean isSubstitutable() { return true; }
+	
+	@Override
+	public boolean isUnique() { return true; }
+		
 	/**
 	 * Apply a substitution to this plan.
 	 * @param theta the substitution
 	 */
-	public void substitute(Substitution theta) {
+	@Override
+	public Expression substitute(Substitution theta) {
 		for ( Operator a : A ) {
 			a.substitute(theta);
 		}
 		
 		C.substitute(theta);
+		return this;
+	}
+	
+	@Override
+	public boolean isAsserted() {
+		return isAsserted;
+	}
+	@Override
+	public Expression setAsserted(boolean asserted) {
+		isAsserted = asserted;
+		return this;
 	}
 	
 	@Override 

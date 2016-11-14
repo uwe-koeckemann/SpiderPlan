@@ -40,11 +40,11 @@ import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.ExpressionTypes.OptimizationRelation;
 import org.spiderplan.representation.expressions.ValueLookup;
-import org.spiderplan.representation.expressions.causal.AppliedPlan;
 import org.spiderplan.representation.expressions.cost.Cost;
 import org.spiderplan.representation.expressions.optimization.OptimizationTarget;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
+import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
@@ -283,11 +283,16 @@ public class SolverStack extends Module {
 						
 	//					if ( keepTimes ) StopWatch.stop(msg("Copy"));
 						
-						// TODO: this is a hack
-						Collection<AppliedPlan> plans = r.getConstraintDatabase().get(AppliedPlan.class);
-						if ( !plans.isEmpty() ) {
-							currentCore.setPlan(plans.iterator().next().getPlan());
+//						Collection<AppliedPlan> plans = r.getConstraintDatabase().get(AppliedPlan.class);
+//						if ( !plans.isEmpty() ) {
+//							currentCore.setPlan(plans.iterator().next().getPlan());
+//						}
+						
+						Plan plan = r.getConstraintDatabase().getUnique(Plan.class);
+						if ( plan != null ) {
+							currentCore.setPlan(plan);
 						}
+						
 	//					if ( keepTimes ) StopWatch.stop(msg("Applying resolver"));
 						
 						// Consistent with resolver does not require resetting i to 0

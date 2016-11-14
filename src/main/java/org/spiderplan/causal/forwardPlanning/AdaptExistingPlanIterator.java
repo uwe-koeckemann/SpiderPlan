@@ -38,7 +38,6 @@ import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
-import org.spiderplan.representation.expressions.causal.AppliedPlan;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
 import org.spiderplan.representation.expressions.misc.Asserted;
@@ -359,7 +358,8 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 			return null;
 		}
 		
-		Plan planForCut = r.getConstraintDatabase().get(AppliedPlan.class).iterator().next().getPlan();
+//		Plan planForCut = r.getConstraintDatabase().get(AppliedPlan.class).iterator().next().getPlan();
+		Plan planForCut = r.getConstraintDatabase().getUnique(Plan.class); 
 					
 		ConstraintDatabase context = new ConstraintDatabase();
 //		context.add(originalContext.copy());
@@ -549,11 +549,11 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 		/**
 		 * Remove old plan(s) from CDB
 		 */
-		for ( AppliedPlan plan : originalContext.get(AppliedPlan.class) ) {
-			result.getConstraintDatabase().add(new Delete(plan));	
-		}
+//		for ( AppliedPlan plan : originalContext.get(AppliedPlan.class) ) {
+		result.getConstraintDatabase().add(new Delete(originalContext.getUnique(Plan.class)));	
+//		}
 		
-		result.getConstraintDatabase().add(new AppliedPlan(newPlan));
+		result.getConstraintDatabase().add(newPlan);
 
 		if ( verbose ) {
 			for ( int i = 0 ; i < newPlan.getActions().size() ; i++ ) {

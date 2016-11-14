@@ -37,7 +37,6 @@ import org.spiderplan.modules.solvers.SolverInterface;
 import org.spiderplan.modules.solvers.SolverResult;
 import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.expressions.causal.AppliedPlan;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.plans.Plan;
 
@@ -134,7 +133,7 @@ public class ForwardPlanningModule extends Module implements SolverInterface {
 			
 			r.apply(cDB);
 			
-			Plan plan = r.getConstraintDatabase().get(AppliedPlan.class).iterator().next().getPlan();
+			Plan plan = r.getConstraintDatabase().getUnique(Plan.class);
 					
 			core.setPlan(plan); // TODO: Meh...
 									
