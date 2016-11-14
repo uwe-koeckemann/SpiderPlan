@@ -169,7 +169,7 @@ public class SchedulingSolver extends Module implements SolverInterface {
 				if ( !resolvers.isEmpty() ) {
 					foundFlaw = true;
 					if ( verbose ) {
-						Logger.msg(getName(), "Need to resolve: " + groundRRC , 1); 
+						Logger.msg(getName(), "Need to resolve: " + groundRRC , 0); 
 						Logger.depth++;
 					}
 					for ( AllenConstraint resCon : resolvers ) {
@@ -208,8 +208,12 @@ public class SchedulingSolver extends Module implements SolverInterface {
 					}
 					
 					if ( !resolvers.isEmpty() ) {
+						if ( verbose ) {
+							Logger.msg(getName(), "Need to resolve: " + s.getVariable() , 0);
+							Logger.depth++;
+						}
 						foundFlaw = true;
-						if ( verbose ) Logger.depth++;
+						 
 						for ( AllenConstraint resCon : resolvers ) {
 							if ( verbose ) Logger.msg(getName(), "Resolver: " + resCon , 3); 
 							ConstraintDatabase resolverCDB = new ConstraintDatabase();

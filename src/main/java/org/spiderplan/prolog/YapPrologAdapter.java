@@ -365,7 +365,6 @@ public class YapPrologAdapter {
 						addList.add(oCopy);
 					}	
 				} else { 
-					//TODO: Use Logger.err() once that exists...
 					if ( failBehavior == FailBehavior.Warning ) {
 						Logger.msg(this.name, "[WARNING] Query failed! " + query, 0);
 					} else if ( failBehavior == FailBehavior.Exit ) {

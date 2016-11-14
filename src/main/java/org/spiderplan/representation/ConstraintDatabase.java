@@ -525,7 +525,7 @@ public class ConstraintDatabase implements Collection<Expression> {
 			List<Expression> C = this.Cmap.get(cl);
 			if ( C != null ) {
 				for ( Expression c : C ) {
-					if ( c.isMatchable() ) { //c instanceof Matchable ) {
+					if ( c.isMatchable() ) { 
 						r.add( (Matchable)c);
 					}
 				}
@@ -612,56 +612,40 @@ public class ConstraintDatabase implements Collection<Expression> {
 	 * Create a copy of this constraint database.
 	 * @return the copy
 	 */
-	public ConstraintDatabase copy() {
-//		Profiler.probe(1);
-//		copyDepth++;
-		
-//		StopWatch.start("Copy Collection");
-		
+	public ConstraintDatabase copy() {		
 		ConstraintDatabase C = new ConstraintDatabase();
 		for ( Class<? extends Expression> cl : KeyList ) {
-//			StopWatch.start(("Copy class " + copyDepth + " " + cl.toString()));
 			List<Expression> thisC = Cmap.get(cl);
 			if ( thisC != null ) {
 				ArrayList<Expression> Col = new ArrayList<Expression>(thisC.size());
 				C.Cmap.put(cl,Col);
 				
 				if ( !thisC.isEmpty() ) {
-	//				StopWatch.start("instanceof");
-//					boolean needCopy =  (thisC.get(0) instanceof Mutable);
-	//				StopWatch.stop("instanceof");
-					
+				
 					if ( thisC.get(0).isMutable() ) { 
 						for ( Expression c : thisC ) {
-	//						StopWatch.stop(("Copy class " + copyDepth + " " + cl.toString()));
 							Col.add( ((Mutable)c).copy());
-	//						StopWatch.start(("Copy class " + copyDepth + " " + cl.toString()));
 						}
 					} else {
-	//					StopWatch.stop( ("Copy class " + copyDepth + " " + cl.toString()));
 						Col.addAll(thisC);
-	//					StopWatch.start(("Copy class " + copyDepth + " " + cl.toString()));
 					}
 				} 
 			}
-//			StopWatch.stop(("Copy class " + copyDepth + " " + cl.toString()));
 		}
-//		StopWatch.stop("Copy Collection");
-//		copyDepth--;
 		return C;
 	}
 
 	@Override
 	public boolean add(Expression arg0) { 
 		List<Expression> C = Cmap.get(arg0.getClass());
-		if ( C == null || (arg0.isUnique()) ) { // instanceof Unique ))  {
+		if ( C == null || (arg0.isUnique()) ) { 
 			if ( !KeyList.contains(arg0.getClass()) ) {
 				KeyList.add(arg0.getClass());
 			}
 			C = new ArrayList<Expression>();
 			Cmap.put(arg0.getClass(), C);
 		}
-		if ( arg0.isRepeatable() ) { // instanceof Repeatable ) {
+		if ( arg0.isRepeatable() ) { 
 			return C.add(arg0);
 		}
 		if ( !C.contains(arg0) ) {
@@ -819,7 +803,7 @@ public class ConstraintDatabase implements Collection<Expression> {
 			List<Expression> C = Cmap.get(cl); 
 			if ( C != null ) {
 				for ( int i = 0 ; i < C.size() ;i++ ) {
-					if ( C.get(i).isSubstitutable() ) { // instanceof Substitutable ) {
+					if ( C.get(i).isSubstitutable() ) { 
 						C.set(i, ((Substitutable)C.get(i)).substitute(theta));
 					} else {
 						continue;
@@ -840,7 +824,7 @@ public class ConstraintDatabase implements Collection<Expression> {
 			List<Expression> C = Cmap.get(cl);
 			if ( C != null ) {
 				for ( int i = 0 ; i < C.size() ;i++ ) {
-					if ( C.get(i).isAssertable() ) { // instanceof Assertable ) {
+					if ( C.get(i).isAssertable() ) {
 						if ( a.appliesTo(C.get(i))) {
 							C.set(i, ((Assertable)C.get(i)).setAsserted(true));
 						}

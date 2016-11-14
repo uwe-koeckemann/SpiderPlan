@@ -18,6 +18,9 @@
     (I8  x A)
     (I9  x B)
     (I10 x C)
+    
+    (I11 x A)
+    (I12 x A)
   )
   (:resource
     (reusable (using A) 1) 
@@ -36,6 +39,9 @@
     (duration I8 [10 10])
     (duration I9 [10 10])
     (duration I10 [10 10])
+    
+    (at I11 [500 500] [600 600])
+    (at I12 [550 550] [650 650])
   ) 
  )
 

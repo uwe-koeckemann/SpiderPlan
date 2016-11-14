@@ -1,6 +1,0 @@
-name				= "csp-based-test";
-planner			= "./planner-csp.spider";
-domain			= "./domain-generated.uddl|./domain-csp.uddl|./domain-shared.uddl";
-problems		= "./problems/csp-based/";
-timeout			= 10;
-attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total], goals/Goals, link-cost/Cost, [Solver] Backtracking/BacktrackingCounter";

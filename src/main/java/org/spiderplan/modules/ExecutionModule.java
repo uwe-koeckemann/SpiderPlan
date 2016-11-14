@@ -179,8 +179,7 @@ public class ExecutionModule  extends Module {
 		if ( verbose ) Logger.depth++;
 
 		this.plan = core.getPlan();
-		this.initialContext = Global.initialContext;
-//		this.initialContext = core.getRootCore().getContext();
+		this.initialContext = core.getContext().copy();
 		
 		PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(core);
 		
@@ -484,8 +483,7 @@ public class ExecutionModule  extends Module {
 			
 			if ( fromScratchCore.getResultingState(fromScratchSolverName).equals(Core.State.Inconsistent) ) {
 				throw new IllegalStateException("Inconsistency when planning from scratch during execution.");
-			}
-			
+			}	
 			
 			for ( Operator a : fromScratchCore.getPlan().getActions() ) {
 				fromScratchSolution.add(new AllenConstraint(a.getNameStateVariable().getKey(), TemporalRelation.Release, new Interval(Term.createInteger(t), Term.createConstant("inf"))));
@@ -583,8 +581,7 @@ public class ExecutionModule  extends Module {
 		}
 		ValueLookup propagatedTimes = new ValueLookup(); 
 				
-		execCSP.getPropagatedTemporalIntervals(propagatedTimes); //d  execDB.get(TemporalIntervalLookup.class).get(0);
-		
+		execCSP.getPropagatedTemporalIntervals(propagatedTimes);		
 		
 //		TemporalIntervalLookup propagatedTimes = execDB.get(TemporalIntervalLookup.class).get(0);
 		/* Operator reactors */
@@ -1007,17 +1004,6 @@ public class ExecutionModule  extends Module {
 		}	
 		for ( InteractionConstraint ic : execDB.get(InteractionConstraint.class) ) {
 			
-			/**
-			 * TODO: This is a hack to fix bug where the index is lost at some point...
-			 * If this is still a problem it has to be fixed in a different way now...
-			 */
-//			for ( Asserted c : execDB.get(Asserted.class) ) {
-//				if ( c.appliesTo(ic) ) {
-//					InteractionConstraint ic2 = (InteractionConstraint)c.getConstraint();
-//					ic.setResolverIndex(ic2.getResolverIndex());
-//				}
-//			}
-			
 			if ( ic.isAsserted() ) {
 				boolean allConditionStatementsInPast = true;
 				
@@ -1381,7 +1367,7 @@ public class ExecutionModule  extends Module {
 						addedByROS.add(finalDeadline);
 						execDB.add(finalDeadline);
 					}			
-					//TODO not unique
+
 					Term interval = rosSubInterval.makeUnique(UniqueID.getID()).makeConstant();
 					Statement newStatement = new Statement(interval,variable,value);
 					AllenConstraint release = new AllenConstraint(interval, TemporalRelation.Release, new Interval(t,t));

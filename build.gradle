@@ -47,6 +47,9 @@ run {
     main = "org.spiderplan.runnable.Planning"
     classpath = sourceSets.main.runtimeClasspath 
     
+    minHeapSize = "256m"
+		maxHeapSize = "4096m"
+    
     jvmArgs '-noverify'
 
     /* Can pass all the properties: */

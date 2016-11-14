@@ -37,6 +37,7 @@ import org.spiderplan.modules.solvers.Core.State;
 import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Expression;
+import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.causal.Task;
@@ -44,10 +45,13 @@ import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.expressions.temporal.PossibleIntersection;
 import org.spiderplan.representation.expressions.temporal.TemporalIntervalQuery;
 import org.spiderplan.representation.logic.Term;
+import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
+import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
+import org.spiderplan.tools.visulization.TemporalNetworkVisualizer;
 
 
 /**
@@ -59,6 +63,7 @@ public class STPSolver extends Module implements SolverInterface {
 	
 	IncrementalSTPSolver stpSolver;
 	int historySize = 100;
+	boolean calculateRigidity = true;
 		
 	/**
 	 * Create new instance by providing name and configuration manager.
@@ -69,29 +74,11 @@ public class STPSolver extends Module implements SolverInterface {
 		super(name, cM);
 		
 		super.parameterDesc.add(  new ParameterDescription("historySize", "int", "100", "Number of past propagations that are kept by internal stp solver.") );
-		super.parameterDesc.add(  new ParameterDescription("useFrameConstraints", "boolean", "false", "Frame constraints are temporal constraints that assure that a state variable that does not change will keep its value until the temporal horizon (i.e. forever). Used to create inconsistencies as early as possible. Can lead to removal of solutions in some cases (e.g. required concurrency, pre-scheduled resource usages). Should be turned on/off on a domain-by-domain basis. Note: Using this setting will most likely make the make-span to be the temporal horizon and thus useless as a quality criteria.") );
 		super.parameterDesc.add(  new ParameterDescription("calculateRigidity", "boolean", "false", "Switch on to add rigidity of STN (after scheduling) to Core's features in case of consistency.") );		
 		
-		//TODO: handle all options
-		
-//		if ( cM.hasAttribute(name, "useBookmarks") ) {
-//			useBookmarks = cM.getBoolean(name, "useBookmarks");
-//		}
-//		if ( cM.hasAttribute(name, "useFrameConstraints") ) {
-//			useFrameConstraints = cM.getBoolean(name, "useFrameConstraints");
-//		}		
-//		symbValScheduling = true;
-//		if ( cM.hasAttribute(name, "symbolicValueScheduling") ) {
-//			symbValScheduling = cM.getBoolean(name, "symbolicValueScheduling");
-//		}
-//		if ( cM.hasAttribute(name, "initNumActivities") ) {
-//			initNumActivities = cM.getInt(name, "initNumActivities");
-//		}
-//		if ( cM.hasAttribute(name, "numActivitiesInc") ) {
-//			numActivitiesInc = cM.getInt(name, "numActivitiesInc");
-//		}
-		
-		
+		if ( cM.hasAttribute(name, "calculateRigidity") ) {
+			 calculateRigidity = cM.getBoolean(name, "calculateRigidity");
+		 }
 		if ( cM.hasAttribute(name, "historySize") ) {
 			historySize = cM.getInt(name, "historySize");
 		}
@@ -181,8 +168,7 @@ public class STPSolver extends Module implements SolverInterface {
 //			}
 //			stats.setLong(msg("Last #Statements"), Long.valueOf(core.getContext().getStatements().size()));
 //		}
-		
-		
+				
 		/** 
 		 * Run Temporal Reasoner
 		 */		
@@ -193,13 +179,17 @@ public class STPSolver extends Module implements SolverInterface {
 //		System.out.println(StopWatch.getLast("["+this.getName()+"] Running incremental STP solver"));
 		
 //		if ( !isTemporalConsistent ) {
+//			cDB.export("inconsistent.uddl");
 //			System.out.println("==============================================");
 //			System.out.println("Debugging: ");
 //			System.out.println("==============================================");
-//			IncrementalSTPSolver stpDebug = new IncrementalSTPSolver(0, 600);
+//			IncrementalSTPSolver stpDebug = new IncrementalSTPSolver(0, 1000000000);
 //			stpDebug.debug = true;
-//			System.out.println(stpDebug.isConsistent( cDB, core.getTypeManager()));
+//			System.out.println(stpDebug.isConsistent( cDB ));
 //			System.out.println("==============================================");
+//			TemporalNetworkVisualizer tnv = new TemporalNetworkVisualizer();
+//			tnv.draw(cDB);
+//			Loop.start();
 //		}
 		
 		isConsistent = isTemporalConsistent;
@@ -295,18 +285,19 @@ public class STPSolver extends Module implements SolverInterface {
 		State state;
 		ResolverIterator resolverIterator = null;
 		if ( isConsistent ) {
-			if ( stpSolver.changedMatrix() ) {
-				ConstraintDatabase resCDB = new ConstraintDatabase();
-				
-				ValueLookup valueLookup = core.getContext().getUnique(ValueLookup.class);
-				if ( valueLookup == null ) {
-					valueLookup = new ValueLookup();
-				} else {
-					valueLookup = core.getContext().getUnique(ValueLookup.class).copy();
+			ValueLookup valueLookup = core.getContext().getUnique(ValueLookup.class);
+			if ( valueLookup == null ) {
+				valueLookup = new ValueLookup();
+			} else {
+				valueLookup = core.getContext().getUnique(ValueLookup.class).copy();
+			}
+			boolean change = stpSolver.getPropagatedTemporalIntervals(valueLookup); 
+			
+			if ( change || stpSolver.changedMatrix() ) {
+				if ( calculateRigidity ) {
+					valueLookup.putFloat(Term.createConstant("temporal-rigidity"), stpSolver.getRigidity());
 				}
-	
-				stpSolver.getPropagatedTemporalIntervals(valueLookup); 
-				
+				ConstraintDatabase resCDB = new ConstraintDatabase();
 				resCDB.add(valueLookup);
 							
 				Resolver r = new Resolver(resCDB);

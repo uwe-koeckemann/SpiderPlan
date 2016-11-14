@@ -73,7 +73,7 @@ import org.spiderplan.tools.stopWatch.StopWatch;
  * @author Uwe Köckemann
  *
  */
-public class ConfigurationPlanningSolver extends Module implements SolverInterface { //TODO: stop using strings to test relations
+public class ConfigurationPlanningSolver extends Module implements SolverInterface { 
 	
 	private ResolverIterator resolverIterator = null;
 	private ConstraintDatabase originalContext = null;

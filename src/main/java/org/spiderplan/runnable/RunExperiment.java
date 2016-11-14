@@ -511,7 +511,6 @@ public class RunExperiment {
 				System.out.println("Time for "+pName+" ("+expCount+"): " +  String.format("%.3f", StopWatch.getAvg("[main] Running... " + pName)/1000.0) + " (" + r.getResultingState("main") + ")");
 				Statistics.setDouble("Time", StopWatch.getAvg("[main] Running... " + pName)/1000.0);
 			}
-			Module.setKillFlag(false);
 						
 			times.add( StopWatch.getLast("[main] Running... " + pName ));
 			
@@ -522,7 +521,14 @@ public class RunExperiment {
 			Statistics.setString("result", r.getResultingState("main").toString());
 			Statistics.setString("problem", pName+".uddl");
 			Statistics.setString("domain", domainFilenames.toString());
-			Statistics.setLong("time", StopWatch.getLast("[main] Running... " + pName ));
+			if ( Module.getKillFlag() ) {
+				Statistics.setLong("time", -1L );
+			} else {
+				Statistics.setLong("time", StopWatch.getLast("[main] Running... " + pName ));
+			}
+			
+			Module.setKillFlag(false);
+			
 			
 			ValueLookup vLookUp = r.getContext().getUnique(ValueLookup.class);
 			
@@ -533,22 +539,26 @@ public class RunExperiment {
 				Long valCounter = Statistics.getCounter(att);
 				
 				if ( valLong == null && valDouble == null && valString == null && valCounter == null ) {
-					System.out.println("Looking for attribute: " + att);
-					
-					Term attTerm = Term.parse(att);
-					
-					valLong = vLookUp.getInt(attTerm);
-					if ( valLong != null ) {
-						Statistics.setLong(att, valLong);
-					}
-					valDouble = vLookUp.getFloat(attTerm);
-					if ( valDouble != null ) {
-						Statistics.setDouble(att, valDouble);
-					}
-					if ( vLookUp.hasInterval(attTerm)) {
-						long[] boundsArray = vLookUp.getBoundsArray(attTerm);
-						String bStr = "[[" + boundsArray[0] + " " + boundsArray[1] + "] [" + boundsArray[2] + " " + boundsArray[3] + "]]";
-						Statistics.setString(att, bStr);
+					if ( vLookUp != null ) {			
+//						System.out.println("Looking for attribute: " + att);
+						
+						Term attTerm = Term.parse(att);
+	
+						valLong = vLookUp.getInt(attTerm);
+						if ( valLong != null ) {
+							Statistics.setLong(att, valLong);
+						}
+						valDouble = vLookUp.getFloat(attTerm);
+						if ( valDouble != null ) {
+							Statistics.setDouble(att, valDouble);
+						}
+						if ( vLookUp.hasInterval(attTerm)) {
+							long[] boundsArray = vLookUp.getBoundsArray(attTerm);
+							String bStr = "[[" + boundsArray[0] + " " + boundsArray[1] + "] [" + boundsArray[2] + " " + boundsArray[3] + "]]";
+							Statistics.setString(att, bStr);
+						}
+					} else {
+						Statistics.setString(att, "null");
 					}
 				}
 			}

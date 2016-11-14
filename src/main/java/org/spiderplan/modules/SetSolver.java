@@ -45,7 +45,7 @@ import org.spiderplan.tools.logging.Logger;
  * @author Uwe Köckemann
  *
  */
-public class SetSolver extends Module implements SolverInterface { // TODO: stop using strings to test relations 
+public class SetSolver extends Module implements SolverInterface { 
 	
 	/**
 	 * Create new instance by providing name and configuration manager.

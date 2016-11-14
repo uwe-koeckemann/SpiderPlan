@@ -54,8 +54,6 @@ public class ROSConstraint extends Expression implements Substitutable, Mutable 
 	/**
 	 * Create a ROS constraint for publishing/subscribing the values
 	 * of all statements with a specific state-variable.
-	 * <p>
-	 * TODO: meaning of value is unclear
 	 * 
 	 * @param relation select publish or subscribe
 	 * @param variable the state-variable

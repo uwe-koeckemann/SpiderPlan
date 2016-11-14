@@ -37,6 +37,7 @@ import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
+import org.spiderplan.tools.Loop;
 
 /**
  * Note: Code based on scheduling code of the metacsp project (http://metacsp.org/) 
@@ -69,7 +70,7 @@ public abstract class Scheduler {
 	public Scheduler( Atomic resourceVariable ) {
 		this.resourceVariable = resourceVariable;
 	}
-	
+		
 	/**
 	 * Proposes resolvers for a single flaw in a constraint database
 	 * 
@@ -88,7 +89,6 @@ public abstract class Scheduler {
 				}
 			}
 		}
-		
 		List<List<Statement>> conflicts;
 		if ( this.strategy.equals(PeakCollectionStrategy.BinaryPeakCollection) ) {
 			conflicts = this.binaryPeakCollection();
@@ -311,7 +311,6 @@ public abstract class Scheduler {
 			}
 		
 			for (int i = 0; i < groundVars.length-1; i++) {
-
 				long i_min = tiLookup.getEST(groundVars[i].getKey());
 				long i_max = tiLookup.getEET(groundVars[i].getKey());
 				Bounds b_i = null;

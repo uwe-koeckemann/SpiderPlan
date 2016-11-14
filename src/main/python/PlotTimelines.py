@@ -31,7 +31,7 @@ import numpy as np
 from StringIO import StringIO
 import datetime as dt
 
-earliestTimelines = True
+earliestTimelines = False
 
 inputFilename = sys.argv[1]
 f = open(inputFilename)
@@ -79,9 +79,9 @@ if earliestTimelines:
 	timelines(y, EST, EET, 'k')
 	labels(y,EST,EET,value, 'k')	
 else:
-	timelines(y, EST, LST, 'k', vLenght=0.03)
-	timelines(y, EET, LET, 'k', vLenght=0.015)
-	labels(y,EST,LET,value, 'k')
+	timelines(y, LST, EET, 'k', vLenght=0.03)
+	timelines(y, EST, LET, 'k', vLenght=0.05)
+	#labels(y,EST,LET,value, 'k')
 
 
 

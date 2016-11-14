@@ -8,11 +8,13 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Collection;
+import java.util.Scanner;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.charset.*;
 import java.io.IOException;
+import java.net.URL;
 
 import org.spiderplan.representation.*;
 import org.spiderplan.representation.types.*;
@@ -1021,13 +1023,20 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
                 try {
                         String fileName = includedProgramFile.image.substring(1,includedProgramFile.image.length()-1);
 
-                        if ( fileName.startsWith(".") ) {
-                                fileName = sourceDirectory + fileName;
-                                fileName = fileName.replace("/./", "/");
-                        }
+                        if ( fileName.startsWith("http://") ) {
+                                        Scanner scanner = new Scanner(new URL(fileName).openStream(), "UTF-8");
+                                        String program = scanner.useDelimiter("\u005c\u005cA").next();
+                                        scanner.close();
+                                        {if (true) return new IncludedProgram(name, program );}
+                        } else {
+                                if ( fileName.startsWith(".") ) {
+                                        fileName = sourceDirectory + fileName;
+                                        fileName = fileName.replace("/./", "/");
+                                }
 
-                        String program = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
-                        {if (true) return new IncludedProgram(name, program );}
+                                String program = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
+                                {if (true) return new IncludedProgram(name, program );}
+                        }
                 } catch ( IOException e ) {
                         e.printStackTrace();
                         System.exit(0);
@@ -1551,6 +1560,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3R_57() {
+    if (jj_3R_75()) return true;
+    return false;
+  }
+
   private boolean jj_3R_87() {
     if (jj_3R_34()) return true;
     return false;
@@ -1558,11 +1572,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3R_62() {
     if (jj_3R_70()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_57() {
-    if (jj_3R_75()) return true;
     return false;
   }
 
@@ -1603,12 +1612,18 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3R_77() {
+    if (jj_3R_34()) return true;
+    return false;
+  }
+
   private boolean jj_3R_71() {
     if (jj_3R_75()) return true;
     return false;
   }
 
-  private boolean jj_3R_77() {
+  private boolean jj_3_28() {
+    if (jj_scan_token(BAR)) return true;
     if (jj_3R_34()) return true;
     return false;
   }
@@ -1620,6 +1635,16 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3_21() {
     if (jj_3R_73()) return true;
+    return false;
+  }
+
+  private boolean jj_3_27() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_77()) {
+    jj_scanpos = xsp;
+    if (jj_3R_78()) return true;
+    }
     return false;
   }
 
@@ -1638,22 +1663,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3R_85() {
     if (jj_3R_90()) return true;
-    return false;
-  }
-
-  private boolean jj_3_28() {
-    if (jj_scan_token(BAR)) return true;
-    if (jj_3R_34()) return true;
-    return false;
-  }
-
-  private boolean jj_3_27() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_77()) {
-    jj_scanpos = xsp;
-    if (jj_3R_78()) return true;
-    }
     return false;
   }
 
@@ -1719,6 +1728,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3_26() {
+    if (jj_3R_76()) return true;
+    return false;
+  }
+
   private boolean jj_3_11() {
     if (jj_3R_63()) return true;
     return false;
@@ -1768,11 +1782,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3R_56() {
     if (jj_3R_75()) return true;
-    return false;
-  }
-
-  private boolean jj_3_26() {
-    if (jj_3R_76()) return true;
     return false;
   }
 
@@ -1923,6 +1932,12 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3R_80() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_3R_74()) return true;
+    return false;
+  }
+
   private boolean jj_3R_37() {
     if (jj_scan_token(RESOURCE)) return true;
     return false;
@@ -1946,12 +1961,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
       xsp = jj_scanpos;
       if (jj_3_4()) { jj_scanpos = xsp; break; }
     }
-    return false;
-  }
-
-  private boolean jj_3R_80() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_3R_74()) return true;
     return false;
   }
 
@@ -2260,18 +2269,21 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
       for (int i = 0; i < jj_endpos; i++) {
         jj_expentry[i] = jj_lasttokens[i];
       }
-      jj_entries_loop: for (java.util.Iterator<?> it = jj_expentries.iterator(); it.hasNext();) {
+      boolean exists = false;
+      for (java.util.Iterator<?> it = jj_expentries.iterator(); it.hasNext();) {
+        exists = true;
         int[] oldentry = (int[])(it.next());
         if (oldentry.length == jj_expentry.length) {
           for (int i = 0; i < jj_expentry.length; i++) {
             if (oldentry[i] != jj_expentry[i]) {
-              continue jj_entries_loop;
+              exists = false;
+              break;
             }
           }
-          jj_expentries.add(jj_expentry);
-          break jj_entries_loop;
+          if (exists) break;
         }
       }
+      if (!exists) jj_expentries.add(jj_expentry);
       if (pos != 0) jj_lasttokens[(jj_endpos = pos) - 1] = kind;
     }
   }

@@ -1,8 +1,0 @@
-PREFIX foaf:  <http://xmlns.com/foaf/0.1/>
-PREFIX card: <http://www.w3.org/People/Berners-Lee/card#>
-SELECT ?name ?friend
-WHERE {
-		?person1 foaf:name ?name .
-		?person2 foaf:name ?friend .
-    ?person1 foaf:knows ?person2 .
-}

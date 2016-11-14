@@ -66,7 +66,7 @@ import org.spiderplan.tools.visulization.GraphFrame;
  * @author Uwe Köckemann
  *
  */
-public class GraphSolver extends Module implements SolverInterface { //TODO: stop using strings to test relations
+public class GraphSolver extends Module implements SolverInterface { 
 	
 	private ResolverIterator resolverIterator = null;
 	private ConstraintDatabase originalContext = null;
@@ -280,9 +280,7 @@ public class GraphSolver extends Module implements SolverInterface { //TODO: sto
 				}				
 			} else if ( gC.getRelation().equals(GraphRelation.ShortestPath) ) { //gC.getConstraint().getUniqueName().equals("shortest-path/5") ) { 
 				/**
-				 * TODO: edge representation is bad
-				 * TODO: what do to with non-ground edges?
-				 * TODO: get path
+				 * TODO: edge representation is bad, what do to with non-ground edges? get path
 				 */
 				if ( verbose ) Logger.msg(getName(), "    Checking: " + gC, 1);
 				

@@ -15,11 +15,13 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Collection;
+import java.util.Scanner;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.charset.*;
 import java.io.IOException;
+import java.net.URL;
 
 import org.spiderplan.representation.*;
 import org.spiderplan.representation.types.*;
@@ -768,13 +770,20 @@ Expression IncludeProgram() :
 	 	try {
 	 		String fileName = includedProgramFile.image.substring(1,includedProgramFile.image.length()-1);
 
-			if ( fileName.startsWith(".") ) {	
-				fileName = sourceDirectory + fileName;
-				fileName = fileName.replace("/./", "/");
-			}
+			if ( fileName.startsWith("http://") ) {
+					Scanner scanner = new Scanner(new URL(fileName).openStream(), "UTF-8");
+					String program = scanner.useDelimiter("\\A").next();
+					scanner.close();
+					return new IncludedProgram(name, program );
+			} else {
+				if ( fileName.startsWith(".") ) {	
+					fileName = sourceDirectory + fileName;
+					fileName = fileName.replace("/./", "/");
+				}
 
-	 		String program = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
-	 		return new IncludedProgram(name, program );
+				String program = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
+				return new IncludedProgram(name, program );
+	 		}
 	 	} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(0);

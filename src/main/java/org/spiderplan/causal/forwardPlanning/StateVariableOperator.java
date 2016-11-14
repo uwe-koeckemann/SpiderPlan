@@ -79,7 +79,6 @@ public class StateVariableOperator {
 	
 	/**
 	 * Set substitution that was applied to the operator.
-	 * TODO: this is strange, is it still required to carry around substitutions?
 	 * @param theta the substitution
 	 */
 	public void setSubstitution( Substitution theta ) {

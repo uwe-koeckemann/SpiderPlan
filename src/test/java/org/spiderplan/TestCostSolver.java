@@ -84,8 +84,6 @@ public class TestCostSolver extends TestCase {
 		testCore = cSolver.run(testCore);
 		assertTrue(testCore.getResultingState("CostSolver").equals(State.Inconsistent));
 	}
-	
-	
 }
 
 

@@ -28,9 +28,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.representation.ConstraintDatabase;
@@ -135,6 +137,31 @@ public class TemporalNetworkTools {
 		
 		return theta;
 	}
+	
+	public static  Collection<Statement> directlyConnectedStatements( ConstraintDatabase cdb, Term a ) {
+		Set<Statement> r = new HashSet<Statement>();
+		for ( AllenConstraint tC : cdb.get(AllenConstraint.class) ) {
+			if ( tC.isBinary() && tC.getFrom().equals(a) ) {
+				r.add(cdb.getStatement(tC.getTo()));
+			}
+			if ( tC.isBinary() && tC.getTo().equals(a) ) {
+				r.add(cdb.getStatement(tC.getFrom()));
+			}
+		}
+		return r;	
+	}
+	public static  Collection<Expression> getTemporalConstraintsBetween( ConstraintDatabase cdb, Term a, Term b ) {
+		ArrayList<Expression> r = new ArrayList<Expression>();
+		for ( AllenConstraint tC : cdb.get(AllenConstraint.class) ) {
+			if ( tC.isBinary() && ( tC.getFrom().equals(a) && tC.getTo().equals(b) 
+					|| tC.getFrom().equals(b) && tC.getTo().equals(a) ) ) {
+				r.add(tC);
+			} 
+		}
+		return r;
+	}
+
+
 			
 	
 	/**

@@ -1,11 +1,11 @@
-(initial-context
-	(statement
+(:initial-context
+	(:statement
 		(s1 (at r1) livingroom)
 	)
-	(goal
+	(:goal
 		(g1 (at r1) kitchen)
 	)
-	(temporal
+	(:temporal
 		(planning-interval [0 2000])
 		(release s1 [0 0])
 	)

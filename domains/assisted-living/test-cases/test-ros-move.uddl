@@ -1,8 +1,8 @@
-(initial-context
-	(statement
-		(s1 (ros-move-goal 0.09 1.17))
+(:initial-context
+	(:statement
+		(s1 (:ros-move-goal 0.09 1.17))
 	)
-	(temporal
+	(:temporal
 		(planning-interval [0 2000])
 		(release s1 [10 inf])
 	)

@@ -1,5 +1,5 @@
-(initial-context
-	(domain 
+(:initial-context
+	(:domain 
 		(enum human {Hans})
 		(enum robot {r1})
 		(enum agent {human robot})
@@ -37,7 +37,7 @@
 		(sig (notEqual location location))
 		(sig (busy agent) intType)
 
-		(sig (ros-move-goal posFloat posFloat))
+		(sig (:ros-move-goal posFloat posFloat))
 		(sig (robot-is-moving) boolean)
 		(sig (coordinates location posFloat posFloat))
 
@@ -55,22 +55,22 @@
 		(sig (activity human) activity-type)
 	)
 
-	(temporal
+	(:temporal
 		(planning-interval [0 60000])
 	)
 	
-	(resource (reusable (busy r1)	 1))
-	(resource (reusable (busy Hans)	 1))
+	(:resource (reusable (busy r1)	 1))
+	(:resource (reusable (busy Hans)	 1))
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	;; Text files containing non-operator specific phrases
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	(include (thanks "./data/domains/assisted-living/phrases/thanks"))
-	(include (all-done "./data/domains/assisted-living/phrases/all-done"))
+	(:include (thanks "./data/domains/assisted-living/phrases/thanks"))
+	(:include (all-done "./data/domains/assisted-living/phrases/all-done"))
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	;; Prolog
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	(include
+	(:include
 		(kb
 			<begin-escape-syntax>
 				notEqual(A,B) :- A \== B.
@@ -84,85 +84,85 @@
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	;; ICs
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	(conditional
+	(:conditional
 		(trashcan-full ?H ?R ?L)
-		(condition 
-			(statement (?I (sensor-pressure-high ?R)))
-			(statement (?A (human-robot-cleaning ?H ?R ?L)))
-			(temporal (overlaps ?A ?I [1 inf]))
+		(:condition 
+			(:statement (?I (sensor-pressure-high ?R)))
+			(:statement (?A (human-robot-cleaning ?H ?R ?L)))
+			(:temporal (overlaps ?A ?I [1 inf]))
 		)
-		(resolver
-			(goal
+		(:resolver
+			(:goal
 				(?G (object-state trash-can full) false)
 			)
-			(statement
+			(:statement
 				(?S0 (object-state trash-can full) true)
 				(?S (say trashcan-full))
 			)
-			(temporal
+			(:temporal
 				(release ?S [1 inf])
 				(before ?S0 ?G [1 inf])
 				(before ?A ?S0 [1 inf])
 			)
-			(include (trashcan-full "./data/domains/assisted-living/phrases/trashcan-full"))
+			(:include (trashcan-full "./data/domains/assisted-living/phrases/trashcan-full"))
 		)
 	)	
-	(conditional
+	(:conditional
 		(reminder-move ?I ?H ?L1 ?L2)
-		(condition 
-			(statement (?I (human-is-moving ?H ?L2)))
-			(temporal (greater-than (duration ?I) 10000) 	) 
+		(:condition 
+			(:statement (?I (human-is-moving ?H ?L2)))
+			(:temporal (greater-than (duration ?I) 10000) 	) 
 		)
-		(resolver
-			(statement
+		(:resolver
+			(:statement
 				(?S (say (human-moving-reminder ?H ?L2)))
 			)
-			(include ((human-moving-reminder ?H ?L2) "./data/domains/assisted-living/phrases/human-moving-reminder"))
+			(:include ((human-moving-reminder ?H ?L2) "./data/domains/assisted-living/phrases/human-moving-reminder"))
 		)
 	)	
-	(conditional
+	(:conditional
 		(reminder-put ?I ?H ?L1 ?L2)
-		(condition 
-			(statement (?I (human-put ?H ?O ?R ?L)))
-			(temporal (greater-than (duration ?I) 10000) 	) 
+		(:condition 
+			(:statement (?I (human-put ?H ?O ?R ?L)))
+			(:temporal (greater-than (duration ?I) 10000) 	) 
 		)
-		(resolver
-			(statement
+		(:resolver
+			(:statement
 				(?S (say (human-put-reminder ?H ?O ?L)))
 			)
-			(include ((human-put-reminder ?H ?O ?L) "./data/domains/assisted-living/phrases/human-put-reminder"))
+			(:include ((human-put-reminder ?H ?O ?L) "./data/domains/assisted-living/phrases/human-put-reminder"))
 		)
 	)
 
-	(conditional
+	(:conditional
 		(relaxing-while-cleaning ?H ?R ?L ?I1 ?IC )
-		(condition
-			(statement
+		(:condition
+			(:statement
 				( ?I1 (sensor-switch tv) true )
 				( ?IC (human-robot-cleaning ?H ?R ?L) )
 			)
-			(temporal
+			(:temporal
 				(during ?I1 ?IC [1 inf] [1 inf])
 			)
 		)
-		(resolver
-			(statement
+		(:resolver
+			(:statement
 				(?S (say (human-relaxing-while-cleaning ?H ?L)))
 			)
-			(include ((human-relaxing-while-cleaning ?H ?L) "./data/domains/assisted-living/phrases/human-relaxing-while-cleaning"))
+			(:include ((human-relaxing-while-cleaning ?H ?L) "./data/domains/assisted-living/phrases/human-relaxing-while-cleaning"))
 		)
 	)
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	;; ROS
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	(ros
+	(:ros
 ;; 			(register-action
 ;; 				/move_base
 ;; 				MoveBaseAction 
 ;; 			)
 ;; 			(is-goal ;; any variable can become a goal that is send to ROS when a matching statement starts execution
-;; 				(ros-move-goal ?X ?Y)
+;; 				(:ros-move-goal ?X ?Y)
 ;; 				/move_base	
 ;; 				MoveBaseAction
 ;; 				(MoveBaseGoal g (PoseStamped target_pose (Header header (String frame_id /map)) (Pose pose (Point position (float x ?X) (float y ?Y)) (Quaternion orientation (float w 1.0)))))
@@ -216,26 +216,26 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Operators
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(operator 
+(:operator 
 	(move-robot ?R - robot ?L1 - location ?L2 - location)
-	(preconditions
+	(:preconditions
 		(?P (at ?R) ?L1)
 	)
-	(effects
+	(:effects
 		(?E (at ?R) ?L2)
 		(?S (say (robot-moving ?R ?L1 ?L2)))
 		(?RI (busy ?R) 1)
- 		(?G (ros-move-goal ?X ?Y))
+ 		(?G (:ros-move-goal ?X ?Y))
 		(?GD (robot-is-moving))
 	)
-	(constraints
-		(prolog kb
+	(:constraints
+		(:prolog kb
 			(location ?L1)
 			(location ?L2)
 			(notEqual ?L1 ?L2)
  			(coordinates ?L2 ?X ?Y)
 		)
-		(temporal 
+		(:temporal 
 			(before ?P ?THIS [1 inf])
 			(before ?THIS ?E [1 inf])
 			(before ?P ?G [1 inf])
@@ -245,29 +245,29 @@
 			(equals ?RI ?THIS)
 			(equals ?GD ?G)
 		)
-		(include ((robot-moving ?R ?L1 ?L2) "./data/domains/assisted-living/phrases/robot-moving"))
+		(:include ((robot-moving ?R ?L1 ?L2) "./data/domains/assisted-living/phrases/robot-moving"))
 	)
 )
 
-(operator 
+(:operator 
 	(move-human ?H - human ?L1 - location ?L2 - location)
-	(preconditions
+	(:preconditions
 		(?P (at ?H) ?L1)
 	)
-	(effects
+	(:effects
 		(?E (at ?H) ?L2)
 		(?S1 (say (human-moving ?H ?L2)))
 		(?S2 (say thanks))
 		(?RI (busy ?H) 1)
 		(?HM (human-is-moving ?H ?L2))
 	)
-	(constraints
-		(prolog kb
+	(:constraints
+		(:prolog kb
 			(location ?L1)
 			(location ?L2)
 			(notEqual ?L1 ?L2)
 		)
-		(temporal 
+		(:temporal 
 			(overlaps ?P ?THIS [1 inf])
 			(overlaps ?THIS ?E [1 inf])
 			(during ?S1 ?THIS [1 inf] [1 inf])
@@ -276,35 +276,35 @@
 			(starts ?HM ?THIS [1 inf])
 			(meets ?HM ?E)
 		)
-		(include ((human-moving ?H ?L2) "./data/domains/assisted-living/phrases/human-moving"))
+		(:include ((human-moving ?H ?L2) "./data/domains/assisted-living/phrases/human-moving"))
 	)
 )
 
-(operator 
+(:operator 
 	(move-human-robot ?H - human ?R - robot ?L1 - location ?L2 - location)
-	(preconditions
+	(:preconditions
 		(?P1 (at ?H) ?L1)
 		(?P2 (at ?R) ?L1)
 	)
-	(effects
+	(:effects
 		(?E1 (at ?H) ?L2)
 		(?E2 (at ?R) ?L2)
 		(?S1 (say (human-robot-moving ?H ?L2)))
 		(?S2 (say thanks))
 		(?RI (busy ?R) 1)
 		(?RH (busy ?H) 1)
-		(?G (ros-move-goal ?X ?Y))
+		(?G (:ros-move-goal ?X ?Y))
 		(?GD (robot-is-moving))
 		(?HM (human-is-moving ?H ?L2))
 	)
-	(constraints
-		(prolog kb
+	(:constraints
+		(:prolog kb
 			(location ?L1)
 			(location ?L2)
 			(notEqual ?L1 ?L2)
 			(coordinates ?L2 ?X ?Y)
 		)
-		(temporal 
+		(:temporal 
 			(overlaps ?P1 ?THIS [1 inf])
 			(overlaps ?THIS ?E1 [1 inf])
 			(before ?P2 ?G [1 inf])
@@ -318,18 +318,18 @@
 			(starts ?HM ?THIS [1 inf])
 			(meets ?HM ?E1)
 		)
-		(include ((human-robot-moving ?H ?L2) "./data/domains/assisted-living/phrases/human-robot-moving"))
+		(:include ((human-robot-moving ?H ?L2) "./data/domains/assisted-living/phrases/human-robot-moving"))
 	)
 )
-(operator 
+(:operator 
 	(human-robot-cleaning ?H - human ?R - robot ?L - location)
-	(preconditions
+	(:preconditions
 		(?P1 (object-location trash-can) ?R)
 		(?P2 (at ?R) ?L)
 		(?P3 (at ?H) ?L)
 		(?P4 (state ?L tidy) false)
 	)
-	(effects
+	(:effects
 		(?E (state ?L tidy) true)
 		(?EDone (sensor-switch remote-done-button) true)
 		(?S1 (say (clean ?H ?L)))
@@ -337,8 +337,8 @@
 		(?RI (busy ?R) 1)
 		(?RH (busy ?H) 1)
 	)
-	(constraints
-		(temporal 
+	(:constraints
+		(:temporal 
 			(before ?THIS ?E [1 1])
 			(overlaps ?P4 ?THIS [1 inf])
 			(during ?EDone ?THIS [1 inf] [1 inf])
@@ -350,19 +350,19 @@
 			(equals ?RI ?THIS)
 			(equals ?RH ?THIS)
 		)
-		(include ((clean ?H ?L) "./data/domains/assisted-living/phrases/clean"))
-		(include ((thanks-for-cleaning ?H) "./data/domains/assisted-living/phrases/thanks-for-cleaning"))
+		(:include ((clean ?H ?L) "./data/domains/assisted-living/phrases/clean"))
+		(:include ((thanks-for-cleaning ?H) "./data/domains/assisted-living/phrases/thanks-for-cleaning"))
 	)
 )
 
-(operator 
+(:operator 
 	(human-robot-empty-trash ?H - human ?R - robot)
-	(preconditions
+	(:preconditions
 		(?P1 (at ?R) kitchen)
 		(?P2 (at ?H) kitchen)
 		(?P3 (object-state trash-can full) true)
 	)
-	(effects
+	(:effects
 		(?E1 (sensor-pressure-high ?R) false)
 		(?E2 (object-state trash-can full) false)
 		(?E3 (sensor-pressure-switch ?R) true)
@@ -371,8 +371,8 @@
 		(?S2 (say thanks))
 		(?RI (busy ?R) 1)
 	)
-	(constraints
-		(temporal 
+	(:constraints
+		(:temporal 
 			(during ?THIS ?P1 [1 inf] [1 inf])
 			(during ?THIS ?P2 [1 inf] [1 inf])
 			(during ?E4 ?THIS [1 inf] [1 inf])
@@ -387,18 +387,18 @@
 			(during ?S2 ?E2 [1 inf] [1 inf])
 			(equals ?RI ?THIS)
 		)
-		(include ((empty-trashcan ?H) "./data/domains/assisted-living/phrases/empty-trashcan"))
+		(:include ((empty-trashcan ?H) "./data/domains/assisted-living/phrases/empty-trashcan"))
 	)
 )
 
-(operator 
+(:operator 
 	(human-put ?H - human ?O - object  ?R - robot ?L - location)
-	(preconditions
+	(:preconditions
 		(?P1 (object-location ?O) ?L)
 		(?P2 (at ?R) ?L)
 		(?P3 (at ?H) ?L)
 	)
-	(effects
+	(:effects
 		(?E1 (object-location ?O) ?R)
 		(?E3 (sensor-pressure-switch ?R) true)
  		(?S1 (say (ask-for-object ?H ?O)))
@@ -406,8 +406,8 @@
 		(?RI (busy ?R) 1)
 		(?RH (busy ?H) 1)
 	)
-	(constraints
-		(temporal 
+	(:constraints
+		(:temporal 
 			(overlaps ?P1 ?THIS [1 inf])
 			(during ?S1 ?THIS [1 inf] [1 inf])
 			(during ?S2 ?E3 [1 inf] [1 inf])
@@ -418,26 +418,26 @@
 			(equals ?RI ?THIS)
 			(equals ?RH ?THIS)	
 		)
-		(include ((ask-for-object ?H ?O) "./data/domains/assisted-living/phrases/ask-for-object"))
+		(:include ((ask-for-object ?H ?O) "./data/domains/assisted-living/phrases/ask-for-object"))
 	)
 )
 
-(operator 
+(:operator 
 	(human-take ?H - human ?O - object  ?R - robot ?L - location)
-	(preconditions
+	(:preconditions
 		(?P1 (object-location ?O) ?R)
 		(?P2 (at ?R) ?L)
 		(?P3 (at ?H) ?L)
 	)
-	(effects
+	(:effects
 		(?E1 (object-location ?O) ?L)
 		(?E3 (sensor-pressure-switch ?R) false)
  		(?S1 (say (ask-to-take-object ?H ?O ?L)))
 		(?S2 (say thanks))
 		(?RI (busy ?R) 1)
 	)
-	(constraints
-		(temporal 
+	(:constraints
+		(:temporal 
 			(overlaps ?P1 ?THIS [1 inf])
 			(during ?S1 ?THIS [1 inf] [1 inf])
 			(during ?S2 ?E3 [1 inf] [1 inf])
@@ -447,7 +447,7 @@
 			(overlaps ?E3 ?E1 [1 inf])
 			(equals ?RI ?THIS)
 		)
-		(include ((ask-to-take-object ?H ?O ?L) "./data/domains/assisted-living/phrases/ask-to-take-object"))
+		(:include ((ask-to-take-object ?H ?O ?L) "./data/domains/assisted-living/phrases/ask-to-take-object"))
 	)
 )
 

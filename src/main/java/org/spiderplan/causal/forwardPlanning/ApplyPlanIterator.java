@@ -230,7 +230,6 @@ public class ApplyPlanIterator extends ResolverIterator {
 							Statement s = cDB.getStatement(interval);
 							if ( s.getValue().equals(goal.getValue()) ) {
 								if ( !goalStatements.contains(s) ) {
-									//TODO: does this work?
 //									Term newKey = goal.getKey().makeConstant();
 //									sub.add(goal.getKey(),newKey);								
 									AllenConstraint newLink = new AllenConstraint(interval, goal.getKey(), TemporalRelation.Equals);
@@ -269,7 +268,6 @@ public class ApplyPlanIterator extends ResolverIterator {
 					for ( Statement s : a.getEffects() ) {
 						Substitution theta = goal.matchWithoutKey(s);	
 						if ( theta != null ) {		
-							//TODO: does this work?
 //							Term newKey = goal.getKey().makeConstant();
 //							sub.add(goal.getKey(),newKey);								
 							AllenConstraint newLink = new AllenConstraint(s.getKey(), goal.getKey(), TemporalRelation.Equals);
@@ -288,10 +286,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 				} 
 				
 				if ( possibleMatches.isEmpty() ) {
-					// TODO: asserted goals whose achieving statements were forgotten can throw this exception.
-					// ideally the goals should be removed when their statements are forgotten...
-//					System.err.println(cDB);
-//					throw new IllegalStateException("Statement (goal) " + goal.toString() + " does not exist in context.");
+					throw new IllegalStateException("Statement (goal) " + goal.toString() + " does not exist in context. Asserted goals whose achieving statements were forgotten can throw this exception.");
 				}  else {
 				
 					// reverse list to try last one added first, since later effects are more likely to be intended for goals

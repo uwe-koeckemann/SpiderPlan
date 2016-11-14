@@ -169,13 +169,24 @@ public class SolverStack extends Module {
 					}
 				}
 				
-							
+				//TODO: search backtracks and replaces value lookup but the internal state of STP solver is still the same so value lookup is not restored at next call 
+				
+//				ValueLookup vl = currentCore.getContext().getUnique(ValueLookup.class);
+//				if ( vl != null ) {
+//					System.out.println("A: " + this.getName() + " " + solverNames.get(i) + " " + vl.hasInterval(Term.createConstant("E1_5379")));
+//				}				
+				
 				if ( verbose ) Logger.depth++;
 				if ( keepTimes ) StopWatch.start(msg("Test and find flaws " + solverNames.get(i)));
 				result = solvers.get(i).testAndResolve(currentCore);
 				if ( keepTimes ) StopWatch.stop(msg("Test and find flaws " + solverNames.get(i)));
 				if ( verbose ) Logger.depth--;
-						
+				
+//				currentCore.getContext().getUnique(ValueLookup.class);
+//				if ( vl != null ) {
+//					System.out.println("B: " + this.getName() + " " + solverNames.get(i) + " " + vl.hasInterval(Term.createConstant("E1_5379")));
+//				}	
+				
 				if ( verbose ) Logger.msg(getName(), "    -> " + result.getState().toString(), 0);
 				
 				if ( !result.getState().equals(State.Inconsistent) && result.getResolverIterator() == null ) {
@@ -253,10 +264,10 @@ public class SolverStack extends Module {
 					 */	
 					if ( r != null ) {							// found resolver to try next
 	//					if ( keepTimes ) StopWatch.start(msg("Applying resolver"));
-	//					if ( verbose ) {
-	//						Logger.msg(getName(), "Applying resolver", 1);
-	//						Logger.msg(getName(), r.toString(), 1);
-	//					}
+						if ( verbose ) {
+							Logger.msg(getName(), "Applying resolver", 1);
+							Logger.msg(getName(), r.toString(), 4);
+						}
 						if ( keepStats ) {
 							Statistics.increment(msg("Applied resolvers"));
 						}

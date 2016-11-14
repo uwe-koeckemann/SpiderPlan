@@ -675,6 +675,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 							/**
 							 * More than one goal for same variable
 							 * -> enforce order based on propagated temporal network
+							 * TODO: make possible ways of deciding the ordering an option for the planner 
 							 */
 							long goal1EST = tiLookup.getEST(s1.getKey());	
 							long goal2EST = tiLookup.getEST(s2.getKey());
@@ -736,15 +737,45 @@ public class ForwardPlanningIterator extends ResolverIterator {
 									}
 									goals1.addRequirement(goals2);
 								}
-							}
+							} //else 
+								
+//							if ( goal1LST > goal2LST ) {
+//								if ( !goals1.getRequirements().contains(goals2) ) {
+////									System.out.println(s2 + " requires " + s1);
+//									if ( verbose ) { 
+//										super.print("Making goal " + s2 + " a requirement of "+s1+" (LET("+s2.getKey()+") < LET("+s1.getKey()+"))", 2);
+//										super.print( "Start time in ["+goal1EST+" "+goal1LST+"] end time in ["+goal1EET+" "+goal1LET+"]] for " + s1, 2);
+//										super.print( "Start time in ["+goal2EST+" "+goal2LST+"] end time in ["+goal2EET+" "+goal2LET+"]] for " + s2, 2);
+//									}
+//									goals1.addRequirement(goals2);
+//									if (goal2EET < goal1LST ) {
+////										System.out.println(s2 + " is a landmark");
+//										goal2.setLandmark(true);
+//									}
+//								}
+//							} else if ( goal1LST < goal2LST ) {
+//								if ( !goals2.getRequirements().contains(goals1) ) {
+////									System.out.println(s1 + " requires " + s2);
+//									if ( verbose ) {
+//										super.print("Making goal " + s1 + " a requirement of "+s2+" (LET("+s1.getKey()+") < LET("+s2.getKey()+"))", 2);
+//										super.print( "Start time in ["+goal1EST+" "+goal1LST+"] end time in ["+goal1EET+" "+goal1LET+"]] for " + s1, 2);
+//										super.print( "Start time in ["+goal2EST+" "+goal2LST+"] end time in ["+goal2EET+" "+goal2LET+"]] for " + s2, 2);
+//									}
+//									goals2.addRequirement(goals1);		
+//									if (goal1EET < goal2LST ) {
+////										System.out.println(s1 + " is a landmark");
+//										goal1.setLandmark(true);
+//									}
+//								}
+//							} 
 							
-							if ( goal1LET < goal2EST ) {
-								if ( verbose ) super.print("Making goal " + s1 + " a landmark (LET("+s1.getKey()+") < EST("+s2.getKey()+"))", 2);
-								goal1.setLandmark(true);
-							} else if ( goal2LET < goal1EST ) {
-								if ( verbose ) super.print("Making goal " + s2 + " a landmark (LET("+s2.getKey()+") < EST("+s1.getKey()+"))", 2);
-								goal2.setLandmark(true);
-							}	
+//							if ( goal1LET < goal2EST ) {
+//								if ( verbose ) super.print("Making goal " + s1 + " a landmark (LET("+s1.getKey()+") < EST("+s2.getKey()+"))", 2);
+//								goal1.setLandmark(true);
+//							} else if ( goal2LET < goal1EST ) {
+//								if ( verbose ) super.print("Making goal " + s2 + " a landmark (LET("+s2.getKey()+") < EST("+s1.getKey()+"))", 2);
+//								goal2.setLandmark(true);
+//							}	
 
 						}	
 					}

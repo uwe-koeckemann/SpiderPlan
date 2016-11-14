@@ -127,7 +127,7 @@ public class MathSolver extends Module implements SolverInterface {
 				throw new IllegalArgumentException("Failed to lookup value of '" + expression + "' (not yet computed?).");
 			}
 			return r.longValue();
-		} else if ( expression.getNumArgs() == 2 ) { // TODO: allow >2 args with clisp interpretation
+		} else if ( expression.getNumArgs() == 2 ) {
 			if ( expression.getName().equals("add") || expression.getName().equals("+") ) {
 				return evaluateIntegerTerm(expression.getArg(0)) + evaluateIntegerTerm(expression.getArg(1));
 			}
@@ -200,7 +200,7 @@ public class MathSolver extends Module implements SolverInterface {
 				throw new IllegalArgumentException("Failed to lookup value of " + expression + " (not yet computed?).");
 			}
 			return r.longValue();
-		} else if ( expression.getNumArgs() == 2 ) { // TODO: allow >2 args with clisp interpretation
+		} else if ( expression.getNumArgs() == 2 ) { 
 			if ( expression.getName().equals("add") || expression.getName().equals("+") ) {
 				return evaluateFloatTerm(expression.getArg(0)) + evaluateFloatTerm(expression.getArg(1));
 			}

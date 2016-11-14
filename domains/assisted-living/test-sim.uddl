@@ -1,5 +1,5 @@
-(initial-context
-	(statement
+(:initial-context
+	(:statement
 		(s0 (object-location trashcan) kitchen)
 		(s1 (at r1) livingroom)
 		(s2 (at Hans) bedroom)
@@ -8,12 +8,12 @@
 		(s4 (state livingroom tidy) false)
 		(s5 (state kitchen tidy) false)
 	)
-	(goal
+	(:goal
 		(g1 (state bedroom tidy))
  		(g2 (state livingroom tidy))
  		(g3 (state kitchen tidy))
 	)
-	(temporal
+	(:temporal
 		(planning-interval [0 2000])
 		(release s0 [0 0])
 		(release s1 [0 0])

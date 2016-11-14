@@ -45,7 +45,9 @@ import org.spiderplan.modules.configuration.ParameterDescription;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Core.State;
+import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
+import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
 import org.spiderplan.representation.expressions.ontology.SparQLQuery;
 import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.logic.Substitution;
@@ -65,7 +67,6 @@ import org.spiderplan.tools.stopWatch.StopWatch;
  * TODO: Write support function to run any query and return a list of substitutions
  * as a result.
  * 
- * TODO: Pre-process ICs
  *  
  * @author Uwe Köckemann
  */
@@ -118,6 +119,19 @@ public class SparQLPreprocessor extends Module {
 			}
 		}
 		
+		for ( Operator o : core.getOperators() ) {
+			for ( SparQLQuery q : o.getConstraints().get(SparQLQuery.class)) {
+				if ( !queryIDs.contains(q.getQueryID())) {
+					queryIDs.add(q.getQueryID());
+					queries.put(q.getQueryID(), new StringBuilder());
+				}
+				if ( !modelIDs.contains(q.getModelID())) {
+					modelIDs.add(q.getModelID());
+					models.put(q.getModelID(), new StringBuilder());
+				}
+			}
+		}
+		
 		/**
 		 * Add background knowledge that is used:
 		 */
@@ -141,30 +155,24 @@ public class SparQLPreprocessor extends Module {
 		if ( keepTimes ) StopWatch.stop(msg("Preprocessing operators"));
 //		}
 
-		
-		System.out.println("Operators before: " + numBefore + " after: " + core.getOperators().size());
 		if ( verbose ) {
 			Logger.msg(getName(), "Operators before: " + numBefore + " after: " + core.getOperators().size(), 1);
 			for ( Operator o : core.getOperators() ) {
 				Logger.msg(getName(), "    - " + o.getName(), 2);
-				System.out.println(o.getName());
 			}
 		}
 				
 		if ( preprocessICs ) {
-			//TODO: Implement
-//			if ( verbose ) numBefore = core.getContext().get(InteractionConstraint.class).size();
-//			if ( keepTimes ) StopWatch.start(msg("Preprocessing interaction constraints"));
-//			for ( Term programID : programIDs ) {
-//				yappy.saturateInteractionConstraints(core.getContext(), conCollection.get(programID), programID, core.getTypeManager());
-//			}
-//			if ( keepTimes ) StopWatch.stop(msg("Preprocessing interaction constraints"));
-//			if ( verbose ) {
-//				Logger.msg(getName(), "ICs before: " + numBefore + " after: " + core.getContext().get(InteractionConstraint.class).size(), 1);
-//				for ( InteractionConstraint ic : core.getContext().get(InteractionConstraint.class) ) {
-//					Logger.msg(getName(), "    - " + ic.getName(), 2);
-//				}
-//			}
+			if ( verbose ) numBefore = core.getContext().get(InteractionConstraint.class).size();
+			if ( keepTimes ) StopWatch.start(msg("Preprocessing interaction constraints"));
+			this.saturateICQueries(core.getContext(), queries, models,core.getTypeManager());
+			if ( keepTimes ) StopWatch.stop(msg("Preprocessing interaction constraints"));
+			if ( verbose ) {
+				Logger.msg(getName(), "ICs before: " + numBefore + " after: " + core.getContext().get(InteractionConstraint.class).size(), 1);
+				for ( InteractionConstraint ic : core.getContext().get(InteractionConstraint.class) ) {
+					Logger.msg(getName(), "    - " + ic.getName(), 2);
+				}
+			}
 		}
 		
 	
@@ -198,11 +206,12 @@ public class SparQLPreprocessor extends Module {
 					resultList = ResultSetFormatter.toList(resultSet);
 					
 					for ( QuerySolution sol : resultList ) {
-						System.out.println(sol);
 						Substitution solutionSub = new Substitution();
 						for ( Term arg : sQuery.getVariables() ) {
 //							Term value = Term.createConstant(sol.getResource(arg.toString()).toString());
-							Term value = Term.createConstant(sol.getLiteral(arg.toString()).toString());
+							String valStr = sol.getLiteral(arg.toString()).toString().replaceAll(" ", "-");
+							Term value = Term.createConstant(valStr);
+
 							solutionSub.add(arg, value);
 						}
 						solutionSubs.add(solutionSub);
@@ -242,6 +251,72 @@ public class SparQLPreprocessor extends Module {
 		O.addAll(addList);
 	}
 	
+	private void saturateICQueries( ConstraintDatabase C, Map<Term,StringBuilder> queries, Map<Term,StringBuilder> models, TypeManager tM ) {
+		List<InteractionConstraint> addList = new ArrayList<InteractionConstraint>();
+		List<InteractionConstraint> remList = new ArrayList<InteractionConstraint>();
+		
+		for ( InteractionConstraint ic : C.get(InteractionConstraint.class) ) {
+			List<List<Substitution>> opSubs = new ArrayList<List<Substitution>>();
+			for ( SparQLQuery sQuery : ic.getCondition().get(SparQLQuery.class) ) {		
+				String modelStr = models.get(sQuery.getModelID()).toString();
+				String queryStr = queries.get(sQuery.getQueryID()).toString();
+				
+				Model model = ModelFactory.createDefaultModel();					
+		        model.read(new ByteArrayInputStream(modelStr.getBytes()), null);
+				
+				List <QuerySolution> resultList;
+				Query query = QueryFactory.create(queryStr);
+				QueryExecution qexec = QueryExecutionFactory.create(query, model);
 
+				List<Substitution> solutionSubs = new ArrayList<Substitution>();
+				try {	
+					ResultSet resultSet = qexec.execSelect();	
+					resultList = ResultSetFormatter.toList(resultSet);
+					
+					for ( QuerySolution sol : resultList ) {
+						Substitution solutionSub = new Substitution();
+						for ( Term arg : sQuery.getVariables() ) {
+//							Term value = Term.createConstant(sol.getResource(arg.toString()).toString());
+							String valStr = sol.getLiteral(arg.toString()).toString().replaceAll(" ", "-");
+							Term value = Term.createConstant(valStr);
+
+							solutionSub.add(arg, value);
+						}
+						solutionSubs.add(solutionSub);
+					}
+					
+				} catch(Exception e) {
+					System.err.println(e);
+					resultList = null; 
+				} finally{ qexec.close();	}
+				
+				opSubs.add(solutionSubs);
+			}
+			
+			if ( !opSubs.isEmpty() ) {
+				remList.add(ic);
+				GenericComboIterator<Substitution> comboBuilder = new GenericComboIterator<>(opSubs);
+				
+				for ( List<Substitution> combo : comboBuilder ) {
+					boolean goodSub = true;
+					Substitution combinedSub = new Substitution();
+					for ( Substitution sub : combo ) {
+						if ( !combinedSub.add(sub) ) {
+							goodSub = false;
+							break;
+						}				
+					}
+					if ( goodSub ) {
+						InteractionConstraint icCopy = ic.copy();
+						icCopy.substitute(combinedSub);
+						addList.add(icCopy);
+					}
+				}
+			}
+		}
+		
+		C.removeAll(remList);
+		C.addAll(addList);
+	}
 }
 

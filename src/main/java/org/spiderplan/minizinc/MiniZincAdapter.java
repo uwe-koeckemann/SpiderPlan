@@ -91,7 +91,7 @@ public class MiniZincAdapter {
 			if ( keepTimes ) StopWatch.stop("[MiniZinc] Starting");
 		
 			if ( !ret[1].equals("") ) {
-				Logger.msg("MiniZinkAdapter", ret[1], 0); //TODO: Use Logger.err
+				Logger.msg("MiniZinkAdapter", ret[1], 0); 
 				return null;
 			}
 			return ret[0];

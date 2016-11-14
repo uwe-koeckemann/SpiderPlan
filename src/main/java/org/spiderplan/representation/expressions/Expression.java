@@ -52,8 +52,7 @@ import org.spiderplan.representation.logic.Term;
  * @author Uwe Köckemann
  *
  */
-public abstract class Expression { // TODO: create default methods to test for assertable, etc. to remove frequent tests of instanceof in CDB implementation
-	
+public abstract class Expression {
 	private final Term type;
 	
 	protected  boolean simpleConsistency = false;

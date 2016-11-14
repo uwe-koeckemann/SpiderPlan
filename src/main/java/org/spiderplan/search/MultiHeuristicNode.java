@@ -25,8 +25,6 @@ package org.spiderplan.search;
 /**
  * Node for {@link MultiHeuristicSearch}
  * 
- * TODO: Implementing Comparable seems bad sinde it requires some static variables. Implement Comparator class instead and use it where needed.
- * 
  * @author Uwe Köckemann
  *
  */

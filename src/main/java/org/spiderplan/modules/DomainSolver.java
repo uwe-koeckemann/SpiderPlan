@@ -191,7 +191,7 @@ public class DomainSolver extends Module implements SolverInterface {
 					if ( verbose ) Logger.msg(getName(),nO.toString(), 0);
 					
 					if ( !usedObjects.containsKey(typeName) ) {
-						Collection<Atomic> atomics = core.getContext().getAtomics(); //TODO: if this can be changed .getAtomics() can be removed everywhere...
+						Collection<Atomic> atomics = core.getContext().getAtomics();
 						Set<Term> objects = new HashSet<Term>();
 						for ( Atomic a : atomics ) {
 							objects.addAll(tM.getAllObjectsFromDomains(typeName, a));

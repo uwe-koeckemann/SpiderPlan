@@ -5,8 +5,8 @@
 ;;
 
 
-(initial-context
-	(domain 
+(:initial-context
+	(:domain 
 		(enum object {tv couch})
 		(enum location {living-room})
 		(enum activity {relaxing})
@@ -18,7 +18,7 @@
 		(sig (sensor location object) boolean)
 		(sig (activity) activity)
 	)
-	(ros
+	(:ros
 		(subscribe-to 
 			(sensor living-room couch) 
 			?B_couch 
@@ -78,22 +78,22 @@
 		;;	(MoveBaseGoal goal (Pose target_pose (Point position (float x 1.0) (float y 2.0) (float z 3.0)) (Quaternion orientation (float x 4.0) (float y 5.0) (float z 6.0) (float w 7.0))))
 		;;)
 	)
-	(conditional
+	(:conditional
 		(recognize-relaxing ?I1 ?I2)
-		(condition
-			(statement
+		(:condition
+			(:statement
 				( ?I1 (sensor living-room couch) )
 				( ?I2 (sensor living-room tv) )
 			)
-			(temporal
+			(:temporal
 				(during ?I2 ?I1 [1 inf] [1 inf])
 			)
 		)
-		(resolver
-			(statement
+		(:resolver
+			(:statement
 				(?IR (activity) relaxing)
 			)
-			(temporal
+			(:temporal
 				(equals ?IR ?I2)
 			)
 		)

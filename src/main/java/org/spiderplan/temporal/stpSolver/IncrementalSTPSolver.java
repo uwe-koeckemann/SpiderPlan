@@ -166,12 +166,12 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 				newAllenConstraints = cDB.get(AllenConstraint.class).subList(beginIndex.get(1), cDB.get(AllenConstraint.class).size());
 				newSimpleDistanceConstraints = cDB.get(SimpleDistanceConstraint.class).subList(beginIndex.get(2), cDB.get(SimpleDistanceConstraint.class).size());
 			} else {
-				if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (quadratic)");
+				if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (quadratic)");				
 				
 				List<Statement> cdbStatements = cDB.get(Statement.class);				
 				List<AllenConstraint> cdbAllenConstraints = cDB.get(AllenConstraint.class);
 				List<SimpleDistanceConstraint> cdbSimpleDistanceConstraints = cDB.get(SimpleDistanceConstraint.class);
-				
+								
 				revertToIndex = dHistory.size()-1;
 		
 				if ( !dHistory.isEmpty() ) {
@@ -523,16 +523,30 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 	 * Get a map from temporal interval keys to the propagated bounds
 	 * of their start and end times.
 	 * @param valueLookup value lookup table to add the intervals 
+	 * @return <code>true</code> if something has change, <code>false</code> otherwise
 	 */
-	public void getPropagatedTemporalIntervals( ValueLookup valueLookup ) {
+	public boolean getPropagatedTemporalIntervals( ValueLookup valueLookup ) {
+		boolean change = false;
 		for ( Statement s : addedStatements ) {
 			Long[] bound = new Long[4];
 			bound[0] = this.getEST(s.getKey());
 			bound[1] = this.getLST(s.getKey());
 			bound[2] = this.getEET(s.getKey());
 			bound[3] = this.getLET(s.getKey());
+			if ( !valueLookup.hasInterval(s.getKey()) ) {
+				change = true;
+			} else if ( bound[0] != this.getEST(s.getKey()) ) {
+				change = true;
+			} else if ( bound[1] != this.getLST(s.getKey()) ) {
+				change = true;
+			} else if ( bound[2] != this.getEET(s.getKey()) ) {
+				change = true;
+			} else if ( bound[3] != this.getLET(s.getKey()) ) {
+				change = true;
+			}
 			valueLookup.putInterval(s.getKey(), bound);
 		}
+		return change;
 	}
 	
 	private long sum(long a, long b) {
