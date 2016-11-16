@@ -109,11 +109,20 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 		for ( Atomic k : s0.keySet() ) {	
 			variables.add(k);
 			ArrayList<Term> vals = new ArrayList<Term>();
-			vals.addAll(s0.get(k));
+			for ( Term t : s0.get(k) ) {
+				if ( !vals.contains(t) ) {
+					vals.add(t);	
+				}
+			}
+//			vals.addAll(s0.get(k));
+			
 			values.add(vals);
 		}
 		
 		GenericComboBuilder<Term> cB = new GenericComboBuilder<Term>();
+		
+		if ( verbose ) Logger.msg(getName(), "Values to combo: " + values, 2);
+		
 		ArrayList<ArrayList<Term>> s0Combos = cB.getCombos(values);
 		
 		if ( verbose ) Logger.msg(getName(), "Found " + s0Combos.size() + " combos for initial state...", 2);
@@ -129,11 +138,18 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 			initNode.a = null;
 			initNode.s = new HashMap<Atomic, List<Term>>();
 			
+			if ( verbose ) Logger.msg(getName(), "State combo #" + k, 4);
+			Logger.depth++;
 			for ( int i = 0 ; i < variables.size() ; i++ ) {
 				ArrayList<Term> valList = new ArrayList<Term>();
 				valList.add(s0Combo.get(i));
 				initNode.s.put(variables.get(i),valList);
+				
+				if ( verbose ) Logger.msg(getName(), variables.get(i).toString() + " <- " + valList, 4);
 			}
+			Logger.depth--;
+			
+			
 			
 			initNode.g.addAll(g);
 					
@@ -165,14 +181,12 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 					 * The last one added will be explored first (which is why we add
 					 * them starting with the last combination (assuming a temporal ordering))
 					 */
-					super.backupAndClearQueues(); 
+//					super.backupAndClearQueues(); //TODO: trying without this 
 				}
 				for ( int i = 0 ; i < super.getNumQueues() ; i++ ) {
 					super.addToQueue(i, initNode);
 				}
 			}
-			
-			
 		}
 	}
 	

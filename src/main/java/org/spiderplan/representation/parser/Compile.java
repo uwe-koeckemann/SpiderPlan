@@ -202,10 +202,7 @@ public class Compile {
 				c.getContext().export(Global.workingDir + "dump.uddl");
 			}
 			
-			/**
-			 * TODO: change this...
-			 */
-			Global.initialContext = c.getContext().copy();
+//			Global.initialContext = c.getContext().copy();
 			
 //			System.out.println(c.getTypeManager());
 //			

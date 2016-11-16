@@ -78,11 +78,11 @@ public class TypeDomainConstraint extends Expression implements Matchable, Subst
 		this(new Atomic(s));
 	}
 
-	/** TODO: naming -> constraint, relation, something else?
-	 * Get the constraint.
+	/**
+	 * Get the relation.
 	 * @return the constraint
 	 */
-	public Atomic getConstraint() {
+	public Atomic getRelation() {
 		return r;
 	}
 	
@@ -149,7 +149,7 @@ public class TypeDomainConstraint extends Expression implements Matchable, Subst
 	public Substitution match( Expression c ) {
 		if ( c instanceof TypeDomainConstraint ) {
 			TypeDomainConstraint rC = (TypeDomainConstraint)c;
-			return this.getConstraint().match(rC.getConstraint());
+			return this.getRelation().match(rC.getRelation());
 		}
 		return null;
 	}

@@ -82,12 +82,6 @@ public class InteractionConstraint extends Expression implements Substitutable, 
 	public Atomic getName() { return name; };
 	
 	/**
-	 * Set the name of this interaction constraint.
-	 * @param name the name
-	 */
-	public void setName( Atomic name ) { this.name = name; };
-	
-	/**
 	 * Set the condition of this interaction constraint.
 	 * @param C the condition
 	 */
@@ -198,6 +192,11 @@ public class InteractionConstraint extends Expression implements Substitutable, 
 	@Override
 	public Collection<Atomic> getAtomics() {
 		Set<Atomic> r = new HashSet<Atomic>();
+		r.add(this.name);
+		r.addAll(this.Condition.getAtomics());
+		for ( ConstraintDatabase resolver : this.Resolvers ) {
+			r.addAll(resolver.getAtomics());
+		}
 		return r;
 	}
 		

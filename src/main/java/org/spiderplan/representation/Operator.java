@@ -59,7 +59,7 @@ import org.spiderplan.tools.UniqueID;
  * @author Uwe Köckemann
  *
  */
-public class Operator extends Expression implements Substitutable {
+public class Operator extends Expression implements Substitutable, Mutable {
 	
 	final private static Term ConstraintType = Term.createConstant("action");
 		
@@ -832,11 +832,17 @@ public class Operator extends Expression implements Substitutable {
 		return theta;
 	}
 	
+	@Override
+	public boolean isMutable() { return true; }
+	@Override
+	public boolean isSubstitutable() { return true; }
+	
 	/**
 	 * Return a copy of this {@link Operator}.
 	 * @return A copy of this {@link Operator} that can be changed
 	 * without changing the original.
 	 */
+	@Override
 	public Operator copy() {
 		Operator oCopy = new Operator();
 		

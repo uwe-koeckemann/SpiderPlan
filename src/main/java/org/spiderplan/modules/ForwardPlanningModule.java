@@ -171,14 +171,15 @@ public class ForwardPlanningModule extends Module implements SolverInterface {
 //					System.out.println(g);
 //				System.out.println("===========================================================");
 //				System.out.println(core.getPlan());
-				boolean uniqueInitialStateSetting = false;
-				if ( cM.hasAttribute(getName(), "uniqueInitialState")) {
-					uniqueInitialStateSetting = cM.getBoolean(this.getName(), "uniqueInitialState");
-				}
-				cM.set(this.getName(), "uniqueInitialState", "true");				
+//				boolean uniqueInitialStateSetting = false;
+//				if ( cM.hasAttribute(getName(), "uniqueInitialState")) {
+//					uniqueInitialStateSetting = cM.getBoolean(this.getName(), "uniqueInitialState");
+//				}
+//				cM.set(this.getName(), "uniqueInitialState", "true");				
 				state = State.Searching;
-				resolverIterator = new AdaptExistingPlanIterator(core.getContext(), G, core.getContext().getUnique(Plan.class), core.getOperators(), core.getTypeManager(), this.cM, this.getName());
-				cM.set(getName(), "uniqueInitialState", (uniqueInitialStateSetting ? "true" : "false" )  );
+				resolverIterator = new ForwardPlanningIterator(core.getContext(), G, core.getOperators(), core.getTypeManager(), this.cM, this.getName());
+//				resolverIterator = new AdaptExistingPlanIterator(core.getContext(), G, core.getContext().getUnique(Plan.class), core.getOperators(), core.getTypeManager(), this.cM, this.getName());
+//				cM.set(getName(), "uniqueInitialState", (uniqueInitialStateSetting ? "true" : "false" )  );
 			}
 		} else {
 			state = State.Consistent;

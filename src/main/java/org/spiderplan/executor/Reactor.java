@@ -83,9 +83,9 @@ public abstract class Reactor {
 	 */
 	Done };
 	
-	private long EST,LST,EET,LET; // TODO: only used by toString()
+	private long EST,LST,EET,LET;
 	
-	protected String name = "Executor"; // TODO: only used by logger. is there a better way to do this?
+	protected String name = "Executor";
 	protected int depth = 0;
 	protected boolean verbose = false;
 	

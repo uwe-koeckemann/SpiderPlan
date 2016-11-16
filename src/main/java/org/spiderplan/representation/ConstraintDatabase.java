@@ -64,12 +64,9 @@ import org.spiderplan.tools.Global;
 public class ConstraintDatabase implements Collection<Expression> {
 	
 	private Map<Class<? extends Expression>,List<Expression>> Cmap = new HashMap<Class<? extends Expression>, List<Expression>>();
+	
 	private static ArrayList<Class<? extends Expression>> KeyList = new ArrayList<Class<? extends Expression>>();
-	
-//	public ConstraintDatabase() {
-//		this.add(new Plan());
-//	}
-	
+		
 	/**
 	 * Add another {@link ConstraintDatabase} to this one. Does not re-add existing {@link Statement}s. 
 	 * @param cDB
@@ -608,10 +605,7 @@ public class ConstraintDatabase implements Collection<Expression> {
 			}
 		}
 	}
-	
-	
-//	private static int copyDepth = 0;
-	
+		
 	/**
 	 * Create a copy of this constraint database.
 	 * @return the copy
@@ -641,9 +635,6 @@ public class ConstraintDatabase implements Collection<Expression> {
 
 	@Override
 	public boolean add(Expression arg0) { 
-//		if ( arg0 == null ) {
-//			return false;
-//		}
 		List<Expression> C = Cmap.get(arg0.getClass());
 		if ( C == null || (arg0.isUnique()) ) { 
 			if ( !KeyList.contains(arg0.getClass()) ) {
@@ -680,8 +671,6 @@ public class ConstraintDatabase implements Collection<Expression> {
 	public boolean contains(Object arg0) {
 		List<Expression> C = Cmap.get(arg0.getClass());
 		if ( C == null ) {
-//			C = new ArrayList<Constraint>();
-//			Cmap.put(arg0.getClass(), C);
 			return false;
 		}
 		return C.contains(arg0); 
@@ -717,8 +706,6 @@ public class ConstraintDatabase implements Collection<Expression> {
 	public boolean remove(Object arg0) {
 		List<Expression> C = Cmap.get(arg0.getClass());
 		if ( C == null ) {
-//			C = new ArrayList<Constraint>();
-//			Cmap.put(arg0.getClass(), C);
 			return false;
 		}
 		return C.remove(arg0); 
@@ -826,7 +813,6 @@ public class ConstraintDatabase implements Collection<Expression> {
 	 * @param a constraint that asserts another constraint
 	 */
 	public void processAsserted( Asserted a ) {
-//		StopWatch.start("processAsserted");
 		for ( Class<? extends Expression> cl : KeyList ) {
 			List<Expression> C = Cmap.get(cl);
 			if ( C != null ) {
@@ -841,7 +827,6 @@ public class ConstraintDatabase implements Collection<Expression> {
 				}
 			}
 		}
-//		StopWatch.stop("processAsserted");
 	}
 	
 	/**

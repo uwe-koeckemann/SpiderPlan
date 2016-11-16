@@ -139,7 +139,7 @@ public class ExpressionTypes {
 				DomainRelation.Float, TypeDomainConstraint.class);
 		DomainConstraints.add("float/2", 		"(float t (interval a b)) or (float t [a b])", 
 				"Type t has a float domain with a range from a to b (inclusive).", 
-				DomainRelation.Float, DomainMemberConstraint.class);		
+				DomainRelation.Float, TypeDomainConstraint.class);		
 		DomainConstraints.add("equal/2", 		"(equal a b)", 
 				"a == b", 
 				DomainRelation.Equal, DomainMemberConstraint.class);

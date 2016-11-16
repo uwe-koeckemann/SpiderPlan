@@ -66,7 +66,7 @@ public class TypeManager {
 	 */
 	public void collectTypeInformation( ConstraintDatabase cDB ) {
 		for ( TypeDomainConstraint dC : cDB.get(TypeDomainConstraint.class) ) {
-			Atomic r = dC.getConstraint(); 
+			Atomic r = dC.getRelation(); 
 			try {
 				if ( r.name().equals("enum") ) {
 					Term typeName = r.getArg(0);

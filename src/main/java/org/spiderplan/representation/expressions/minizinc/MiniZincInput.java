@@ -43,7 +43,7 @@ import org.spiderplan.representation.logic.Term;
  * 
  * @author Uwe Köckemann
  */
-public class MiniZincInput extends Expression implements Matchable, Substitutable, Mutable {
+public class MiniZincInput extends Expression implements Matchable, Substitutable {
 	
 	private Atomic r;
 	private Term programID;
@@ -121,10 +121,7 @@ public class MiniZincInput extends Expression implements Matchable, Substitutabl
 	
 	@Override
 	public boolean isMatchable() { return true; }
-	
-	@Override
-	public boolean isMutable() { return true; }
-	
+		
 	@Override
 	public boolean isSubstitutable() { return true; }
 	
@@ -159,12 +156,6 @@ public class MiniZincInput extends Expression implements Matchable, Substitutabl
 		return this;
 	}
 	
-	@Override
-	public MiniZincInput copy() {
-		MiniZincInput c = new MiniZincInput(this);
-		return c;
-	}
-
 	@Override
 	public boolean isGround() {
 		return r.isGround();

@@ -73,10 +73,6 @@ public class ApplyPlanIterator extends ResolverIterator {
 	private boolean searchDone;
 	private boolean searchSuccess;
 	
-//	private boolean incremental = false;
-//	private String consistencyChecker;
-//	private Module checkingModule = null;
-	
 	/**
 	 * These will be applied to output:
 	 */
@@ -109,15 +105,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 		super(name, cM);
 		
 		addGoals = isSolution;
-		
-		super.parameterDesc.add( new ParameterDescription("consistencyChecker", "String", "", false, "Name of the module that verifies consistency of constraint databases.") );
-						
-//		if ( cM.hasAttribute(name, "consistencyChecker") ) {
-//			this.incremental = true;
-//			this.consistencyChecker = cM.getString(this.getName(), "consistencyChecker" );
-//			this.checkingModule = ModuleFactory.initModule( this.consistencyChecker, cM );
-//		}
-		
+				
 		Map<Atomic,List<Term>> sortedIntervals = TemporalNetworkTools.getSequencedIntervals(cDB);
 
 		/**
@@ -127,8 +115,10 @@ public class ApplyPlanIterator extends ResolverIterator {
 		ArrayList<Statement> goalStatements = new ArrayList<Statement>();
 		for ( OpenGoal og : cDB.get(OpenGoal.class) ) {
 			
-			if ( verbose ) print (og.toString(), 3);
-//			if ( !og.isAsserted() ) {  // TODO: why did I comment this out?
+			// Commented out because otherwise causal links to goals are omitted
+			// They are added for final test but then asserted and ignored in the actual resolver
+//			if ( verbose ) print (og.toString(), 3); 
+//			if ( !og.isAsserted() ) {
 				goalStatements.add(og.getStatement());
 //			} else {
 //				if ( verbose ) print ("Already asserted...", 3);
@@ -286,6 +276,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 								
 				if ( possibleMatches.isEmpty() ) {
 					//TODO: Adding only goals that exist instead of throwing an exception. Is this the right thing todo?
+
 //					throw new IllegalStateException("Statement (goal) " + goal.toString() + " does not exist in context. Asserted goals whose achieving statements were forgotten can throw this exception.");
 				}  else {
 				
@@ -397,34 +388,6 @@ public class ApplyPlanIterator extends ResolverIterator {
 				searchDone = search.advance(!wasNoGood);
 				
 				wasNoGood = false;
-//				if ( this.incremental ) {
-//					outPlan = originalPlan.copy();	
-//					outCDB = originalCDB.copy();
-//					
-//					for ( OpenGoal og : outCDB.get(OpenGoal.class) ) {
-//						og.setAsserted(true);
-//					}
-//					System.out.println(subst);
-//
-//					outCDB.substitute(subst);
-//					outPlan.substitute(subst);
-//					outCDB = outPlan.apply(outCDB);
-//					outCDB.getConstraints().addAll(causalLinks);
-//					outPlan.getConstraints().addAll(causalLinks); 
-//					
-//					if ( verbose ) {
-//						print("Adding causal links: ",3);
-//						for ( AllenConstraint cl : causalLinks ) {
-//							print("    " + cl,3);
-//						}
-//					}
-//					
-//					Core testCore = new Core();
-//					testCore.setPlan(outPlan); 
-//					testCore.setContext(outCDB);
-//					testCore = this.checkingModule.run(testCore);
-//					wasNoGood =  testCore.getResultingState(consistencyChecker).equals("Failure") || testCore.getResultingState(consistencyChecker).equals("Inconsistent");
-//				}
 			}
 			
 			searchSuccess = search.success();
@@ -489,7 +452,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 			rCDB.add(outPlan);
 			
 			r = new Resolver(subst, outPlan.apply(rCDB));
-
+			
 			searchSuccess = false;	
 			searchDone = false;	
 		} 		

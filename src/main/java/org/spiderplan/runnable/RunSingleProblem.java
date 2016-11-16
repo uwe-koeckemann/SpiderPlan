@@ -31,6 +31,7 @@ import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.ValueLookup;
+import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.parser.Compile;
 import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.tools.profiler.Profiler;
@@ -120,15 +121,15 @@ public class RunSingleProblem {
 //			}
 	
 //			IncrementalSTPSolver stpSolver = new IncrementalSTPSolver( 0, temporalHorizon );
-//			for ( OpenGoal g : res.get(OpenGoal.class) ) {
-//				res.add(g.getStatement());
-//			}
+			for ( OpenGoal g : res.get(OpenGoal.class) ) {
+				res.add(g.getStatement());
+			}
 //			for ( Task g : res.get(Task.class) ) {
 //				res.add(g.getStatement());
 //			}
 //			System.out.println( stpSolver.isConsistent(res, result.getTypeManager()) );
 			
-//			System.out.println(res);
+			System.out.println(res);
 			
 			TemporalNetworkVisualizer tnv = new TemporalNetworkVisualizer();
 			tnv.draw(res);

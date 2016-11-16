@@ -36,7 +36,7 @@ import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
 /**
- * TODO: sort out domain constraint mess.
+ * TODO: Put (almost) all classes in this package into one and use Domain relation
  * 
  * @author Uwe Köckemann
  */

@@ -786,7 +786,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		HashMap<Atomic,Collection<Term>> sReachableValues = new HashMap<Atomic, Collection<Term>>();
 		
 		for ( Statement s : initDB.get(Statement.class) ) {
-			if ( !goalStatements.contains(s) ) {
+			if ( !goalStatements.contains(s) && usedVars.contains(s.getVariable().getUniqueName()) ) {
 				if ( !sReachableValues.containsKey(s.getVariable()) ) {
 					sReachableValues.put(s.getVariable(), new HashSet<Term>());
 				}

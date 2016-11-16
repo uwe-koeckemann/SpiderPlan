@@ -337,14 +337,12 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 		 */
 		Core planningProblem = new Core();
 		planningProblem.setContext(initDB);
-
-		//				planningProblem.setGoalContext(goal);			
+			
 		planningProblem.getContext().addAll(goal);
 		
 		planningProblem.setTypeManager(tM);
 		planningProblem.setOperators(O);
-//				planningProblem.setConstraints(core.getConstraints());
-		
+
 		planIterator = new ForwardPlanningIterator(initDB, openGoalConstraints, O, tM, cManager, getName());
 	}
 	

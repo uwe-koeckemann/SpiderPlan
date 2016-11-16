@@ -165,10 +165,7 @@ public class SolverStack extends Module {
 							currentCore.getContext().add(e);		
 						}
 					}
-				}
-				
-				//TODO: search backtracks and replaces value lookup but the internal state of STP solver is still the same so value lookup is not restored at next call 
-				
+				}	
 //				ValueLookup vl = currentCore.getContext().getUnique(ValueLookup.class);
 //				if ( vl != null ) {
 //					System.out.println("A: " + this.getName() + " " + solverNames.get(i) + " " + vl.hasInterval(Term.createConstant("E1_5379")));

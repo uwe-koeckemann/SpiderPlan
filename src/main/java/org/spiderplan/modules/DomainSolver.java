@@ -126,7 +126,6 @@ public class DomainSolver extends Module implements SolverInterface {
 			HashMap<Term,Set<Term>> domainLookUp = new HashMap<Term, Set<Term>>();
 			
 			for ( VariableDomainRestriction c : core.getContext().get(VariableDomainRestriction.class) ) {
-				//TODO: does not distinguish between In and NotIn
 				if ( verbose ) Logger.msg(getName(), "Checking: " + c, 1);
 				if ( c.getVariable().isGround() ) {
 					isConsistent = c.isConsistent();

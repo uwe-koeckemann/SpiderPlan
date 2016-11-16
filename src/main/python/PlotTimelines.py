@@ -31,7 +31,7 @@ import numpy as np
 from StringIO import StringIO
 import datetime as dt
 
-earliestTimelines = False
+earliestTimelines = True
 
 inputFilename = sys.argv[1]
 f = open(inputFilename)

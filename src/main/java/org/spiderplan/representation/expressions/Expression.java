@@ -54,9 +54,8 @@ import org.spiderplan.representation.logic.Term;
  */
 public abstract class Expression {
 	private final Term type;
+//	private List<ExpressionTag> tags = new ArrayList<ExpressionTag>();
 	
-	protected  boolean simpleConsistency = false;
-
 	/**
 	 * Create new constraint by providing its type.
 	 * @param type A {@link Term} representing the type.
@@ -84,15 +83,7 @@ public abstract class Expression {
 	 * @return all atomics used in this constraint
 	 */
 	public abstract Collection<Atomic> getAtomics();
-	
-	/**
-	 * Whether or not isConsistent() method is overwritten.
-	 * @return <i>true</i> iff <i>isConsistent()</i> was overwritten by sub-class.
-	 */
-	public boolean supportsSimpleConsistency() {
-		return simpleConsistency;
-	}
-	
+		
 	/**
 	 * Some constraints are self-sufficient to determine consistency and can overwrite
 	 * this function to decide whether or not they are satisfied.
@@ -133,13 +124,6 @@ public abstract class Expression {
 	 */
 	public boolean isSubstitutable() { return false; }
 	
-	/**
-	 * Returns an exact copy of this instance that
-	 * can be changed without changing the original.
-	 * @return A copy of this constraint.
-	 */
-//	public abstract Constraint copy();
-
 	@Override
 	public abstract boolean equals( Object o );
 	
