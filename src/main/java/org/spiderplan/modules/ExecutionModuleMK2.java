@@ -228,15 +228,16 @@ public class ExecutionModuleMK2  extends Module {
 			simManager.setVerbosity(verbosity);
 			simManager.initialize(execDB);
 			managerList.add(simManager);
-		} 
-		if ( !execDB.get(DatabaseExecutionExpression.class).isEmpty() ) {
+		}
+		// Removed from master because feature is not ready
+		/*if ( !execDB.get(DatabaseExecutionExpression.class).isEmpty() ) {
 			if ( verbose ) Logger.msg(getName(), "Found database execution expressions. Initializing DatabaseExecutionManager.", 1);
 			ExecutionManager dbExecManager = new DatabaseExecutionManager(this.getName());
 			dbExecManager.setVerbose(this.verbose);
 			dbExecManager.setVerbosity(verbosity);
 			dbExecManager.initialize(execDB);
 			managerList.add(dbExecManager);
-		} 
+		} */
 		
 		while ( !this.isDone() ) {	
 			this.update();			
