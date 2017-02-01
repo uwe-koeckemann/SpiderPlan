@@ -38,7 +38,7 @@ import org.spiderplan.executor.ReactorSoundPlaySpeech;
 import org.spiderplan.executor.ROS.ROSExecutionManager;
 import org.spiderplan.executor.ROS.ROSProxy;
 import org.spiderplan.executor.ROS.ReactorROS;
-import org.spiderplan.executor.database.DatabaseExecutionManager;
+//import org.spiderplan.executor.database.DatabaseExecutionManager;
 import org.spiderplan.executor.simulation.ReactorPerfectSimulation;
 import org.spiderplan.executor.simulation.SimulationExecutionManager;
 import org.spiderplan.modules.configuration.ConfigurationManager;
@@ -57,7 +57,7 @@ import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelatio
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.execution.Simulation;
-import org.spiderplan.representation.expressions.execution.database.DatabaseExecutionExpression;
+//import org.spiderplan.representation.expressions.execution.database.DatabaseExecutionExpression;
 import org.spiderplan.representation.expressions.execution.ros.ROSConstraint;
 import org.spiderplan.representation.expressions.execution.ros.ROSGoal;
 import org.spiderplan.representation.expressions.execution.ros.ROSRegisterAction;
