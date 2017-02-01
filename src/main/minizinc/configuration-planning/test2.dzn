@@ -1,0 +1,14 @@
+n = 6;
+m = 7;
+
+conceptNames = [ "(eating john)", "(doorState fridgeDoor)", "(chairState kitchenChair)", "(camera robot)", "(doorSensor fridgeDoor)", "(pressureSensor kitchenChair)"];
+
+ruleTargets = [ 1, 1, 2, 3, 4, 5, 6];
+
+rules = [|0,1,1,0,0,0,|0,0,0,1,0,0,|0,0,0,0,1,0,|0,0,0,0,0,1,|0,0,0,0,0,0,|0,0,0,0,0,0,|0,0,0,0,0,0|];
+
+unavailable = {};
+
+targetConcepts = { 1};
+
+cost = [ 0,0,0,100,10,10];

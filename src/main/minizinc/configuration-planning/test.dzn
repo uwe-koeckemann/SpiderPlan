@@ -1,0 +1,21 @@
+n = 6; % Number or concepts
+m = 7; % Number of rules
+
+conceptNames = ["(doorSensor fridgeDoor)", "(seatSensor kitchenSeat)", "(doorState fridgeDoor)", "(kitchenSeatState kitchenSeat)", "(eating john)", "(camera turtlebot)"];
+ruleNames = ["rule1", "rule2", "rule3", "rule4", "rule5", "rule6", "rule7"];
+
+ruleTargets = [1,2,3,4,5,5,6];
+
+rules =  [|0,0,0,0,0,0,
+					|0,0,0,0,0,0,
+					|1,0,0,0,0,0,
+					|0,1,0,0,0,0,
+					|0,0,1,1,0,0,
+					|0,0,0,0,0,1,
+					|0,0,0,0,0,0|];
+
+unavailable = {};
+targetConcepts = {5};
+
+cost =   [20, 10, 5, 1, 4,200];
+
