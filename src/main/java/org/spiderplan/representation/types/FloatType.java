@@ -57,11 +57,6 @@ public class FloatType extends Type {
 		return "float " + name + "["+min+":"+max+"]";
 	}
 
-//	@Override
-//	public ArrayList<String> getStringDomain() {
-//		return new ArrayList<String>();
-//	}
-
 	@Override
 	public ArrayList<Term> getDomain() {
 		return new ArrayList<Term>();

@@ -43,6 +43,8 @@ import java.util.Vector;
  * Use keepAllLogs to store messages regardless of their level (to access them later).
  * <i>broadcast</i> is a default source that will forward messages to all other streams.  
  * Log level 0 is highest priority and should contain least number of {@link LogEntry}s.
+ * 
+ * TODO: add error messages
  *   
  * @author Uwe Köckemann
  */

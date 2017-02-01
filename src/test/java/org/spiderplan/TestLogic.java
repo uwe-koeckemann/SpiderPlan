@@ -138,6 +138,18 @@ public class TestLogic extends TestCase {
 		assertTrue( theta.substitute(Term.parse("?x3")).equals(Term.parse("C")) );
 	}
 	
+	public void testMatching4() {	
+		Atomic a1 = new Atomic("p");
+		Atomic a2 = new Atomic("p");
+		
+		Substitution theta = new Substitution();
+		
+		theta = a1.match(a2);
+		
+		assertTrue( theta != null );
+		assertTrue( theta.isEmpty() );
+	}
+	
 //	public void testLiteral() {
 //		Literal l,l2;
 //

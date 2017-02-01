@@ -56,31 +56,31 @@ public interface DomainParser_v4Constants {
   /** RegularExpression Id. */
   int ROS = 27;
   /** RegularExpression Id. */
-  int RESOLVER = 28;
+  int DBEXEC = 28;
   /** RegularExpression Id. */
-  int CAPACITY = 29;
+  int RESOLVER = 29;
   /** RegularExpression Id. */
-  int INITIAL = 30;
+  int CAPACITY = 30;
   /** RegularExpression Id. */
-  int CUSTOM = 31;
+  int INITIAL = 31;
   /** RegularExpression Id. */
-  int SIMULATE = 32;
+  int CUSTOM = 32;
   /** RegularExpression Id. */
-  int STATEMENT = 33;
+  int SIMULATE = 33;
   /** RegularExpression Id. */
-  int OPERATOR = 34;
+  int STATEMENT = 34;
   /** RegularExpression Id. */
-  int PRECONDITIONS = 35;
+  int OPERATOR = 35;
   /** RegularExpression Id. */
-  int EFFECTS = 36;
+  int PRECONDITIONS = 36;
   /** RegularExpression Id. */
-  int CONSTRAINTS = 37;
+  int EFFECTS = 37;
   /** RegularExpression Id. */
-  int ROSPUBLISH = 38;
+  int CONSTRAINTS = 38;
   /** RegularExpression Id. */
-  int ROSSUBSCRIBE = 39;
+  int ROSPUBLISH = 39;
   /** RegularExpression Id. */
-  int ROSREGACTION = 40;
+  int ROSSUBSCRIBE = 40;
   /** RegularExpression Id. */
   int ROSGOAL = 41;
   /** RegularExpression Id. */
@@ -153,6 +153,7 @@ public interface DomainParser_v4Constants {
     "\":sampling\"",
     "\":configuration-planning\"",
     "\":ros\"",
+    "\":database-execution\"",
     "\":resolver\"",
     "\":capacity\"",
     "\":initial-context\"",
@@ -163,10 +164,9 @@ public interface DomainParser_v4Constants {
     "\":preconditions\"",
     "\":effects\"",
     "\":constraints\"",
-    "\"publish-to\"",
-    "\"subscribe-to\"",
-    "\"register-action\"",
-    "\"is-goal\"",
+    "\"publish\"",
+    "\"subscribe\"",
+    "\"actionlib\"",
     "\"reusable\"",
     "\"(\"",
     "\")\"",

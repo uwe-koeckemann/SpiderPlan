@@ -20,8 +20,9 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package org.spiderplan.executor;
+package org.spiderplan.executor.simulation;
 
+import org.spiderplan.executor.Reactor;
 import org.spiderplan.representation.expressions.Statement;
 
 /**

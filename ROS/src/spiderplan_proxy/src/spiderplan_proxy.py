@@ -36,6 +36,8 @@ import actionlib
 from std_msgs.msg import *
 from geometry_msgs.msg import *
 
+from actionlib_tutorials.msg import *
+
 import ROSMessageConversion
 import ROSMessageConversion as msg_conv
 
@@ -189,14 +191,14 @@ while 1:
 	
 	if reqType == SUBSCRIBE_TO:
 		topicName = ros_namespace + data.split(splitStr)[1]
-		#topicName = topicName.replace("//", "/")
+		topicName = topicName.replace("//", "/")
 		msgType = data.split(splitStr)[2]
 		varName = data.split(splitStr)[3]
 		subscribe(topicName,msgType,varName)
 		returnMessage = "<OK>"
 	elif reqType == PUBLISH_TO:
 		topicName = ros_namespace + "/"+data.split(splitStr)[1]
-		#topicName = topicName.replace("//", "/")
+		topicName = topicName.replace("//", "/")
 		msgType = data.split(splitStr)[2]
 		publish(topicName,msgType)
 		returnMessage = "<OK>"

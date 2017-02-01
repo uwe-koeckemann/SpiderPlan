@@ -205,6 +205,8 @@ public class Atomic {
 	/**
 	 * Get all ground {@link Term}s used as arguments of this {@link Atomic}.
 	 * @return All ground {@link Term}s that appear as arguments in this {@link Atomic} 
+	 * 
+	 * TODO: does not process complex terms
 	 */
 	public Collection<Term> getGroundTerms() {
 		ArrayList<Term> r = new ArrayList<Term>();

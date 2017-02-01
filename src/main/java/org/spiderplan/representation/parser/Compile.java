@@ -49,6 +49,9 @@ import org.spiderplan.tools.stopWatch.StopWatch;
 /**
  * Parses domain and planner definitions.
  * 
+ * TODO: Scrap old UDDL versions
+ * TODO: Full PDDL import 
+ * 
  * @author Uwe Köckemann
  *
  */

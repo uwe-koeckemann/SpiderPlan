@@ -26,14 +26,12 @@ import rospy
 from std_msgs.msg import *
 from geometry_msgs.msg import *
 
-from rospy_tutorials.srv import *
-
 from actionlib_msgs.msg import *
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 from actionlib_tutorials.msg import *
 
-from sound_play.msg import SoundRequest
+#from sound_play.msg import SoundRequest
 
 rosClassMap = {}
 rosServiceMap = {}
@@ -93,8 +91,8 @@ rosClassMap["FibonacciGoal"] = FibonacciGoal
 ###########################################################
 # ROS Services (link to request in rosClassMap)
 ###########################################################
-rosClassMap["AddTwoInts"] = AddTwoIntsRequest
-rosServiceMap["AddTwoInts"] = AddTwoInts
+#rosClassMap["AddTwoInts"] = AddTwoIntsRequest
+#rosServiceMap["AddTwoInts"] = AddTwoInts
 
 
 

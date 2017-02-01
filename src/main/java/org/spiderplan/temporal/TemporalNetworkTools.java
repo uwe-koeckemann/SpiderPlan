@@ -132,7 +132,7 @@ public class TemporalNetworkTools {
 
 		Term.setAllowConstantSubstitution(true);
 		cdb.substitute(theta);
-//		cdb.substitute(theta); //TODO: WTF
+		cdb.substitute(theta); //TODO: WTF
 		Term.setAllowConstantSubstitution(false);
 		
 		return theta;
@@ -380,7 +380,7 @@ public class TemporalNetworkTools {
 		if ( S.isEmpty() ) {
 			return new ArrayList<Statement>();
 		}
-		PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(cdb);
+		PlanningInterval pI = cdb.getUnique(PlanningInterval.class);
 		ValueLookup tiLookup = cdb.getUnique(ValueLookup.class);
 		
 		long tMin = 0;

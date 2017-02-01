@@ -27,6 +27,7 @@ import org.spiderplan.representation.*;
 import org.spiderplan.representation.types.*;
 import org.spiderplan.representation.expressions.*;
 import org.spiderplan.representation.expressions.execution.ros.*;
+import org.spiderplan.representation.expressions.execution.database.*;
 import org.spiderplan.representation.expressions.causal.*;
 import org.spiderplan.representation.expressions.cost.*;
 import org.spiderplan.representation.expressions.optimization.*;
@@ -102,6 +103,7 @@ TOKEN :
 |   < SAMPLING : ":sampling" >
 |   < CONFIGURATIONPLANNING : ":configuration-planning" >
 |   < ROS : ":ros" >
+|   < DBEXEC : ":database-execution" >
 |   < RESOLVER : ":resolver" >
 |   < CAPACITY : ":capacity" >
 |   < INITIAL : ":initial-context" >
@@ -112,10 +114,9 @@ TOKEN :
 | 	< PRECONDITIONS : ":preconditions" > 
 | 	< EFFECTS : ":effects" >
 | 	< CONSTRAINTS : ":constraints" >
-|   < ROSPUBLISH : "publish-to" >
-|   < ROSSUBSCRIBE : "subscribe-to" >
-|   < ROSREGACTION : "register-action" >
-|   < ROSGOAL : "is-goal" >
+|   < ROSPUBLISH : "publish" >
+|   < ROSSUBSCRIBE : "subscribe" >
+|   < ROSGOAL : "actionlib" >
 |   < REUSABLE : "reusable" >
 }
 
@@ -239,6 +240,13 @@ Term Term() :
 		      else 
 		    	  result = Term.createVariable(name);
  	    } 
+	  )
+	 |
+	  (
+ 	    t = <STRING>
+ 	    { 
+    	  result = Term.createConstant(t.image);
+		  } 
 	  )
 	 |
 	  (
@@ -414,6 +422,7 @@ ConstraintDatabase ConstraintDatabase() :
 		| ( (< CONDITIONAL>|<IC>) ( 			   c = ConditionalConstraint() 		{ cDB.add(c); } )  )
 		| ( < SIMULATE > 	( 			   c = Simulation() 		{ cDB.add(c); } )  )
 		| ( < ROS > 		( 			   c = ROSConstraint() 				{ cDB.add(c); } )+ )
+		| ( < DBEXEC > 		( 			   c = DatabaseExecutionExpression() 				{ cDB.add(c); } )+ )
 		| ( < CUSTOM > 		( LOOKAHEAD(2) c = CustomConstraint() 			{ cDB.add(c); } )+ )
 		| ( < INCLUDE > 	( LOOKAHEAD(2) c = IncludeProgram() 			{ cDB.add(c); } )+ )
 		| ( < STATEMENT > 	( LOOKAHEAD(2) c = Statement()	 				{ cDB.add(c); } )+ ) 
@@ -709,22 +718,32 @@ Expression ROSConstraint()  :
 	Term serverID, actionName;
 	Term resultMsg = null;
 	
-	if ( verbose ) { System.out.println("[Parser] Interaction Constraint"); }
+	if ( verbose ) { System.out.println("[Parser] ROS Constraint"); }
 }
 {
 	<OP>
 	( LOOKAHEAD(2)
 		( <ROSPUBLISH> variable = Atomic() value = Term() topic = Term() msgType = Term() 
-			{ rosCon = new ROSConstraint(ExpressionTypes.ROSRelation.PublishTo,variable,value,topic,msgType); } )
+			{ rosCon = new ROSConstraint(ExpressionTypes.ROSRelation.Publish,variable,value,topic,msgType); } )
 	|	( <ROSSUBSCRIBE> variable = Atomic() value = Term() topic = Term() msgType = Term() 
-			{ rosCon = new ROSConstraint(ExpressionTypes.ROSRelation.SubscribeTo,variable,value,topic,msgType); } )
-	|	( <ROSREGACTION> serverID = Term() actionName = Term() 
-			{ rosCon = new ROSRegisterAction(serverID,actionName); } )
+			{ rosCon = new ROSConstraint(ExpressionTypes.ROSRelation.Subscribe,variable,value,topic,msgType); } )
 	|	( <ROSGOAL> variable = Atomic() serverID = Term() actionName = Term() msgType = Term() [ LOOKAHEAD(2) resultMsg = Term() ] 
 			{ rosCon = new ROSGoal(variable,serverID,actionName,msgType,resultMsg); } )
 	)
 	<CP>
 	{ return rosCon; }
+}
+
+Expression DatabaseExecutionExpression()  :
+{
+  Atomic name;
+	if ( verbose ) { System.out.println("[Parser] Setting Capacity"); }
+}
+{
+ 	name = Atomic() 
+	{
+		return new DatabaseExecutionExpression(name);
+	} 
 }
 
 Expression Simulation()  :

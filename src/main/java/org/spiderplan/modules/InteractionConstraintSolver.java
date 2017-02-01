@@ -59,6 +59,8 @@ import org.spiderplan.tools.stopWatch.StopWatch;
 /**
  * Solves {@link InteractionConstraint}s
  * 
+ * TODO: Allow choosing values for controllable variables
+ * 
  * @author Uwe Köckemann
  */
 public class InteractionConstraintSolver extends Module implements SolverInterface {

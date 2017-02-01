@@ -134,6 +134,7 @@ public class SamplingSolver extends Module implements SolverInterface {
 					for ( int i = 0 ; i < domTerm.getNumArgs() ; i++ ) {
 						D.add( domTerm.getArg(i) );
 					}
+					domains.put(randomVariable, D);
 				} else if ( domTerm.nameEquals(Term.createConstant("interval")) ) {
 					try {
 						int lowerBound = Integer.valueOf(domTerm.getArg(0).toString());
@@ -141,22 +142,26 @@ public class SamplingSolver extends Module implements SolverInterface {
 						for ( int i = lowerBound ; i <= upperBound ; i++ ) {
 							D.add(Term.createInteger(i));
 						}
+						domains.put(randomVariable, D);
 					} catch ( NumberFormatException e ) {
 						if ( verbose ) Logger.msg(getName(), "    Ignored: Non-integer bound.", 1);
 					}
-				} else {
+				} else if ( !domTerm.isVariable() ) {
 					try {
 						Type type = core.getTypeManager().getTypeByName(domTerm);
 						
 						for ( Term value : type.getDomain() ) {
 							D.add(value);
 						}
+						domains.put(randomVariable, D);
 					} catch ( IllegalStateException e ) {
 						if ( verbose ) Logger.msg(getName(), "    Ignored: Type not found.", 1);
 					}
 					
+				} else {
+					if ( verbose ) Logger.msg(getName(), "    Ignored: Domain term is variable.", 1);
 				}
-				domains.put(randomVariable, D);
+				
 			}
 			
 		}
@@ -168,11 +173,13 @@ public class SamplingSolver extends Module implements SolverInterface {
 			if ( pC.getRelation().equals(SamplingRelation.Sample) ) {
 				if ( verbose ) Logger.msg(getName(), "    " + r, 1);
 				Term randomVariable = r.getArg(0);
-				if ( randomVariable.isVariable() ) {
+				if ( randomVariable.isVariable() && domains.containsKey(randomVariable) ) {
 					List<Term> D = domains.get(randomVariable);
 					Term pick = D.get(randomGenerator.nextInt(D.size()));
 					if ( verbose ) Logger.msg(getName(), "    -> " + pick, 1);
 					theta.add(randomVariable,pick);
+				} else if ( !domains.containsKey(randomVariable) ) {
+					if ( verbose ) Logger.msg(getName(), "    Ignored: No domain defined for " + randomVariable, 1);
 				}
 			}
 		}

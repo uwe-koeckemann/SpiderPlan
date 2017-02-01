@@ -28,6 +28,10 @@ import org.spiderplan.representation.logic.Term;
 
 /**
  * Super-class to all types 
+ * 
+ * TODO: getDomain() is not feasible for float and problematic for integer. Maybe move to respective classes and change?
+ * 		 	-> This would force casting but also ensure that it's always clear what's going on.
+ * 
  * @author Uwe Köckemann
  */
 public abstract class Type {

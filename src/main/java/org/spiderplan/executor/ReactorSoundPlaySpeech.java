@@ -28,6 +28,8 @@ import org.spiderplan.tools.ExecuteSystemCommand;
 /**
  * Execute ROS sound-play text-to-speech to say something.
  * 
+ * TODO: make this a custom reactor that executes system command
+ * 
  * @author Uwe Koeckemann
  *
  */

@@ -31,11 +31,11 @@ import java.util.Map;
 import java.util.Set;
 import org.spiderplan.executor.Reactor;
 import org.spiderplan.executor.ReactorObservation;
-import org.spiderplan.executor.ReactorPerfectSimulation;
 import org.spiderplan.executor.ReactorRandomSimulation;
 import org.spiderplan.executor.ReactorSoundPlaySpeech;
 import org.spiderplan.executor.ROS.ROSProxy;
 import org.spiderplan.executor.ROS.ReactorROS;
+import org.spiderplan.executor.simulation.ReactorPerfectSimulation;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
@@ -76,6 +76,8 @@ import org.spiderplan.tools.visulization.timeLineViewer.TimeLineViewer;
  * Executes a plan.
  * 
  * TODO: simulation constraints on release not firing?	
+ * TODO: constraints to enable forgetting for statements
+ * TODO: interface for connecting to outside (ROS, PEIS, Simulation, Ecare)
  * 
  * @author Uwe Köckemann
  * 
@@ -181,7 +183,7 @@ public class ExecutionModule  extends Module {
 		this.plan = core.getContext().getUnique(Plan.class);
 		this.initialContext = core.getContext().copy();
 		
-		PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(core);
+		PlanningInterval pI = core.getContext().getUnique(PlanningInterval.class);
 		
 		if ( useRealTime )
 			this.t0 = System.currentTimeMillis();
@@ -237,7 +239,7 @@ public class ExecutionModule  extends Module {
 		 * ROS subscriptions
 		 */
 		for ( ROSConstraint rosCon : execDB.get(ROSConstraint.class) ) {
-			if ( rosCon.getRelation().equals(ROSRelation.PublishTo) ) {
+			if ( rosCon.getRelation().equals(ROSRelation.Publish) ) {
 				ROSProxy.publishToTopic(rosCon.getTopic().toString(), rosCon.getMsg().getName());
 				this.ROSpubs.add(rosCon);
 			} else {
@@ -884,7 +886,7 @@ public class ExecutionModule  extends Module {
 			}
 		}
 		
-		PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(fromScratchDB);
+		PlanningInterval pI = fromScratchDB.getUnique(PlanningInterval.class);
 		fromScratchDB.remove(pI);
 		fromScratchDB.add(new PlanningInterval(Term.createInteger(t), Term.createInteger(tMax)));
 		

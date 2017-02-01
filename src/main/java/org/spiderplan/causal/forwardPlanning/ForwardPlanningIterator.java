@@ -218,7 +218,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			this.pruningModule = ModuleFactory.initModule( this.pruningModuleName, cManager );
 		}
 				
-		PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(cDB);
+		PlanningInterval pI = cDB.getUnique(PlanningInterval.class);
 		if ( pI != null ) {
 			temporalHorizon = pI.getHorizonValue();
 		}		
@@ -549,7 +549,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			}
 		}
 		
-		PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(initDB);
+		PlanningInterval pI = initDB.getUnique(PlanningInterval.class);
 		if ( pI != null ) {
 			this.t0 = pI.getStartTimeValue();
 			this.temporalHorizon = pI.getHorizonValue();

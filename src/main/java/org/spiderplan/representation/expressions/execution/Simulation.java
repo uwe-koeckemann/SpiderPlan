@@ -62,7 +62,7 @@ public class Simulation extends Expression implements Substitutable, Mutable {
 	}
 
 	/**
-	 * Set execution-time events.
+	 * Get execution-time events.
 	 * @return The {@link ConstraintDatabase} containing execution-time events.
 	 */
 	public ConstraintDatabase getExecutionTimeDB( ) {

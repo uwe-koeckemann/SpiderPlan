@@ -316,6 +316,8 @@ public class ROSProxy {
 		return false;
 	}
 	
+	private static Map<Integer,Substitution> rosGoalResults = new HashMap<Integer,Substitution>();
+	
 	/**
 	 * Test if an action has finished. Used by ReactorROS.
 	 * 
@@ -345,7 +347,10 @@ public class ROSProxy {
 				if ( resultMsg != null ) {
 					Term result = Term.parse(answer);			
 					Substitution subst = resultMsg.match(result);
-					resultMsg = resultMsg.substitute(subst);
+					if ( subst != null ) { // TODO: what if this does not work?
+						rosGoalResults.put(requestID, subst);
+					}
+					
 				}
 				r = true;
 			}
@@ -360,6 +365,15 @@ public class ROSProxy {
 			Loop.start();
 		}
 		return false;
+	}
+	
+	/**
+	 * Get result of executing a ROS action
+	 * @param ID request ID 
+	 * @return the result
+	 */
+	public static Substitution getROSGoalResultSubstitution( int ID ) {
+		return rosGoalResults.get(ID);
 	}
 
 //	@Override

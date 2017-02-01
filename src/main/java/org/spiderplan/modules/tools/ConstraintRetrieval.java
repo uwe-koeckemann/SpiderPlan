@@ -39,66 +39,7 @@ import org.spiderplan.representation.expressions.temporal.PlanningInterval;
  * @author Uwe Köckemann
  *
  */
-public class ConstraintRetrieval {
-
-	/**
-	 * Get a unique {@link PlanningInterval} {@link Expression} from a {@link Core}.
-	 * Throws an exception if there is more than one and <code>null</code> if it
-	 * does not exist.
-	 * @param core The {@link Core} in which we are looking for the {@link PlanningInterval}. 
-	 * @return A unique {@link PlanningInterval} if exactly one exists, <code>null</code> otherwise.
-	 */
-	public static PlanningInterval getPlanningInterval( Core core ) {
-		ArrayList<PlanningInterval> pIcons = new ArrayList<PlanningInterval>();
-		//pIcons.addAll(core.get(PlanningInterval.class));
-		pIcons.addAll(core.getContext().get(PlanningInterval.class));
-		pIcons.addAll(core.getContext().get(PlanningInterval.class));
-		if ( pIcons.size() == 1 ) {
-			return pIcons.get(0);
-		} else if ( pIcons.size() > 1 ) {
-			for ( int i = 0 ; i < pIcons.size()-1 ; i++ ) {
-				if ( !pIcons.get(i).equals(pIcons.get(i+1))) {
-					String listStr = "";
-					for ( PlanningInterval pI : pIcons ) {
-						listStr += "\n" + pI.toString();
-					}
-					throw new IllegalStateException("Found multiple non-equal PlanningInterval constraints:"+listStr);
-				}
-			}
-			return pIcons.get(0);
-		}
-		return null;
-	}
-	
-	/**
-	 * Get a unique {@link PlanningInterval} {@link Expression} from a {@link ConstraintDatabase}.
-	 * Throws an exception if there is more than one and <code>null</code> if it
-	 * does not exist.
-	 * @param cDB The {@link ConstraintDatabase} in which we are looking for the {@link PlanningInterval}. 
-	 * @return A unique {@link PlanningInterval} if exactly one exists, <code>null</code> otherwise.
-	 */
-	public static PlanningInterval getPlanningInterval( ConstraintDatabase cDB ) {
-		ArrayList<PlanningInterval> pIcons = new ArrayList<PlanningInterval>();
-		//pIcons.addAll(core.get(PlanningInterval.class));
-		pIcons.addAll(cDB.get(PlanningInterval.class));
-		pIcons.addAll(cDB.get(PlanningInterval.class));
-		if ( pIcons.size() == 1 ) {
-			return pIcons.get(0);
-		} else if ( pIcons.size() > 1 ) {
-			for ( int i = 0 ; i < pIcons.size()-1 ; i++ ) {
-				if ( !pIcons.get(i).equals(pIcons.get(i+1))) {
-					String listStr = "";
-					for ( PlanningInterval pI : pIcons ) {
-						listStr += "\n" + pI.toString();
-					}
-					throw new IllegalStateException("Found multiple non-equal PlanningInterval constraints:"+listStr);
-				}
-			}
-			return pIcons.get(0);
-		}
-		return null;
-	}
-		
+public class ConstraintRetrieval {		
 	/**
 	 * Checks if there is an asserted constraint in a {@link ConstraintDatabase} that matches a 
 	 * given {@link Expression}

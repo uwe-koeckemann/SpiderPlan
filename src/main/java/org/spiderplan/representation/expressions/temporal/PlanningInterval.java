@@ -30,6 +30,7 @@ import java.util.Set;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.ExpressionTypes;
 import org.spiderplan.representation.expressions.interfaces.Mutable;
+import org.spiderplan.representation.expressions.interfaces.Unique;
 import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.Global;
@@ -41,7 +42,7 @@ import org.spiderplan.tools.Global;
  * @author Uwe Köckemann
  *
  */
-public class PlanningInterval extends Expression implements Mutable {
+public class PlanningInterval extends Expression implements Unique {
 	
 	private Term t0;
 	private Term tHorizon;
@@ -98,10 +99,7 @@ public class PlanningInterval extends Expression implements Mutable {
 		}
 		return Long.valueOf( tHorizon.toString() ); 
 	};
-	
-	@Override
-	public boolean isMutable() { return true; }
-	
+		
 	@Override
 	public Collection<Term> getVariableTerms() {
 		ArrayList<Term> r = new ArrayList<Term>();
@@ -127,12 +125,6 @@ public class PlanningInterval extends Expression implements Mutable {
 	}
 	
 	@Override
-	public Expression copy() {
-		Expression c = new PlanningInterval(t0, tHorizon);
-		return c;
-	}
-
-	@Override
 	public boolean equals(Object o) {
 		if ( o instanceof PlanningInterval ) {
 			PlanningInterval pI = (PlanningInterval)o;
@@ -150,7 +142,4 @@ public class PlanningInterval extends Expression implements Mutable {
 	public String toString() {
 		return "( planning-interval [" + t0 + " " + tHorizon + "] )"; 
 	}
-	
-	
-
 }

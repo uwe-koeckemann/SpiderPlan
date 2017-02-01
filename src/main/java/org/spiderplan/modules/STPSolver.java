@@ -121,7 +121,7 @@ public class STPSolver extends Module implements SolverInterface {
 		boolean isTemporalConsistent = true;
 		boolean isIntersectionConsistent = true;
 		
-		PlanningInterval planningInterval = ConstraintRetrieval.getPlanningInterval(core.getContext());
+		PlanningInterval planningInterval = core.getContext().getUnique(PlanningInterval.class);
 		
 		if ( planningInterval != null ) {
 			long origin = planningInterval.getStartTimeValue();

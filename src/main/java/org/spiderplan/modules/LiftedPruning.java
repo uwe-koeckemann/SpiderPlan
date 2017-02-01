@@ -318,7 +318,7 @@ public class LiftedPruning extends Module {
 		Collection<DiscardedPlan> prunedPlans = new ArrayList<DiscardedPlan>();
 		Collection<Operator> inOperators = core.getOperators();
 		
-		PlanningInterval pI = ConstraintRetrieval.getPlanningInterval(core);
+		PlanningInterval pI = core.getContext().getUnique(PlanningInterval.class);
 		if ( pI != null ) {
 			t0 = pI.getStartTimeValue();
 			temporalHorizon = pI.getHorizonValue();

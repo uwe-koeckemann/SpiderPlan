@@ -22,9 +22,16 @@
  *******************************************************************************/
 package org.spiderplan.executor.ROS;
 
+import java.util.Collection;
+
 import org.spiderplan.executor.Reactor;
+import org.spiderplan.executor.Reactor.State;
+import org.spiderplan.representation.ConstraintDatabase;
+import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.execution.ros.ROSGoal;
+import org.spiderplan.representation.logic.Term;
 
 /**
  * Execute a ROS goal. Requires ROSproxy to be running.
@@ -34,6 +41,8 @@ import org.spiderplan.representation.expressions.execution.ros.ROSGoal;
 public class ReactorROS extends Reactor {
 	
 	ROSGoal goal;
+	
+	Substitution goalResultSub;
 	
 	private int ID;
 	
@@ -46,6 +55,20 @@ public class ReactorROS extends Reactor {
 	public ReactorROS( Statement target, ROSGoal goal ) {
 		super(target);
 		this.goal = goal;
+	}
+	
+	@Override
+	public Collection<Expression> update(long t, long EST, long LST, long EET, long LET, ConstraintDatabase execDB) {
+		 super.update(t, EST, LST, EET, LET, execDB);
+		 
+		 if ( s == State.Done ) {
+			 if ( goalResultSub != null ) {
+				 execDB.substitute(goalResultSub);
+				 goalResultSub = null;
+			 }
+		 }
+		 
+		 return super.activeConstraints;
 	}
 	
 	@Override
@@ -71,7 +94,7 @@ public class ReactorROS extends Reactor {
 		 * End when actual end time reached
 		 */
 		if ( ROSProxy.has_finished(ID, goal.getResultMsg()) ) {
-			System.out.println(goal.getResultMsg());
+			goalResultSub = ROSProxy.getROSGoalResultSubstitution(ID);
 			print("Finishing at " + t  + " [EET LET] = [" + EET + " " + LET + "]", 2);
 			return true;
 		} 

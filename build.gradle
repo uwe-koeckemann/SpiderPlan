@@ -29,6 +29,7 @@ dependencies{
   compile 'net.sf.jung:jung-visualization:2.0.1'
   compile 'jfree:jfreechart:1.0.13'
   compile 'junit:junit:4.12'
+  //compile 'mysql:mysql-connector-java:6.0.5'
   
   // The production code uses the SLF4J logging API at compile time
   compile 'org.slf4j:slf4j-api:1.7.13'

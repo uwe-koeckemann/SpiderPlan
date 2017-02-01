@@ -28,6 +28,7 @@ import org.spiderplan.representation.expressions.domain.DomainMemberConstraint;
 import org.spiderplan.representation.expressions.domain.TypeDomainConstraint;
 import org.spiderplan.representation.expressions.domain.TypeSignatureConstraint;
 import org.spiderplan.representation.expressions.domain.Uncontrollable;
+import org.spiderplan.representation.expressions.execution.database.DatabaseExecutionExpression;
 import org.spiderplan.representation.expressions.graph.GraphConstraint;
 import org.spiderplan.representation.expressions.math.MathConstraint;
 import org.spiderplan.representation.expressions.minizinc.MiniZincInput;
@@ -86,6 +87,7 @@ public class ExpressionTypes {
 	final public static Term ROS = Term.createConstant("ros");
 	final public static Term Optimization = Term.createConstant("optimization");
 	final public static Term ConfigurationPlanning = Term.createConstant("configuration-planning");
+	final public static Term DatabaseExecution = Term.createConstant("database-execution");
 
 	final public static SupportedExpressions<DomainRelation> DomainConstraints = new SupportedExpressions<DomainRelation>(Domain);
 	final public static SupportedExpressions<CostRelation> CostConstraints = new SupportedExpressions<CostRelation>(Cost);
@@ -97,6 +99,7 @@ public class ExpressionTypes {
 	final public static SupportedExpressions<SamplingRelation> SamplingConstraints = new SupportedExpressions<SamplingRelation>(Sampling);
 	final public static SupportedExpressions<ConfigurationPlanningRelation> ConfigurationPlanningConstraints = new SupportedExpressions<ConfigurationPlanningRelation>(ConfigurationPlanning);
 	final public static SupportedExpressions<MiniZincRelation> MiniZincExpressions = new SupportedExpressions<MiniZincRelation>(MiniZinc);
+	final public static SupportedExpressions<DatabaseExecutionRelation> DatabaseExecutionExpressions = new SupportedExpressions<DatabaseExecutionRelation>(DatabaseExecution);
 	
 	
 	/**
@@ -121,9 +124,10 @@ public class ExpressionTypes {
 		GreaterThan, GreaterThanOrEquals, 
 		LessThan, LessThanOrEquals
 	}
-	public enum ROSRelation {  PublishTo, SubscribeTo, Goal, RegisterAction };
+	public enum ROSRelation {  Publish, Subscribe, ActionLib };
 	public enum ConfigurationPlanningRelation { Goal, Link, Cost, Unavailable };
 	public enum MiniZincRelation {  Assign, Array, Output };
+	public enum DatabaseExecutionRelation { Connection, Execute };
 	
 	static {
 		DomainConstraints.add("enum/2", 		"(enum t (list e1 e2 .. )) or (enum t {e1 e2 .. })", 
@@ -261,11 +265,13 @@ public class ExpressionTypes {
 		MiniZincExpressions.add("assign/2", "(assign x n)", "x = n;", MiniZincRelation.Assign, MiniZincInput.class);
 		MiniZincExpressions.add("array/2", "(array x (list x1 x2 .. xn))", "x = [x1,x2,...,xn];", MiniZincRelation.Array, MiniZincInput.class);
 		MiniZincExpressions.add("output/1", "(outout (list y1 y2 .. yn))", "Provides a list of variables that need to be assigned by substitution that results from MiniZinc call.", MiniZincRelation.Array, MiniZincInput.class);
-		
-		
+				
 		ConfigurationPlanningConstraints.add("goal/2", "(goal I x)", "Information goal x has to be achieved during interval ?I", ConfigurationPlanningRelation.Goal, ConfigurationPlanningConstraint.class);
 		ConfigurationPlanningConstraints.add("link/3", "(link x (list y1 y2 ..) y)", "Information x can be inferred if y1, y2, .. are known. It costs y to use this link.", ConfigurationPlanningRelation.Link, ConfigurationPlanningConstraint.class);
 		ConfigurationPlanningConstraints.add("unavailable/1", "(unavailable x)", "Information x cannot be used.", ConfigurationPlanningRelation.Unavailable, ConfigurationPlanningConstraint.class);
+		
+		DatabaseExecutionExpressions.add("connection/4", "(connection db_alias url db_name username password)", "Creates a connection to a database that is used to execute statements.", DatabaseExecutionRelation.Connection, DatabaseExecutionExpression.class);
+		DatabaseExecutionExpressions.add("execute/4", "(execute db_alias x v a", "All statements with state-variables matching x and values matching v will be executed. The answer will be matched with a and substituted.", DatabaseExecutionRelation.Connection, DatabaseExecutionExpression.class);
 	}
 	
 	public static void printHelp() {		

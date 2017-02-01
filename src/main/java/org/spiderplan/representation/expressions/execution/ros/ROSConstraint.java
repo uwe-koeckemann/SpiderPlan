@@ -174,10 +174,10 @@ public class ROSConstraint extends Expression implements Substitutable, Mutable 
 	@Override
 	public String toString() {
 		StringBuilder rb = new StringBuilder();
-		if ( relation.equals(ROSRelation.PublishTo)) 
-			rb.append("(publish-to\n\t");
+		if ( relation.equals(ROSRelation.Publish)) 
+			rb.append("(publish\n\t");
 		else 
-			rb.append("(subscribe-to\n\t");
+			rb.append("(subscribe\n\t");
 		rb.append(variable.toString());
 		rb.append("\n\t");
 		rb.append(value.toString());

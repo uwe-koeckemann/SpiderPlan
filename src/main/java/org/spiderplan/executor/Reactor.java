@@ -55,7 +55,7 @@ public abstract class Reactor {
 	AllenConstraint afterPast;
 	AllenConstraint overlapsFuture;
 	
-	Collection<Expression> activeConstraints = new ArrayList<Expression>();
+	protected Collection<Expression> activeConstraints = new ArrayList<Expression>();
 	
 	/**
 	 * States of execution.

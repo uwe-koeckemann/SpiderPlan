@@ -52,11 +52,6 @@ public class IntervalType extends Type {
 		return "";
 	}
 
-//	@Override
-//	public ArrayList<String> getStringDomain() {
-//		return new ArrayList<String>();
-//	}
-
 	@Override
 	public ArrayList<Term> getDomain() {
 		return new ArrayList<Term>();

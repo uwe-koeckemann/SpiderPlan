@@ -33,6 +33,8 @@ import org.spiderplan.modules.configuration.ParameterDescription;
  * Abstract super class to all modules.  Modules can be solvers, 
  * preprocessors, etc.
  *  
+ * TODO: Attach constraint types to modules to allow checking if a planner takes care of all constraints types
+ *  
  * @author Uwe Köckemann
  */
 public abstract class Module {
