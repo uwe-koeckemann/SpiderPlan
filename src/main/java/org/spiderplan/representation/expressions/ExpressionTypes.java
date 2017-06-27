@@ -1,26 +1,28 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.expressions;
+
+import java.util.Collection;
+import java.util.HashSet;
 
 import org.spiderplan.representation.expressions.configurationPlanning.ConfigurationPlanningConstraint;
 import org.spiderplan.representation.expressions.cost.Cost;
@@ -28,10 +30,14 @@ import org.spiderplan.representation.expressions.domain.DomainMemberConstraint;
 import org.spiderplan.representation.expressions.domain.TypeDomainConstraint;
 import org.spiderplan.representation.expressions.domain.TypeSignatureConstraint;
 import org.spiderplan.representation.expressions.domain.Uncontrollable;
+import org.spiderplan.representation.expressions.execution.caresses.CaressesExpression;
 import org.spiderplan.representation.expressions.execution.database.DatabaseExecutionExpression;
+import org.spiderplan.representation.expressions.execution.program.ExternalProgramCall;
+import org.spiderplan.representation.expressions.execution.sockets.SocketExpression;
 import org.spiderplan.representation.expressions.graph.GraphConstraint;
 import org.spiderplan.representation.expressions.math.MathConstraint;
 import org.spiderplan.representation.expressions.minizinc.MiniZincInput;
+import org.spiderplan.representation.expressions.ontology.OntologyExpression;
 import org.spiderplan.representation.expressions.optimization.OptimizationTarget;
 import org.spiderplan.representation.expressions.sampling.SamplingConstraint;
 import org.spiderplan.representation.expressions.set.SetConstraint;
@@ -44,6 +50,8 @@ import org.spiderplan.representation.logic.Term;
  * 
  * TODO: should become central registry for expressions that knows everything about them.
  * TODO: each constraint class should register what it can express with this class
+ * TODO: need list of all things in here so printHelp can work automatically
+ * TODO: add toString instruction for each type (e.g., single constraint per keyword)
  * 
  * What information is useful for each expression?
  * 
@@ -71,6 +79,7 @@ public class ExpressionTypes {
 	final public static Term Temporal = Term.createConstant("temporal");
 	final public static Term Prolog = Term.createConstant("prolog");
 	final public static Term SparQL = Term.createConstant("sparql");
+	final public static Term Ontology = Term.createConstant("ontology");
 	final public static Term MiniZinc = Term.createConstant("minizinc");
 	final public static Term Resource = Term.createConstant("resource");
 	final public static Term Domain = Term.createConstant("domain");
@@ -79,15 +88,29 @@ public class ExpressionTypes {
 	final public static Term Graph = Term.createConstant("graph");
 	final public static Term Set = Term.createConstant("sets");
 	final public static Term Goal = Term.createConstant("goal");
+	final public static Term Task = Term.createConstant("task");
 	final public static Term Statement = Term.createConstant("statement");
 	final public static Term IncludedProgram = Term.createConstant("include");
-	final public static Term Conditional = Term.createConstant("conditional");
+	final public static Term Interaction = Term.createConstant("ic");
 	final public static Term Sampling = Term.createConstant("sampling");
 	final public static Term Simulation = Term.createConstant("simulation");
 	final public static Term ROS = Term.createConstant("ros");
 	final public static Term Optimization = Term.createConstant("optimization");
 	final public static Term ConfigurationPlanning = Term.createConstant("configuration-planning");
 	final public static Term DatabaseExecution = Term.createConstant("database-execution");
+	final public static Term Assertion = Term.createConstant("assertion");
+	final public static Term ExternalProgram = Term.createConstant("external-program");
+	final public static Term Socket = Term.createConstant("socket");
+	final public static Term Observation = Term.createConstant("observation");
+	final public static Term Caresses = Term.createConstant("caresses");
+	
+	
+	public static Collection<Term> singleExpressionPerKeyword = new HashSet<Term>();
+	
+	{
+		singleExpressionPerKeyword.add(Interaction);
+		singleExpressionPerKeyword.add(Interaction);
+	}
 
 	final public static SupportedExpressions<DomainRelation> DomainConstraints = new SupportedExpressions<DomainRelation>(Domain);
 	final public static SupportedExpressions<CostRelation> CostConstraints = new SupportedExpressions<CostRelation>(Cost);
@@ -100,14 +123,18 @@ public class ExpressionTypes {
 	final public static SupportedExpressions<ConfigurationPlanningRelation> ConfigurationPlanningConstraints = new SupportedExpressions<ConfigurationPlanningRelation>(ConfigurationPlanning);
 	final public static SupportedExpressions<MiniZincRelation> MiniZincExpressions = new SupportedExpressions<MiniZincRelation>(MiniZinc);
 	final public static SupportedExpressions<DatabaseExecutionRelation> DatabaseExecutionExpressions = new SupportedExpressions<DatabaseExecutionRelation>(DatabaseExecution);
+	final public static SupportedExpressions<ExternalProgramRelation> ExternalProgramExecutionExpressions = new SupportedExpressions<ExternalProgramRelation>(ExternalProgram);
+	final public static SupportedExpressions<SocketRelation> SocketExecutionExpressions = new SupportedExpressions<SocketRelation>(Socket);
+	final public static SupportedExpressions<CaressesRelation> CaressesExpressions = new SupportedExpressions<CaressesRelation>(Caresses);
+	final public static SupportedExpressions<OntologyRelation> OntologyExpressions = new SupportedExpressions<OntologyRelation>(Ontology);
 	
-	
+
 	/**
 	 *	Often the same constraint has multiple names. The following enumerations are used 
 	 * 	to provide unique internal names for the same relations. They are also used by 
 	 * 	solvers to avoid bugs that result from using string names everywhere.
 	 */
-	public enum MathRelation { EvalInt, EvalFloat, Addition, Subtraction, Multiplication, Division, Modulo, GreaterThan, GreaterThanOrEquals, LessThan, LessThanOrEquals };
+	public enum MathRelation { EvalInt, EvalFloat, Equals, Addition, Subtraction, Multiplication, Division, Modulo, GreaterThan, GreaterThanOrEquals, LessThan, LessThanOrEquals };
 	public enum OptimizationRelation { Minimize, Maximize };
 	public enum SetRelation { Set, Add, In, NotIn, IsDomain, Equals, Subset, ProperSubset };
 	public enum GraphRelation { Directed, Undirected, Vertex, Edge, Draw, DAG, Flow, Capacity, Path, ShortestPath, HasEdge };
@@ -128,6 +155,13 @@ public class ExpressionTypes {
 	public enum ConfigurationPlanningRelation { Goal, Link, Cost, Unavailable };
 	public enum MiniZincRelation {  Assign, Array, Output };
 	public enum DatabaseExecutionRelation { Connection, Execute };
+	public enum ExternalProgramRelation { Execute };
+	
+	public enum SocketRelation { Setup, Send, Receive };
+	
+	public enum CaressesRelation { Action, Socket };
+	
+	public enum OntologyRelation { Prefix, Triple };
 	
 	static {
 		DomainConstraints.add("enum/2", 		"(enum t (list e1 e2 .. )) or (enum t {e1 e2 .. })", 
@@ -172,6 +206,12 @@ public class ExpressionTypes {
 		CostConstraints.add("less-than-or-equals/2", 	"(less-than-or-equals c x)", "c <= x", 		CostRelation.LessThanOrEquals, 		Cost.class);
 		CostConstraints.add("greater-than/2", 			"(greater-than c x)", "c > x", 				CostRelation.GreaterThan, 			Cost.class);
 		CostConstraints.add("greater-than-or-equals/2", "(greater-than-or-equals c x)", "c >= x", 	CostRelation.GreaterThanOrEquals, 	Cost.class);
+		CostConstraints.addAlias(CostRelation.Add, "+/2");
+		CostConstraints.addAlias(CostRelation.Sub, "-/2");
+		CostConstraints.addAlias(CostRelation.LessThan, "</2");
+		CostConstraints.addAlias(CostRelation.LessThanOrEquals, "<=/2");
+		CostConstraints.addAlias(CostRelation.GreaterThan, ">/2");
+		CostConstraints.addAlias(CostRelation.GreaterThanOrEquals, ">=/2");
 		
 		GraphConstraints.add("directed/1", 		"(directed G)","G is a directed graph.", 				GraphRelation.Directed, 		GraphConstraint.class);
 		GraphConstraints.add("undirected/1", 	"(undirected G)", "G is an undirected graph.",			GraphRelation.Undirected, 		GraphConstraint.class);
@@ -197,15 +237,19 @@ public class ExpressionTypes {
 		
 		MathConstraints.add("eval-int/2", "(eval-int x expression)", "Evaluate integer expression. If x is variable it will be substituted with result. If x is ground it can be retrieved by other modules with (get-math-value x). If float values are used they will be converted to integers.", 	MathRelation.EvalInt, MathConstraint.class);
 		MathConstraints.add("eval-float/2", "(eval-float x expression)", "Evaluate float expression. If x is variable it will be substituted with result. If x is ground it can be retrieved by other modules with (get-math-value x). If integer values are used they will be converted to floats.", 	MathRelation.EvalFloat, MathConstraint.class);
-//		MathConstraints.add("add/3", "(add x y z)",		"x + y = z", 	MathRelation.Addition, 			MathConstraint.class);
-//		MathConstraints.add("sub/3", "(sub x y z)",		"x - y = z", 	MathRelation.Subtraction, 		MathConstraint.class);
-//		MathConstraints.add("mult/3","(mult x y z)", 	"x * y = z", 	MathRelation.Multiplication, 	MathConstraint.class);
-//		MathConstraints.add("div/3", "(div x y z)", 	"x / y = z", 	MathRelation.Division, 			MathConstraint.class);
-//		MathConstraints.add("mod/3", "(mod x y z)", 	"x mod y = z", 	MathRelation.Modulo, 			MathConstraint.class);
+		
+		MathConstraints.add("equals/2", 				"(equals x y)", "x = y",					MathRelation.Equals, 				MathConstraint.class);
 		MathConstraints.add("less-than/2", 				"(less-than x y)", "x < y",					MathRelation.LessThan, 				MathConstraint.class);
 		MathConstraints.add("less-than-or-equal/2", 	"(less-than-or-equal x y)", "x <= y", 		MathRelation.LessThanOrEquals, 		MathConstraint.class);
 		MathConstraints.add("greater-than/2", 			"(greater-than x y)", "x > y", 				MathRelation.GreaterThan, 			MathConstraint.class);
 		MathConstraints.add("greater-than-or-equal/2", 	"(greater-than-or-equal x y)", "x >= y", 	MathRelation.GreaterThanOrEquals, 	MathConstraint.class);
+		
+		MathConstraints.addAlias(MathRelation.Equals, "=/2");
+		MathConstraints.addAlias(MathRelation.LessThan, "</2");
+		MathConstraints.addAlias(MathRelation.LessThanOrEquals, "<=/2");
+		MathConstraints.addAlias(MathRelation.GreaterThan, ">/2");
+		MathConstraints.addAlias(MathRelation.GreaterThanOrEquals, ">=/2");
+
 		
 		OptimizationExpressions.add("min/1", "(min x)", "Minimize the value associated to x.", OptimizationRelation.Minimize, OptimizationTarget.class);
 		OptimizationExpressions.add("max/1", "(max x)", "Maximize the value associated to x.", OptimizationRelation.Maximize, OptimizationTarget.class);
@@ -271,7 +315,25 @@ public class ExpressionTypes {
 		ConfigurationPlanningConstraints.add("unavailable/1", "(unavailable x)", "Information x cannot be used.", ConfigurationPlanningRelation.Unavailable, ConfigurationPlanningConstraint.class);
 		
 		DatabaseExecutionExpressions.add("connection/4", "(connection db_alias url db_name username password)", "Creates a connection to a database that is used to execute statements.", DatabaseExecutionRelation.Connection, DatabaseExecutionExpression.class);
-		DatabaseExecutionExpressions.add("execute/4", "(execute db_alias x v a", "All statements with state-variables matching x and values matching v will be executed. The answer will be matched with a and substituted.", DatabaseExecutionRelation.Connection, DatabaseExecutionExpression.class);
+		DatabaseExecutionExpressions.add("execute/4", "(execute db_alias x v a)", "All statements with state-variables matching x and values matching v will be executed. The answer will be matched with a and substituted.", DatabaseExecutionRelation.Connection, DatabaseExecutionExpression.class);
+		
+		
+		
+		ExternalProgramExecutionExpressions.add("execute/1", "(execute cmd)", "Execute command cmd. Ignore program output.", ExternalProgramRelation.Execute, ExternalProgramCall.class);
+		ExternalProgramExecutionExpressions.add("execute/2", "(execute cmd O)", "Execute command cmd read its output, parse it as a Term and match it with term O. Add resulting substitution as resolver.", ExternalProgramRelation.Execute, ExternalProgramCall.class);
+		ExternalProgramExecutionExpressions.add("execute/3", "(execute cmd O {(replace \",\" \" \") (replace \"[\" \"(\") (replace \"]\" \")\")})", "Execute command cmd read its output, perform a series of string replacements in the output and then parse it as a Term and match it with term O. Add resulting substitution as resolver.", ExternalProgramRelation.Execute, ExternalProgramCall.class);
+
+		SocketExecutionExpressions.add("connect/3", "(connect alias ip port)", "Connect to a socket using an alias.", SocketRelation.Setup, SocketExpression.class);
+		SocketExecutionExpressions.add("send/3", "(send alias var val)", "Assign variable to send value over socket.", SocketRelation.Send, SocketExpression.class);
+		SocketExecutionExpressions.add("receive/3", "(receive alias var val)", "Assign variable to receive data over socket and match it with value.", SocketRelation.Receive, SocketExpression.class);
+		SocketExecutionExpressions.add("receive/5", "(receive alias var val msg (list (head \"s1\") (tail \"s2\") (replace \"s3\" \"s4\")))", "Assign variable to receive data over socket. Apply sting operations to received message, then parse it and match it to msg. The resulting substitution will be applied to val. Current string operations are (head \"s\") (tail \"s\") to add string s to the front or back of the message and (replace \"s1\" \"s2\") to replace string s1 with s2 in the message.", SocketRelation.Receive, SocketExpression.class);
+		
+		CaressesExpressions.add("socket/2", "(socket \"localhost\" 12347)", "Set socket connectecion to uAAL skeleton.", CaressesRelation.Socket, CaressesExpression.class);
+		CaressesExpressions.add("action/1", "(action {(id ?ID) (type Wave) (robot R1) (apar ?ActionPar1) (cpar ?CulturalPar1)})", "Define action request for Caresses.", CaressesRelation.Action, CaressesExpression.class);
+		
+		OntologyExpressions.add("prefix/2", "(prefix name URI)", "Add a prefix as context for following triplets.", OntologyRelation.Prefix, OntologyExpression.class);
+		OntologyExpressions.add("triple/3", "(triple ...)", "", OntologyRelation.Triple, OntologyExpression.class);
+		//TODO
 	}
 	
 	public static void printHelp() {		
@@ -280,6 +342,7 @@ public class ExpressionTypes {
 		System.out.println(GraphConstraints);
 		System.out.println(SetConstraints);
 		System.out.println(MathConstraints);
-		System.out.println(TemporalConstraints);		
+		System.out.println(TemporalConstraints);
+		//TODO
 	}
 }

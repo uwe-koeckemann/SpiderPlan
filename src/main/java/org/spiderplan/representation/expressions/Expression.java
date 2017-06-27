@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.expressions;
 
 import java.util.Collection;
@@ -27,7 +26,6 @@ import java.util.Collection;
 import org.spiderplan.representation.expressions.interfaces.Matchable;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
 /**
@@ -53,7 +51,7 @@ import org.spiderplan.representation.logic.Term;
  *
  */
 public abstract class Expression {
-	private final Term type;
+	protected final Term type;
 //	private List<ExpressionTag> tags = new ArrayList<ExpressionTag>();
 	
 	/**
@@ -68,21 +66,27 @@ public abstract class Expression {
 	 */
 	public Term getType() { return type; }
 	
-	/**
-	 * Get all variable {@link Term}s in this {@link Expression}.
-	 * @return all variable terms used in this constraint
-	 */
-	public abstract Collection<Term> getVariableTerms();
-	/**
-	 * Get all ground {@link Term}s in this {@link Expression}.
-	 * @return all ground terms used in this constraint
-	 */
-	public abstract Collection<Term> getGroundTerms();
+//	/**
+//	 * Get all variable {@link Term}s in this {@link Expression}.
+//	 * @return all variable terms used in this constraint
+//	 */
+//	public abstract Collection<Term> getVariableTerms();
+	
+//	/**
+//	 * Get all ground {@link Term}s in this {@link Expression}.
+//	 * @return all ground terms used in this constraint
+//	 */
+//	public abstract Collection<Term> getGroundTerms();
 	/**
 	 * Get all atomics used in this constraint.
-	 * @return all atomics used in this constraint
+	 * @param collectedTerms TODO
+	 * @param getConstants TODO
+	 * @param getVariables TODO
+	 * @param getComplex TODO
 	 */
-	public abstract Collection<Atomic> getAtomics();
+//	public abstract Collection<Term> getComplexTerms();
+	
+	public abstract void getAllTerms(Collection<Term> collectedTerms, boolean getConstants, boolean getVariables, boolean getComplex);
 		
 	/**
 	 * Some constraints are self-sufficient to determine consistency and can overwrite
@@ -123,6 +127,12 @@ public abstract class Expression {
 	 * @return <code>true</code> if the constraint is substitutable, <code>false</code> otherwise
 	 */
 	public boolean isSubstitutable() { return false; }
+	
+	/**
+	 * Check if this expression has sub-problem support.
+	 * @return <code>true</code> if the expression has sub-problem support, <code>false</code> otherwise
+	 */
+	public boolean hasSubProblemSupport() { return false; }
 	
 	@Override
 	public abstract boolean equals( Object o );

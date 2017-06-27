@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.modules;
 
 import java.util.ArrayList;
@@ -41,7 +40,6 @@ import org.spiderplan.prolog.YapPrologAdapter;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.domain.Substitution;
-import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.logging.Logger;
@@ -134,10 +132,10 @@ public class PrologSolver extends Module implements SolverInterface {
 		
 		for ( PrologConstraint rC : core.getContext().get(PrologConstraint.class)) {
 			if ( !rC.isAsserted() ) {
-				if ( !queries.containsKey(rC.getProgramID()) ) {
-					queries.put(rC.getProgramID(), new ArrayList<PrologConstraint>());
+				if ( !queries.containsKey(rC.getSubProblemID()) ) {
+					queries.put(rC.getSubProblemID(), new ArrayList<PrologConstraint>());
 				}
-				queries.get(rC.getProgramID()).add(rC);
+				queries.get(rC.getSubProblemID()).add(rC);
 			}
 		}		
 		
@@ -173,8 +171,8 @@ public class PrologSolver extends Module implements SolverInterface {
 						for ( PrologConstraint c : queries.get(programID) ) {
 							PrologConstraint cCopy = c.copy();
 							cCopy.substitute(sub);
-							Asserted a = new Asserted(cCopy);
-							cDB.add(a);
+//							Asserted a = new Asserted(cCopy);
+							cDB.add(cCopy.getAssertion());
 						}	
 						resolverList.add(new Resolver(sub,cDB));
 					}		

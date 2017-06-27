@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan;
 
 import java.util.ArrayList;
@@ -37,7 +36,6 @@ import org.spiderplan.causal.forwardPlanning.causalGraph.DomainTransitionEdge;
 import org.spiderplan.causal.forwardPlanning.causalGraph.DomainTransitionGraph;
 import org.spiderplan.causal.forwardPlanning.goals.Goal;
 import org.spiderplan.causal.forwardPlanning.goals.SingleGoal;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.SimpleParsing;
@@ -70,14 +68,14 @@ public class TestCausalGraph extends TestCase {
 		tM.attachTypes("(good)=locations");
 		
 		StateVariableOperator o = new StateVariableOperator();
-		o.setName(new Atomic("(drive ?A ?B)"));
-		o.getPreconditions().put( new Atomic("(at)"), Term.createVariable("?A") );
-		o.getEffects().put(new Atomic("(at)"), Term.createVariable("?B"));
+		o.setName(Term.parse("(drive ?A ?B)"));
+		o.getPreconditions().put( Term.parse("(at)"), Term.createVariable("?A") );
+		o.getEffects().put(Term.parse("(at)"), Term.createVariable("?B"));
 		
 		ArrayList<StateVariableOperator> O = new ArrayList<StateVariableOperator>();
 		O.add(o);
 	
-		DomainTransitionGraph dtg = new DomainTransitionGraph(new Atomic("(at)"), o.getAllGround(tM), tM);	
+		DomainTransitionGraph dtg = new DomainTransitionGraph(Term.parse("(at)"), o.getAllGround(tM), tM);	
 				
 		assertTrue( dtg.getGraph().getVertexCount() == 4 );
 		assertTrue( dtg.getGraph().getEdgeCount() == 12 );
@@ -91,8 +89,8 @@ public class TestCausalGraph extends TestCase {
 		
 	public void testCost1() {
 		
-		Atomic v1 = new Atomic("(sv1)");
-		Atomic v2 = new Atomic("(sv2)");
+		Term v1 = Term.parse("(sv1)");
+		Term v2 = Term.parse("(sv2)");
 		
 
 		
@@ -106,15 +104,15 @@ public class TestCausalGraph extends TestCase {
 		tM.attachTypes("(changeSV2 sv2_t sv2_t)");
 		
 		StateVariableOperator o1 = new StateVariableOperator();
-		o1.setName(new Atomic("(changeSV1 ?A ?B)"));
-		o1.getPreconditions().put(new Atomic("(sv1)"), Term.createVariable("?A"));
-		o1.getEffects().put(new Atomic("(sv1)"), Term.createVariable("?B"));
+		o1.setName(Term.parse("(changeSV1 ?A ?B)"));
+		o1.getPreconditions().put(Term.parse("(sv1)"), Term.createVariable("?A"));
+		o1.getEffects().put(Term.parse("(sv1)"), Term.createVariable("?B"));
 	
 		StateVariableOperator o2 = new StateVariableOperator();
-		o2.setName(new Atomic("(changeSV2 ?A ?B)"));
-		o2.getPreconditions().put(new Atomic("(sv1)"), Term.createConstant("b"));
-		o2.getPreconditions().put(new Atomic("(sv2)"), Term.createVariable("?A"));
-		o2.getEffects().put(new Atomic("(sv2)"), Term.createVariable("?B"));
+		o2.setName(Term.parse("(changeSV2 ?A ?B)"));
+		o2.getPreconditions().put(Term.parse("(sv1)"), Term.createConstant("b"));
+		o2.getPreconditions().put(Term.parse("(sv2)"), Term.createVariable("?A"));
+		o2.getEffects().put(Term.parse("(sv2)"), Term.createVariable("?B"));
 		
 		ArrayList<StateVariableOperator> A = new ArrayList<StateVariableOperator>();
 		
@@ -124,7 +122,7 @@ public class TestCausalGraph extends TestCase {
 		DomainTransitionGraph dtgSV1 = new DomainTransitionGraph(v1, A, tM);
 		DomainTransitionGraph dtgSV2 = new DomainTransitionGraph(v2, A, tM);
 		
-		HashMap<Atomic,DomainTransitionGraph> DTGs = new HashMap<Atomic, DomainTransitionGraph>();
+		HashMap<Term,DomainTransitionGraph> DTGs = new HashMap<Term, DomainTransitionGraph>();
 		DTGs.put(v1, dtgSV1);
 		DTGs.put(v2, dtgSV2);
 		
@@ -133,7 +131,7 @@ public class TestCausalGraph extends TestCase {
 //		ComputeCost computeCost = new ComputeCost(DTGs, cg, tM);
 		
 		
-		HashMap<Atomic,Term> s = new HashMap<Atomic,Term>();
+		HashMap<Term,Term> s = new HashMap<Term,Term>();
 		s.put(v1, Term.createConstant("a"));
 		s.put(v2, Term.createConstant("c"));
 		
@@ -166,9 +164,9 @@ public class TestCausalGraph extends TestCase {
 	}
 	
 	public void testCost2() {	
-		Atomic v1 = new Atomic("(sv1)");
-		Atomic v2 = new Atomic("(sv2)");
-		Atomic v3 = new Atomic("(sv3)");
+		Term v1 = Term.parse("(sv1)");
+		Term v2 = Term.parse("(sv2)");
+		Term v3 = Term.parse("(sv3)");
 			
 		tM.addSimpleEnumType("sv1_t", "a,b");
 		tM.addSimpleEnumType("sv2_t", "c,d");
@@ -183,21 +181,21 @@ public class TestCausalGraph extends TestCase {
 		tM.attachTypes("(changeSV3 sv3_t sv3_t)");
 		
 		StateVariableOperator o1 = new StateVariableOperator();
-		o1.setName(new Atomic("(changeSV1 ?A ?B)"));
-		o1.getPreconditions().put(new Atomic("(sv1)"), Term.createVariable("?A"));
-		o1.getEffects().put(new Atomic("(sv1)"), Term.createVariable("?B"));
+		o1.setName(Term.parse("(changeSV1 ?A ?B)"));
+		o1.getPreconditions().put(Term.parse("(sv1)"), Term.createVariable("?A"));
+		o1.getEffects().put(Term.parse("(sv1)"), Term.createVariable("?B"));
 	
 		StateVariableOperator o2 = new StateVariableOperator();
-		o2.setName(new Atomic("(changeSV2 ?A ?B)"));
-		o2.getPreconditions().put(new Atomic("(sv1)"), Term.createConstant("b"));
-		o2.getPreconditions().put(new Atomic("(sv2)"), Term.createVariable("?A"));
-		o2.getEffects().put(new Atomic("(sv2)"), Term.createVariable("?B"));
+		o2.setName(Term.parse("(changeSV2 ?A ?B)"));
+		o2.getPreconditions().put(Term.parse("(sv1)"), Term.createConstant("b"));
+		o2.getPreconditions().put(Term.parse("(sv2)"), Term.createVariable("?A"));
+		o2.getEffects().put(Term.parse("(sv2)"), Term.createVariable("?B"));
 		
 		StateVariableOperator o3 = new StateVariableOperator();
-		o3.setName(new Atomic("(changeSV3 ?A ?B)"));
-		o3.getPreconditions().put(new Atomic("(sv2)"), Term.createConstant("d"));
-		o3.getPreconditions().put(new Atomic("(sv3)"), Term.createVariable("?A"));
-		o3.getEffects().put(new Atomic("(sv3)"), Term.createVariable("?B"));
+		o3.setName(Term.parse("(changeSV3 ?A ?B)"));
+		o3.getPreconditions().put(Term.parse("(sv2)"), Term.createConstant("d"));
+		o3.getPreconditions().put(Term.parse("(sv3)"), Term.createVariable("?A"));
+		o3.getEffects().put(Term.parse("(sv3)"), Term.createVariable("?B"));
 		
 		
 		ArrayList<StateVariableOperator> A = new ArrayList<StateVariableOperator>();
@@ -210,7 +208,7 @@ public class TestCausalGraph extends TestCase {
 		DomainTransitionGraph dtgSV2 = new DomainTransitionGraph(v2, A, tM);
 		DomainTransitionGraph dtgSV3 = new DomainTransitionGraph(v3, A, tM);
 		
-		HashMap<Atomic,DomainTransitionGraph> DTGs = new HashMap<Atomic, DomainTransitionGraph>();
+		HashMap<Term,DomainTransitionGraph> DTGs = new HashMap<Term, DomainTransitionGraph>();
 		DTGs.put(v1, dtgSV1);
 		DTGs.put(v2, dtgSV2);
 		DTGs.put(v3, dtgSV3);
@@ -219,7 +217,7 @@ public class TestCausalGraph extends TestCase {
 			
 		CausalGraphHeuristic fdh = new CausalGraphHeuristic(DTGs, cg, tM);
 		
-		HashMap<Atomic,Term> s = new HashMap<Atomic,Term>();
+		HashMap<Term,Term> s = new HashMap<Term,Term>();
 		s.put(v1, Term.createConstant("a"));
 		s.put(v2, Term.createConstant("c"));
 		s.put(v3, Term.createConstant("e"));
@@ -256,9 +254,9 @@ public class TestCausalGraph extends TestCase {
 	}
 	
 	public void testCost3() {
-		Atomic v1 = new Atomic("(sv1)");
-		Atomic v2 = new Atomic("(sv2)");
-		Atomic v3 = new Atomic("(sv3)");
+		Term v1 = Term.parse("(sv1)");
+		Term v2 = Term.parse("(sv2)");
+		Term v3 = Term.parse("(sv3)");
 			
 		tM.addSimpleEnumType("sv1_t", "a,b");
 		tM.addSimpleEnumType("sv2_t", "c,d");
@@ -273,21 +271,21 @@ public class TestCausalGraph extends TestCase {
 		tM.attachTypes("(changeSV3 sv3_t sv3_t)");
 		
 		StateVariableOperator o1 = new StateVariableOperator();
-		o1.setName(new Atomic("(changeSV1 ?A ?B)"));
-		o1.getPreconditions().put(new Atomic("(sv1)"), Term.createVariable("?A"));
-		o1.getEffects().put(new Atomic("(sv1)"), Term.createVariable("?B"));
+		o1.setName(Term.parse("(changeSV1 ?A ?B)"));
+		o1.getPreconditions().put(Term.parse("(sv1)"), Term.createVariable("?A"));
+		o1.getEffects().put(Term.parse("(sv1)"), Term.createVariable("?B"));
 	
 		StateVariableOperator o2 = new StateVariableOperator();
-		o2.setName(new Atomic("(changeSV2 ?A ?B)"));
-		o2.getPreconditions().put(new Atomic("(sv1)"), Term.createConstant("b"));
-		o2.getPreconditions().put(new Atomic("(sv2)"), Term.createVariable("?A"));
-		o2.getEffects().put(new Atomic("(sv2)"), Term.createVariable("?B"));
+		o2.setName(Term.parse("(changeSV2 ?A ?B)"));
+		o2.getPreconditions().put(Term.parse("(sv1)"), Term.createConstant("b"));
+		o2.getPreconditions().put(Term.parse("(sv2)"), Term.createVariable("?A"));
+		o2.getEffects().put(Term.parse("(sv2)"), Term.createVariable("?B"));
 		
 		StateVariableOperator o3 = new StateVariableOperator();
-		o3.setName(new Atomic("(changeSV3 ?A ?B)"));
-		o3.getPreconditions().put(new Atomic("(sv2)"), Term.createConstant("d"));
-		o3.getPreconditions().put(new Atomic("(sv3)"), Term.createVariable("?A"));
-		o3.getEffects().put(new Atomic("(sv3)"), Term.createVariable("?B"));
+		o3.setName(Term.parse("(changeSV3 ?A ?B)"));
+		o3.getPreconditions().put(Term.parse("(sv2)"), Term.createConstant("d"));
+		o3.getPreconditions().put(Term.parse("(sv3)"), Term.createVariable("?A"));
+		o3.getEffects().put(Term.parse("(sv3)"), Term.createVariable("?B"));
 		
 		
 		ArrayList<StateVariableOperator> A = new ArrayList<StateVariableOperator>();
@@ -300,7 +298,7 @@ public class TestCausalGraph extends TestCase {
 		DomainTransitionGraph dtgSV2 = new DomainTransitionGraph(v2, A, tM);
 		DomainTransitionGraph dtgSV3 = new DomainTransitionGraph(v3, A, tM);
 		
-		HashMap<Atomic,DomainTransitionGraph> DTGs = new HashMap<Atomic, DomainTransitionGraph>();
+		HashMap<Term,DomainTransitionGraph> DTGs = new HashMap<Term, DomainTransitionGraph>();
 		DTGs.put(v1, dtgSV1);
 		DTGs.put(v2, dtgSV2);
 		DTGs.put(v3, dtgSV3);
@@ -309,7 +307,7 @@ public class TestCausalGraph extends TestCase {
 		
 		CausalGraphHeuristic fdh = new CausalGraphHeuristic(DTGs, cg, tM);
 		
-		HashMap<Atomic,Term> s = new HashMap<Atomic,Term>();
+		HashMap<Term,Term> s = new HashMap<Term,Term>();
 		s.put(v1, Term.createConstant("b"));
 		s.put(v2, Term.createConstant("c"));
 		s.put(v3, Term.createConstant("e"));
@@ -335,7 +333,7 @@ public class TestCausalGraph extends TestCase {
 	}
 	
 	public void testCost4() {
-		Atomic v1 = new Atomic("(sv1)");
+		Term v1 = Term.parse("(sv1)");
 	
 		tM.addSimpleEnumType("sv1_t", "a,b,c,d");
 	
@@ -346,19 +344,19 @@ public class TestCausalGraph extends TestCase {
 		tM.attachTypes("(change3 sv1_t sv1_t)");
 		
 		StateVariableOperator o1 = new StateVariableOperator();
-		o1.setName(new Atomic("(change1 a b)"));
-		o1.getPreconditions().put(new Atomic("(sv1)"), Term.createConstant("a"));
-		o1.getEffects().put(new Atomic("(sv1)"), Term.createConstant("b"));
+		o1.setName(Term.parse("(change1 a b)"));
+		o1.getPreconditions().put(Term.parse("(sv1)"), Term.createConstant("a"));
+		o1.getEffects().put(Term.parse("(sv1)"), Term.createConstant("b"));
 	
 		StateVariableOperator o2 = new StateVariableOperator();
-		o2.setName(new Atomic("(change2 b c)"));
-		o2.getPreconditions().put(new Atomic("(sv1)"), Term.createConstant("b"));
-		o2.getEffects().put(new Atomic("(sv1)"), Term.createConstant("c"));
+		o2.setName(Term.parse("(change2 b c)"));
+		o2.getPreconditions().put(Term.parse("(sv1)"), Term.createConstant("b"));
+		o2.getEffects().put(Term.parse("(sv1)"), Term.createConstant("c"));
 		
 		StateVariableOperator o3 = new StateVariableOperator();
-		o3.setName(new Atomic("(change3 c d)"));
-		o3.getPreconditions().put(new Atomic("(sv1)"), Term.createConstant("c"));
-		o3.getEffects().put(new Atomic("(sv1)"), Term.createConstant("d"));
+		o3.setName(Term.parse("(change3 c d)"));
+		o3.getPreconditions().put(Term.parse("(sv1)"), Term.createConstant("c"));
+		o3.getEffects().put(Term.parse("(sv1)"), Term.createConstant("d"));
 
 		ArrayList<StateVariableOperator> A = new ArrayList<StateVariableOperator>();
 		
@@ -368,14 +366,14 @@ public class TestCausalGraph extends TestCase {
 		
 		DomainTransitionGraph dtgSV1 = new DomainTransitionGraph(v1, A, tM);
 		
-		HashMap<Atomic,DomainTransitionGraph> DTGs = new HashMap<Atomic, DomainTransitionGraph>();
+		HashMap<Term,DomainTransitionGraph> DTGs = new HashMap<Term, DomainTransitionGraph>();
 		DTGs.put(v1, dtgSV1);
 		
 		CausalGraph cg = new CausalGraph(A);
 		
 		CausalGraphHeuristic fdh = new CausalGraphHeuristic(DTGs, cg, tM);
 		
-		HashMap<Atomic,Term> s = new HashMap<Atomic,Term>();
+		HashMap<Term,Term> s = new HashMap<Term,Term>();
 		s.put(v1, Term.createConstant("a"));
 		
 //		computeCost.computeCost(s, v1, Term.Constant("a"));
@@ -400,15 +398,15 @@ public class TestCausalGraph extends TestCase {
 	
 	
 	public void testCostNoPreviousValue() {
-		Atomic v1 = new Atomic("(sv1)");
+		Term v1 = Term.parse("(sv1)");
 		
 		tM.addSimpleEnumType("sv1_t", "a,b");
 		tM.attachTypes("(sv1)=sv1_t");
 		tM.attachTypes("(setSV1 sv1_t)");
 		
 		StateVariableOperator o1 = new StateVariableOperator();
-		o1.setName(new Atomic("(setSV1 ?X)"));
-		o1.getEffects().put(new Atomic("(sv1)"), Term.createVariable("?X"));
+		o1.setName(Term.parse("(setSV1 ?X)"));
+		o1.getEffects().put(Term.parse("(sv1)"), Term.createVariable("?X"));
 	
 		ArrayList<StateVariableOperator> A = new ArrayList<StateVariableOperator>();
 		
@@ -416,12 +414,12 @@ public class TestCausalGraph extends TestCase {
 		
 		DomainTransitionGraph dtgSV1 = new DomainTransitionGraph(v1, A, tM);
 		
-		HashMap<Atomic,DomainTransitionGraph> DTGs = new HashMap<Atomic, DomainTransitionGraph>();
+		HashMap<Term,DomainTransitionGraph> DTGs = new HashMap<Term, DomainTransitionGraph>();
 		DTGs.put(v1, dtgSV1);
 		
 		CausalGraph cg = new CausalGraph(A);
 		
-		HashMap<Atomic,Term> s = new HashMap<Atomic,Term>();
+		HashMap<Term,Term> s = new HashMap<Term,Term>();
 //		s.put(v1, Term.Constant("a"));
 		
 		CausalGraphHeuristic fdh = new CausalGraphHeuristic(DTGs, cg, tM);
@@ -430,15 +428,15 @@ public class TestCausalGraph extends TestCase {
 	}
 	
 	public void testCostUnknownValue() {
-		Atomic v1 = new Atomic("(sv1)");
+		Term v1 = Term.parse("(sv1)");
 			
 		tM.addSimpleEnumType("sv1_t", "a,b");
 		tM.attachTypes("(sv1)=sv1_t");
 		tM.attachTypes("(setSV1 sv1_t)");
 		
 		StateVariableOperator o1 = new StateVariableOperator();
-		o1.setName(new Atomic("(setSV1 ?X)"));
-		o1.getEffects().put(new Atomic("sv1"), Term.createVariable("?X"));
+		o1.setName(Term.parse("(setSV1 ?X)"));
+		o1.getEffects().put(Term.parse("sv1"), Term.createVariable("?X"));
 	
 		ArrayList<StateVariableOperator> A = new ArrayList<StateVariableOperator>();
 		
@@ -446,12 +444,12 @@ public class TestCausalGraph extends TestCase {
 		
 		DomainTransitionGraph dtgSV1 = new DomainTransitionGraph(v1, A, tM);
 		
-		HashMap<Atomic,DomainTransitionGraph> DTGs = new HashMap<Atomic, DomainTransitionGraph>();
+		HashMap<Term,DomainTransitionGraph> DTGs = new HashMap<Term, DomainTransitionGraph>();
 		DTGs.put(v1, dtgSV1);
 		
 		CausalGraph cg = new CausalGraph(A);
 		
-		HashMap<Atomic,Term> s = new HashMap<Atomic,Term>();
+		HashMap<Term,Term> s = new HashMap<Term,Term>();
 //		s.put(v1, Term.Constant("a"));
 		
 		CausalGraphHeuristic fdh = new CausalGraphHeuristic(DTGs, cg, tM);
@@ -487,29 +485,29 @@ public class TestCausalGraph extends TestCase {
 		tM.attachTypes("(light match)=boolean");
 		
 		StateVariableOperator o1 = new StateVariableOperator();
-		o1.setName(new Atomic("(LightMatch ?M)"));
+		o1.setName(Term.parse("(LightMatch ?M)"));
 		o1.getPreconditions().putAll(SimpleParsing.createMap("(unused ?M)<-true"));
 		o1.getEffects().putAll(SimpleParsing.createMap("(unused ?M)<-false;(light ?M)<-true"));
 	
 		StateVariableOperator o2 = new StateVariableOperator();
-		o2.setName(new Atomic("(MendFuse ?F ?M)"));
-		o2.getPreconditions().put(new Atomic("(light ?M)"), Term.createConstant("true"));
-		o2.getEffects().put(new Atomic("(mended ?F)"), Term.createConstant("true"));
+		o2.setName(Term.parse("(MendFuse ?F ?M)"));
+		o2.getPreconditions().put(Term.parse("(light ?M)"), Term.createConstant("true"));
+		o2.getEffects().put(Term.parse("(mended ?F)"), Term.createConstant("true"));
 		
 		ArrayList<StateVariableOperator> A = new ArrayList<StateVariableOperator>();
 		
 		A.addAll( o1.getAllGround(tM));
 		A.addAll( o2.getAllGround(tM));
 			
-		HashMap<Atomic,Term> s0 = new HashMap<Atomic,Term>();
-		s0.put(new Atomic("(unused match0)"), Term.createConstant("true"));
-		s0.put(new Atomic("(unused match1)"), Term.createConstant("true"));
-		s0.put(new Atomic("(unused match2)"), Term.createConstant("true"));
+		HashMap<Term,Term> s0 = new HashMap<Term,Term>();
+		s0.put(Term.parse("(unused match0)"), Term.createConstant("true"));
+		s0.put(Term.parse("(unused match1)"), Term.createConstant("true"));
+		s0.put(Term.parse("(unused match2)"), Term.createConstant("true"));
 		
 		ArrayList<Goal> g = new ArrayList<Goal>();
-		g.add(new SingleGoal(new Atomic("(mended fuse0)"), Term.createConstant("true")));
-		g.add(new SingleGoal(new Atomic("(mended fuse1)"), Term.createConstant("true")));
-		g.add(new SingleGoal(new Atomic("(mended fuse2)"), Term.createConstant("true")));
+		g.add(new SingleGoal(Term.parse("(mended fuse0)"), Term.createConstant("true")));
+		g.add(new SingleGoal(Term.parse("(mended fuse1)"), Term.createConstant("true")));
+		g.add(new SingleGoal(Term.parse("(mended fuse2)"), Term.createConstant("true")));
 		
 		CausalGraphHeuristic fdh = new CausalGraphHeuristic();
 		
@@ -520,15 +518,15 @@ public class TestCausalGraph extends TestCase {
 	
 	
 	public void testCostNoPreviousValueUsingGoalAndState() {	
-		Atomic v1 = new Atomic("(sv1)");
+		Term v1 = Term.parse("(sv1)");
 				
 		tM.addSimpleEnumType("sv1_t", "a,b");
 		tM.attachTypes("(sv1)=sv1_t");
 		tM.attachTypes("(setSV1 sv1_t)");
 		
 		StateVariableOperator o1 = new StateVariableOperator();
-		o1.setName(new Atomic("(setSV1 ?X)"));
-		o1.getEffects().put(new Atomic("(sv1)"), Term.createVariable("?X"));
+		o1.setName(Term.parse("(setSV1 ?X)"));
+		o1.getEffects().put(Term.parse("(sv1)"), Term.createVariable("?X"));
 	
 		ArrayList<StateVariableOperator> A = new ArrayList<StateVariableOperator>();
 		
@@ -536,12 +534,12 @@ public class TestCausalGraph extends TestCase {
 		
 		DomainTransitionGraph dtgSV1 = new DomainTransitionGraph(v1, A, tM);
 		
-		HashMap<Atomic,DomainTransitionGraph> DTGs = new HashMap<Atomic, DomainTransitionGraph>();
+		HashMap<Term,DomainTransitionGraph> DTGs = new HashMap<Term, DomainTransitionGraph>();
 		DTGs.put(v1, dtgSV1);
 			
 		CausalGraph cg = new CausalGraph(A);
 		
-		HashMap<Atomic,Term> s = new HashMap<Atomic,Term>();
+		HashMap<Term,Term> s = new HashMap<Term,Term>();
 		
 		ArrayList<Goal> g = new ArrayList<Goal>();
 		g.add(new SingleGoal(v1, Term.createConstant("b")));
@@ -568,7 +566,7 @@ public class TestCausalGraph extends TestCase {
 		tM.attachTypes("(passengerAt person)=location");
 		tM.attachTypes("(reachable floor elevator)=boolean");
 		
-		tM.updateTypeDomains();
+//		tM.updateTypeDomains();
 			
 		StateVariableOperator o1 = SimpleParsing.createSVO("(Move ?E ?F1 ?F2)" +
 									"<p>(liftAt ?E)<-?F1;(reachable ?F2 ?E)<-true" +
@@ -589,7 +587,7 @@ public class TestCausalGraph extends TestCase {
 		O.add( o3 );
 		
 		
-		Map<Atomic,Term> s0 = SimpleParsing.createMap(
+		Map<Term,Term> s0 = SimpleParsing.createMap(
 				"(passengerAt p1)<-f4;" +
 				"(passengerAt p2)<-f4;" +
 				"(liftAt e1)<-f0;" +
@@ -600,12 +598,12 @@ public class TestCausalGraph extends TestCase {
 				"(reachable f4 e1)<-true");
 
 
-		Map<Atomic,Term> gParsed = SimpleParsing.createMap(
+		Map<Term,Term> gParsed = SimpleParsing.createMap(
 				"(passengerAt p1)<-f0;" +
 				"(passengerAt p2)<-f0");
 		
 		ArrayList<Goal> g = new ArrayList<Goal>();
-		for ( Entry<Atomic,Term> goal : gParsed.entrySet() ) {
+		for ( Entry<Term,Term> goal : gParsed.entrySet() ) {
 			g.add( new SingleGoal( goal.getKey(), goal.getValue() ));
 		}
 		
@@ -636,7 +634,7 @@ public class TestCausalGraph extends TestCase {
 		tM.attachTypes("(passengerAt person)=location");
 		tM.attachTypes("(reachable floor elevator)=boolean");
 		
-		tM.updateTypeDomains();
+//		tM.updateTypeDomains();
 			
 		StateVariableOperator o1 = SimpleParsing.createSVO("(Move ?E ?F1 ?F2)" +
 									"<p>(liftAt ?E)<-?F1;(reachable ?F2 ?E)<-true" +
@@ -650,7 +648,7 @@ public class TestCausalGraph extends TestCase {
 									"<p>(liftAt ?E)<-?F;(passengerAt ?P)<-?E" +
 									"<e>(passengerAt ?P)<-?F");
 	
-		Map<Atomic,Term> s0 = SimpleParsing.createMap(
+		Map<Term,Term> s0 = SimpleParsing.createMap(
 				"(passengerAt p1)<-f4;" +
 				"(liftAt slow0)<-f0;" +
 				"(liftAt slow1)<-f3;" +
@@ -669,14 +667,14 @@ public class TestCausalGraph extends TestCase {
 		
 		Collection<StateVariableOperator> A = CausalReasoningTools.getAllSVOActions(s0, O, tM);
 	
-		Map<Atomic,Term> gParsed = SimpleParsing.createMap(
+		Map<Term,Term> gParsed = SimpleParsing.createMap(
 				"(passengerAt p1)<-f0");
 							
 		
 		CausalGraphHeuristic fdh = new CausalGraphHeuristic();
 		
 		ArrayList<Goal> g = new ArrayList<Goal>();
-		for ( Entry<Atomic,Term> goal : gParsed.entrySet() ) {
+		for ( Entry<Term,Term> goal : gParsed.entrySet() ) {
 			g.add( new SingleGoal( goal.getKey(), goal.getValue() ));
 		}
 		
@@ -703,7 +701,7 @@ public class TestCausalGraph extends TestCase {
 		tM.attachTypes("(passengerAt person)=location");
 		tM.attachTypes("(reachable floor elevator)=boolean");
 		
-		tM.updateTypeDomains();
+//		tM.updateTypeDomains();
 			
 		StateVariableOperator o1 = SimpleParsing.createSVO("(Move ?E ?F1 ?F2)" +
 									"<p>(liftAt ?E)<-?F1;(reachable ?F2 ?E)<-true" +
@@ -717,7 +715,7 @@ public class TestCausalGraph extends TestCase {
 									"<p>(liftAt ?E)<-?F;(passengerAt ?P)<-?E" +
 									"<e>(passengerAt ?P)<-?F");
 	
-		Map<Atomic,Term> s0 = SimpleParsing.createMap(
+		Map<Term,Term> s0 = SimpleParsing.createMap(
 				"(passengerAt p1)<-f4;" +
 				"(liftAt slow0)<-f0;" +
 				"(liftAt slow1)<-f3;" +
@@ -739,11 +737,11 @@ public class TestCausalGraph extends TestCase {
 		
 		Collection<StateVariableOperator> A = CausalReasoningTools.getAllSVOActions(s0, O, tM);
 	
-		Map<Atomic,Term> gParsed = SimpleParsing.createMap(
+		Map<Term,Term> gParsed = SimpleParsing.createMap(
 				"(passengerAt p1)<-f0");
 							
 		ArrayList<Goal> g = new ArrayList<Goal>();
-		for ( Entry<Atomic,Term> goal : gParsed.entrySet() ) {
+		for ( Entry<Term,Term> goal : gParsed.entrySet() ) {
 			g.add( new SingleGoal( goal.getKey(), goal.getValue() ));
 		}
 		
@@ -771,7 +769,7 @@ public class TestCausalGraph extends TestCase {
 		tM.attachTypes("(passengerAt person)=location");
 		tM.attachTypes("(reachable floor elevator)=boolean");
 		
-		tM.updateTypeDomains();
+//		tM.updateTypeDomains();
 			
 		StateVariableOperator o1 = SimpleParsing.createSVO("(Move ?E ?F1 ?F2)" +
 									"<p>(liftAt ?E)<-?F1;(reachable ?F2 ?E)<-true" +
@@ -785,7 +783,7 @@ public class TestCausalGraph extends TestCase {
 									"<p>(liftAt ?E)<-?F;(passengerAt ?P)<-?E" +
 									"<e>(passengerAt ?P)<-?F");
 	
-		Map<Atomic,Term> s0 = SimpleParsing.createMap(
+		Map<Term,Term> s0 = SimpleParsing.createMap(
 				"(passengerAt p1)<-f5;" +
 				"(liftAt slow0)<-f0;" +
 				"(liftAt slow1)<-f2;" +
@@ -811,10 +809,10 @@ public class TestCausalGraph extends TestCase {
 		
 		Collection<StateVariableOperator> A = CausalReasoningTools.getAllSVOActions(s0, O, tM);
 	
-		Map<Atomic,Term> gParsed = SimpleParsing.createMap("(passengerAt p1)<-f0");
+		Map<Term,Term> gParsed = SimpleParsing.createMap("(passengerAt p1)<-f0");
 							
 		ArrayList<Goal> g = new ArrayList<Goal>();
-		for ( Entry<Atomic,Term> goal : gParsed.entrySet() ) {
+		for ( Entry<Term,Term> goal : gParsed.entrySet() ) {
 			g.add( new SingleGoal( goal.getKey(), goal.getValue() ));
 		}
 		
@@ -841,9 +839,7 @@ public class TestCausalGraph extends TestCase {
 		tM.attachTypes("(liftAt elevator)=floor");
 		tM.attachTypes("(passengerAt person)=location");
 		tM.attachTypes("(reachable floor elevator)=boolean");
-		
-		tM.updateTypeDomains();
-			
+					
 		StateVariableOperator o1 = SimpleParsing.createSVO("(Move ?E ?F1 ?F2)" +
 									"<p>(liftAt ?E)<-?F1;(reachable ?F2 ?E)<-true" +
 									"<e>(liftAt ?E)<-?F2");
@@ -856,7 +852,7 @@ public class TestCausalGraph extends TestCase {
 									"<p>(liftAt ?E)<-?F;(passengerAt ?P)<-?E" +
 									"<e>(passengerAt ?P)<-?F");
 	
-		Map<Atomic,Term> s0 = SimpleParsing.createMap(
+		Map<Term,Term> s0 = SimpleParsing.createMap(
 				"(passengerAt p1)<-f5;" +
 				"(liftAt slow0)<-f0;" +
 				"(liftAt slow1)<-f2;" +
@@ -879,10 +875,10 @@ public class TestCausalGraph extends TestCase {
 		
 		Collection<StateVariableOperator> A = CausalReasoningTools.getAllSVOActions(s0, O, tM);
 			
-		Map<Atomic,Term> gParsed = SimpleParsing.createMap(
+		Map<Term,Term> gParsed = SimpleParsing.createMap(
 				"(passengerAt p1)<-f0");
 		ArrayList<Goal> g = new ArrayList<Goal>();
-		for ( Entry<Atomic,Term> goal : gParsed.entrySet() ) {
+		for ( Entry<Term,Term> goal : gParsed.entrySet() ) {
 			g.add( new SingleGoal( goal.getKey(), goal.getValue() ));
 		}
 		

@@ -1,82 +1,61 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.modules;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.spiderplan.executor.ExecutionManager;
 import org.spiderplan.executor.Reactor;
-import org.spiderplan.executor.ReactorObservation;
-import org.spiderplan.executor.ReactorRandomSimulation;
-import org.spiderplan.executor.ReactorSoundPlaySpeech;
 import org.spiderplan.executor.ROS.ROSExecutionManager;
-import org.spiderplan.executor.ROS.ROSProxy;
-import org.spiderplan.executor.ROS.ReactorROS;
-//import org.spiderplan.executor.database.DatabaseExecutionManager;
-import org.spiderplan.executor.simulation.ReactorPerfectSimulation;
+import org.spiderplan.executor.observation.ObservationExecutionManager;
 import org.spiderplan.executor.simulation.SimulationExecutionManager;
+import org.spiderplan.executor.sockets.SocketExecutionManager;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Core.State;
-import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ValueLookup;
-import org.spiderplan.representation.expressions.ExpressionTypes.ROSRelation;
-import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
-import org.spiderplan.representation.expressions.causal.OpenGoal;
-import org.spiderplan.representation.expressions.domain.Substitution;
+import org.spiderplan.representation.expressions.execution.Observation;
 import org.spiderplan.representation.expressions.execution.Simulation;
-//import org.spiderplan.representation.expressions.execution.database.DatabaseExecutionExpression;
+import org.spiderplan.representation.expressions.execution.caresses.CaressesExpression;
 import org.spiderplan.representation.expressions.execution.ros.ROSConstraint;
 import org.spiderplan.representation.expressions.execution.ros.ROSGoal;
 import org.spiderplan.representation.expressions.execution.ros.ROSRegisterAction;
-import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
-import org.spiderplan.representation.expressions.misc.Asserted;
-import org.spiderplan.representation.expressions.programs.IncludedProgram;
-import org.spiderplan.representation.expressions.sampling.SamplingConstraint;
+import org.spiderplan.representation.expressions.execution.sockets.SocketExpression;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
-import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
-import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
-import org.spiderplan.tools.UniqueID;
+import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.logging.Logger;
-import org.spiderplan.tools.statistics.Statistics;
-import org.spiderplan.tools.stopWatch.StopWatch;
 import org.spiderplan.tools.visulization.timeLineViewer.TimeLineViewer;
 
 /**
@@ -84,10 +63,8 @@ import org.spiderplan.tools.visulization.timeLineViewer.TimeLineViewer;
  * 
  * TODO: simulation constraints on release not firing?	
  * TODO: constraints to enable forgetting for statements
- * TODO: interface for connecting to outside (ROS, PEIS, Simulation, Ecare)
  * 
  * @author Uwe Köckemann
- * 
  */
 public class ExecutionModuleMK2  extends Module {
 
@@ -112,15 +89,15 @@ public class ExecutionModuleMK2  extends Module {
 	
 	TypeManager tM;
 
-	Atomic tHorizon = new Atomic("time");
+	Term tHorizon = Term.createConstant("time");
 	
 	Statement past = new Statement(Term.createConstant("past"), tHorizon, Term.createConstant("past") );
 	Statement future = new Statement(Term.createConstant("future"), tHorizon, Term.createConstant("future") );
 	
-	AllenConstraint rPast = new AllenConstraint(new Atomic("(release past (interval 0 0))"));
-	AllenConstraint mPastFuture = new AllenConstraint(new Atomic("(meets past future)"));
-	AllenConstraint dFuture = new AllenConstraint(new Atomic("(deadline future (interval "+(tMax-1)+" "+(tMax-1)+"))"));
-	AllenConstraint rFuture = new AllenConstraint(new Atomic("(deadline past (interval 1 1)"));
+	AllenConstraint rPast = new AllenConstraint( Term.parse("(release past (interval 0 0))"));
+	AllenConstraint mPastFuture = new AllenConstraint( Term.parse("(meets past future)"));
+	AllenConstraint dFuture = new AllenConstraint( Term.parse("(deadline future (interval "+(tMax-1)+" "+(tMax-1)+"))"));
+	AllenConstraint rFuture = new AllenConstraint( Term.parse("(deadline past (interval 1 1)"));
 	AllenConstraint mFuture;
 	
 //	private Map<Statement,Collection<Expression>> addedConstraints = new HashMap<Statement, Collection<Expression>>();
@@ -146,6 +123,8 @@ public class ExecutionModuleMK2  extends Module {
 	
 	List<ExecutionManager> managerList = new ArrayList<ExecutionManager>();
 	
+	List<String> execModuleNames = new ArrayList<String>();
+	
 	/**
 	 * Create new instance by providing name and configuration manager.
 	 * @param name The name of this {@link Module}
@@ -159,10 +138,57 @@ public class ExecutionModuleMK2  extends Module {
 			this.repairSolver = ModuleFactory.initModule( this.repairSolverName , cM );
 		}
 		
-//		if ( cM.hasAttribute(name, "fromScratchSolver") ) {
-//			this.fromScratchSolverName = cM.getString(this.getName(), "fromScratchSolver" );
-//			this.fromScratchSolver = ModuleFactory.initModule( this.fromScratchSolverName, cM );
-//		}
+		if ( cM.hasAttribute(name, "modules") ) {
+			try {
+				this.execModuleNames = cM.getStringList(name, "modules");
+				
+				for ( String moduleClassStr : this.execModuleNames ) {
+					Class sClass = Class.forName("java.lang.String");
+					Class cdbClass = Class.forName("org.spiderplan.representation.ConstraintDatabase");
+					
+					Class moduleClass = null;
+					boolean foundClass = false;
+					
+		//			// Try default location of modules
+		//			try {
+		//				moduleClass = Class.forName("org.spiderplan.modules."+moduleClassStr);
+		//				foundClass = true;
+		//			} catch ( ClassNotFoundException e ) { }	// We still got options:
+		//			// Try external module 
+		//			if ( !foundClass ) {
+					moduleClass = Class.forName(moduleClassStr);
+		//			}
+					@SuppressWarnings("unchecked")
+					Constructor c = moduleClass.getConstructor(sClass);
+					ExecutionManager m = (ExecutionManager)c.newInstance(name);
+				
+					this.managerList.add(m);
+				}
+			
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			Loop.start();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+			Loop.start();	
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+			Loop.start();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+			Loop.start();
+		} catch (InvocationTargetException e) {
+			e.getTargetException().printStackTrace();
+			e.printStackTrace();
+			Loop.start();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			Loop.start();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+			Loop.start();
+		} 
+		}
 	}
 	
 	@Override
@@ -176,6 +202,7 @@ public class ExecutionModuleMK2  extends Module {
 		this.initialContext = core.getContext().copy();
 		
 		PlanningInterval pI = core.getContext().getUnique(PlanningInterval.class);
+//		DateTimeReference timeRef = core.getContext().getUnique(DateTimeReference.class);
 		
 		this.t0 = 0;
 		
@@ -185,10 +212,10 @@ public class ExecutionModuleMK2  extends Module {
 		this.tM = core.getTypeManager();
 		this.O = core.getOperators();
 		
-		rPast = new AllenConstraint(new Atomic("(release past (interval 0 0))"));
-		mPastFuture = new AllenConstraint(new Atomic("(meets past future)"));
-		dFuture = new AllenConstraint(new Atomic("(deadline future (interval "+(tMax-1)+" "+(tMax-1)+"))"));
-		rFuture = new AllenConstraint(new Atomic("(deadline past (interval 1 1)"));
+		rPast = new AllenConstraint(Term.parse("(release past (interval 0 0))"));
+		mPastFuture = new AllenConstraint(Term.parse("(meets past future)"));
+		dFuture = new AllenConstraint(Term.parse("(deadline future (interval "+(tMax-1)+" "+(tMax-1)+"))"));
+		rFuture = new AllenConstraint(Term.parse("(deadline past (interval 1 1)"));
 				
 		/*
 		 * Add some new type, statements and constraints about progress of time
@@ -207,10 +234,14 @@ public class ExecutionModuleMK2  extends Module {
 		execDB.add(mPastFuture);
 		execDB.add(dFuture);
 		
-//		testCore.setTypeManager(tM);
-//		testCore.setOperators(core.getOperators());
-//		testCore.getContext().add(core.getContext().getUnique(Plan.class).copy());
+		// Initialize externally specified managers
+		for ( ExecutionManager eM : this.managerList ) {
+			eM.setVerbose(verbose);
+			eM.setVerbosity(verbosity);
+			eM.initialize(execDB);
+		}
 		
+		// Check if default managers are needed
 		if ( !execDB.get(ROSConstraint.class).isEmpty()
 				|| !execDB.get(ROSGoal.class).isEmpty()
 				|| !execDB.get(ROSRegisterAction.class).isEmpty() ) {
@@ -229,6 +260,23 @@ public class ExecutionModuleMK2  extends Module {
 			simManager.initialize(execDB);
 			managerList.add(simManager);
 		}
+		if ( !execDB.get(SocketExpression.class).isEmpty() ) {
+			if ( verbose ) Logger.msg(getName(), "Found socket expression. Initializing SocketExecutionManager.", 1);
+			ExecutionManager socketManager = new SocketExecutionManager(this.getName());
+			socketManager.setVerbose(this.verbose);
+			socketManager.setVerbosity(verbosity);
+			socketManager.initialize(execDB);
+			managerList.add(socketManager);
+		}
+		if ( !execDB.get(Observation.class).isEmpty() ) {
+			if ( verbose ) Logger.msg(getName(), "Found observation expression. Initializing ObservationExecutionManager.", 1);
+			ExecutionManager observationManager = new ObservationExecutionManager(this.getName());
+			observationManager.setVerbose(this.verbose);
+			observationManager.setVerbosity(verbosity);
+			observationManager.initialize(execDB);
+			managerList.add(observationManager);
+		}
+
 		// Removed from master because feature is not ready
 		/*if ( !execDB.get(DatabaseExecutionExpression.class).isEmpty() ) {
 			if ( verbose ) Logger.msg(getName(), "Found database execution expressions. Initializing DatabaseExecutionManager.", 1);
@@ -268,7 +316,7 @@ public class ExecutionModuleMK2  extends Module {
 		if ( verbose ) Logger.landmarkMsg(this.getName() + "@t=" + t);
 						
 		execDB.remove(rFuture);
-		rFuture = new AllenConstraint(new Atomic("(deadline past (interval "+(t)+" "+(t)+"))"));
+		rFuture = new AllenConstraint(Term.parse("(deadline past (interval "+(t)+" "+(t)+"))"));
 		execDB.add(rFuture);
 		
 		/************************************************************************************************
@@ -296,10 +344,12 @@ public class ExecutionModuleMK2  extends Module {
 		if ( !firstUpdate ) { 
 			for ( ExecutionManager em : managerList ) {
 				em.update(t, execDB);	
+				//TODO: Statements can be added that are used later but without having been propagated...
+				// Might be best to only consider current information for all exec. managers?
+				// + The order is arbitrary... so they should ignore each others additions... but how to make sure?
 			}			
 		}
 		
-		System.out.println(execDB.get(Statement.class));
 						
 		/************************************************************************************************
 		 * Forget past
@@ -323,17 +373,19 @@ public class ExecutionModuleMK2  extends Module {
 					String tName = s.getVariable().toString();
 					String value = s.getValue().toString(); 
 					Term id = s.getKey();
-
-					long[] bounds = execDB.getUnique(ValueLookup.class).getBoundsArray(id);
 					
-					if ( ! timeLineViewer.hasTrack(tName) ) {
-						timeLineViewer.createTrack(tName);
+					if ( execDB.getUnique(ValueLookup.class).hasInterval(id) ) {
+						long[] bounds = execDB.getUnique(ValueLookup.class).getBoundsArray(id);
+						
+						if ( ! timeLineViewer.hasTrack(tName) ) {
+							timeLineViewer.createTrack(tName);
+						}
+						if ( ! timeLineViewer.hasValue(id.toString()) ) {
+							timeLineViewer.createValue(tName, value, id.toString(), (int)bounds[0], (int)bounds[2]);
+						} else {
+							timeLineViewer.updateValue(id.toString(), (int)bounds[0], (int)bounds[2]);
+						}		
 					}
-					if ( ! timeLineViewer.hasValue(id.toString()) ) {
-						timeLineViewer.createValue(tName, value, id.toString(), (int)bounds[0], (int)bounds[2]);
-					} else {
-						timeLineViewer.updateValue(id.toString(), (int)bounds[0], (int)bounds[2]);
-					}		
 				} catch ( NullPointerException e ) {
 					e.printStackTrace();
 				}

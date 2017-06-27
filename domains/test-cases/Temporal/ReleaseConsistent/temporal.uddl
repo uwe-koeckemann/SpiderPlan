@@ -1,0 +1,14 @@
+(:initial-context
+	(:domain
+		(sig x boolean)	;; x is a variable with a boolean value
+	)
+	(:statement 
+		(I1 x)			;; x is true during interval I1
+	)
+	(:temporal
+		(planning-interval [0 100])
+		(release I1 [0 40])				
+		(release I1 [20 70])				
+		(release I1 [35 55])				
+	)
+)

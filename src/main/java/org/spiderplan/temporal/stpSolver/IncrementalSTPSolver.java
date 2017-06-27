@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.temporal.stpSolver;
 
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PossibleIntersection;
 import org.spiderplan.representation.expressions.temporal.SimpleDistanceConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
@@ -100,13 +98,24 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 		this.H = horizon;
 		reset();
 	}
+	
+	/**
+	 * Check a Constraint Database for temporal consistency. 
+	 * @param cdb Constraint database
+	 * @return <code>true</code> if simple temporal network resulting of all constraints is consistent.
+	 */
+	public boolean isConsistent( ConstraintDatabase cdb ) {
+		return this.isConsistent(cdb.get(Statement.class), cdb.get(AllenConstraint.class), cdb.get(SimpleDistanceConstraint.class));
+	}
 		
 	/**
 	 * Test temporal consistency of a constraint-database
-	 * @param cDB the constraint database
+	 * @param S Statements
+	 * @param AC Quantified Allen interval constraints
+	 * @param SDC Simple distance constraints
 	 * @return <code>true</code> if the CDB is consistent, <code>false</code> otherwise
 	 */
-	public boolean isConsistent( ConstraintDatabase cDB ) {
+	public boolean isConsistent( List<Statement> S, List<AllenConstraint> AC, List<SimpleDistanceConstraint> SDC ) {
 		propagationRequired = false;
 		usedRevert = false;
 		
@@ -125,7 +134,7 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 				
 				if ( !dHistory.isEmpty() ) {
 					while ( revertToIndex >= 0) {
-						beginIndex = this.getFirstNewIndex(revertToIndex, cDB);
+						beginIndex = this.getFirstNewIndex(revertToIndex, S, AC, SDC);
 						if ( beginIndex != null ) {
 							break;
 						}
@@ -162,15 +171,15 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 					} 
 				}
 				
-				newStatements = cDB.get(Statement.class).subList(beginIndex.get(0), cDB.get(Statement.class).size());
-				newAllenConstraints = cDB.get(AllenConstraint.class).subList(beginIndex.get(1), cDB.get(AllenConstraint.class).size());
-				newSimpleDistanceConstraints = cDB.get(SimpleDistanceConstraint.class).subList(beginIndex.get(2), cDB.get(SimpleDistanceConstraint.class).size());
+				newStatements = S.subList(beginIndex.get(0), S.size());
+				newAllenConstraints = AC.subList(beginIndex.get(1), AC.size());
+				newSimpleDistanceConstraints = SDC.subList(beginIndex.get(2), SDC.size());
 			} else {
 				if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (quadratic)");				
 				
-				List<Statement> cdbStatements = cDB.get(Statement.class);				
-				List<AllenConstraint> cdbAllenConstraints = cDB.get(AllenConstraint.class);
-				List<SimpleDistanceConstraint> cdbSimpleDistanceConstraints = cDB.get(SimpleDistanceConstraint.class);
+//				List<Statement> cdbStatements = cDB.get(Statement.class);				
+//				List<AllenConstraint> cdbAllenConstraints = cDB.get(AllenConstraint.class);
+//				List<SimpleDistanceConstraint> cdbSimpleDistanceConstraints = cDB.get(SimpleDistanceConstraint.class);
 								
 				revertToIndex = dHistory.size()-1;
 		
@@ -180,8 +189,8 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 						List<Statement> statementsFromHistory = addedStatementsHistory.get(revertToIndex);
 						List<AllenConstraint> allenConstraintsFromHistory = addedAllenConstraintsHistory.get(revertToIndex);
 						
-						boolean good = cdbStatements.containsAll(statementsFromHistory);
-						good &= cdbAllenConstraints.containsAll(allenConstraintsFromHistory);
+						boolean good = S.containsAll(statementsFromHistory);
+						good &= AC.containsAll(allenConstraintsFromHistory);
 						
 						if ( good ) {
 							break;
@@ -201,9 +210,9 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 					newAllenConstraints = new ArrayList<AllenConstraint>();
 					newSimpleDistanceConstraints = new ArrayList<SimpleDistanceConstraint>();
 					
-					newStatements.addAll(cdbStatements);
-					newAllenConstraints.addAll(cdbAllenConstraints);	
-					newSimpleDistanceConstraints.addAll(cdbSimpleDistanceConstraints);				
+					newStatements.addAll(S);
+					newAllenConstraints.addAll(AC);	
+					newSimpleDistanceConstraints.addAll(SDC);				
 				} else {
 					needFromScratch = false;
 					
@@ -216,7 +225,7 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 										
 						if ( keepTimes ) StopWatch.stop("[incSTP] 1-a) Reverting");
 					}
-					if ( cdbStatements.size() == addedStatementsHistory.get(revertToIndex).size() && cdbAllenConstraints.size() == addedAllenConstraintsHistory.get(revertToIndex).size() ) {
+					if ( S.size() == addedStatementsHistory.get(revertToIndex).size() && AC.size() == addedAllenConstraintsHistory.get(revertToIndex).size() ) {
 						// nothing new
 						propagationRequired = false;
 						newStatements = new ArrayList<Statement>();
@@ -228,9 +237,9 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 						newAllenConstraints = new ArrayList<AllenConstraint>();
 						newSimpleDistanceConstraints = new ArrayList<SimpleDistanceConstraint>();
 						
-						newStatements.addAll(cdbStatements);
-						newAllenConstraints.addAll(cdbAllenConstraints);
-						newSimpleDistanceConstraints.addAll(cdbSimpleDistanceConstraints);
+						newStatements.addAll(S);
+						newAllenConstraints.addAll(AC);
+						newSimpleDistanceConstraints.addAll(SDC);
 						
 						newStatements.removeAll(addedStatementsHistory.get(revertToIndex));
 						newAllenConstraints.removeAll(addedAllenConstraintsHistory.get(revertToIndex));
@@ -239,17 +248,17 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 				}
 			}
 		} else {
-			List<Statement> cdbStatements = cDB.get(Statement.class);				
-			List<AllenConstraint> cdbAllenConstraints = cDB.get(AllenConstraint.class);
-			List<SimpleDistanceConstraint> cdbSimpleDistanceConstraints = cDB.get(SimpleDistanceConstraint.class);
+//			List<Statement> cdbStatements = cDB.get(Statement.class);				
+//			List<AllenConstraint> cdbAllenConstraints = cDB.get(AllenConstraint.class);
+//			List<SimpleDistanceConstraint> cdbSimpleDistanceConstraints = cDB.get(SimpleDistanceConstraint.class);
 			
 			newStatements = new ArrayList<Statement>();
 			newAllenConstraints = new ArrayList<AllenConstraint>();
 			newSimpleDistanceConstraints = new ArrayList<SimpleDistanceConstraint>();
 			
-			newStatements.addAll(cdbStatements);
-			newAllenConstraints.addAll(cdbAllenConstraints);
-			newSimpleDistanceConstraints.addAll(cdbSimpleDistanceConstraints);
+			newStatements.addAll(S);
+			newAllenConstraints.addAll(AC);
+			newSimpleDistanceConstraints.addAll(SDC);
 		}
 		
 		
@@ -815,41 +824,41 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 		return r;
 	}
 
-	private List<Integer> getFirstNewIndex( int n, ConstraintDatabase cdb ) {		
+	private List<Integer> getFirstNewIndex( int n, List<Statement> S, List<AllenConstraint> AC, List<SimpleDistanceConstraint> SDC ) {		
 		List<Integer> r = new ArrayList<Integer>();
 
-		List<Statement> S2 = cdb.get(Statement.class);
+//		List<Statement> S2 = S;
 		
-		if ( addedStatementsHistory.get(n).size() > S2.size() ) {
+		if ( addedStatementsHistory.get(n).size() > S.size() ) {
 			return null;
 		}
 		
 		for ( int i = 0 ; i < addedStatementsHistory.get(n).size() ; i++ ) {
-			if ( !addedStatementsHistory.get(n).get(i).equals(S2.get(i)) ) {
+			if ( !addedStatementsHistory.get(n).get(i).equals(S.get(i)) ) {
 				return null;
 			}
 		}
 		
-		List<AllenConstraint> AC2 = cdb.get(AllenConstraint.class);
+//		List<AllenConstraint> AC2 = AC;
 		
-		if ( addedAllenConstraintsHistory.get(n).size() > AC2.size() ) {
+		if ( addedAllenConstraintsHistory.get(n).size() > AC.size() ) {
 			return null;
 		}
 		
 		for ( int i = 0 ; i < addedAllenConstraintsHistory.get(n).size() ; i++ ) {
-			if ( !addedAllenConstraintsHistory.get(n).get(i).equals(AC2.get(i)) ) {
+			if ( !addedAllenConstraintsHistory.get(n).get(i).equals(AC.get(i)) ) {
 				return null;
 			}
 		}
 		
-		List<SimpleDistanceConstraint> SDC2 = cdb.get(SimpleDistanceConstraint.class);
+//		List<SimpleDistanceConstraint> SDC2 = SDC;
 		
-		if ( addedSimpleDistanceConstraintsHistory.get(n).size() > SDC2.size() ) {
+		if ( addedSimpleDistanceConstraintsHistory.get(n).size() > SDC.size() ) {
 			return null;
 		}
 		
 		for ( int i = 0 ; i < addedSimpleDistanceConstraintsHistory.get(n).size() ; i++ ) {
-			if ( !addedSimpleDistanceConstraintsHistory.get(n).get(i).equals(SDC2.get(i)) ) {
+			if ( !addedSimpleDistanceConstraintsHistory.get(n).get(i).equals(SDC.get(i)) ) {
 				return null;
 			}
 		}
@@ -1148,8 +1157,8 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 	public ArrayList<Statement> getTemporalSnapshot( long t ) {
 		ArrayList<Statement> r = new ArrayList<Statement>();
 		
-		Map<Atomic,Long> estLookup = new HashMap<Atomic, Long>();
-		Map<Atomic,Statement> choiceLookup = new HashMap<Atomic, Statement>();
+		Map<Term,Long> estLookup = new HashMap<Term, Long>();
+		Map<Term,Statement> choiceLookup = new HashMap<Term, Statement>();
 		
 		for ( Statement s : this.addedStatements ) {
 			
@@ -1186,8 +1195,8 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 	public ArrayList<Statement> getTemporalSnapshotWithFuture( long t ) {
 		ArrayList<Statement> r = new ArrayList<Statement>();
 		
-		Map<Atomic,Long> estLookup = new HashMap<Atomic, Long>();
-		Map<Atomic,Statement> choiceLookup = new HashMap<Atomic, Statement>();
+		Map<Term,Long> estLookup = new HashMap<Term, Long>();
+		Map<Term,Statement> choiceLookup = new HashMap<Term, Statement>();
 		
 		for ( Statement s : this.addedStatements ) {
 			

@@ -1,0 +1,22 @@
+(:initial-context
+	(:domain
+		(sig x boolean)
+		(sig y boolean)
+		(sig z boolean)
+	)
+	(:statement 
+		(I1 x)
+		(I2 y)
+		(I3 z)
+	)
+	(:temporal
+		(planning-interval [0 100])
+		(duration I1 [10 10])
+		(duration I2 [10 10])
+		(duration I3 [10 10])
+		(overlaps I1 I2 [2 10])			
+		(overlapped-by I2 I1 [5 8])			
+		(overlaps I2 I3 [1 10])			
+		(overlapped-by I3 I2 [5 inf])			
+	)
+)

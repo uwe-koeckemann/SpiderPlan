@@ -1,38 +1,33 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.expressions.temporal;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.spiderplan.representation.expressions.ExpressionTypes;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
 /**
@@ -70,43 +65,14 @@ public class PossibleIntersection extends Expression implements Substitutable {
 	 
 	@Override
 	public boolean isSubstitutable() { return true; }
-
+	
 	@Override
-	public Collection<Term> getVariableTerms() {
-		ArrayList<Term> r = new ArrayList<Term>();
-		for (Term t : intervals) {
-			if (t.isVariable()) {
-				r.add(t);
-			}
+	public void getAllTerms(Collection<Term> collectedTerms, boolean getConstants, boolean getVariables, boolean getComplex) {
+		super.type.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		for ( Term t : this.intervals )  {
+			t.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
 		}
-		return r;
 	}
-
-	@Override
-	public Collection<Term> getGroundTerms() {
-		Set<Term> r = new HashSet<Term>();
-		for (Term t : intervals) {
-			if (t.isGround())
-				r.add(t);
-		}
-		return r;
-	}
-
-	@Override
-	public Collection<Atomic> getAtomics() {
-		return new ArrayList<Atomic>();
-	}
-
-//	@Override
-//	public Constraint copy() {
-//		ArrayList<Term> intervalsCopy = new ArrayList<Term>();
-//		for (Term v : this.intervals) {
-//			intervalsCopy.add(v);
-//		}
-//		PossibleIntersection c = new PossibleIntersection();
-//		c.intervals = intervalsCopy;
-//		return c;
-//	}
 
 	@Override
 	public boolean equals(Object o) {

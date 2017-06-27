@@ -1,0 +1,11 @@
+ConstraintDatabase resultCDB = resultCore.getContext();
+ValueLookup valueLookup = resultCDB.getUnique(ValueLookup.class);
+assertTrue(resultCDB.contains(new AllenConstraint(Term.createConstant("I1"), Term.createConstant("I2"), TemporalRelation.Before, new Interval(Term.createInteger(1), Term.createConstant("inf")))));
+assertTrue(valueLookup.getEST(Term.createConstant("I1")) == 0);
+assertTrue(valueLookup.getLST(Term.createConstant("I1")) == 59);
+assertTrue(valueLookup.getEET(Term.createConstant("I1")) == 20);
+assertTrue(valueLookup.getLET(Term.createConstant("I1")) == 79);
+assertTrue(valueLookup.getEST(Term.createConstant("I2")) == 21);
+assertTrue(valueLookup.getLST(Term.createConstant("I2")) == 80);
+assertTrue(valueLookup.getEET(Term.createConstant("I2")) == 41);
+assertTrue(valueLookup.getLET(Term.createConstant("I2")) == 100);

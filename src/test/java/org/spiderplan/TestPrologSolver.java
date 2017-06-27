@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan;
 
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.ExecuteSystemCommand;
@@ -69,7 +67,7 @@ public class TestPrologSolver extends TestCase {
 			ConstraintDatabase s = new ConstraintDatabase();
 			s.add(new IncludedProgram(bkbName,"good(a)."));
 			s.add(new IncludedProgram(bkbName,"good(b)."));
-			s.add(new PrologConstraint(new Atomic("(good ?X)"), bkbName));
+			s.add(new PrologConstraint(Term.parse("(good ?X)"), bkbName));
 			
 			Core core = new Core();
 			core.setContext(s);
@@ -97,9 +95,9 @@ public class TestPrologSolver extends TestCase {
 			kb.add(new IncludedProgram(bkbName, "s(b)."));
 			kb.add(new IncludedProgram(bkbName, "p(A) :- s(A)."));
 			
-			q.add(new PrologConstraint(new Atomic("(s ?A)"), bkbName));
-			q.add(new PrologConstraint(new Atomic("(t ?A)"), bkbName));
-			q.add(new PrologConstraint(new Atomic("(p ?B)"), bkbName));
+			q.add(new PrologConstraint(Term.parse("(s ?A)"), bkbName));
+			q.add(new PrologConstraint(Term.parse("(t ?A)"), bkbName));
+			q.add(new PrologConstraint(Term.parse("(p ?B)"), bkbName));
 			
 			YapPrologAdapter p = new YapPrologAdapter();
 			
@@ -132,9 +130,9 @@ public class TestPrologSolver extends TestCase {
 			kb.add(new IncludedProgram(bkbName, "s(b)."));
 			kb.add(new IncludedProgram(bkbName, "p(c)."));
 			
-			q.add(new PrologConstraint(new Atomic("(s ?A)"), bkbName));
-			q.add(new PrologConstraint(new Atomic("(t ?A)"), bkbName));
-			q.add(new PrologConstraint(new Atomic("(p ?A)"), bkbName));
+			q.add(new PrologConstraint(Term.parse("(s ?A)"), bkbName));
+			q.add(new PrologConstraint(Term.parse("(t ?A)"), bkbName));
+			q.add(new PrologConstraint(Term.parse("(p ?A)"), bkbName));
 			
 			YapPrologAdapter p = new YapPrologAdapter();
 			
@@ -153,9 +151,9 @@ public class TestPrologSolver extends TestCase {
 			kb.add(new IncludedProgram(bkbName, "s(b)."));
 			kb.add(new IncludedProgram(bkbName, "p(A) :- s(A)."));
 			
-			q.add(new PrologConstraint(new Atomic("(s a)"), bkbName));
-			q.add(new PrologConstraint(new Atomic("(t a)"), bkbName));
-			q.add(new PrologConstraint(new Atomic("(p b)"), bkbName));
+			q.add(new PrologConstraint(Term.parse("(s a)"), bkbName));
+			q.add(new PrologConstraint(Term.parse("(t a)"), bkbName));
+			q.add(new PrologConstraint(Term.parse("(p b)"), bkbName));
 			
 			YapPrologAdapter p = new YapPrologAdapter();
 			
@@ -174,9 +172,9 @@ public class TestPrologSolver extends TestCase {
 			kb.add(new IncludedProgram(bkbName, "s(b)."));
 			kb.add(new IncludedProgram(bkbName, "p(A) :- s(A)."));
 			
-			q.add(new PrologConstraint(new Atomic("(s a)"), bkbName));
-			q.add(new PrologConstraint(new Atomic("(t a)"), bkbName));
-			q.add(new PrologConstraint(new Atomic("(p z)"), bkbName));
+			q.add(new PrologConstraint(Term.parse("(s a)"), bkbName));
+			q.add(new PrologConstraint(Term.parse("(t a)"), bkbName));
+			q.add(new PrologConstraint(Term.parse("(p z)"), bkbName));
 			
 			YapPrologAdapter p = new YapPrologAdapter();
 			

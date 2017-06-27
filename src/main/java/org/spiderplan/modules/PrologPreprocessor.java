@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.modules;
 
 import java.util.HashMap;
@@ -49,6 +48,8 @@ import org.spiderplan.tools.stopWatch.StopWatch;
  * <p> 
  * <b>Note:</b> This works under the assumption that the Prolog programs provided as {@link IncludedProgram}s
  * will not change.  
+ * 
+ * TODO: Bug when KB empty (not treated as empty Prolog KB?)
  *  
  * @author Uwe Köckemann
  */
@@ -102,12 +103,24 @@ public class PrologPreprocessor extends Module {
 			Logger.msg(getName(), "Background knowledge (asserted Prolog constraint): ", 2);
 		}
 		for ( PrologConstraint rC : core.getContext().get(PrologConstraint.class)) {
-			if ( !programIDs.contains(rC.getProgramID())) {
-				programIDs.add(rC.getProgramID());
-				conCollection.put(rC.getProgramID(), new ConstraintDatabase());
+			if ( !programIDs.contains(rC.getSubProblemID())) {
+				programIDs.add(rC.getSubProblemID());
+				conCollection.put(rC.getSubProblemID(), new ConstraintDatabase());
 			}
 			if ( rC.isAsserted() ) {
-				conCollection.get(rC.getProgramID()).add(rC);
+				conCollection.get(rC.getSubProblemID()).add(rC);
+			}
+		}
+		
+		for ( Operator o : core.getOperators() ) {
+			for ( PrologConstraint rC : o.getConstraints().get(PrologConstraint.class)) {
+				if ( !programIDs.contains(rC.getSubProblemID())) {
+					programIDs.add(rC.getSubProblemID());
+					conCollection.put(rC.getSubProblemID(), new ConstraintDatabase());
+				}
+				if ( rC.isAsserted() ) {
+					conCollection.get(rC.getSubProblemID()).add(rC);
+				}
 			}
 		}
 		
@@ -122,12 +135,9 @@ public class PrologPreprocessor extends Module {
 			}
 			conCollection.get(programID).add(pC);
 		}
-		
-//		ArrayList<Atomic> extendedB = new ArrayList<Atomic>();
-//		extendedB.addAll(yappy.saturateConstraints( core.getOperators(), conCollection, core.getTypeManager() ) );
-		
+
 		int numBefore = core.getOperators().size();
-		
+
 		for ( Term programID : programIDs ) {
 			if ( keepTimes ) StopWatch.start(msg("Preprocessing operators"));
 			yappy.saturateConstraints( core.getOperators(), conCollection.get(programID), programID, core.getTypeManager() );

@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.causal.forwardPlanning;
 
 import java.util.ArrayList;
@@ -42,7 +41,6 @@ import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Resolver;
 import org.spiderplan.modules.solvers.ResolverIterator;
-import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
@@ -52,9 +50,7 @@ import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.causal.DiscardedPlan;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.domain.VariableDomainRestriction;
-import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.plans.SequentialPlan;
@@ -92,7 +88,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 	
 	boolean multiEffectSupport = true;
 
-	Map<Atomic,List<Term>> s0;
+	Map<Term,List<Term>> s0;
 	ArrayList<Goal> g;
 
 	int prunedByExternalModules = 0;
@@ -271,14 +267,14 @@ public class ForwardPlanningIterator extends ResolverIterator {
 								
 			
 			if ( verbosity >= 3 ) {
-				HashMap<Atomic,List<Term>> resultingState = new HashMap<Atomic, List<Term>>(); 
+				HashMap<Term,List<Term>> resultingState = new HashMap<Term, List<Term>>(); 
 				resultingState.putAll(fdn.s);
 				if ( fdn.a != null ) {
 					resultingState.putAll(fdn.a.getEffects());
 				}
 				
 				super.print("Resulting state:", 3);
-				for ( Atomic k : resultingState.keySet()) {
+				for ( Term k : resultingState.keySet()) {
 					super.print("    " + k + " -> " + resultingState.get(k) ,3);
 				}
 			}
@@ -512,7 +508,8 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			r = applyPlan.next(C);
 			
 			for ( OpenGoal og : this.G ) {
-				r.getConstraintDatabase().add(new Asserted(og));
+//				r.getConstraintDatabase().add(new Asserted(og));
+				r.getConstraintDatabase().add(og.getAssertion());
 				r.getConstraintDatabase().add(og.getStatement());
 			}
 			
@@ -575,10 +572,10 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			}
 		}
 		
-		s0 = new HashMap<Atomic,List<Term>>(); 
-		Map<Atomic,Long> sEST = new HashMap<Atomic,Long>();
-		Map<Atomic,String> sESTargmax = new HashMap<Atomic,String>();
-		Map<Atomic,Statement> argmax = new HashMap<Atomic,Statement>();
+		s0 = new HashMap<Term,List<Term>>(); 
+		Map<Term,Long> sEST = new HashMap<Term,Long>();
+		Map<Term,String> sESTargmax = new HashMap<Term,String>();
+		Map<Term,Statement> argmax = new HashMap<Term,Statement>();
 		
 		ValueLookup tiLookup = initDB.getUnique(ValueLookup.class); 
 		
@@ -614,7 +611,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		
 		if ( verbose ) {
 			print("Initial state:", 2);
-			for ( Atomic k : s0.keySet() ) {
+			for ( Term k : s0.keySet() ) {
 				super.print("    " + k + " <- " + s0.get(k).toString().replace(",", " -> "), 2);
 			}
 		}
@@ -649,7 +646,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 					}
 				}
 				
-				Atomic var = s.getVariable();
+				Term var = s.getVariable();
 				SingleGoal goal = new SingleGoal( var, s.getValue());
 				
 				singleGoals.add( goal );
@@ -783,7 +780,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			}
 		}
 										
-		HashMap<Atomic,Collection<Term>> sReachableValues = new HashMap<Atomic, Collection<Term>>();
+		HashMap<Term,Collection<Term>> sReachableValues = new HashMap<Term, Collection<Term>>();
 		
 		for ( Statement s : initDB.get(Statement.class) ) {
 			if ( !goalStatements.contains(s) && usedVars.contains(s.getVariable().getUniqueName()) ) {
@@ -961,7 +958,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 				}
 				checkList.add(svo);
 				
-				for ( Entry<Atomic,List<Term>> e : svo.getEffects().entrySet() ) {
+				for ( Entry<Term,List<Term>> e : svo.getEffects().entrySet() ) {
 					if ( !sReachableValues.containsKey(e.getKey()) ) {
 						sReachableValues.put( e.getKey() , new HashSet<Term>() );
 					}
@@ -978,7 +975,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		
 		if ( verbose ) {
 			print("Reachable state:", 2);
-			for ( Atomic k : sReachableValues.keySet() ) {
+			for ( Term k : sReachableValues.keySet() ) {
 				super.print("    " + k + " <- " + sReachableValues.get(k), 2);
 			}
 		}
@@ -1013,10 +1010,10 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		if ( verbose ) super.print("Removing operators that cannot contribute to goals...", 1);
 		
 		List<StateVariableOperatorMultiState> filteredA = new ArrayList<StateVariableOperatorMultiState>();
-		Map<Atomic,List<Term>> possibleSubGoals = new HashMap<Atomic,List<Term>>();
+		Map<Term,List<Term>> possibleSubGoals = new HashMap<Term,List<Term>>();
 		for ( Goal goal : g ) {
 			for ( SingleGoal sg : goal.getSingleGoals() ) {
-				Atomic var = sg.getVariable();
+				Term var = sg.getVariable();
 				Term val = sg.getValue();
 				if ( !possibleSubGoals.keySet().contains(var) ) {
 					possibleSubGoals.put(var, new ArrayList<Term>());
@@ -1031,7 +1028,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			
 			for ( StateVariableOperatorMultiState a : A ) {
 				
-				for ( Atomic e_key : a.getEffects().keySet() ) {
+				for ( Term e_key : a.getEffects().keySet() ) {
 					List<Term> values = possibleSubGoals.get(e_key); 
 					if ( values != null ) {
 						for ( Term e_value : a.getEffects().get(e_key) ) {
@@ -1040,7 +1037,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 								filteredA.add(a);
 								change = true;
 								
-								for ( Atomic p_key : a.getPreconditions().keySet() ) {
+								for ( Term p_key : a.getPreconditions().keySet() ) {
 									if ( !possibleSubGoals.keySet().contains(p_key) ) {
 										possibleSubGoals.put(p_key, new ArrayList<Term>());
 									}

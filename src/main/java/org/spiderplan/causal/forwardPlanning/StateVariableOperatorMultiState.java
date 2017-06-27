@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.causal.forwardPlanning;
 
 import java.util.ArrayList;
@@ -31,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.spiderplan.representation.expressions.domain.Substitution;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.Type;
 import org.spiderplan.representation.types.TypeManager;
@@ -49,10 +47,10 @@ import org.spiderplan.tools.GenericComboBuilder;
  */
 public class StateVariableOperatorMultiState {
 
-	private Atomic name;
+	private Term name;
 	
-	private Map<Atomic,Term> preconditions = new HashMap<Atomic, Term>(); 
-	private Map<Atomic,List<Term>> effects = new HashMap<Atomic, List<Term>>();
+	private Map<Term,Term> preconditions = new HashMap<Term, Term>(); 
+	private Map<Term,List<Term>> effects = new HashMap<Term, List<Term>>();
 	
 	private Substitution theta = new Substitution();
 	
@@ -60,7 +58,7 @@ public class StateVariableOperatorMultiState {
 	 * Get the name of the operator.
 	 * @return the name
 	 */
-	public Atomic getName() {
+	public Term getName() {
 		return name;
 	}
 	
@@ -68,7 +66,7 @@ public class StateVariableOperatorMultiState {
 	 * Set the name of the operator.
 	 * @param name the name
 	 */
-	public void setName(Atomic name) {
+	public void setName(Term name) {
 		this.name = name;
 	}
 	
@@ -92,7 +90,7 @@ public class StateVariableOperatorMultiState {
 	 * Get the preconditions that need to be fulfilled to apply this operator.
 	 * @return map from state-variables to values representing the preconditions
 	 */
-	public Map<Atomic,Term> getPreconditions() {
+	public Map<Term,Term> getPreconditions() {
 		return preconditions;
 	}
 	
@@ -100,7 +98,7 @@ public class StateVariableOperatorMultiState {
 	 * Get the effects of applying this operator.
 	 * @return map from state-variables to sequences of values representing the effects
 	 */
-	public Map<Atomic,List<Term>> getEffects() {
+	public Map<Term,List<Term>> getEffects() {
 		return effects;
 	}	
 	
@@ -190,7 +188,7 @@ public class StateVariableOperatorMultiState {
 	 * @param tM type manager
 	 * @return substitutions of this operator that are applicable to the given state 
 	 */
-	public Collection<StateVariableOperatorMultiState> getApplicablePartialGroundFromMultiState ( HashMap<Atomic,Collection<Term>> s, TypeManager tM ) {
+	public Collection<StateVariableOperatorMultiState> getApplicablePartialGroundFromMultiState ( HashMap<Term,Collection<Term>> s, TypeManager tM ) {
 		Collection<StateVariableOperatorMultiState> r = new ArrayList<StateVariableOperatorMultiState>();
 		
 		/**
@@ -208,20 +206,20 @@ public class StateVariableOperatorMultiState {
 			realTypeLookUp.put( this.name.getArg(i), tM.getPredicateTypes(this.name.getUniqueName(), i) );
 		}
 		
-		ArrayList<ArrayList<Substitution>> matchingSubs = new ArrayList<ArrayList<Substitution>>();
+		List<List<Substitution>> matchingSubs = new ArrayList<List<Substitution>>();
 		
-		ArrayList<Atomic> preSVs = new ArrayList<Atomic>();
+		ArrayList<Term> preSVs = new ArrayList<Term>();
 		preSVs.addAll(this.preconditions.keySet());
 		for ( int i = 0 ; i < preSVs.size() ; i++ ) {
 			matchingSubs.add( new ArrayList<Substitution>() );
 			
-			Atomic preSV = preSVs.get(i);
+			Term preSV = preSVs.get(i);
 			
 			
 			
 			Term preVal = this.preconditions.get(preSV);
 			
-			for ( Atomic sv : s.keySet() ) {
+			for ( Term sv : s.keySet() ) {
 				Substitution theta = preSV.match(sv);
 						
 				if ( theta != null ) {
@@ -230,12 +228,12 @@ public class StateVariableOperatorMultiState {
 					/**
 					 * Check if assigned values are really in domain and discard if not.
 					 */
-					Atomic nameCopy = this.getName().substitute(theta);
+					Term nameCopy = this.getName().substitute(theta);
 					
 					for ( int j = 0 ; j < nameCopy.getNumArgs() ; j++ ) {
 						Term t = nameCopy.getArg(j);
 						if ( t.isGround() ) {
-							if ( !tM.getPredicateTypes( nameCopy.getUniqueName(), j).contains(t) ) {
+							if ( !tM.getPredicateTypes( nameCopy.getUniqueName(), j).contains(t, tM) ) {
 								working = false;
 								break;
 							}
@@ -260,7 +258,7 @@ public class StateVariableOperatorMultiState {
 		
 		GenericComboBuilder<Substitution> cB = new GenericComboBuilder<Substitution>();
 	
-		ArrayList<ArrayList<Substitution>> combos = cB.getCombos(matchingSubs);
+		List<List<Substitution>> combos = cB.getCombos(matchingSubs);
 		
 //		if ( combos.size() > 37000 ) {
 //			System.out.println(s);
@@ -276,7 +274,7 @@ public class StateVariableOperatorMultiState {
 //			throw new IllegalStateException();
 //		}
 		
-		for ( ArrayList<Substitution> combo : combos ) {
+		for ( List<Substitution> combo : combos ) {
 			Substitution theta = new Substitution();
 			
 			/**
@@ -303,7 +301,7 @@ public class StateVariableOperatorMultiState {
 				for ( int i = 0 ; i < svoCopy.getName().getNumArgs() ; i++ ) {
 					Term t = svoCopy.getName().getArg(i);
 					if ( t.isGround() ) {
-						if ( !tM.getPredicateTypes( svoCopy.getName().getUniqueName(), i).contains(t) ) {
+						if ( !tM.getPredicateTypes( svoCopy.getName().getUniqueName(), i).contains(t, tM) ) {
 							working = false;
 							break;
 						}
@@ -383,21 +381,21 @@ public class StateVariableOperatorMultiState {
 	 * @param theta substitution
 	 */
 	public void substitute( Substitution theta ) {
-		HashMap<Atomic,Term> newPre = new HashMap<Atomic, Term>();
-		HashMap<Atomic,List<Term>> newEff = new HashMap<Atomic, List<Term>>();
+		HashMap<Term,Term> newPre = new HashMap<Term, Term>();
+		HashMap<Term,List<Term>> newEff = new HashMap<Term, List<Term>>();
 
 		this.name = this.name.substitute(theta);
 		
-		for ( Atomic a : this.preconditions.keySet() ) {
-			Atomic varSub = a.substitute(theta);
+		for ( Term a : this.preconditions.keySet() ) {
+			Term varSub = a.substitute(theta);
 			Term valSub = this.preconditions.get(a);
 			valSub = valSub.substitute(theta);
 
 			newPre.put(varSub, valSub);
 		}
 		
-		for ( Atomic a : this.effects.keySet() ) {
-			Atomic varSub = a.substitute(theta);
+		for ( Term a : this.effects.keySet() ) {
+			Term varSub = a.substitute(theta);
 			List<Term> effCopy = new ArrayList<Term>();
 			for ( Term e : this.effects.get(a) ) {
 				Term newEffTerm = e;
@@ -423,19 +421,19 @@ public class StateVariableOperatorMultiState {
 	 * @return a copy
 	 */
 	public StateVariableOperatorMultiState copy() {
-		HashMap<Atomic,Term> newPre = new HashMap<Atomic, Term>();
-		HashMap<Atomic,List<Term>> newEff = new HashMap<Atomic, List<Term>>();
+		HashMap<Term,Term> newPre = new HashMap<Term, Term>();
+		HashMap<Term,List<Term>> newEff = new HashMap<Term, List<Term>>();
 		
 		StateVariableOperatorMultiState c = new StateVariableOperatorMultiState();
 		
 		c.setName(this.name);
 		
-		for ( Atomic a : this.preconditions.keySet() ) {
+		for ( Term a : this.preconditions.keySet() ) {
 			Term valSub = this.preconditions.get(a);
 			newPre.put(a, valSub);
 		}
 		
-		for ( Atomic a : this.effects.keySet() ) {
+		for ( Term a : this.effects.keySet() ) {
 			List<Term> effCopy = new ArrayList<Term>();
 			for ( Term e : this.effects.get(a) ) {
 				Term newEffTerm = e.substitute(theta);
@@ -494,11 +492,11 @@ public class StateVariableOperatorMultiState {
 		r += "Preconditions: \n";
 		
 		ArrayList<String> preOrdered = new ArrayList<String>();
-		for ( Atomic v : this.preconditions.keySet() ) {
+		for ( Term v : this.preconditions.keySet() ) {
 			preOrdered.add(v.toString() + " <- " + preconditions.get(v));
 		}
 		ArrayList<String> effOrdered = new ArrayList<String>();
-		for ( Atomic v : this.effects.keySet() ) {
+		for ( Term v : this.effects.keySet() ) {
 			effOrdered.add(v.toString() + " <- " + effects.get(v));
 		}
 		Collections.sort(preOrdered);
@@ -537,18 +535,18 @@ public class StateVariableOperatorMultiState {
 	 * @return
 	 */
 	private boolean isCompatibleSubstitution( Substitution theta ) {
-		HashSet<Atomic> varSet = new HashSet<Atomic>();
+		HashSet<Term> varSet = new HashSet<Term>();
 		
-		for ( Atomic a : this.preconditions.keySet() ) {
-			Atomic c = a.substitute(theta);
+		for ( Term a : this.preconditions.keySet() ) {
+			Term c = a.substitute(theta);
 			if ( varSet.contains(c) ) {
 				return false;
 			}
 			varSet.add(c);
 		}
-		varSet = new HashSet<Atomic>();
-		for ( Atomic a : this.effects.keySet() ) {
-			Atomic c = a.substitute(theta);
+		varSet = new HashSet<Term>();
+		for ( Term a : this.effects.keySet() ) {
+			Term c = a.substitute(theta);
 			if ( varSet.contains(c) ) {
 				return false;
 			}

@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.causal.forwardPlanning;
 
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
@@ -56,8 +54,8 @@ import org.spiderplan.tools.stopWatch.StopWatch;
  */
 public class CommonDataStructures {
 	
-	private Map<Map<Atomic,Term>,Map<Object,Long>> hadd_cost = new HashMap<Map<Atomic,Term>,Map<Object,Long>>();
-	private Map<Map<Atomic,Term>,Set<StateVariableOperator>> app = new HashMap<Map<Atomic,Term>,Set<StateVariableOperator>>();
+	private Map<Map<Term,Term>,Map<Object,Long>> hadd_cost = new HashMap<Map<Term,Term>,Map<Object,Long>>();
+	private Map<Map<Term,Term>,Set<StateVariableOperator>> app = new HashMap<Map<Term,Term>,Set<StateVariableOperator>>();
 	
 	private Collection<StateVariableOperator> O;
 	
@@ -77,7 +75,7 @@ public class CommonDataStructures {
 	 * @param s state
 	 * @return lookup for cost to apply actions and reach preconditions (keys are operator names and state-variables)
 	 */
-	public Map<Object,Long> getActionCosts( Map<Atomic,Term> s ) {
+	public Map<Object,Long> getActionCosts( Map<Term,Term> s ) {
 		Map<Object,Long> cost = this.hadd_cost.get(s);
 		if ( cost != null ) {
 			return cost;
@@ -98,7 +96,7 @@ public class CommonDataStructures {
 			if ( a.getPreconditions().isEmpty() ) {
 				update.add(a);
 			}
-			for ( Entry<Atomic,Term> pre : a.getPreconditions().entrySet() ) {
+			for ( Entry<Term,Term> pre : a.getPreconditions().entrySet() ) {
 				List<StateVariableOperator> list = effToPreMap.get(pre);
 				if ( list == null ) {
 					list = new ArrayList<StateVariableOperator>();
@@ -108,7 +106,7 @@ public class CommonDataStructures {
 			}
 		}
 		
-		for ( Entry<Atomic,Term> p : s.entrySet() ) {
+		for ( Entry<Term,Term> p : s.entrySet() ) {
 			cost.put(p, Long.valueOf(0));
 			List<StateVariableOperator> list = effToPreMap.get(p);
 			if ( list != null ) {
@@ -122,7 +120,7 @@ public class CommonDataStructures {
 			a = update.poll();
 		
 			long c = 0;
-			for ( Entry<Atomic,Term> pre : a.getPreconditions().entrySet() ) {
+			for ( Entry<Term,Term> pre : a.getPreconditions().entrySet() ) {
 				lookUpcost = cost.get(pre);
 				if ( lookUpcost == null ) {
 					c = Long.MAX_VALUE;
@@ -139,7 +137,7 @@ public class CommonDataStructures {
 				if ( c == 0 ) {
 					app.add(a);
 				}
-				for ( Entry<Atomic,Term> eff : a.getEffects().entrySet() ) {
+				for ( Entry<Term,Term> eff : a.getEffects().entrySet() ) {
 					lookUpcost = cost.get(eff);
 					if ( lookUpcost == null || c + 1 < lookUpcost ) {
 						cost.put(eff, c + 1 );
@@ -165,12 +163,12 @@ public class CommonDataStructures {
 	 * Get cost map of a sequential state by taking the minimal costs of all combinations
 	 * of regular states.
 	 * @param sSeq A sequential state.
-	 * @return A map from {@link Object}s ({@link Atomic} action names or Entry<Atomic,Term> state value pairs) to {@link Long} costs
+	 * @return A map from {@link Object}s ({@link Term} action names or Entry<Atomic,Term> state value pairs) to {@link Long} costs
 	 */
-	public Map<Object,Long> getActionCostsOfSequentialState( Map<Atomic,List<Term>> sSeq ) {
+	public Map<Object,Long> getActionCostsOfSequentialState( Map<Term,List<Term>> sSeq ) {
 		Map<Object,Long> cost = new HashMap<Object, Long>();
 		
-		for ( Map<Atomic,Term> s : SequentialStateFunctions.getAllStateCombos(sSeq) ) {
+		for ( Map<Term,Term> s : SequentialStateFunctions.getAllStateCombos(sSeq) ) {
 			StopWatch.start("Action Costs");
 			Map<Object,Long> s_cost = this.getActionCosts(s);
 			

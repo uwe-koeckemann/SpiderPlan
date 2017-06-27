@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.causal.forwardPlanning.fastForward;
 
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ import org.spiderplan.causal.forwardPlanning.Heuristic;
 import org.spiderplan.causal.forwardPlanning.StateVariableOperator;
 import org.spiderplan.causal.forwardPlanning.goals.Goal;
 import org.spiderplan.causal.forwardPlanning.goals.SingleGoal;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.stopWatch.StopWatch;
@@ -56,7 +54,7 @@ public class FastForwardHeuristic implements Heuristic {
 	
 	private ArrayList<EarliestLayerOperator> A;
 	private ArrayList<EarliestLayerSVA> g;
-	private HashMap<Entry<Atomic,Term>, EarliestLayerSVA> sEarliestMap;
+	private HashMap<Entry<Term,Term>, EarliestLayerSVA> sEarliestMap;
 	
 	private Map<SingleGoal,Long> lastHeuristicValues = new HashMap<SingleGoal,Long>();
 	
@@ -69,14 +67,14 @@ public class FastForwardHeuristic implements Heuristic {
 		this.tM = tM;
 		
 		this.A = new ArrayList<EarliestLayerOperator>();
-		sEarliestMap = new HashMap<Map.Entry<Atomic,Term>, EarliestLayerSVA>();
+		sEarliestMap = new HashMap<Map.Entry<Term,Term>, EarliestLayerSVA>();
 		
 		for ( StateVariableOperator a_orig : A_orig ) {
 			EarliestLayerOperator a = new EarliestLayerOperator();
 			
 			a.name = a_orig.getName();
 			
-			for ( Entry<Atomic,Term> p : a_orig.getPreconditions().entrySet() ) {
+			for ( Entry<Term,Term> p : a_orig.getPreconditions().entrySet() ) {
 				EarliestLayerSVA pEarliset = sEarliestMap.get(p);
 				if ( pEarliset == null ) {
 					pEarliset = new EarliestLayerSVA(p);
@@ -86,7 +84,7 @@ public class FastForwardHeuristic implements Heuristic {
 				a.preconditions.add(pEarliset);				
 			}
 			
-			for ( Entry<Atomic,Term> e : a_orig.getEffects().entrySet() ) {
+			for ( Entry<Term,Term> e : a_orig.getEffects().entrySet() ) {
 				EarliestLayerSVA eEarliset = sEarliestMap.get(e);
 				if ( eEarliset == null ) {
 					eEarliset = new EarliestLayerSVA(e);
@@ -115,11 +113,11 @@ public class FastForwardHeuristic implements Heuristic {
 	}
 	
 	@Override
-	public long calculateHeuristicValue(Map<Atomic, Term> s, Collection<Goal> g, CommonDataStructures dStructs ) {
+	public long calculateHeuristicValue(Map<Term, Term> s, Collection<Goal> g, CommonDataStructures dStructs ) {
 		this.g = new ArrayList<EarliestLayerSVA>();
 		
 		for( Goal goal : g ) {
-			for ( Entry<Atomic,Term> entry : goal.getEntries() ) {
+			for ( Entry<Term,Term> entry : goal.getEntries() ) {
 				if ( sEarliestMap.get(entry) == null ) {
 					System.err.println("got null goal for " + entry);	
 				}
@@ -145,7 +143,7 @@ public class FastForwardHeuristic implements Heuristic {
 			a.earliestLayer = -1;
 		}
 		
-		for ( Entry<Atomic,Term> e : s.entrySet() ) {
+		for ( Entry<Term,Term> e : s.entrySet() ) {
 			EarliestLayerSVA sva = sEarliestMap.get(e);
 			if ( sva == null ) {
 				sva = new EarliestLayerSVA(e);

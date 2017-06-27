@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan;
 
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ import org.spiderplan.representation.expressions.ExpressionTypes.DomainRelation;
 import org.spiderplan.representation.expressions.domain.NewObject;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.domain.VariableDomainRestriction;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import junit.framework.TestCase;
@@ -122,8 +120,8 @@ public class TestDomainSolver extends TestCase {
 		tM.addSimpleEnumType("boolean","true,false");
 		tM.attachTypes("(q t)");								// q has type t
 		
-		context.add(new Statement(Term.createConstant("k1"), new Atomic("(q ?X)"), Term.createConstant("true")));		// should become b beause:	
-		context.add(new Statement(Term.createConstant("k2"), new Atomic("(q a)"), Term.createConstant("true")));		// a is used already
+		context.add(new Statement(Term.createConstant("k1"), Term.parse("(q ?X)"), Term.createConstant("true")));		// should become b beause:	
+		context.add(new Statement(Term.createConstant("k2"), Term.parse("(q a)"), Term.createConstant("true")));		// a is used already
 		
 		/**
 		 * Setup Modules
@@ -176,9 +174,9 @@ public class TestDomainSolver extends TestCase {
 		tM.attachTypes("(q t)");								// q has type t
 		tM.attachTypes("(p t2)");								// p has type t2
 		
-		context.add(new Statement(Term.createConstant("k1"), new Atomic("(q ?X)"), Term.createConstant("true")));		// should become b because:	
-		context.add(new Statement(Term.createConstant("k2"), new Atomic("(q a)"), Term.createConstant("true")));		// a is used already
-		context.add(new Statement(Term.createConstant("k3"), new Atomic("(p b)"), Term.createConstant("true")));		// b is used by p (but from different type so it should be okay)
+		context.add(new Statement(Term.createConstant("k1"), Term.parse("(q ?X)"), Term.createConstant("true")));		// should become b because:	
+		context.add(new Statement(Term.createConstant("k2"), Term.parse("(q a)"), Term.createConstant("true")));		// a is used already
+		context.add(new Statement(Term.createConstant("k3"), Term.parse("(p b)"), Term.createConstant("true")));		// b is used by p (but from different type so it should be okay)
 		
 		/**
 		 * Setup Modules

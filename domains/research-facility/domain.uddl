@@ -338,6 +338,7 @@
 
 (:operator
 	(move ?R - robot ?L1 - location ?L2 - location)
+	(:signature robot location location)
 	(:preconditions
 		( ?P1 (at ?R) ?L1 )
 	)
@@ -359,6 +360,7 @@
 )
 (:operator
   (pick-up ?R - robot ?O - object ?C - objectClass ?L - location)
+  (:signature robot object objectClass location)
 	(:preconditions
 		( ?P1 (at ?R) ?L )
 		( ?P2 (objectState ?O ?C) ?L )
@@ -382,6 +384,7 @@
 )
 (:operator
 	(deliver ?R - robot ?O - object ?C - objectClass ?L - location )
+	(:signature robot object objectClass location )
 	(:preconditions
 		( ?P1 (at ?R) ?L )
 		( ?P2 (objectState ?O ?C) ?R )
@@ -400,6 +403,7 @@
 )
 (:operator 
 	(do ?R - robot ?T - setID ?C - taskClass ?L - location)
+	(:signature robot setID taskClass location)
 	(:preconditions
 		( ?P1 (at ?R) ?L )
 		( ?P2 (state ?T ?C ?L) idle )
@@ -421,6 +425,7 @@
 )
 (:operator 
 	(do-assist ?R - robot ?H - human ?T - setID ?C - taskClass ?L - location)
+	(:signature robot human setID taskClass location)
 	(:preconditions
 		( ?P1 (at ?R) ?L )
 		( ?P2 (state ?T ?H ?C ?L) idle )
@@ -442,6 +447,7 @@
 )
 (:operator
 	(schedule-meeting ?T - setID  ?S - setID  ?L - location)
+	(:signature setID  setID  location)
 	(:preconditions
 		( ?P1 (requestState ?T ?S meeting) pending )
 		( ?P2 (activity ?S meeting) )

@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.causal.forwardPlanning.goals;
 
 import java.util.Collection;
@@ -27,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
 
@@ -68,16 +66,16 @@ public interface Goal {
 	public boolean requirementsSatisfied();
 	/**
 	 * Check if this {@link Goal} is reached in a state.
-	 * @param state Map of {@link Atomic} variables to value {@link Term}s representing a state.
+	 * @param state Map of {@link Term} variables to value {@link Term}s representing a state.
 	 * @return <i>true</i> if {@link Goal} is reached in state, <i>false</i> otherwise.
 	 */
-	public boolean reachedInState( Map<Atomic,Term> state );
+	public boolean reachedInState( Map<Term,Term> state );
 	/**
 	 * Check if this {@link Goal} is reached in a multi-state.
-	 * @param state Map of {@link Atomic} variables to lists of value {@link Term}s representing a multi-state.
+	 * @param state Map of {@link Term} variables to lists of value {@link Term}s representing a multi-state.
 	 * @return <i>true</i> if {@link Goal} is reached in state, <i>false</i> otherwise.
 	 */
-	public boolean reachedInMultiState( Map<Atomic,List<Term>> state );  
+	public boolean reachedInMultiState( Map<Term,List<Term>> state );  
 	/**
 	 * Set this {@link Goal}'s reached state.
 	 * @param reached <i>true</i> if goal has been reached, <i>false</i> otherwise.
@@ -110,11 +108,11 @@ public interface Goal {
 	public void setLandmark(  boolean isLandmark );
 	
 	/**
-	 * Get a {@link Collection} of all {@link Atomic} variable and value {@link Term} pairs in 
+	 * Get a {@link Collection} of all {@link Term} variable and value {@link Term} pairs in 
 	 * this {@link Goal} (without requirements.
-	 * @return {@link Collection} of {@link Entry} objects with an {@link Atomic} variable and a value {@link Term}.
+	 * @return {@link Collection} of {@link Entry} objects with an {@link Term} variable and a value {@link Term}.
 	 */
-	public Collection<Entry<Atomic,Term>> getEntries();	
+	public Collection<Entry<Term,Term>> getEntries();	
 	
 	/**
 	 * Return copy of this goal (without requirements)

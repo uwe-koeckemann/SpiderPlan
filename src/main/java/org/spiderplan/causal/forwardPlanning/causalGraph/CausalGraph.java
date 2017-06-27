@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.causal.forwardPlanning.causalGraph;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.spiderplan.causal.forwardPlanning.StateVariableOperator;
-import org.spiderplan.representation.logic.Atomic;
+import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.GraphTools;
 import org.spiderplan.tools.visulization.GraphFrame;
 
@@ -53,25 +52,25 @@ import edu.uci.ics.jung.graph.Graph;
  */
 public class CausalGraph {
 	
-	private DirectedSparseMultigraph<Atomic, String> g;
-	private ArrayList<Atomic> totalOrder;
+	private DirectedSparseMultigraph<Term, String> g;
+	private ArrayList<Term> totalOrder;
 	
 	/**
 	 * Create causal graph from a set of actions.
 	 * @param A input actions
 	 */
 	public CausalGraph( Collection<StateVariableOperator> A ) {
-		g = new DirectedSparseMultigraph<Atomic, String>();
+		g = new DirectedSparseMultigraph<Term, String>();
 		long edgeCount = 0;
 		
 		for ( StateVariableOperator a : A ) {
-			for ( Atomic v1 : a.getEffects().keySet() ) {
-				for ( Atomic v2 : a.getEffects().keySet() ) {
+			for ( Term v1 : a.getEffects().keySet() ) {
+				for ( Term v2 : a.getEffects().keySet() ) {
 					if ( !v1.equals(v2) ) {
 						g.addEdge(""+(edgeCount++), v1 ,v2);
 					}
 				}
-				for ( Atomic v2 : a.getPreconditions().keySet() ) {
+				for ( Term v2 : a.getPreconditions().keySet() ) {
 					g.addEdge(""+(edgeCount++), v2, v1);
 				}
 			}
@@ -79,26 +78,26 @@ public class CausalGraph {
 		this.removeCycles();
 	}
 		
-	protected ArrayList<Atomic> getTotalOrder() {
+	protected ArrayList<Term> getTotalOrder() {
 		return totalOrder;
 	}
 	
-	Map<Atomic,Set<Atomic>> predecessorCache = new HashMap<Atomic,Set<Atomic>>(); 
-	Map<Atomic,Set<Atomic>> ancestorCache = new HashMap<Atomic,Set<Atomic>>(); 
+	Map<Term,Set<Term>> predecessorCache = new HashMap<Term,Set<Term>>(); 
+	Map<Term,Set<Term>> ancestorCache = new HashMap<Term,Set<Term>>(); 
 	
 	/**
 	 * Get all predecessors of a variable v
 	 * @param v
 	 * @return
 	 */
-	protected Set<Atomic> getPredecessors( Atomic v ) {
-		Set<Atomic> p = predecessorCache.get(v);
+	protected Set<Term> getPredecessors( Term v ) {
+		Set<Term> p = predecessorCache.get(v);
 		
 		if ( p != null ) {
 			return p;
 		}
-		p = new HashSet<Atomic>();
-		Collection<Atomic> c = g.getPredecessors(v);
+		p = new HashSet<Term>();
+		Collection<Term> c = g.getPredecessors(v);
 		if ( c != null ) {
 			p.addAll( c );
 		}
@@ -111,27 +110,27 @@ public class CausalGraph {
 	 * @param v
 	 * @return
 	 */
-	protected Set<Atomic> getAncestors( Atomic v ) {
-		Set<Atomic> p = ancestorCache.get(v);
+	protected Set<Term> getAncestors( Term v ) {
+		Set<Term> p = ancestorCache.get(v);
 		
 		if ( p != null ) {
 			return p;
 		}
 		
-		ArrayList<Atomic> checkList = new ArrayList<Atomic>();
-		HashSet<Atomic> done = new HashSet<Atomic>();
+		ArrayList<Term> checkList = new ArrayList<Term>();
+		HashSet<Term> done = new HashSet<Term>();
 		checkList.add(v);		
-		p = new HashSet<Atomic>();
+		p = new HashSet<Term>();
 		
 		while ( !checkList.isEmpty() ) {
-			Atomic nextV = checkList.get(0);
+			Term nextV = checkList.get(0);
 			checkList.remove(0);
 			done.add(nextV);
 			
-			Collection<Atomic> c = g.getPredecessors(nextV);
+			Collection<Term> c = g.getPredecessors(nextV);
 			
 			if ( c != null ) {
-				for ( Atomic vNew : c ) {
+				for ( Term vNew : c ) {
 					if ( !done.contains(vNew) ) {
 						checkList.add(vNew);
 					}
@@ -153,19 +152,19 @@ public class CausalGraph {
 	 */
 	private void removeCycles() {
 		
-		GraphTools<Atomic,String> gTools = new GraphTools<Atomic,String>();
+		GraphTools<Term,String> gTools = new GraphTools<Term,String>();
 		
-		ArrayList<Graph<Atomic,String>> scc = gTools.getStronglyConnectedComponents(g);
+		ArrayList<Graph<Term,String>> scc = gTools.getStronglyConnectedComponents(g);
 	
-		for ( Graph<Atomic,String> subG : scc ) {
+		for ( Graph<Term,String> subG : scc ) {
 			
-			totalOrder = new ArrayList<Atomic>();
+			totalOrder = new ArrayList<Term>();
 			
 			this.getTotalOrder(subG, totalOrder);
 				
-			for ( Atomic v1 : subG.getVertices() ) {
+			for ( Term v1 : subG.getVertices() ) {
 				for ( String e : subG.getOutEdges(v1)) {
-					Atomic v2 = subG.getDest(e);
+					Term v2 = subG.getDest(e);
 					
 					if ( !lowerThan(v1,v2,totalOrder) ) {
 						g.removeEdge(e);
@@ -183,7 +182,7 @@ public class CausalGraph {
 	 * @param totalOrder A total order of variables
 	 * @return True if v1 is lower in total order than v2
 	 */
-	private boolean lowerThan( Atomic v1, Atomic v2, ArrayList<Atomic> totalOrder ) {
+	private boolean lowerThan( Term v1, Term v2, ArrayList<Term> totalOrder ) {
 		return totalOrder.indexOf(v1) < totalOrder.indexOf(v2);
 	}
 	
@@ -193,17 +192,17 @@ public class CausalGraph {
 	 * @param g 
 	 * @param order
 	 */
-	public void getTotalOrder( Graph<Atomic, String> g, ArrayList<Atomic> order ) {
+	public void getTotalOrder( Graph<Term, String> g, ArrayList<Term> order ) {
 		
 		if ( g.getVertexCount() <= 1 ) {
 			order.addAll(g.getVertices());
 			return;
 		}
 		
-		Atomic argMin = null;
+		Term argMin = null;
 		int min=Integer.MAX_VALUE;
 		
-		for ( Atomic v : g.getVertices() ) {
+		for ( Term v : g.getVertices() ) {
 			if ( g.getInEdges(v).size() < min ) {
 				argMin = v;
 				min = g.getInEdges(v).size();
@@ -219,8 +218,8 @@ public class CausalGraph {
 			}
 		}
 		
-		ArrayList<Atomic> remEdgeSource = new ArrayList<Atomic>();
-		ArrayList<Atomic> remEdgeDest = new ArrayList<Atomic>();
+		ArrayList<Term> remEdgeSource = new ArrayList<Term>();
+		ArrayList<Term> remEdgeDest = new ArrayList<Term>();
 		
 		for ( String e : remList ) {
 			remEdgeSource.add(g.getSource(e));
@@ -241,6 +240,6 @@ public class CausalGraph {
 	 * Draw the causal graph in a {@link GraphFrame} for debugging
 	 */
 	public void draw() {		
-		new GraphFrame<Atomic, String>(this.g, null,  "Causal Graph", GraphFrame.LayoutClass.FR, null);
+		new GraphFrame<Term, String>(this.g, null,  "Causal Graph", GraphFrame.LayoutClass.FR, null);
 	}
 }

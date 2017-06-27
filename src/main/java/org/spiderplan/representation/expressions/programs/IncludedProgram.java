@@ -1,37 +1,33 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.expressions.programs;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interfaces.Mutable;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
 
@@ -53,6 +49,10 @@ import org.spiderplan.representation.logic.Term;
  * and exit when trying to use it. The interpretation of the code 
  * is entirely left for external programs. 
  * <p>
+ * 
+ * TODO: Make immutable
+ * TODO: Load code on demand not during parsing
+ * 
  * @author Uwe Köckemann
  *
  */
@@ -61,7 +61,10 @@ public class IncludedProgram extends Expression implements Substitutable, Mutabl
 	final private static Term ConstraintType = Term.createConstant("include");
 
 	private Term name;
+	private String src_path;
 	private String code;
+	private String subStart = "";
+	private String subEnd = "";
 	
 	/**
 	 * Create new program object by providing name and string representation of the code.
@@ -71,6 +74,38 @@ public class IncludedProgram extends Expression implements Substitutable, Mutabl
 	public IncludedProgram( Term name, String code ) {
 		super(ConstraintType);
 		this.code = code;
+		this.name = name;
+	}
+	
+	/**
+	 * Create new program object by providing name and string representation of the code.
+	 * @param name name used by the program
+	 * @param path path to file (local or URL)
+	 * @param code the code
+	 */
+	public IncludedProgram( Term name, String path, String code ) {
+		super(ConstraintType);
+		this.code = code;
+		this.src_path = path;
+		this.name = name;
+	}
+	
+	/**
+	 * Create new program object by providing name and string representation of the code.
+	 * This constructor also allows to modify the substitution behavior by providing start
+	 * and end strings that need to be wrapped around a variable name to substitute into the program.
+	 * This allows to use SpiderPlan variable substitutions in any type of program.
+	 * 
+	 * @param name name used by the program
+	 * @param path path to file (local or URL)
+	 * @param code the code
+	 * @param subStart variable substitutions are required to start with this string 
+	 * @param subEnd variable substitutions are required to end with this string
+	 */
+	public IncludedProgram( Term name, String path, String code, String subStart, String subEnd ) {
+		super(ConstraintType);
+		this.code = code;
+		this.src_path = path;
 		this.name = name;
 	}
 	
@@ -88,6 +123,13 @@ public class IncludedProgram extends Expression implements Substitutable, Mutabl
 	 */
 	public String getCode() { return code; }
 	
+	/**
+	 * Get the path to this program as a string.
+	 * @return the path
+	 */
+	public String getPath() { return src_path; }
+	
+	
 	@Override
 	public boolean isMutable() { return true; }
 	
@@ -95,9 +137,15 @@ public class IncludedProgram extends Expression implements Substitutable, Mutabl
 	public boolean isSubstitutable() { return true; }
 
 	@Override
-	public Expression copy() {
+	public IncludedProgram copy() {
 		IncludedProgram bk = new IncludedProgram( this.name, this.code );
 		return bk;
+	}
+	
+	@Override
+	public void getAllTerms(Collection<Term> collectedTerms, boolean getConstants, boolean getVariables, boolean getComplex) {
+		super.type.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.name.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
 	}
 
 	@Override
@@ -131,27 +179,9 @@ public class IncludedProgram extends Expression implements Substitutable, Mutabl
 		 * Replacing inside arbitrary KB using <<<?from?>>>
 		 */
 		for ( Term from : theta.getMap().keySet() ) {
-			this.code = this.code.replaceAll( Pattern.quote("<<<"+from+">>>"), theta.getMap().get(from).toString());
+			this.code = this.code.replaceAll( Pattern.quote(subStart+from+subEnd), theta.getMap().get(from).toString());
 		}
 		this.name = this.name.substitute(theta);
 		return this;
-	}
-
-	@Override
-	public Collection<Term> getVariableTerms() {
-		Set<Term> r = new HashSet<Term>(); 
-		return r;
-	}
-
-	@Override
-	public Collection<Term> getGroundTerms() {
-		Set<Term> r = new HashSet<Term>();
-		return r;
-	}
-
-	@Override
-	public Collection<Atomic> getAtomics() {
-		Set<Atomic> r = new HashSet<Atomic>();
-		return r;
 	}
 }

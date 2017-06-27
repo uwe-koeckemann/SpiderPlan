@@ -1,28 +1,25 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.logic;
-
-import java.util.ArrayList;
 
 import org.spiderplan.representation.expressions.domain.Substitution;
 
@@ -127,6 +124,14 @@ public class ComplexTerm extends Term {
 	}
 	
 	/**
+	 * Returns term name
+	 * @return The name.
+	 */
+	public String name() {
+		return this.value;
+	}
+	
+	/**
 	 * Checks if this {@link ComplexTerm} is complex.
 	 * @return <code>true</code> if {@link ComplexTerm} is complex, <code>false</code> otherwise.
 	 */
@@ -152,28 +157,7 @@ public class ComplexTerm extends Term {
 	public boolean isConstant() {
 		return false;
 	}
-	
-	/**
-	 * Returns a list of all variable {@link ComplexTerm}s. In case of compex {@link ComplexTerm}s this function is called recursively on all sub-terms.
-	 * @return List of all variable {@link ComplexTerm}s.
-	 */
-	@Override
-	public ArrayList<Term> getVariables() {
-		ArrayList<Term> r = new ArrayList<Term>();
-		
-		if ( this.isConstant() ) {
-			return r;
-		} else if ( this.isVariable() ) {
-			r.add(this);
-			return r;
-		} else if ( args != null && !this.isGround() ) {
-			for ( Term t : this.args ) {
-				r.addAll(t.getVariables());
-			}
-		}
-		return r;
-	}
-	 
+		 
 	@Override
 	public String getUniqueName() {
 		return this.value + "/" + this.args.length;
@@ -225,13 +209,21 @@ public class ComplexTerm extends Term {
 	
 	private void createString() {
 		StringBuilder r = new StringBuilder();
-		r.append("(");
-		r.append(value);
+		if ( !this.name().equals("list") ) {
+			r.append("(");
+			r.append(value);
+		} else {
+			r.append("{");
+		}
 		for ( int i = 0; i < args.length ; i++) {
-			r.append(" ");
+			if ( !name().equals("list") || i > 0 )
+				r.append(" ");
 			r.append(args[i].toString());
 		}
-		r.append(")");
+		if ( !this.name().equals("list") ) 
+			r.append(")");
+		else
+			r.append("}");
 		this.string = r.toString();
 		
 		this.hashCode = this.string.hashCode();

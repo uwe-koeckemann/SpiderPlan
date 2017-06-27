@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan;
 
 import java.util.HashMap;
@@ -31,7 +30,6 @@ import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import junit.framework.TestCase;
 
@@ -50,22 +48,22 @@ public class TestOperator extends TestCase {
 
 	public void testMatching() {
 		Operator o = new Operator();
-		o.setName(new Atomic("(drive ?R ?A ?B)"));
+		o.setName(Term.parse("(drive ?R ?A ?B)"));
 		o.addPrecondition(new Statement("(?P (at ?R) ?A)"));
 		o.addEffect(new Statement("(?E (at ?R) ?B)"));
 		o.addConstraint(new AllenConstraint("?THIS Duration [?T,?T]"));
-		o.addConstraint(new PrologConstraint(new Atomic("(distance ?A ?B ?D)"), bkbName));
-		o.addConstraint(new PrologConstraint(new Atomic("(speed ?R ?V)"), bkbName));
-		o.addConstraint(new PrologConstraint(new Atomic("(div ?D ?V ?T)"), bkbName));
+		o.addConstraint(new PrologConstraint(Term.parse("(distance ?A ?B ?D)"), bkbName));
+		o.addConstraint(new PrologConstraint(Term.parse("(speed ?R ?V)"), bkbName));
+		o.addConstraint(new PrologConstraint(Term.parse("(div ?D ?V ?T)"), bkbName));
 		
 		Operator oGround = new Operator();
-		oGround.setName(new Atomic("(drive r a b)"));
+		oGround.setName(Term.parse("(drive r a b)"));
 		oGround.addPrecondition(new Statement("(p (at r) a)"));
 		oGround.addEffect(new Statement("(e (at r) b)"));
 		oGround.addConstraint(new AllenConstraint("op Duration [5,5]"));
-		oGround.addConstraint(new PrologConstraint(new Atomic("(distance a b 20)"), bkbName));
-		oGround.addConstraint(new PrologConstraint(new Atomic("(speed r 4)"), bkbName));
-		oGround.addConstraint(new PrologConstraint(new Atomic("(div 20 4 5)"), bkbName));
+		oGround.addConstraint(new PrologConstraint(Term.parse("(distance a b 20)"), bkbName));
+		oGround.addConstraint(new PrologConstraint(Term.parse("(speed r 4)"), bkbName));
+		oGround.addConstraint(new PrologConstraint(Term.parse("(div 20 4 5)"), bkbName));
 		
 		Substitution theta = o.match(oGround);
 		
@@ -83,22 +81,22 @@ public class TestOperator extends TestCase {
 	
 	public void testMatching2() {
 		Operator o = new Operator();
-		o.setName(new Atomic("(drive ?R ?A ?B)"));
+		o.setName(Term.parse("(drive ?R ?A ?B)"));
 		o.addPrecondition(new Statement("(?P (at ?R) ?A)"));
 		o.addEffect(new Statement("(?E (at ?R) ?B)"));
 		o.addConstraint(new AllenConstraint("?THIS Duration [?T,?T]"));
-		o.addConstraint(new PrologConstraint(new Atomic("(distance ?A ?B ?D)"), bkbName));
-		o.addConstraint(new PrologConstraint(new Atomic("(speed ?R ?V)"), bkbName));
-		o.addConstraint(new PrologConstraint(new Atomic("(div ?D ?V ?T)"), bkbName));
+		o.addConstraint(new PrologConstraint(Term.parse("(distance ?A ?B ?D)"), bkbName));
+		o.addConstraint(new PrologConstraint(Term.parse("(speed ?R ?V)"), bkbName));
+		o.addConstraint(new PrologConstraint(Term.parse("(div ?D ?V ?T)"), bkbName));
 		
 		Operator oGround = new Operator();
-		oGround.setName(new Atomic("(drive r a b)"));
+		oGround.setName(Term.parse("(drive r a b)"));
 		oGround.addPrecondition(new Statement("(?P (at ?R) ?A)"));
 		oGround.addEffect(new Statement("(e (at r) b)"));
 		oGround.addConstraint(new AllenConstraint("op Duration [6,6]"));
-		oGround.addConstraint(new PrologConstraint(new Atomic("(distance a b 20)"), bkbName));
-		oGround.addConstraint(new PrologConstraint(new Atomic("(speed r 4)"), bkbName));
-		oGround.addConstraint(new PrologConstraint(new Atomic("(div 20 4 5)"), bkbName));
+		oGround.addConstraint(new PrologConstraint(Term.parse("(distance a b 20)"), bkbName));
+		oGround.addConstraint(new PrologConstraint(Term.parse("(speed r 4)"), bkbName));
+		oGround.addConstraint(new PrologConstraint(Term.parse("(div 20 4 5)"), bkbName));
 		
 		Substitution theta = o.match(oGround);
 		
@@ -107,26 +105,26 @@ public class TestOperator extends TestCase {
 
 	public void testLifting() {
 		Operator o = new Operator();
-		o.setName(new Atomic("(drive ?R ?A ?B)"));
+		o.setName(Term.parse("(drive ?R ?A ?B)"));
 		o.addPrecondition(new Statement("(?P (at ?R) ?A)"));
 		o.addEffect(new Statement("(?E1 (at ?R) ?B)"));
 		o.addEffect(new Statement("(?E2 (space ?B) ?S)"));
 		o.addConstraint(new AllenConstraint("?THIS Duration [?T,?T]"));
-		o.addConstraint(new PrologConstraint(new Atomic("(distance ?A ?B ?D)"), bkbName));
-		o.addConstraint(new PrologConstraint(new Atomic("(speed ?R ?V)"), bkbName));
-		o.addConstraint(new PrologConstraint(new Atomic("(div ?D ?V ?T)"), bkbName));
-		o.addConstraint(new PrologConstraint(new Atomic("(size ?R ?S)"), bkbName));
+		o.addConstraint(new PrologConstraint(Term.parse("(distance ?A ?B ?D)"), bkbName));
+		o.addConstraint(new PrologConstraint(Term.parse("(speed ?R ?V)"), bkbName));
+		o.addConstraint(new PrologConstraint(Term.parse("(div ?D ?V ?T)"), bkbName));
+		o.addConstraint(new PrologConstraint(Term.parse("(size ?R ?S)"), bkbName));
 		
 		Operator oGround = new Operator();
-		oGround.setName(new Atomic("(drive r a b)"));
+		oGround.setName(Term.parse("(drive r a b)"));
 		oGround.addPrecondition(new Statement("(p (at r) a)"));
 		oGround.addEffect(new Statement("(e1 (at r) b)"));
 		oGround.addEffect(new Statement("(e2 (space b) 3)"));
 		oGround.addConstraint(new AllenConstraint("op Duration [5,5]"));
-		oGround.addConstraint(new PrologConstraint(new Atomic("(distance a b 20)"), bkbName));
-		oGround.addConstraint(new PrologConstraint(new Atomic("(speed r 4)"), bkbName));
-		oGround.addConstraint(new PrologConstraint(new Atomic("(div 20 4 5)"), bkbName));
-		oGround.addConstraint(new PrologConstraint(new Atomic("(size r 3)"), bkbName));
+		oGround.addConstraint(new PrologConstraint(Term.parse("(distance a b 20)"), bkbName));
+		oGround.addConstraint(new PrologConstraint(Term.parse("(speed r 4)"), bkbName));
+		oGround.addConstraint(new PrologConstraint(Term.parse("(div 20 4 5)"), bkbName));
+		oGround.addConstraint(new PrologConstraint(Term.parse("(size r 3)"), bkbName));
 		
 		Operator a =  oGround.liftVariable(0, o);
 		Operator b =  oGround.liftVariable(1, o);
@@ -169,17 +167,17 @@ public class TestOperator extends TestCase {
 	}
 	
 	public void testStateVariableOperatorApplicability() {
-		Atomic sv1_1 = new Atomic("(p a)");		
+		Term sv1_1 = Term.parse("(p a)");		
 		Term sv1_val1 = Term.createConstant("g");
-		Atomic sv2_1 = new Atomic("(q d)");
+		Term sv2_1 = Term.parse("(q d)");
 		Term sv2_val1 = Term.createConstant("i");
 		
 		StateVariableOperator o = new StateVariableOperator();
-		o.setName(new Atomic("(op ?W ?X ?Y ?Z)"));
-		o.getPreconditions().put(new Atomic("(p ?W)"), Term.createVariable("?X"));
-		o.getPreconditions().put(new Atomic("(q ?Y)"), Term.createVariable("?Z"));
+		o.setName(Term.parse("(op ?W ?X ?Y ?Z)"));
+		o.getPreconditions().put(Term.parse("(p ?W)"), Term.createVariable("?X"));
+		o.getPreconditions().put(Term.parse("(q ?Y)"), Term.createVariable("?Z"));
 		
-		HashMap<Atomic,Term> s1 = new HashMap<Atomic, Term>();
+		HashMap<Term,Term> s1 = new HashMap<Term, Term>();
 		s1.put(sv1_1, sv1_val1);
 		s1.put(sv2_1, sv2_val1);
 		
@@ -187,22 +185,22 @@ public class TestOperator extends TestCase {
 	}
 	
 	public void testStateVariableOperatorApplicability2() {
-		Atomic sv1_1 = new Atomic("(p a)");		
-		Atomic sv1_2 = new Atomic("(p b)");
+		Term sv1_1 = Term.parse("(p a)");		
+		Term sv1_2 = Term.parse("(p b)");
 		Term sv1_val1 = Term.createConstant("g");
 		Term sv1_val2 = Term.createConstant("h");
 		
-		Atomic sv2_1 = new Atomic("(q d)");
-		Atomic sv2_2 = new Atomic("(q e)");
+		Term sv2_1 = Term.parse("(q d)");
+		Term sv2_2 = Term.parse("(q e)");
 		Term sv2_val1 = Term.createConstant("i");
 		Term sv2_val2 = Term.createConstant("j");
 		
 		StateVariableOperator o = new StateVariableOperator();
-		o.setName(new Atomic("(op W X Y Z)"));
-		o.getPreconditions().put(new Atomic("(p ?W)"), Term.createVariable("?X"));
-		o.getPreconditions().put(new Atomic("(q ?Y)"), Term.createVariable("?Z"));
+		o.setName(Term.parse("(op W X Y Z)"));
+		o.getPreconditions().put(Term.parse("(p ?W)"), Term.createVariable("?X"));
+		o.getPreconditions().put(Term.parse("(q ?Y)"), Term.createVariable("?Z"));
 		
-		HashMap<Atomic,Term> s1 = new HashMap<Atomic, Term>();
+		HashMap<Term,Term> s1 = new HashMap<Term, Term>();
 		s1.put(sv1_1, sv1_val1);
 		s1.put(sv2_1, sv2_val1);
 		s1.put(sv1_2, sv1_val2);
@@ -212,26 +210,26 @@ public class TestOperator extends TestCase {
 	}
 	
 	public void testStateVariableOperatorApplicability3() {
-		Atomic sv1_1 = new Atomic("(p a)");		
-		Atomic sv1_2 = new Atomic("(p b)");
-		Atomic sv1_3 = new Atomic("(p c)");
+		Term sv1_1 = Term.parse("(p a)");		
+		Term sv1_2 = Term.parse("(p b)");
+		Term sv1_3 = Term.parse("(p c)");
 		Term sv1_val1 = Term.createConstant("g");
 		Term sv1_val2 = Term.createConstant("h");
 		Term sv1_val3 = Term.createConstant("i");
 		
-		Atomic sv2_1 = new Atomic("(q d)");
-		Atomic sv2_2 = new Atomic("(q e)");
-		Atomic sv2_3 = new Atomic("(q f)");
+		Term sv2_1 = Term.parse("(q d)");
+		Term sv2_2 = Term.parse("(q e)");
+		Term sv2_3 = Term.parse("(q f)");
 		Term sv2_val1 = Term.createConstant("j");
 		Term sv2_val2 = Term.createConstant("k");
 		Term sv2_val3 = Term.createConstant("l");
 		
 		StateVariableOperator o = new StateVariableOperator();
-		o.setName(new Atomic("(op ?W ?X ?Y ?Z)"));
-		o.getPreconditions().put(new Atomic("(p ?W)"), Term.createVariable("?X"));
-		o.getPreconditions().put(new Atomic("(q ?Y)"), Term.createVariable("?Z"));
+		o.setName(Term.parse("(op ?W ?X ?Y ?Z)"));
+		o.getPreconditions().put(Term.parse("(p ?W)"), Term.createVariable("?X"));
+		o.getPreconditions().put(Term.parse("(q ?Y)"), Term.createVariable("?Z"));
 		
-		HashMap<Atomic,Term> s1 = new HashMap<Atomic, Term>();
+		HashMap<Term,Term> s1 = new HashMap<Term, Term>();
 		s1.put(sv1_1, sv1_val1);
 		s1.put(sv2_1, sv2_val1);
 		s1.put(sv1_2, sv1_val2);
@@ -247,17 +245,17 @@ public class TestOperator extends TestCase {
 	 * have to be merged to different.
 	 */
 	public void testStateVariableOperatorApplicability4() {
-		Atomic sv1_1 = new Atomic("(p a)");		
-		Atomic sv1_2 = new Atomic("(p b)");
+		Term sv1_1 = Term.parse("(p a)");		
+		Term sv1_2 = Term.parse("(p b)");
 		Term sv1_val1 = Term.createConstant("g");
 		Term sv1_val2 = Term.createConstant("h");
 				
 		StateVariableOperator o = new StateVariableOperator();
-		o.setName(new Atomic("(op ?W ?X ?Y ?Z)"));
-		o.getPreconditions().put(new Atomic("(p ?W)"), Term.createVariable("?X"));
-		o.getPreconditions().put(new Atomic("(p ?Y)"), Term.createVariable("?Z"));
+		o.setName(Term.parse("(op ?W ?X ?Y ?Z)"));
+		o.getPreconditions().put(Term.parse("(p ?W)"), Term.createVariable("?X"));
+		o.getPreconditions().put(Term.parse("(p ?Y)"), Term.createVariable("?Z"));
 		
-		HashMap<Atomic,Term> s1 = new HashMap<Atomic, Term>();
+		HashMap<Term,Term> s1 = new HashMap<Term, Term>();
 		s1.put(sv1_1, sv1_val1);
 		s1.put(sv1_2, sv1_val2);
 		
@@ -266,22 +264,22 @@ public class TestOperator extends TestCase {
 	}
 	
 //	public void testStateVariableOperatorApplicabilityMultiState() {
-//		Atomic sv1_1 = new Atomic("(p a)");		
+//		Atomic sv1_1 = Atomic.parse("(p a)");		
 //
 //		Term sv1_val1 = Term.createConstant("g");
 //		Term sv1_val2 = Term.createConstant("h");
 //		Term sv1_val3 = Term.createConstant("i");
 //		
-//		Atomic sv2_1 = new Atomic("(q d)");
+//		Atomic sv2_1 = Atomic.parse("(q d)");
 //
 //		Term sv2_val1 = Term.createConstant("j");
 //		Term sv2_val2 = Term.createConstant("k");
 //		Term sv2_val3 = Term.createConstant("l");
 //		
 //		StateVariableOperator o = new StateVariableOperator();
-//		o.setName(new Atomic("(op ?W ?X ?Y ?Z)"));
-//		o.getPreconditions().put(new Atomic("(p ?W)"), Term.createVariable("?X"));
-//		o.getPreconditions().put(new Atomic("(q ?Y)"), Term.createVariable("?Z"));
+//		o.setName(Atomic.parse("(op ?W ?X ?Y ?Z)"));
+//		o.getPreconditions().put(Atomic.parse("(p ?W)"), Term.createVariable("?X"));
+//		o.getPreconditions().put(Atomic.parse("(q ?Y)"), Term.createVariable("?Z"));
 //		
 //		HashMap<Atomic,Collection<Term>> s1 = new HashMap<Atomic, Collection<Term>>();
 //		s1.put(sv1_1, new HashSet<Term>());
@@ -299,22 +297,22 @@ public class TestOperator extends TestCase {
 //	}
 		
 //	public void testStateVariableOperatorMultiStateApplicability() {
-//		Atomic sv1_1 = new Atomic("p");		
+//		Atomic sv1_1 = Atomic.parse("p");		
 //
 //		Term sv1_val1 = Term.createConstant("g");
 //		Term sv1_val2 = Term.createConstant("h");
 //		Term sv1_val3 = Term.createConstant("i");
 //		
-//		Atomic sv2_1 = new Atomic("q");
+//		Atomic sv2_1 = Atomic.parse("q");
 //
 //		Term sv2_val1 = Term.createConstant("j");
 //		Term sv2_val2 = Term.createConstant("k");
 //		Term sv2_val3 = Term.createConstant("l");
 //		
 //		StateVariableOperatorMultiState o = new StateVariableOperatorMultiState();
-//		o.setName(new Atomic("(op ?X ?Y)"));
-//		o.getPreconditions().put(new Atomic("p"), Term.createVariable("?X"));
-//		o.getPreconditions().put(new Atomic("q"), Term.createVariable("?Y"));
+//		o.setName(Atomic.parse("(op ?X ?Y)"));
+//		o.getPreconditions().put(Atomic.parse("p"), Term.createVariable("?X"));
+//		o.getPreconditions().put(Atomic.parse("q"), Term.createVariable("?Y"));
 //		
 //		HashMap<Atomic,List<Term>> s1 = new HashMap<Atomic, List<Term>>();
 //		s1.put(sv1_1, new ArrayList<Term>());
@@ -335,7 +333,7 @@ public class TestOperator extends TestCase {
 	
 	public void testConversion() {
 		Operator o = new Operator();
-		o.setName(new Atomic("test"));
+		o.setName(Term.parse("test"));
 		
 		o.addEffect(new Statement("(e1 var val1)"));
 		o.addEffect(new Statement("(e2 var val2)"));
@@ -345,8 +343,8 @@ public class TestOperator extends TestCase {
 		usedVars.add("var/0");
 		
 		StateVariableOperatorMultiState svo = o.getStateVariableBasedOperatorWithMultipleEffectValues(usedVars);
-		
-		assertTrue(svo.getEffects().get(new Atomic("var")).size() == 3); 
+				
+		assertTrue(svo.getEffects().get(Term.parse("var")).size() == 3); 
 	}
 }
 

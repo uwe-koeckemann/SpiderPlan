@@ -1,44 +1,38 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.expressions.execution.ros;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.ExpressionTypes;
 import org.spiderplan.representation.expressions.ExpressionTypes.ROSRelation;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interfaces.Mutable;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
 
 /**
- * Cost constraints either add or subtract a value from a cost variable
- * or pose inequalities on a cost variable.
+ * Publish and subscribe to ROS topics.
  * 
  * @author Uwe Köckemann
  * 
@@ -46,7 +40,7 @@ import org.spiderplan.representation.logic.Term;
 public class ROSConstraint extends Expression implements Substitutable, Mutable {
 	
 	ROSRelation relation;
-	Atomic variable;
+	Term variable;
 	Term value;
 	Term topic;
 	Term msg;
@@ -61,7 +55,7 @@ public class ROSConstraint extends Expression implements Substitutable, Mutable 
 	 * @param topic ROS topic to publish/subscribe to
 	 * @param msg ROS message in form of a (complex) term
 	 */
-	public ROSConstraint( ROSRelation relation, Atomic variable, Term value, Term topic, Term msg ) {
+	public ROSConstraint( ROSRelation relation, Term variable, Term value, Term topic, Term msg ) {
 		super(ExpressionTypes.ROS);
 		
 		this.relation = relation;
@@ -80,7 +74,7 @@ public class ROSConstraint extends Expression implements Substitutable, Mutable 
 	 * Get the state-variable.
 	 * @return the state-variable
 	 */
-	public Atomic getVariable() { return variable; }
+	public Term getVariable() { return variable; }
 	/**
 	 * Get the value.
 	 * @return the value
@@ -104,33 +98,12 @@ public class ROSConstraint extends Expression implements Substitutable, Mutable 
 	public boolean isSubstitutable() { return true; }
 	
 	@Override
-	public Collection<Term> getVariableTerms() {
-		Collection<Term> r = new ArrayList<Term>();
-		r.addAll(variable.getVariableTerms());
-		r.addAll(value.getVariables());
-		r.addAll(msg.getVariables());
-		r.addAll(topic.getVariables());
-		return r;
-	}	
-	
-	@Override
-	public Collection<Term> getGroundTerms() {
-		Collection<Term> r = new ArrayList<Term>();
-		r.addAll(variable.getGroundTerms());
-		if ( value.isGround() )
-			r.add(value);
-		if ( topic.isGround() )
-			r.add(topic);
-		if ( msg.isGround() )
-			r.add(msg);
-		return r;
-	}
-	
-	@Override
-	public Collection<Atomic> getAtomics() {
-		Collection<Atomic> r = new HashSet<Atomic>();
-		r.add(this.variable);
-		return r;
+	public void getAllTerms(Collection<Term> collectedTerms, boolean getConstants, boolean getVariables, boolean getComplex) {
+		super.type.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.variable.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.value.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.topic.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.msg.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
 	}
 
 	@Override

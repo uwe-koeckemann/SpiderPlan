@@ -1,0 +1,7 @@
+SolverStack main:		
+	solvers = "Prolog";
+	verbose=false;
+	verbosity=5;
+	
+PrologSolver Prolog:
+	verbose=false;

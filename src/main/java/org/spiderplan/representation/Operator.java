@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation;
 
 import java.util.ArrayList;
@@ -34,17 +33,15 @@ import org.spiderplan.causal.forwardPlanning.ForwardPlanningSearch;
 import org.spiderplan.causal.forwardPlanning.StateVariableOperator;
 import org.spiderplan.causal.forwardPlanning.StateVariableOperatorMultiState;
 import org.spiderplan.representation.expressions.Expression;
-import org.spiderplan.representation.expressions.ExpressionTypes;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interfaces.Matchable;
 import org.spiderplan.representation.expressions.interfaces.Mutable;
+import org.spiderplan.representation.expressions.interfaces.SubProblemSupport;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
-import org.spiderplan.representation.expressions.minizinc.MiniZincInput;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.resources.ReusableResourceCapacity;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.GenericComboBuilder;
@@ -63,17 +60,16 @@ public class Operator extends Expression implements Substitutable, Mutable {
 	
 	final private static Term ConstraintType = Term.createConstant("action");
 		
-	final private static Term ThisInterval = Term.createVariable("THIS");
+	final private static Term ThisInterval = Term.createVariable("THIS"); //TODO: might lead to ambiguity if not changed.
 	final private static Term Time1 = Term.createInteger(1);
 	final private static Term True = Term.createConstant("true");
 	
-	private Atomic name;
+	private Term name;
 	private Term intervalKey = ThisInterval;
 	private Substitution theta = new Substitution();
 	
 	private ArrayList<Statement> P = new ArrayList<Statement>();
 	private ArrayList<Statement> E = new ArrayList<Statement>();
-//	private ArrayList<Constraint> C = new ArrayList<Constraint>();
 	private ConstraintDatabase C = new ConstraintDatabase();
 	
 	/**
@@ -83,17 +79,17 @@ public class Operator extends Expression implements Substitutable, Mutable {
 	
 	/**
 	 * Set the name variable of the operator.
-	 * @param name An {@link Atomic} representing the name.
+	 * @param name An {@link Term} representing the name.
 	 */
-	public void setName( Atomic name  ) {
+	public void setName( Term name  ) {
 		this.name = name;
 	}
 	
 	/**
 	 * Get the name variable of the operator.
-	 * @return An {@link Atomic} variable.
+	 * @return An {@link Term} variable.
 	 */
-	public Atomic getName() {
+	public Term getName() {
 		return this.name;
 	}
 		
@@ -195,47 +191,63 @@ public class Operator extends Expression implements Substitutable, Mutable {
 		return this.C;
 	}
 	
+//	@Override
+//	public Collection<Term> getVariableTerms() {
+//		ArrayList<Term> r = new ArrayList<Term>();
+//		for ( Statement s : this.getPreconditions() ) {
+//			r.addAll(s.getVariableTerms());
+//		}
+//		for ( Statement s : this.getEffects() ) {
+//			r.addAll(s.getVariableTerms());
+//		}
+//		for ( Expression c : this.getConstraints() ) {
+//			r.addAll(c.getVariableTerms() );
+//		}
+//		return r;		
+//	}
+//	@Override
+//	public Collection<Term> getGroundTerms() {
+//		Set<Term> r = new HashSet<Term>();
+//		for ( Statement s : this.getPreconditions() ) {
+//			r.addAll(s.getGroundTerms());
+//		}
+//		for ( Statement s : this.getEffects() ) {
+//			r.addAll(s.getGroundTerms());
+//		}
+//		for ( Expression c : this.getConstraints() ) {
+//			r.addAll(c.getGroundTerms() );
+//		}
+//		return r;
+//	}
+//	@Override
+//	public Collection<Term> getComplexTerms() {
+//		Set<Term> r = new HashSet<Term>();
+//		for ( Statement s : this.getPreconditions() ) {
+//			r.add(s.getVariable());
+//		}
+//		for ( Statement s : this.getEffects() ) {
+//			r.add(s.getVariable());
+//		}
+//		for ( Expression c : this.getConstraints() ) {
+//			r.addAll(c.getComplexTerms());
+//		}
+//		return r;
+//	}
+	
 	@Override
-	public Collection<Term> getVariableTerms() {
-		ArrayList<Term> r = new ArrayList<Term>();
-		for ( Statement s : this.getPreconditions() ) {
-			r.addAll(s.getVariableTerms());
+	public void getAllTerms(Collection<Term> collectedTerms, boolean getConstants, boolean getVariables, boolean getComplex) {
+		super.type.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.name.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.theta.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.intervalKey.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.C.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		
+		for ( Statement p : P ) {
+			p.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
 		}
-		for ( Statement s : this.getEffects() ) {
-			r.addAll(s.getVariableTerms());
+		for ( Statement e : E ) {
+			e.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
 		}
-		for ( Expression c : this.getConstraints() ) {
-			r.addAll(c.getVariableTerms() );
-		}
-		return r;		
-	}
-	@Override
-	public Collection<Term> getGroundTerms() {
-		Set<Term> r = new HashSet<Term>();
-		for ( Statement s : this.getPreconditions() ) {
-			r.addAll(s.getGroundTerms());
-		}
-		for ( Statement s : this.getEffects() ) {
-			r.addAll(s.getGroundTerms());
-		}
-		for ( Expression c : this.getConstraints() ) {
-			r.addAll(c.getGroundTerms() );
-		}
-		return r;
-	}
-	@Override
-	public Collection<Atomic> getAtomics() {
-		Set<Atomic> r = new HashSet<Atomic>();
-		for ( Statement s : this.getPreconditions() ) {
-			r.add(s.getVariable());
-		}
-		for ( Statement s : this.getEffects() ) {
-			r.add(s.getVariable());
-		}
-		for ( Expression c : this.getConstraints() ) {
-			r.addAll(c.getAtomics());
-		}
-		return r;
 	}
 	
 	/**
@@ -314,7 +326,7 @@ public class Operator extends Expression implements Substitutable, Mutable {
 	public Collection<Operator> getApplicable( Collection<Statement> F, TypeManager tM ) {
 		ArrayList<Operator> r = new ArrayList<Operator>();
 
-		ArrayList<ArrayList<Substitution>> subs = new ArrayList<ArrayList<Substitution>>();
+		List<List<Substitution>> subs = new ArrayList<List<Substitution>>();
 		
 		boolean foundAtLeastOneCombo = true;
 		
@@ -339,9 +351,9 @@ public class Operator extends Expression implements Substitutable, Mutable {
 		if ( foundAtLeastOneCombo ) {
 			GenericComboBuilder<Substitution> cB = new GenericComboBuilder<Substitution>();
 			
-			ArrayList<ArrayList<Substitution>> combos = cB.getCombos(subs);
+			List<List<Substitution>> combos = cB.getCombos(subs);
 			
-			for ( ArrayList<Substitution> thetaCombo : combos ) {
+			for ( List<Substitution> thetaCombo : combos ) {
 				Substitution theta = new Substitution();
 				boolean success = true;
 				for ( Substitution part : thetaCombo ) {
@@ -483,25 +495,25 @@ public class Operator extends Expression implements Substitutable, Mutable {
 	 */
 	public void makeUniqueVariables( long ID ) {
 		Set<Term> vars = new HashSet<Term>();
-		vars.addAll(this.getName().getVariableTerms());
+		this.getName().getAllTerms(vars,  false, true, false); //.getVariableTerms());
 //		if ( this.intervalKey.isVariable() )
 //			vars.add(this.intervalKey);
 		for ( Statement s : this.getPreconditions() ) {
 //			if ( s.getKey().isVariable() ) {
 //				vars.add(s.getKey());
 //			}
-			vars.addAll(s.getVariable().getVariableTerms());
-			vars.addAll(s.getValue().getVariables());
+			s.getVariable().getAllTerms(vars, false, true, false);
+			s.getValue().getAllTerms(vars, false, true, false);
 		}
 		for ( Statement s : this.getEffects() ) {
 //			if ( s.getKey().isVariable() ) {
 //				vars.add(s.getKey());
 //			}
-			vars.addAll(s.getVariable().getVariableTerms());
-			vars.addAll(s.getValue().getVariables());
+			s.getVariable().getAllTerms(vars, false, true, false);
+			s.getValue().getAllTerms(vars, false, true, false);
 		}
 		for ( Expression c : this.getConstraints() ) {
-			vars.addAll(c.getVariableTerms());
+			c.getAllTerms(vars, false, true, false);
 		}
 		Substitution theta = new Substitution();
 		for ( Term var : vars ) {
@@ -572,6 +584,8 @@ public class Operator extends Expression implements Substitutable, Mutable {
 		
 		for ( Statement p : this.getPreconditions() ) {
 			if ( usedVars.contains( p.getVariable().getUniqueName() ) ) {
+				
+				
 				o.getPreconditions().put( p.getVariable(), p.getValue() );
 			}
 		}
@@ -679,7 +693,7 @@ public class Operator extends Expression implements Substitutable, Mutable {
 	 * @param cDB Constraint database needed to check if variables are resources
 	 */
 	public void setOpenVariablesToMostRelaxed( ConstraintDatabase cDB ) {
-		HashMap<Atomic,Integer> rrCapacities = new HashMap<Atomic,Integer>();
+		HashMap<Term,Integer> rrCapacities = new HashMap<Term,Integer>();
 		for ( ReusableResourceCapacity rrC : cDB.get(ReusableResourceCapacity.class)) {
 			rrCapacities.put(rrC.getVariable(),rrC.getCapacity());
 		}
@@ -762,13 +776,13 @@ public class Operator extends Expression implements Substitutable, Mutable {
 				if ( oCopyCons.get(j) instanceof PrologConstraint ) {
 					PrologConstraint rc = oCopyCons.get(j);
 									
-					Atomic l = rc.getRelation();
+					Term l = rc.getRelation();
 					
 					if ( !l.isGround() ) {
 						HashSet<Term> variables = new HashSet<Term>();
 						PrologConstraint rcOp = oCons.get(j);
 						
-						variables.addAll(rcOp.getVariableTerms());
+						rcOp.getAllTerms(variables, false, true, false);
 						
 //						for ( Term t : rcOp.getRelation().getArgs() ) {
 //							variables.addAll(t.getVariables());
@@ -930,17 +944,26 @@ public class Operator extends Expression implements Substitutable, Mutable {
 		}
 		r.append("\t)\n");
 		
+		/**
+		 * Sort all expressions into sets divided by subproblems if they are used
+		 */
 		Map<String,Collection<Expression>> typeMap = new HashMap<String, Collection<Expression>>();
 		for ( Expression c : C ) {
 			Term conType = c.getType();
 			String conTypeString = conType.toString();
-			if ( conType.equals(ExpressionTypes.Prolog) ) {
-				PrologConstraint pc = (PrologConstraint)c;
-				conTypeString += " " + pc.getProgramID();
-			} else if  ( conType.equals(ExpressionTypes.MiniZinc) ) {
-				MiniZincInput mc = (MiniZincInput)c;
-				conTypeString += " " + mc.getProgramID();
-			} 
+//			if ( conType.equals(ExpressionTypes.Prolog) ) {
+//				PrologConstraint pc = (PrologConstraint)c;
+//				conTypeString += " " + pc.getSubProblemID();
+//			} else if  ( conType.equals(ExpressionTypes.MiniZinc) ) {
+//				MiniZincInput mc = (MiniZincInput)c;
+//				conTypeString += " " + mc.getSubProblemID();
+//			} 
+			
+			if ( c.hasSubProblemSupport() ) {
+				SubProblemSupport sps = (SubProblemSupport)c;
+				conTypeString += " " + sps.getSubProblemID();
+			}
+			
 			Collection<Expression> Col = typeMap.get(conTypeString);
 			if ( Col == null ) {
 				Col = new ArrayList<Expression>();

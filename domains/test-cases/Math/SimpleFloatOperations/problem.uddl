@@ -1,0 +1,8 @@
+(:initial-context
+	(:math
+		(eval-float x (add 0.5 1.5))
+		(eval-float y (mult 0.5 0.5))
+		(eval-float z (sub 1.5 0.75))
+		(eval-float d (div 5 2))
+	)
+)

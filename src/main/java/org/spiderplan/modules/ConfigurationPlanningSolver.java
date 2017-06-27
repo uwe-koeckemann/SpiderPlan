@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.modules;
 
 import java.io.FileNotFoundException;
@@ -52,12 +51,10 @@ import org.spiderplan.representation.expressions.configurationPlanning.Configura
 import org.spiderplan.representation.expressions.cost.Cost;
 import org.spiderplan.representation.expressions.graph.GraphConstraint;
 import org.spiderplan.representation.expressions.math.MathConstraint;
-import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
-import org.spiderplan.representation.logic.Atomic;
-import org.spiderplan.representation.logic.IntegerTerm;
 import org.spiderplan.representation.logic.Term;
+import org.spiderplan.representation.logic.IntegerTerm;
 import org.spiderplan.tools.UniqueID;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
@@ -166,7 +163,7 @@ public class ConfigurationPlanningSolver extends Module implements SolverInterfa
 		List<Integer> costs = new ArrayList<Integer>();
 		
 		Map<Term,Integer> idLookup = new HashMap<Term, Integer>();
-		List<Atomic> ruleNames = new ArrayList<Atomic>();
+		List<Term> ruleNames = new ArrayList<Term>();
 		
 		String pathToProgram = "./src/main/minizinc/configuration-planning/configuration-planning.mzn";
 		if ( verbose ) {
@@ -185,7 +182,7 @@ public class ConfigurationPlanningSolver extends Module implements SolverInterfa
 		}
 	
 		if ( keepTimes ) StopWatch.start("["+this.getName()+"] Creating problem");
-		Atomic r;
+		Term r;
 		for ( ConfigurationPlanningConstraint c : C ) {
 			r = c.getConstraint();
 			if ( c.getRelation().equals(ConfigurationPlanningRelation.Goal) ) {
@@ -383,24 +380,24 @@ public class ConfigurationPlanningSolver extends Module implements SolverInterfa
 					if ( !targetConcepts.get(i).equals(target) ) {
 						interval = Term.createConstant(targetInterval.toString() + "_" + UniqueID.getID());
 						tcList.add(new AllenConstraint(targetInterval, interval, TemporalRelation.During, new Interval(Term.createInteger(1), Term.createConstant("inf")), new Interval(Term.createInteger(1), Term.createConstant("inf"))));
-						Atomic var = new Atomic("inferring", target);
+						Term var = Term.createComplex("inferring", target);
 						Statement s = new Statement(interval, var, Term.createConstant("true"));
 						inferenceList.add(s);
 					}
 					
 				}
 				for ( int j = 0 ; j < ruleList.getNumArgs() ; j++ ) {
-					Atomic rule = new Atomic(ruleList.getArg(j).toString());
+					Term rule = ruleList.getArg(j);
 					Term interval = Term.createConstant(targetInterval.toString() + "_R_" + UniqueID.getID());
 					tcList.add(new AllenConstraint(targetInterval, interval, TemporalRelation.During, new Interval(Term.createInteger(1), Term.createConstant("inf")), new Interval(Term.createInteger(1), Term.createConstant("inf"))));
 					Statement s = new Statement(interval, rule , Term.createConstant("true"));
 					inferenceList.add(s);
 					
-					MathConstraint mathCon = new MathConstraint(new Atomic(String.format("(eval-int (intervalCost %s) (mult (sub (EET %s) (LST %s)) %s))", interval.toString(), interval.toString(), interval.toString(), rule.getArg(2).toString())));
+					MathConstraint mathCon = new MathConstraint(Term.parse(String.format("(eval-int (intervalCost %s) (mult (sub (EET %s) (LST %s)) %s))", interval.toString(), interval.toString(), interval.toString(), rule.getArg(2).toString())));
 					mathList.add(mathCon);
 					
 					String costStr = String.format("(add link-cost (intervalCost %s))", interval.toString());
-					Cost cost = new Cost(new Atomic(costStr));
+					Cost cost = new Cost(Term.parse(costStr));
 					costList.add(cost);
 					
 					//(:math (eval-int (intervalCost ?E1) (mult (sub (EET ?E1) (LST ?E1)) ?Cost)))
@@ -412,7 +409,7 @@ public class ConfigurationPlanningSolver extends Module implements SolverInterfa
 				resDB.addAll(tcList);
 				resDB.addAll(mathList);
 				resDB.addAll(costList);
-				resDB.add(new Asserted(goals.get(i)));
+				resDB.add(((ConfigurationPlanningConstraint)goals.get(i)).getAssertion());
 				
 				if ( verbose ) {
 					Logger.msg(getName(), "Resolver for " + goals.get(i), 2);

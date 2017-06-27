@@ -19,8 +19,8 @@
     ( sig ( hasRole human role ) boolean )
     ( sig ( notEqual object object ) boolean )
     ( sig socialCost costRange )
-    ( sig ( Move robot location location ) )
-    ( sig ( SolveTask robot robotTask robotTaskClass location ) )
+    ;( sig ( Move robot location location ) )
+    ;( sig ( SolveTask robot robotTask robotTaskClass location ) )
     ( enum robot ( list r1 r2 r3 r4 ) )
     ( enum location ( list robotRoom floor1 floor2 basement livingRoom kitchen diningRoom bedroomParents bedroomGrandparents1 bedroomGrandparents2 kidsRoom1 kidsRoom2 bathroom1 bathroom2 bathroom3 bathroom4 laundryRoom storage out study ) )
     ( enum locationType ( list bedroom bathroom kidsRoom ) )
@@ -212,6 +212,7 @@
 
 (:operator
   ( Move ?R ?L1 ?L2 )
+  (:signature robot location location)
   (:preconditions
     ( ?P1 ( at ?R ) ?L1 )  )
   (:effects
@@ -228,6 +229,7 @@
       
 (:operator
   ( SolveTask ?R ?Task ?TaskClass ?L )
+  (:signature robot robotTask robotTaskClass location)
   (:preconditions
     ( ?P1 ( at ?R ) ?L )
     ( ?P2 ( state ?Task ?TaskClass ?L ) waiting )  )

@@ -1,35 +1,31 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.expressions;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.spiderplan.representation.expressions.domain.Substitution;
+import org.spiderplan.representation.expressions.interfaces.Matchable;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.SimpleParsing;
 
@@ -39,10 +35,10 @@ import org.spiderplan.tools.SimpleParsing;
  * 
  * @author Uwe Köckemann
  */
-public class Statement extends Expression implements Substitutable {
+public class Statement extends Expression implements Substitutable { //TODO: should be matchable
 	
 	Term intervalKey;
-	Atomic variable;
+	Term variable;
 	Term value;
 		
 	/**
@@ -53,7 +49,7 @@ public class Statement extends Expression implements Substitutable {
 	 * @param x the state-variable
 	 * @param v the assigned value
 	 */
-	public Statement( Term interval , Atomic x, Term v ) {
+	public Statement( Term interval , Term x, Term v ) {
 		super(ExpressionTypes.Statement);
 		this.intervalKey = interval;
 		this.variable = x;
@@ -70,7 +66,7 @@ public class Statement extends Expression implements Substitutable {
 		ArrayList<String> tmp = SimpleParsing.complexSplit(s.substring(1, s.length()-1), " ");
 		this.intervalKey = Term.parse(tmp.get(0));		
 //		ArrayList<String> tmp = SimpleParsing.complexSplit(s.substring(1, s.length()-1), " ");
-		this.variable = new Atomic(tmp.get(1));
+		this.variable = Term.parse(tmp.get(1));
 		this.value = Term.parse(tmp.get(2));	//TODO: does not parse statements with default value 'true'	
 	}
 	
@@ -87,7 +83,7 @@ public class Statement extends Expression implements Substitutable {
 	 * Returns the variable that is assigned in this {@link Statement}
 	 * @return The variable of this {@link Statement}
 	 */
-	public Atomic getVariable() {
+	public Term getVariable() {
 		return variable;	
 	}
 	
@@ -157,25 +153,25 @@ public class Statement extends Expression implements Substitutable {
 	@Override
 	public boolean isSubstitutable() { return true; }
 	
-	@Override
-	public Collection<Term> getVariableTerms() {
-		Set<Term> r = new HashSet<Term>(); 
-		r.addAll(this.getKey().getVariables() );
-		r.addAll(this.variable.getVariableTerms());
-		r.addAll(this.getValue().getVariables() );
-		return r;
-	}
+//	@Override
+//	public Collection<Term> getVariableTerms() {
+//		Set<Term> r = new HashSet<Term>(); 
+//		r.addAll(this.getKey().getVariables() );
+//		r.addAll(this.variable.getVariableTerms());
+//		r.addAll(this.getValue().getVariables() );
+//		return r;
+//	}
 
-	@Override
-	public Collection<Term> getGroundTerms() {
-		Set<Term> r = new HashSet<Term>(); 
-		if ( this.getKey().isGround() )
-			r.add(this.getKey());
-		r.addAll(this.variable.getGroundTerms());
-		if ( this.getValue().isGround() )
-			r.add(this.getValue() );
-		return r;
-	}
+//	@Override
+//	public Collection<Term> getGroundTerms() {
+//		Set<Term> r = new HashSet<Term>(); 
+//		if ( this.getKey().isGround() )
+//			r.add(this.getKey());
+//		r.addAll(this.variable.getGroundTerms());
+//		if ( this.getValue().isGround() )
+//			r.add(this.getValue() );
+//		return r;
+//	}
 	
 	
 		
@@ -220,10 +216,18 @@ public class Statement extends Expression implements Substitutable {
 		return this.intervalKey.hashCode() + 7*this.variable.hashCode() + 17*this.value.hashCode();
 	}
 
+//	@Override
+//	public Collection<Term> getComplexTerms() {
+//		Collection<Term> r = new ArrayList<>();
+//		r.add(this.variable);
+//		return r;
+//	}	
+	
 	@Override
-	public Collection<Atomic> getAtomics() {
-		Collection<Atomic> r = new ArrayList<>();
-		r.add(this.variable);
-		return r;
-	}	
+	public void getAllTerms(Collection<Term> collectedTerms, boolean getConstants, boolean getVariables, boolean getComplex) {
+		super.type.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.intervalKey.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.variable.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.value.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+	}
 }

@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.causal.forwardPlanning;
 
 import java.util.AbstractMap;
@@ -35,7 +34,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.spiderplan.causal.forwardPlanning.goals.Goal;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
 
@@ -61,8 +59,8 @@ public class YAHSPLookahead { //TODO: there are some bugs here I think
 	 * @param A available actions
 	 * @return lookahead search node
 	 */
-	public static ForwardPlanningNode lookahead( ForwardPlanningNode n, Map<Object,Long> cost, Collection<Entry<Atomic,Term>> G, Collection<StateVariableOperatorMultiState> A ) {
-		Map<Atomic,List<Term>> s = new HashMap<Atomic, List<Term>>();
+	public static ForwardPlanningNode lookahead( ForwardPlanningNode n, Map<Object,Long> cost, Collection<Entry<Term,Term>> G, Collection<StateVariableOperatorMultiState> A ) {
+		Map<Term,List<Term>> s = new HashMap<Term, List<Term>>();
 		s.putAll(n.s);
 		
 		LinkedList<StateVariableOperatorMultiState> plan = new LinkedList<StateVariableOperatorMultiState>();
@@ -184,7 +182,7 @@ public class YAHSPLookahead { //TODO: there are some bugs here I think
 				boolean thisInterferesWithO = false;
 				boolean oInterferesWithThis = false;
 				
-				for ( Atomic preKey : this.a.getPreconditions().keySet() ) {
+				for ( Term preKey : this.a.getPreconditions().keySet() ) {
 					List<Term> effList = o.a.getEffects().get(preKey);
 					Term preVal = this.a.getPreconditions().get(preKey);
 					if ( effList != null && !effList.contains(preVal) ) {	
@@ -194,7 +192,7 @@ public class YAHSPLookahead { //TODO: there are some bugs here I think
 					}
 				}
 				
-				for ( Atomic preKey : o.a.getPreconditions().keySet() ) {
+				for ( Term preKey : o.a.getPreconditions().keySet() ) {
 					List<Term> effList = this.a.getEffects().get(preKey);
 					Term preVal = o.a.getPreconditions().get(preKey);
 					if ( effList != null && !effList.contains(preVal) ) {
@@ -227,22 +225,22 @@ public class YAHSPLookahead { //TODO: there are some bugs here I think
 	 * @param cost
 	 * @return
 	 */
-	private static LinkedList<StateVariableOperatorMultiState> extractRelaxedPlan( Map<Atomic,List<Term>> multiState, Map<Object,Long> cost, Collection<Entry<Atomic,Term>> G, Collection<StateVariableOperatorMultiState> A ) {
+	private static LinkedList<StateVariableOperatorMultiState> extractRelaxedPlan( Map<Term,List<Term>> multiState, Map<Object,Long> cost, Collection<Entry<Term,Term>> G, Collection<StateVariableOperatorMultiState> A ) {
 		LinkedList<CostActionPair> rPlanTmp = new LinkedList<CostActionPair>();
 		
-		LinkedList<Entry<Atomic,Term>> goals = new LinkedList<Entry<Atomic,Term>>();
+		LinkedList<Entry<Term,Term>> goals = new LinkedList<Entry<Term,Term>>();
 		goals.addAll(G);
 		
-		Set<Entry<Atomic,Term>> satisfied = new HashSet<Map.Entry<Atomic,Term>>();
+		Set<Entry<Term,Term>> satisfied = new HashSet<Map.Entry<Term,Term>>();
 		
-		for ( Atomic k : multiState.keySet() ) {
+		for ( Term k : multiState.keySet() ) {
 			for ( Term v : multiState.get(k) ) {
-				satisfied.add(new AbstractMap.SimpleEntry<Atomic,Term>(k,v));
+				satisfied.add(new AbstractMap.SimpleEntry<Term,Term>(k,v));
 			}
 		}
 		
 		while ( !goals.isEmpty() ) {
-			Entry<Atomic,Term> g = goals.getFirst();
+			Entry<Term,Term> g = goals.getFirst();
 			goals.removeFirst();
 			
 			if ( !satisfied.contains(g) ) {
@@ -284,7 +282,7 @@ public class YAHSPLookahead { //TODO: there are some bugs here I think
 	}
 	
 	private static boolean contributesToPreconditions( StateVariableOperatorMultiState a, StateVariableOperatorMultiState b ) {
-		for ( Atomic k : b.getPreconditions().keySet() ) {
+		for ( Term k : b.getPreconditions().keySet() ) {
 			List<Term> effList = a.getEffects().get(k);
 			if ( effList != null ) {
 				if ( effList.contains( b.getPreconditions().get(k) ) ) {
@@ -296,10 +294,10 @@ public class YAHSPLookahead { //TODO: there are some bugs here I think
 		return false;
 	}
 	
-	private static Map<Atomic,List<Term>> getEffectOverlap( StateVariableOperatorMultiState a, StateVariableOperatorMultiState b ) {
-		Map<Atomic,List<Term>> effOverlap = new HashMap<Atomic, List<Term>>();
+	private static Map<Term,List<Term>> getEffectOverlap( StateVariableOperatorMultiState a, StateVariableOperatorMultiState b ) {
+		Map<Term,List<Term>> effOverlap = new HashMap<Term, List<Term>>();
 		
-		for ( Atomic k : a.getEffects().keySet() ) {
+		for ( Term k : a.getEffects().keySet() ) {
 			if ( b.getEffects().containsKey(k) ) {
 				List<Term> sharedEff = new ArrayList<Term>();
 				for ( Term e : a.getEffects().get(k) ) {
@@ -313,11 +311,11 @@ public class YAHSPLookahead { //TODO: there are some bugs here I think
 		return effOverlap;
 	}
 	
-	private static Collection<StateVariableOperatorMultiState> getCandidates( Map<Atomic,List<Term>> s,  StateVariableOperatorMultiState a_i, StateVariableOperatorMultiState a_j, Collection<StateVariableOperatorMultiState> A ) {
+	private static Collection<StateVariableOperatorMultiState> getCandidates( Map<Term,List<Term>> s,  StateVariableOperatorMultiState a_i, StateVariableOperatorMultiState a_j, Collection<StateVariableOperatorMultiState> A ) {
 		ArrayList<StateVariableOperatorMultiState> candidates = new ArrayList<StateVariableOperatorMultiState>();
 		
 		for ( StateVariableOperatorMultiState a : SequentialStateFunctions.getApplicable(s, A)) {
-			Map<Atomic,List<Term>> effOverlap = YAHSPLookahead.getEffectOverlap( a_i, a );
+			Map<Term,List<Term>> effOverlap = YAHSPLookahead.getEffectOverlap( a_i, a );
 			if ( !effOverlap.isEmpty() ) {
 				StateVariableOperatorMultiState tmpOp = new StateVariableOperatorMultiState();
 				tmpOp.getEffects().putAll(effOverlap);

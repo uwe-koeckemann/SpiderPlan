@@ -1,0 +1,9 @@
+(:initial-context
+	(:math
+		(eval-int x (+ 40 2))
+		(eval-int y (* x 10))
+		(eval-int z (- 84 x))
+		(eval-int d (/ z 2))
+		(eval-int m (% z 5))
+	)
+)

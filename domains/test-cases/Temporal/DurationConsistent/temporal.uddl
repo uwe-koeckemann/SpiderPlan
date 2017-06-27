@@ -1,0 +1,12 @@
+(:initial-context
+	(:domain
+		(sig x boolean)	;; x is a variable with a boolean value
+	)
+	(:statement 
+		(I1 x)			;; x is true during interval I1
+	)
+	(:temporal
+		(planning-interval [0 100])
+		(duration I1 [20 40])				
+	)
+)

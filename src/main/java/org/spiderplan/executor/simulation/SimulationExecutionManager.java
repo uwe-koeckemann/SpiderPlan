@@ -1,3 +1,24 @@
+/*******************************************************************************
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.executor.simulation;
 
 import java.util.ArrayList;
@@ -12,12 +33,19 @@ import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.execution.Simulation;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
 import org.spiderplan.tools.logging.Logger;
 
+/**
+ * Execution manager for simulated events that can be predetermined
+ * in the domain definition (e.g., future incoming goals, observations,
+ * activities, ...).
+ * 
+ * @author Uwe Köckemann
+ *
+ */
 public class SimulationExecutionManager extends ExecutionManager {
 
 	/**
@@ -34,14 +62,14 @@ public class SimulationExecutionManager extends ExecutionManager {
 	
 	private Map<Long,ConstraintDatabase> dispatchedDBs = new HashMap<Long, ConstraintDatabase>();
 	
-	Atomic tHorizon = new Atomic("time");
+	Term tHorizon = Term.createConstant("time");
 	Statement past = new Statement(Term.createConstant("past"), tHorizon, Term.createConstant("past") );
 	Statement future = new Statement(Term.createConstant("future"), tHorizon, Term.createConstant("future") );
 	
-	AllenConstraint rPast = new AllenConstraint(new Atomic("(release past (interval 0 0))"));
-	AllenConstraint mPastFuture = new AllenConstraint(new Atomic("(meets past future)"));
-	AllenConstraint dFuture = new AllenConstraint(new Atomic("(deadline future (interval inf inf))"));
-	AllenConstraint rFuture = new AllenConstraint(new Atomic("(deadline past (interval 1 1)"));
+	AllenConstraint rPast = new AllenConstraint(Term.parse("(release past (interval 0 0))"));
+	AllenConstraint mPastFuture = new AllenConstraint(Term.parse("(meets past future)"));
+	AllenConstraint dFuture = new AllenConstraint(Term.parse("(deadline future (interval inf inf))"));
+	AllenConstraint rFuture = new AllenConstraint(Term.parse("(deadline past (interval 1 1)"));
 	AllenConstraint mFuture;
 	
 	IncrementalSTPSolver simCSP;
@@ -109,7 +137,7 @@ public class SimulationExecutionManager extends ExecutionManager {
 		}
 				
 		simDB.remove(rFuture);
-		rFuture = new AllenConstraint(new Atomic("(deadline past (interval "+(t)+" "+(t)+"))"));
+		rFuture = new AllenConstraint(Term.parse("(deadline past (interval "+(t)+" "+(t)+"))"));
 		simDB.add(rFuture);
 		
 		ArrayList<Reactor> remList = new ArrayList<Reactor>();		

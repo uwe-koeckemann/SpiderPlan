@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation;
 
 import java.io.BufferedWriter;
@@ -28,12 +27,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.ExpressionTypes;
 import org.spiderplan.representation.expressions.Statement;
@@ -42,12 +38,10 @@ import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interfaces.Assertable;
 import org.spiderplan.representation.expressions.interfaces.Matchable;
 import org.spiderplan.representation.expressions.interfaces.Mutable;
+import org.spiderplan.representation.expressions.interfaces.SubProblemSupport;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
-import org.spiderplan.representation.expressions.minizinc.MiniZincInput;
-import org.spiderplan.representation.expressions.misc.Asserted;
+import org.spiderplan.representation.expressions.misc.Assertion;
 import org.spiderplan.representation.expressions.programs.IncludedProgram;
-import org.spiderplan.representation.expressions.prolog.PrologConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.search.GenericSingleNodeSearch;
 import org.spiderplan.tools.GenericComboBuilder;
@@ -138,38 +132,51 @@ public class ConstraintDatabase implements Collection<Expression> {
 		return false;
 	}
 			
+//	/**
+//	 * Get all variable {@link Term}s in this constraint database.
+//	 * @return all variables used in this constraint database
+//	 */
+//	public Collection<Term> getVariableTerms() {
+//		Set<Term> r = new HashSet<Term>();
+//		for ( Expression c : this ) {
+//			r.addAll(c.getVariableTerms());
+//		}
+//		return r;
+//	}
+//	/**
+//	 * Get all ground {@link Term}s in this constraint database.
+//	 * @return all ground terms in this constraint database
+//	 */
+//	public Collection<Term> getGroundTerms() {
+//		Set<Term> r = new HashSet<Term>();
+//		for ( Expression c : this ) {
+//			r.addAll(c.getGroundTerms());
+//		}
+//		return r;
+//	}
+//	/**
+//	 * Get all {@link Term}s that appear in the constraints of this constraint database.
+//	 * @return all {@link Term}s in this constraint database
+//	 */
+//	public Collection<Term> getAtomics() {
+//		Set<Term> r = new HashSet<Term>();
+//		for ( Expression c : this ) {
+//			r.addAll(c.getComplexTerms());
+//		}
+//		return r;
+//	}
+	
 	/**
-	 * Get all variable {@link Term}s in this constraint database.
-	 * @return all variables used in this constraint database
+	 * Get all terms used in this database recusrively
+	 * @param collectedTerms TODO
+	 * @param getConstants set <code>true</code> to get all constant terms
+	 * @param getVariables set <code>true</code> to get all variable terms
+	 * @param getComplex set <code>true</code> to get all complex terms
 	 */
-	public Collection<Term> getVariableTerms() {
-		Set<Term> r = new HashSet<Term>();
+	public void getAllTerms( Collection<Term> collectedTerms, boolean getConstants, boolean getVariables, boolean getComplex ) {
 		for ( Expression c : this ) {
-			r.addAll(c.getVariableTerms());
+			c.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
 		}
-		return r;
-	}
-	/**
-	 * Get all ground {@link Term}s in this constraint database.
-	 * @return all ground terms in this constraint database
-	 */
-	public Collection<Term> getGroundTerms() {
-		Set<Term> r = new HashSet<Term>();
-		for ( Expression c : this ) {
-			r.addAll(c.getGroundTerms());
-		}
-		return r;
-	}
-	/**
-	 * Get all {@link Atomic}s that appear in the constraints of this constraint database.
-	 * @return all {@link Atomic}s in this constraint database
-	 */
-	public Collection<Atomic> getAtomics() {
-		Set<Atomic> r = new HashSet<Atomic>();
-		for ( Expression c : this ) {
-			r.addAll(c.getAtomics());
-		}
-		return r;
 	}
 	
 	/**
@@ -194,7 +201,7 @@ public class ConstraintDatabase implements Collection<Expression> {
 		/**
 		 * Find all possible substitutions for each statement 
 		 */
-		ArrayList<ArrayList<Substitution>> statementSubstitutions = new ArrayList<ArrayList<Substitution>>();
+		List<List<Substitution>> statementSubstitutions = new ArrayList<List<Substitution>>();
 		for ( Statement s : cDB.get(Statement.class) ) {
 			ArrayList<Substitution> tmp = new ArrayList<Substitution>();
 			for ( Statement e : this.get(Statement.class) ) {
@@ -213,12 +220,12 @@ public class ConstraintDatabase implements Collection<Expression> {
 		 * Combine them
 		 */
 		GenericComboBuilder<Substitution> cB = new GenericComboBuilder<Substitution>();
-		ArrayList<ArrayList<Substitution>> combos = cB.getCombos(statementSubstitutions);
+		List<List<Substitution>> combos = cB.getCombos(statementSubstitutions);
 		
 		/**
 		 * Keep all legal combinations
 		 */
-		for ( ArrayList<Substitution> s : combos ) {
+		for ( List<Substitution> s : combos ) {
 			Substitution theta = new Substitution();
 			
 			for ( Substitution theta_i : s ) {
@@ -421,6 +428,14 @@ public class ConstraintDatabase implements Collection<Expression> {
 	
 	@Override
 	public String toString() {
+		/**
+		 * (:type [problem] expression*)
+		 * 	or
+		 * (:type [problem] expression)
+		 * 
+		 */
+		
+		
 		ArrayList<Term> ordering = new ArrayList<Term>();
 		ordering.add(ExpressionTypes.Domain);
 		ordering.add(ExpressionTypes.Statement);
@@ -433,9 +448,10 @@ public class ConstraintDatabase implements Collection<Expression> {
 		ordering.add(ExpressionTypes.Set);
 		ordering.add(ExpressionTypes.Graph);
 		ordering.add(ExpressionTypes.MiniZinc);
-		ordering.add(ExpressionTypes.Conditional);
+		ordering.add(ExpressionTypes.Interaction);
 		ordering.add(ExpressionTypes.Simulation);
 		ordering.add(ExpressionTypes.IncludedProgram);
+		ordering.add(ExpressionTypes.Assertion);
 		
 		ArrayList<String> keyList = new ArrayList<String>();
 		
@@ -444,17 +460,34 @@ public class ConstraintDatabase implements Collection<Expression> {
 		for ( Term conType : ordering ) {
 			for ( Expression c : this ) {
 				if ( c.getType().equals(conType) ) {
+//					String conTypeString = conType.toString();
+//					if ( conType.equals(ExpressionTypes.Prolog) ) {  // -> if c.hasSupProblemSupport()
+//						PrologConstraint pc = (PrologConstraint)c;
+//						conTypeString += " " + pc.getSubProblemID();	// -> c.getSubProblemTerm()
+//					} else if  ( conType.equals(ExpressionTypes.MiniZinc) ) {
+//						MiniZincInput mc = (MiniZincInput)c;
+//						conTypeString += " " + mc.getSubProblemID();
+//					} 
+//					if ( !keyList.contains(conTypeString) ) {
+//						keyList.add(conTypeString);
+//					}
+//					Collection<Expression> Col = typeMap.get(conTypeString);
+//					if ( Col == null ) {
+//						Col = new ArrayList<Expression>();
+//						typeMap.put(conTypeString, Col);
+//					}
+//					Col.add(c);
+					
 					String conTypeString = conType.toString();
-					if ( conType.equals(ExpressionTypes.Prolog) ) {
-						PrologConstraint pc = (PrologConstraint)c;
-						conTypeString += " " + pc.getProgramID();
-					} else if  ( conType.equals(ExpressionTypes.MiniZinc) ) {
-						MiniZincInput mc = (MiniZincInput)c;
-						conTypeString += " " + mc.getProgramID();
-					} 
+					if ( c.hasSubProblemSupport() ) {
+						SubProblemSupport sps = (SubProblemSupport)c;
+						conTypeString += " " + sps.getSubProblemID();
+					}
+					
 					if ( !keyList.contains(conTypeString) ) {
 						keyList.add(conTypeString);
 					}
+					
 					Collection<Expression> Col = typeMap.get(conTypeString);
 					if ( Col == null ) {
 						Col = new ArrayList<Expression>();
@@ -468,13 +501,10 @@ public class ConstraintDatabase implements Collection<Expression> {
 			Term conType = c.getType();
 			if ( !ordering.contains(conType) ) {
 				String conTypeString = conType.toString();
-				if ( conType.equals(ExpressionTypes.Prolog) ) {
-					PrologConstraint pc = (PrologConstraint)c;
-					conTypeString += " " + pc.getProgramID();
-				} else if  ( conType.equals(ExpressionTypes.MiniZinc) ) {
-					MiniZincInput mc = (MiniZincInput)c;
-					conTypeString += " " + mc.getProgramID();
-				} 
+				if ( c.hasSubProblemSupport() ) {
+					SubProblemSupport sps = (SubProblemSupport)c;
+					conTypeString += " " + sps.getSubProblemID();
+				}
 				if ( !keyList.contains(conTypeString) ) {
 					keyList.add(conTypeString);
 				}
@@ -491,21 +521,21 @@ public class ConstraintDatabase implements Collection<Expression> {
 		StringBuilder r = new StringBuilder();
 		
 		for ( String conType : keyList ) {
-			if ( !conType.equals("conditional") && !conType.equals("simulation") ) {
-				r.append("(");
+			if ( !conType.equals("ic") && !conType.equals("simulation") ) {
+				r.append("(:");
 				r.append(conType);
 			}
 				
 			for ( Expression c : typeMap.get(conType) ) {
 				r.append("\n");
-				if ( !conType.equals("conditional") && !conType.equals("include") && !conType.equals("simulation")) {
+				if ( !conType.equals("ic") && !conType.equals("include") && !conType.equals("simulation")) {
 					String s = "\t"+c.toString().toString().replace("\n", "\n\t");
 					r.append(s);
 				} else {
 					r.append(c.toString());
 				}				
 			}
-			if ( !conType.equals("conditional") && !conType.equals("simulation")) {
+			if ( !conType.equals("ic") && !conType.equals("simulation")) {
 				r.append("\n)\n");
 			} else {
 				r.append("\n");
@@ -812,14 +842,37 @@ public class ConstraintDatabase implements Collection<Expression> {
 	 * be considered by solvers.
 	 * @param a constraint that asserts another constraint
 	 */
-	public void processAsserted( Asserted a ) {
+//	public void processAsserted( Asserted a ) {
+//		for ( Class<? extends Expression> cl : KeyList ) {
+//			List<Expression> C = Cmap.get(cl);
+//			if ( C != null ) {
+//				for ( int i = 0 ; i < C.size() ;i++ ) {
+//					if ( C.get(i).isAssertable() ) {
+//						if ( a.appliesTo(C.get(i))) {
+//							C.set(i, ((Assertable)C.get(i)).setAsserted(true));
+//						}
+//					} else {
+//						continue;
+//					}
+//				}
+//			}
+//		}
+//	}
+//	
+	/**
+	 * Apply an {@link Asserted} constraint. Asserted constraints will no longer
+	 * be considered by solvers.
+	 * @param a constraint that asserts another constraint
+	 */
+	public void processAssertedTerm( Assertion a ) {
 		for ( Class<? extends Expression> cl : KeyList ) {
 			List<Expression> C = Cmap.get(cl);
 			if ( C != null ) {
 				for ( int i = 0 ; i < C.size() ;i++ ) {
-					if ( C.get(i).isAssertable() ) {
-						if ( a.appliesTo(C.get(i))) {
-							C.set(i, ((Assertable)C.get(i)).setAsserted(true));
+					if ( C.get(i) instanceof Assertable ) {
+						Assertable ac = (Assertable)C.get(i);
+						if ( ac.appliesTo(a)) {
+							C.set(i, ac.setAsserted(true));
 						}
 					} else {
 						continue;

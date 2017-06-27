@@ -1,0 +1,15 @@
+FlowModule main:		
+	modules = "PrologPreprocessor";
+	rules = { 
+		Start => PrologPreprocessor;
+		PrologPreprocessor => Success;
+	};
+	keepTimes=false;
+	keepStatistics=false;
+	verbose=false;
+	verbosity=1;
+	
+PrologPreprocessor PrologPreprocessor:
+	keepStatistics=false;
+	verbose=false;
+	verbosity=3;

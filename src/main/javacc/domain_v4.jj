@@ -1,8 +1,7 @@
 options
 {
-  JDK_VERSION = "1.7";
+  JDK_VERSION = "1.8";
   static = false;
-  
 }
 
 PARSER_BEGIN(DomainParser_v4)
@@ -28,6 +27,8 @@ import org.spiderplan.representation.types.*;
 import org.spiderplan.representation.expressions.*;
 import org.spiderplan.representation.expressions.execution.ros.*;
 import org.spiderplan.representation.expressions.execution.database.*;
+import org.spiderplan.representation.expressions.execution.sockets.*;
+import org.spiderplan.representation.expressions.execution.caresses.*;
 import org.spiderplan.representation.expressions.causal.*;
 import org.spiderplan.representation.expressions.cost.*;
 import org.spiderplan.representation.expressions.optimization.*;
@@ -94,6 +95,7 @@ TOKEN :
 |   < DOMAIN : ":domain" >
 |   < GOAL : ":goal" >
 |   < TASK : ":task" >
+|   < OBSERVATION : ":observation" >
 |   < FINALLY : ":finally" >
 |   < MINIZINC : ":minizinc" >
 |   < RESOURCE : ":resource" >
@@ -107,17 +109,21 @@ TOKEN :
 |   < RESOLVER : ":resolver" >
 |   < CAPACITY : ":capacity" >
 |   < INITIAL : ":initial-context" >
-|   < CUSTOM : ":custom" >
 |   < SIMULATE : ":simulate" >
 |   < STATEMENT : ":statement" >
 | 	< OPERATOR : ":operator" >
+| 	< SIGNATURE : ":signature" >
 | 	< PRECONDITIONS : ":preconditions" > 
 | 	< EFFECTS : ":effects" >
+| 	< ASSERTION : ":assertion" >
 | 	< CONSTRAINTS : ":constraints" >
 |   < ROSPUBLISH : "publish" >
 |   < ROSSUBSCRIBE : "subscribe" >
 |   < ROSGOAL : "actionlib" >
 |   < REUSABLE : "reusable" >
+|   < SOCKETS : ":sockets" >
+|   < CARESSES : ":caresses" >
+|   < ONTOLOGY : ":ontology" >
 }
 
 /* SEPARATORS */
@@ -131,13 +137,8 @@ TOKEN :
 | < OBRACE: "{" >
 | < CBRACE: "}" >
 | < BAR : "|" >
-| < COMMA: "," >
-| < DOT: "." >
-| < COLON: ":">
-| < PLUS: "+">
-| < MINUS: "-">
-| < QMARKS: "\"">
 | < QPOINT: "?">
+| < QMARKS: "\"">
 }
 
 
@@ -145,10 +146,8 @@ TOKEN :
 
 TOKEN :
 {
-    < NON_COMPLEX_TERM : (["a"-"z"]|["A"-"Z"]|["0"-"9"]|["_"]|["/"])(["a"-"z"]|["A"-"Z"]|["0"-"9"]|["_"]|["-"]|["/"])* >
-		//< NON_COMPLEX_TERM : (["a"-"z"]|["A"-"Z"]|["0"-"9"]|["_"]|["-"]|["/"]|["+"]|["*"]|["<"]|[">"]|["="])+ >
+    < NON_COMPLEX_TERM : (["a"-"z"]|["A"-"Z"]|["0"-"9"]|["_"]|["."]|["+"]|["-"]|["*"]|["/"]|["%"]|["<"]|[">"]|["="])(["a"-"z"]|["A"-"Z"]|["0"-"9"]|["_"]|["."]|["+"]|["-"]|["*"]|["/"]|["%"]|["<"]|[">"]|["="])* >
 |   < STRING : <  QMARKS > (~["\""])* < QMARKS > >
-|   < UFLOAT :  (["0"-"9"])* < DOT > (["0"-"9"])+ > 
 }
 
 void CompilationUnit( Core c, Map<String,String> includeMapping ) :
@@ -195,14 +194,20 @@ void InitialContext() :
 	if ( verbose ) { System.out.println("[Parser] Initial Context"); }
 }
 {  
-	<OP> <INITIAL> cDB = ConstraintDatabase() <CP>
+	  //(LOOKAHEAD(2) (<OP> <INITIAL> cDB = ConstraintDatabase() <CP>)
+	  //| cDB = ConstraintDatabase())
+  	//{
+		//	c.getContext().add(cDB);
+  	//}
+  	
+  	<OP> <INITIAL> cDB = ConstraintDatabase() <CP>
   	{
-		c.getContext().add(cDB);
+			c.getContext().add(cDB);
   	}
 }
 
 /**
- * Terms and Atomics
+ * Terms and Terms
  */
 String NonComplexTerm() : 
 {
@@ -284,87 +289,8 @@ Term Term() :
 				result = Term.createComplex("interval", lowerBound, upperBound);
 			}
  	   )
-  |
-  (
-  	val = Float()
-	{
-		
-		result = Term.createFloat(val);
-	}
-   )
  ) 
   { return result; }
-}
-
-Atomic Atomic() :
-{
-    Atomic a;
-    String name;
-    Term tmpTerm;
-    ArrayList<Term> terms = new ArrayList<Term>();
-}
-{
-	((< OP > 
-  	 ( name = NonComplexTerm())
-  	   ( tmpTerm = Term() { terms.add(tmpTerm); })*
-  	 < CP > 
-  	  {	
-  	    Term[] args = new Term[terms.size()];
-  	    for ( int i = 0 ; i < terms.size(); i++ )
-  	    {
-  	      args[i] = terms.get(i);	
-  	    }
-  	    return new Atomic( name, args );
-  	  })
-  	  |
-  	  (
-  	   ( name = NonComplexTerm())
-  	  {
-  	    return new Atomic( name );
-  	  }
-  	  ))
-}
-
-List<Atomic> TypedAtomic() :
-{
-    Atomic a;
-    Token negated  = new Token();
-    String name;
-    Term tmpTerm, type;
-    ArrayList<Term> sigTerms = new ArrayList<Term>();
-    ArrayList<Term> terms = new ArrayList<Term>();
-}
-{
-	< OP >
-	(name = NonComplexTerm())  
-  	 ( 	tmpTerm = Term() < MINUS > type = Term()
-  	 {
-		terms.add(tmpTerm);
-		sigTerms .add(type);
-  	 })*
-  	 < CP > 
-  	 
-  	 {
-  	 	Term[] sigArgs = new Term[sigTerms.size()];
-  	    for ( int i = 0 ; i < sigTerms.size(); i++ )
-  	    {
-  	      sigArgs[i] = sigTerms.get(i);
-  	    }
-  	 
-  	   	Atomic sigAtomic = new Atomic( name, sigArgs );
-
-		Term[] args = new Term[terms.size()];
-  	    for ( int i = 0 ; i < terms.size(); i++ )
-  	    {
-  	      args[i] = terms.get(i);
-  	    }
-  	    Atomic atomic = new Atomic( name, args );
-  	    
-  	    List<Atomic> r = new ArrayList<Atomic>();
-  	    r.add(atomic);
-  	    r.add(sigAtomic);
-  	    return r;
-  	  } 
 }
 
 /**
@@ -374,12 +300,12 @@ Statement Statement() :
 {
     Term intervalKey;
     Term v = null;
-    Atomic x;
+    Term x;
 }
 {
 	< OP >
 	  intervalKey = IntervalTerm()
-	   		 x = Atomic() [ v = Term() ]
+	   		 x = Term() [ v = Term() ]
 	< CP >
 	{
 		if ( v != null )
@@ -413,6 +339,7 @@ ConstraintDatabase ConstraintDatabase() :
 		| ( < GRAPH >		( LOOKAHEAD(2) c = GraphConstraint() 			{ cDB.add(c); } )+ )
 		| ( < GOAL > 		( LOOKAHEAD(2) c = GoalConstraint() 			{ cDB.add(c); } )+ )
 		| ( < TASK > 		( LOOKAHEAD(2) c = TaskConstraint() 			{ cDB.add(c); } )+ )
+		| ( < OBSERVATION > 		( LOOKAHEAD(2) c = Observation() 			{ cDB.add(c); } )+ )
 		| ( < FINALLY > 	( 			   c = FinallyConstraint() 			{ cDB.add(c); } )  )
 		| ( < DOMAIN > 		( LOOKAHEAD(2) c = DomainConstraint() 			{ cDB.add(c); } )+ )
 		| ( < SAMPLING > ( LOOKAHEAD(2) c = SamplingConstraint()	{ cDB.add(c); } )+ )
@@ -423,12 +350,15 @@ ConstraintDatabase ConstraintDatabase() :
 		| ( < SIMULATE > 	( 			   c = Simulation() 		{ cDB.add(c); } )  )
 		| ( < ROS > 		( 			   c = ROSConstraint() 				{ cDB.add(c); } )+ )
 		| ( < DBEXEC > 		( 			   c = DatabaseExecutionExpression() 				{ cDB.add(c); } )+ )
-		| ( < CUSTOM > 		( LOOKAHEAD(2) c = CustomConstraint() 			{ cDB.add(c); } )+ )
+		| ( < SOCKETS > 		( 			   c = SocketExpression() 				{ cDB.add(c); } )+ )
+		| ( < CARESSES > 		( 			   c = CaressesExpression() 				{ cDB.add(c); } )+ )
 		| ( < INCLUDE > 	( LOOKAHEAD(2) c = IncludeProgram() 			{ cDB.add(c); } )+ )
 		| ( < STATEMENT > 	( LOOKAHEAD(2) c = Statement()	 				{ cDB.add(c); } )+ ) 
 		| ( < PROLOG >	 programID = Term()  ( LOOKAHEAD(2) c = PrologConstraint(programID) 	{ cDB.add(c); } )+ )
+		| ( < ONTOLOGY >	 programID = Term()  ( LOOKAHEAD(2) c = OntologyExpression(programID) 	{ cDB.add(c); } )+ )	
 		| ( < SPARQL >	 ( LOOKAHEAD(2) c = SparQLQuery() 	{ cDB.add(c); } )+ )
 		| ( < MINIZINC > programID = Term()  ( LOOKAHEAD(2) c = MiniZincInput(programID) 	{ cDB.add(c); } )+ )
+		| ( < ASSERTION > ( c = Assertion() 	{ cDB.add(c); } ) )
 		)
 	  <CP>
 	)*
@@ -440,19 +370,40 @@ ConstraintDatabase ConstraintDatabase() :
 
 Expression TemporalConstraint() :
 {
-	Atomic constraint;
+	Term constraint;
 }
 {
-	constraint = Atomic() 
+	constraint = Term() 
 	{
 		if ( verbose ) { System.out.println("[Parser] Temporal Constraint"); }
-		String name = constraint.name().replace("-","").toLowerCase();
+		String name = constraint.getName().replace("-","").toLowerCase();
 	  	if ( name.equals("planninginterval") ) {
 	  	  if ( constraint.getNumArgs() == 1 ) {
 	  	     return new PlanningInterval(constraint.getArg(0));
  	      } else {
  	         return new PlanningInterval(constraint.getArg(0), constraint.getArg(1));
  	      }
+ 	    } else if ( name.equals("date-time-reference") ) {
+				 ExpressionTypes.TemporalConstraints.assertSupported(constraint, DateTimeReference.class);
+
+						String dateFormatStr = constraint.getArg(0).toString();
+						String initialDate = constraint.getArg(1).toString();
+
+						try {
+										long d_days = Long.valueOf(constraint.getArg(2).toString()).longValue();
+										long d_hours = Long.valueOf(constraint.getArg(3).toString()).longValue();
+										long d_minutes = Long.valueOf(constraint.getArg(4).toString()).longValue();
+										long d_seconds = Long.valueOf(constraint.getArg(5).toString()).longValue();
+										long d_milliseconds = Long.valueOf(constraint.getArg(6).toString()).longValue();
+										return new DateTimeReference(dateFormatStr, initialDate, d_days, d_hours, d_minutes, d_seconds, d_milliseconds);
+						} catch ( NumberFormatException e ) {
+										System.err.println("Last 5 arguments of " +constraint.toString()+ " must be long values. Exiting...");
+										e.printStackTrace();
+										System.exit(1);
+						}
+				
+				return null;
+				
 	    } else if ( name.equals("possibleintersection") || name.equals("intersection") ) {
 	      ArrayList<Term> terms = new ArrayList<Term>();
           for ( int i = 0 ; i < constraint.getNumArgs() ; i++ )
@@ -472,10 +423,10 @@ Expression TemporalConstraint() :
 
 Expression PrologConstraint( Term programID ) :
 {
-	Atomic constraint;
+	Term constraint;
 }
 {
-		constraint = Atomic() 
+		constraint = Term() 
 		{
 			if ( verbose ) { System.out.println("[Parser] Prolog Constraint"); }
 		   	return new PrologConstraint( constraint, programID ); 
@@ -484,10 +435,10 @@ Expression PrologConstraint( Term programID ) :
 
 Expression ConfigurationPlanningConstraint( ) :
 {
-	Atomic constraint;
+	Term constraint;
 }
 {
-		constraint = Atomic() 
+		constraint = Term() 
 		{
 			if ( verbose ) { System.out.println("[Parser] Configuration Planning Constraint"); }
 		  return new ConfigurationPlanningConstraint( constraint ); 
@@ -518,12 +469,24 @@ Expression TaskConstraint() :
 	}
 }
 
-Expression MiniZincInput( Term programID ) :
+Expression Observation() :
 {
-	Atomic constraint;
+  	Statement observation;
 }
 {
-	constraint = Atomic() 
+	observation = Statement()
+	{
+		if ( verbose ) { System.out.println("[Parser] Observation"); }
+		return new Observation(observation);
+	}
+}
+
+Expression MiniZincInput( Term programID ) :
+{
+	Term constraint;
+}
+{
+	constraint = Term() 
 	{
 		if ( verbose ) { System.out.println("[Parser] MiniZinc Constraint"); }
 	   	return new MiniZincInput( constraint, programID ); 
@@ -548,10 +511,10 @@ Expression SparQLQuery( ) :
 
 Expression GraphConstraint() :
 {
-	Atomic constraint;
+	Term constraint;
 }
 {
-	constraint = Atomic() 
+	constraint = Term() 
 	{
 		if ( verbose ) { System.out.println("[Parser] Graph Constraint"); }
 	   	return new GraphConstraint( constraint ); 
@@ -560,10 +523,10 @@ Expression GraphConstraint() :
 
 Expression MathConstraint() :
 {
-	Atomic constraint;
+	Term constraint;
 }
 {
-	constraint = Atomic() 
+	constraint = Term() 
 	{
 	   	return new MathConstraint( constraint ); 
 	}
@@ -571,10 +534,10 @@ Expression MathConstraint() :
 
 Expression SetConstraint() :
 {
-	Atomic constraint;
+	Term constraint;
 }
 {
-	constraint = Atomic() 
+	constraint = Term() 
 	{
 		if ( verbose ) { System.out.println("[Parser] Set Constraint"); }
 	   	return new SetConstraint( constraint ); 
@@ -583,56 +546,44 @@ Expression SetConstraint() :
 
 Expression SamplingConstraint() :
 {
-	Atomic constraint;
+	Term constraint;
 }
 {
-	constraint = Atomic() 
+	constraint = Term() 
 	{
 		if ( verbose ) { System.out.println("[Parser] Probabilistic Constraint"); }
 	   	return new SamplingConstraint( constraint ); 
 	}
 }
 
-
-Expression CustomConstraint() :
-{
-	Atomic constraint;
-	Token conType;
-}
-{
-	conType = < COLON > constraint = Atomic() 
-	{
-	   	return new CustomConstraint( constraint,new Atomic(conType.image) ); 
-	}
-}
-
 Expression FinallyConstraint() :
 {
+	Term id;
 	ConstraintDatabase cDB;
 }
 {
-	cDB = ConstraintDatabase()
+	id = Term() cDB = ConstraintDatabase()
 	{
 		if ( verbose ) { System.out.println("[Parser] Finally Constraint"); }
-		return new Finally(cDB);
+		return new Finally(id, cDB);
 	}
 }
 
 Expression DomainConstraint():
 {
-	Atomic constraint;
+	Term constraint;
 }
 {
-  	constraint = Atomic() 
+  	constraint = Term() 
 	{
 		if ( verbose ) { System.out.println("[Parser] Domain Constraint"); }
-		if ( constraint.name().equals("enum") ) {
+		if ( constraint.getName().equals("enum") ) {
 			return new TypeDomainConstraint(constraint);
-		} else if ( constraint.name().equals("float") ) {
+		} else if ( constraint.getName().equals("float") ) {
 			return new TypeDomainConstraint(constraint);
-		} else if ( constraint.name().equals("int") ) {
+		} else if ( constraint.getName().equals("int") ) {
 			return new TypeDomainConstraint(constraint);
-		} else if ( constraint.name().equals("sig") ) {
+		} else if ( constraint.getName().equals("sig") ) {
 			Term varSigTerm = constraint.getArg(0);
 			Term valSigTerm = null;
 			if ( constraint.getNumArgs() > 1 ) {
@@ -642,18 +593,18 @@ Expression DomainConstraint():
             for ( int i = 0 ; i < args.length ; i++ ) {
             	args[i] = varSigTerm.getArg(i);
             }
-			Atomic varSig = new Atomic(varSigTerm.getName(),args);
+			Term varSig = Term.createComplex(varSigTerm.getName(),args);
 			if ( valSigTerm != null ) {
 				return new TypeSignatureConstraint(varSig,valSigTerm);
 			} else {
 				return new TypeSignatureConstraint(varSig);
 			}
 				
-		} else if ( constraint.name().equals("new-object") ) {
+		} else if ( constraint.getName().equals("new-object") ) {
 			return new NewObject(constraint.getArg(0), constraint.getArg(1));
-		} else if ( constraint.name().equals("uncontrollable") ) {
+		} else if ( constraint.getName().equals("uncontrollable") ) {
 			return new Uncontrollable(constraint);
-		} else if ( constraint.name().equals("in") || constraint.name().equals("not-in")) {
+		} else if ( constraint.getName().equals("in") || constraint.getName().equals("not-in")) {
 		  	ArrayList<Term> D = new ArrayList<Term>();
 		  	for ( int i = 1 ; i < constraint.getNumArgs() ; i++ ) {
 		  	  	Term t = constraint.getArg(i); 
@@ -669,7 +620,7 @@ Expression DomainConstraint():
 			}
 			Term list = Term.createComplex("list", dom);
 			
-			Atomic a = new Atomic(constraint.name(), constraint.getArg(0), list);
+			Term a = Term.createComplex(constraint.getName(), constraint.getArg(0), list);
 			
 			return new DomainMemberConstraint(a);
 		} else {
@@ -682,11 +633,11 @@ Expression ConditionalConstraint()  :
 {
   	InteractionConstraint iC;
 	ConstraintDatabase tDB;
-	Atomic name;
+	Term name;
 	if ( verbose ) { System.out.println("[Parser] Interaction Constraint"); }
 }
 {
-	name = Atomic()
+	name = Term()
 	{
 		iC = new InteractionConstraint(name);
 	}
@@ -710,7 +661,7 @@ Expression ConditionalConstraint()  :
 Expression ROSConstraint()  :
 {
   	Expression rosCon;
-	Atomic variable;
+	Term variable;
 	Term value;
 	Term topic;
 	Term msgType;
@@ -723,11 +674,11 @@ Expression ROSConstraint()  :
 {
 	<OP>
 	( LOOKAHEAD(2)
-		( <ROSPUBLISH> variable = Atomic() value = Term() topic = Term() msgType = Term() 
+		( <ROSPUBLISH> variable = Term() value = Term() topic = Term() msgType = Term() 
 			{ rosCon = new ROSConstraint(ExpressionTypes.ROSRelation.Publish,variable,value,topic,msgType); } )
-	|	( <ROSSUBSCRIBE> variable = Atomic() value = Term() topic = Term() msgType = Term() 
+	|	( <ROSSUBSCRIBE> variable = Term() value = Term() topic = Term() msgType = Term() 
 			{ rosCon = new ROSConstraint(ExpressionTypes.ROSRelation.Subscribe,variable,value,topic,msgType); } )
-	|	( <ROSGOAL> variable = Atomic() serverID = Term() actionName = Term() msgType = Term() [ LOOKAHEAD(2) resultMsg = Term() ] 
+	|	( <ROSGOAL> variable = Term() serverID = Term() actionName = Term() msgType = Term() [ LOOKAHEAD(2) resultMsg = Term() ] 
 			{ rosCon = new ROSGoal(variable,serverID,actionName,msgType,resultMsg); } )
 	)
 	<CP>
@@ -736,11 +687,11 @@ Expression ROSConstraint()  :
 
 Expression DatabaseExecutionExpression()  :
 {
-  Atomic name;
+  Term name;
 	if ( verbose ) { System.out.println("[Parser] Setting Capacity"); }
 }
 {
- 	name = Atomic() 
+ 	name = Term() 
 	{
 		return new DatabaseExecutionExpression(name);
 	} 
@@ -764,12 +715,12 @@ Expression Simulation()  :
 
 Expression ReusableResourceCapacity()  :
 {
-  	Atomic name;
+  	Term name;
   	String cap;
 	if ( verbose ) { System.out.println("[Parser] Setting Capacity"); }
 }
 {
-  	<OP> < REUSABLE > name = Atomic() cap = NonComplexTerm() <CP>	 
+  	<OP> < REUSABLE > name = Term() cap = NonComplexTerm() <CP>	 
 	{
 		return new ReusableResourceCapacity(name, Integer.valueOf(cap));
 	} 	   
@@ -779,12 +730,14 @@ Expression IncludeProgram() :
 {
   	Term name;
     String includedProgramID;
+		String subStart = null;
+		String subEnd = null;
     Token includedProgramFile;
     if ( verbose ) { System.out.println("[Parser] Include Program"); }
 }  
 {
 	LOOKAHEAD(4) (  
-		 <OP> name = Term() includedProgramFile = <STRING> <CP>
+		 <OP> name = Term() includedProgramFile = <STRING> [ subStart = <STRING>.image subEnd = <STRING>.image ] <CP>
 	 {
 	 	try {
 	 		String fileName = includedProgramFile.image.substring(1,includedProgramFile.image.length()-1);
@@ -793,7 +746,11 @@ Expression IncludeProgram() :
 					Scanner scanner = new Scanner(new URL(fileName).openStream(), "UTF-8");
 					String program = scanner.useDelimiter("\\A").next();
 					scanner.close();
-					return new IncludedProgram(name, program );
+					if ( subStart == null )
+						 return new IncludedProgram(name, fileName, program );
+					else
+						 return new IncludedProgram(name, fileName, program, subStart, subEnd );
+								
 			} else {
 				if ( fileName.startsWith(".") ) {	
 					fileName = sourceDirectory + fileName;
@@ -801,7 +758,12 @@ Expression IncludeProgram() :
 				}
 
 				String program = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
-				return new IncludedProgram(name, program );
+
+				if ( subStart == null )
+						 return new IncludedProgram(name, fileName, program );
+				else
+						 return new IncludedProgram(name, fileName, program, subStart, subEnd );
+
 	 		}
 	 	} catch ( IOException e ) {
 			e.printStackTrace();
@@ -817,31 +779,70 @@ Expression IncludeProgram() :
 	)
 }
 
+Expression Assertion() :
+{
+	ArrayList<Term> parameters = new ArrayList<Term>();
+	Term parameter;
+	Term expressionType;
+	 if ( verbose ) { System.out.println("[Parser] Assertion"); }
+}
+{
+	expressionType = Term() ( LOOKAHEAD(2) parameter = Term() { parameters.add(parameter); } )+
+	{
+			Term list[] = new Term[parameters.size()];
+			for ( int i = 0 ; i < parameters.size() ; i++ ) {
+				list[i] = parameters.get(i);
+			}
+			
+	   	return new Assertion( expressionType, list ); 
+	}
+}
+
 /**
  * Operators
  */
 void Operator()  : 
 {
     Operator o;
-    List<Atomic> nameAndSig = null;
-    Atomic name = null;
+    List<Term> sigTerms = new ArrayList<Term>();
+    Term name = null;
+    Term arg = null;
     Statement s;
     ConstraintDatabase C;
+
     if ( verbose ) { System.out.println("[Parser] Operator"); }
 }
 {
   
- <OP> <OPERATOR> ( LOOKAHEAD(8) nameAndSig = TypedAtomic() | name = Atomic()  ) 
+ <OP> <OPERATOR> name = Term()
   	{
-  		if ( nameAndSig != null ) {
-  			name = nameAndSig.get(0);
-  			c.getContext().add(new TypeSignatureConstraint(nameAndSig.get(1)));
-		}
-		o = new Operator();
-		o.setName( name );
-		//groupMapping = new HashMap<Term,ArrayList<Term>>();
-		
+			o = new Operator();
+			o.setName( name );
+			//groupMapping = new HashMap<Term,ArrayList<Term>>();
   	}
+  [ LOOKAHEAD(2) <OP> <SIGNATURE> 
+		{ 
+			String opName = name.getName(); 
+			int i = 0;
+			Term[] args = new Term[name.getNumArgs()];
+		} 
+			( arg = Term() 
+			{ 
+				if ( i >= args.length ) { 
+					System.err.println("Signature has more arguments than name of operator " + name + ". Exiting..."); 
+					System.exit(1); 
+				} 
+				args[i++] = arg; 
+			})* 
+		{ 
+			if ( i != name.getNumArgs() ) { 
+				System.err.println("Signature has less arguments than name of operator " + name + ". Exiting..."); 
+				System.exit(1); 
+			}
+			Term sig = Term.createComplex(opName, args);
+			c.getContext().add(new TypeSignatureConstraint(sig)); 
+		} 
+	<CP> ]
 	<OP> < PRECONDITIONS > 	(s = Statement() {   o.addPrecondition(s); 	} )* <CP> 
 	<OP> < EFFECTS >      	(s = Statement() {   o.addEffect(s); 		} )* <CP>
   	<OP> < CONSTRAINTS > C = ConstraintDatabase() <CP>
@@ -904,53 +905,44 @@ Expression ResourceConstraint() :
 
 Expression CostConstraint() :
 {
-  	Atomic cRel;
+  	Term cRel;
 }
 {
- 	( cRel = Atomic() )  	{ 	return new Cost(cRel); 	}
+ 	( cRel = Term() )  	{ 	return new Cost(cRel); 	}
 }
 
 Expression OptimizationExpression() :
 {
-  	Atomic cRel;
+  	Term cRel;
 }
 {
- 	( cRel = Atomic() )  	{ 	return new OptimizationTarget(cRel); 	}
-}
-
-/*
- *	Utility
- */
-Integer Integer() :
-{
-  	String number;
-  	Token sign = null;
-  	String signStr = "";
-}
-{
-   [ sign = < PLUS > | sign = < MINUS > ] number = NonComplexTerm()
-   {
-     	if ( sign != null )
-     	{
-     	  	signStr = sign.image;
-     	}
-		return Integer.valueOf(signStr + number);
-   } 
+ 	( cRel = Term() )  	{ 	return new OptimizationTarget(cRel); 	}
 }
 
-Double Float() :
+Expression SocketExpression() :
 {
-  	Token number;
-  	Token sign = null;
-  	String signStr = "";
+  	Term cRel;
 }
 {
-   [ sign = < PLUS > | sign = < MINUS > ] number = < UFLOAT >
-   {
-     	if ( sign != null )
-     	{
-     	  	signStr = sign.image;
-     	}
-		return Double.valueOf(signStr + number.image);
-   } 
+ 	( cRel = Term() )  	{ 	return new SocketExpression(cRel); 	}
+}
+
+Expression CaressesExpression() :
+{
+  	Term cRel;
+}
+{
+ 	( cRel = Term() )  	{ 	return new CaressesExpression(cRel); 	}
+}
+
+Expression OntologyExpression( Term programID ) :
+{
+	Term constraint;
+}
+{
+	constraint = Term() 
+	{
+		if ( verbose ) { System.out.println("[Parser] Ontology Expression"); }
+	   	return new OntologyExpression( programID, constraint ); 
+	}
 }

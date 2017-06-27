@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.tools;
 
 import java.util.ArrayList;
@@ -27,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.spiderplan.causal.forwardPlanning.StateVariableOperator;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
 
@@ -93,17 +91,17 @@ public class SimpleParsing {
 	}
 	
 	/**
-	 * Create a map of assignments from {@link Atomic} to {@link Term} from
+	 * Create a map of assignments from {@link Term} to {@link Term} from
 	 * a {@link String}.
 	 * @param s {@link String} of the form "p(a,b)<-c;p(b,c)<-a;..."
 	 * @return map from state-variables to values
 	 */
-	public static Map<Atomic,Term> createMap( String s ) {
-		Map<Atomic,Term> r = new HashMap<Atomic, Term>();
+	public static Map<Term,Term> createMap( String s ) {
+		Map<Term,Term> r = new HashMap<Term, Term>();
 		s = s.replace("\n", "").replace("\t", "");
 		String[] tmp = s.split(";");
 		for ( String assignment : tmp ) {
-			Atomic var = new Atomic(assignment.split("<-")[0]);
+			Term var = Term.parse(assignment.split("<-")[0]);
 			Term val = Term.parse(assignment.split("<-")[1]);
 			r.put(var,val);
 		}
@@ -116,9 +114,9 @@ public class SimpleParsing {
 	 * @return state-variable operator
 	 */
 	public static StateVariableOperator createSVO( String s ) {
-		Atomic name = new Atomic(s.split("<p>")[0]);
-		Map<Atomic,Term> preconditions = SimpleParsing.createMap(s.split("<p>")[1].split("<e>")[0]);
-		Map<Atomic,Term> effects = SimpleParsing.createMap(s.split("<e>")[1]);
+		Term name = Term.parse(s.split("<p>")[0]);
+		Map<Term,Term> preconditions = SimpleParsing.createMap(s.split("<p>")[1].split("<e>")[0]);
+		Map<Term,Term> effects = SimpleParsing.createMap(s.split("<e>")[1]);
 		
 		StateVariableOperator svo = new StateVariableOperator();
 		

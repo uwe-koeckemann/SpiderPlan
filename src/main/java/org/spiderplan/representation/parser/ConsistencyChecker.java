@@ -1,30 +1,32 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.parser;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
@@ -38,7 +40,6 @@ import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.SimpleDistanceConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.Type;
 import org.spiderplan.representation.types.TypeManager;
@@ -162,7 +163,7 @@ public class ConsistencyChecker {
 						return false;
 					}	
 					
-					if ( !t.getClass().getSimpleName().equals("FloatType")  && !t.getDomain().contains(s.getVariable().getArg(i))) {
+					if ( !t.getClass().getSimpleName().equals("FloatType")  && !t.contains(s.getVariable().getArg(i), tM)) {
 						System.out.println("[FAIL]");
 						System.err.println( "ERROR: Statement: " + s + " has value " + s.getVariable().getArg(i) + " which is not part of domain of type " + t.getName());
 						return false;
@@ -171,7 +172,7 @@ public class ConsistencyChecker {
 			}
 			
 			Type t = tM.getPredicateTypes(s.getVariable().getUniqueName(), -1);
-			if ( s.getValue().isGround() && !t.getDomain().contains(s.getValue())) {
+			if ( s.getValue().isGround() && !t.contains(s.getValue(), tM)) {
 				System.out.println("[FAIL]");
 				System.err.println( "ERROR: Statement: " + s + " has value " + s.getValue() + " which is not part of domain of type " + t.getName());
 				return false;
@@ -225,14 +226,14 @@ public class ConsistencyChecker {
 			if ( verbose ) {
 				System.out.print(getDottedString(o.getName().toString(),numChars));
 			}
-			Atomic varName = o.getName(); // tM.getVariableFromLookUp(o.getName().name());
+			Term varName = o.getName(); // tM.getVariableFromLookUp(o.getName().name());
 			if ( !tM.hasVariable(varName.getUniqueName()) ) {
 				if ( verbose ) {
 					System.out.println("[FAIL]");
 					System.err.println("ERROR: No signature defined for operator.");
 					System.err.println("Signatures are used to define types of an operators arguments. There are two ways to do this:");
-					System.err.println("(1) Add the signature as a variable with \"var\".\nExample: var Move(agent,location,location);\n");
-					System.err.println("(2) Add types directly to the name in the operator definition. \nExample: operator Move(A - agent, L1 - location, L2 - location) = { ...");
+					System.err.println("(1) Add a domain constraint. Example: (:domain (sig (operator-name type-1 type-2 ...)))\n");
+					System.err.println("(2) Add types directly to the name in the operator definition. \nExample: (:operator (operator-name ?a1 - type-1  ?a2 - type-2 ?a3 - type3) ...)");
 				}
 				return false;
 			} else {
@@ -273,7 +274,9 @@ public class ConsistencyChecker {
 			
 			for ( int i = 0 ; i < o.getName().getNumArgs() ; i++ ) {
 				Term t = o.getName().getArg(i);
-				for ( Term v : t.getVariables() ) {
+				Set<Term> collectedTerms = new HashSet<Term>();
+				t.getAllTerms(collectedTerms, false, true, false);
+				for ( Term v : collectedTerms ) {
 					connectedVars.add(v.toString());
 				}
 			}
@@ -281,11 +284,15 @@ public class ConsistencyChecker {
 			for ( Statement s : o.getPreconditions() ) {
 				for ( int i = 0 ; i < s.getVariable().getNumArgs() ; i++ ) {
 					Term t = s.getVariable().getArg(i);
-					for ( Term v : t.getVariables() ) {
+					Set<Term> collectedTerms = new HashSet<Term>();
+					t.getAllTerms(collectedTerms, false, true, false);
+					for ( Term v : collectedTerms ) {
 						disconnectedVars.add(v.toString());
 					}
 				}
-				for ( Term v : s.getValue().getVariables() ) {
+				Set<Term> collectedTerms = new HashSet<Term>();
+				s.getValue().getAllTerms(collectedTerms, false, true, false);
+				for ( Term v : collectedTerms ) {
 					disconnectedVars.add(v.toString());
 				}
 					
@@ -293,11 +300,15 @@ public class ConsistencyChecker {
 			for ( Statement s : o.getEffects() ) {
 				for ( int i = 0 ; i < s.getVariable().getNumArgs() ; i++ ) {
 					Term t = s.getVariable().getArg(i);
-					for ( Term v : t.getVariables() ) {
+					Set<Term> collectedTerms = new HashSet<Term>();
+					t.getAllTerms(collectedTerms, false, true, false);
+					for ( Term v : collectedTerms ) {
 						disconnectedVars.add(v.toString());
 					}
 				}
-				for ( Term v : s.getValue().getVariables() ) {
+				Set<Term> collectedTerms = new HashSet<Term>();
+				s.getValue().getAllTerms(collectedTerms, false, true, false);
+				for ( Term v : collectedTerms ) {
 					disconnectedVars.add(v.toString());
 				}
 			}
@@ -313,7 +324,9 @@ public class ConsistencyChecker {
 					
 					for ( int i = 0 ; i < rC.getRelation().getNumArgs() ; i++ ) {
 						Term t = rC.getRelation().getArg(i);
-						for ( Term v : t.getVariables() ) {
+						Set<Term> collectedTerms = new HashSet<Term>();
+						t.getAllTerms(collectedTerms, false, true, false);
+						for ( Term v : collectedTerms ) {
 							connectedVars.add(v.toString());
 						}
 					}
@@ -322,22 +335,23 @@ public class ConsistencyChecker {
 					
 					for ( int i = 0 ; i < tC.getNumBounds() ; i++ ) { 
 						Interval ival = tC.getBound(i); 
-						for ( Term v : ival.getLowerTerm().getVariables() ) {
-							disconnectedVars.add(v.toString());
-						}
-						for ( Term v : ival.getUpperTerm().getVariables() ) {
+						Set<Term> collectedTerms = new HashSet<Term>();
+						ival.getLowerTerm().getAllTerms(collectedTerms, false, true, false);
+						ival.getUpperTerm().getAllTerms(collectedTerms, false, true, false);
+						for ( Term v : collectedTerms ) {
 							disconnectedVars.add(v.toString());
 						}
 					}	
 				}  else if ( c instanceof SimpleDistanceConstraint ) {
 					SimpleDistanceConstraint tC = (SimpleDistanceConstraint)c;
+						
+					Set<Term> collectedTerms = new HashSet<Term>();
+					tC.getBound().getLowerTerm().getAllTerms(collectedTerms, false, true, false);
+					tC.getBound().getUpperTerm().getAllTerms(collectedTerms, false, true, false);
 					
-						for ( Term v : tC.getBound().getLowerTerm().getVariables() ) {
-							disconnectedVars.add(v.toString());
-						}
-						for ( Term v : tC.getBound().getUpperTerm().getVariables() ) {
-							disconnectedVars.add(v.toString());
-						}	
+					for ( Term v : collectedTerms ) {
+						disconnectedVars.add(v.toString());
+					}
 				} else if ( c instanceof VariableDomainRestriction ) {
 					VariableDomainRestriction tC = (VariableDomainRestriction)c;
 					
@@ -351,22 +365,30 @@ public class ConsistencyChecker {
 					
 					for ( int i = 0 ; i < crc.getRelation().getNumArgs() ; i++ ) {
 						Term t = crc.getRelation().getArg(i);
-						for ( Term v : t.getVariables() ) {
+						Set<Term> collectedTerms = new HashSet<Term>();
+						t.getAllTerms(collectedTerms, false, true, false);
+						for ( Term v : collectedTerms ) {
 							connectedVars.add(v.toString());
 						}
 					}
 				} else if ( c instanceof NewObject ) {
 					NewObject cC = (NewObject)c;
-					for ( Term varTerm : cC.getVariableTerms() ) {
+					Set<Term> collectedTerms = new HashSet<Term>();
+					cC.getAllTerms(collectedTerms, false, true, false);
+					for ( Term varTerm : collectedTerms ) {
 						connectedVars.add(varTerm.toString());
 					}
 				} else if ( c instanceof GraphConstraint ) {
 					GraphConstraint cC = (GraphConstraint)c;
-					for ( Term varTerm : cC.getVariableTerms() ) {
+					Set<Term> collectedTerms = new HashSet<Term>();
+					cC.getAllTerms(collectedTerms, false, true, false);
+					for ( Term varTerm : collectedTerms ) {
 						connectedVars.add(varTerm.toString());
 					}
 				} else {
-					for ( Term varTerm : c.getVariableTerms() ) {
+					Set<Term> collectedTerms = new HashSet<Term>();
+					c.getAllTerms(collectedTerms, false, true, false);
+					for ( Term varTerm : collectedTerms ) {
 						connectedVars.add(varTerm.toString());
 					}
 				}

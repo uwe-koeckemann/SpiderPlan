@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan;
 
 import java.util.Collection;
@@ -33,7 +32,6 @@ import org.spiderplan.representation.expressions.cost.Cost;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.temporal.TemporalNetworkTools;
 import junit.framework.TestCase;
@@ -114,11 +112,11 @@ public class TestConstraintDatabases extends TestCase {
 	public void testDifference()  {
 		ConstraintDatabase cDB1 = new ConstraintDatabase();
 		cDB1.add( new Statement("(a (a X) Y)") );
-		cDB1.add( new PrologConstraint(new Atomic("(rel X Y)"),Term.createConstant("prolog")));
+		cDB1.add( new PrologConstraint(Term.parse("(rel X Y)"),Term.createConstant("prolog")));
 		
 		ConstraintDatabase cDB2 = new ConstraintDatabase();
 		cDB2.add( new Statement("(a (a a) b)") );
-		cDB2.add( new PrologConstraint(new Atomic("(rel a b)"), Term.createConstant("prolog")));
+		cDB2.add( new PrologConstraint(Term.parse("(rel a b)"), Term.createConstant("prolog")));
 		
 		Substitution theta = new Substitution("{X/a,Y/b}");
 		
@@ -196,7 +194,7 @@ public class TestConstraintDatabases extends TestCase {
 		
 		assertTrue(cDB.size() == 4);
 		
-		cDB.add(new Cost(new Atomic("(add c 10)")));
+		cDB.add(new Cost(Term.parse("(add c 10)")));
 		
 		cDB.add(new Statement("(e1_20 (state 4 labAssistance lab1) processing)"));
 		cDB.add(new Statement("(THIS_20_41 (Do r2 4 labAssistance lab1) executing)"));

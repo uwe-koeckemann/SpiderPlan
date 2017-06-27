@@ -53,6 +53,15 @@
 		(sig (human-location human) location)
 		(sig (human-is-moving human location))
 		(sig (activity human) activity-type)
+		
+		;; Operator signatures
+		(sig (move-robot robot location location))
+		(sig (move-human human location location))
+		(sig (move-human-robot human robot location location))
+		(sig (human-robot-cleaning human robot location))
+		(sig (human-robot-empty-trash human robot))
+		(sig (human-put human object  robot location))
+		(sig (human-take human object robot location))
 	)
 
 	(:temporal
@@ -251,7 +260,7 @@
 		(?E (at ?R) ?L2)
 		(?S (say (robot-moving ?R ?L1 ?L2)))
 		(?RI (busy ?R) 1)
- 		(?G (:ros-move-goal ?X ?Y))
+ 		(?G (ros-move-goal ?X ?Y))
 		(?GD (robot-is-moving))
 	)
 	(:constraints

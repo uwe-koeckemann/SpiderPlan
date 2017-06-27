@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.modules;
 
 import java.util.ArrayList;
@@ -43,7 +42,6 @@ import org.spiderplan.representation.expressions.domain.DomainMemberConstraint;
 import org.spiderplan.representation.expressions.domain.NewObject;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.domain.VariableDomainRestriction;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.Type;
 import org.spiderplan.representation.types.TypeManager;
@@ -102,7 +100,7 @@ public class DomainSolver extends Module implements SolverInterface {
 		boolean isConsistent = true;
 		
 		for ( DomainMemberConstraint dC : core.getContext().get(DomainMemberConstraint.class) ) {
-			Atomic r = dC.getConstraint();
+			Term r = dC.getConstraint();
 			Term a = r.getArg(0);
 			Term b = r.getArg(1);
 			
@@ -187,10 +185,15 @@ public class DomainSolver extends Module implements SolverInterface {
 					if ( verbose ) Logger.msg(getName(),nO.toString(), 0);
 					
 					if ( !usedObjects.containsKey(typeName) ) {
-						Collection<Atomic> atomics = core.getContext().getAtomics();
+//						Collection<Term> atomics = core.getContext().getAtomics();
+						Set<Term> atomics = new HashSet<Term>();
+						core.getContext().getAllTerms(atomics, false, false, true);
+//						Collection<Term> atomics = core.getContext().getAllTerms(collectedTerms, false, false, true);
 						Set<Term> objects = new HashSet<Term>();
-						for ( Atomic a : atomics ) {
-							objects.addAll(tM.getAllObjectsFromDomains(typeName, a));
+						for ( Term a : atomics ) {
+							if ( a.isComplex() ) {
+								objects.addAll(tM.getAllObjectsFromDomains(typeName, a));
+							}
 						}
 						if ( verbose ) Logger.msg(getName() ,"Used objects: " + objects, 2);
 						usedObjects.put(typeName, objects);
@@ -204,7 +207,7 @@ public class DomainSolver extends Module implements SolverInterface {
 					if ( verbose ) Logger.msg(getName() ,"Type " + type, 2);
 					
 					isConsistent = false;
-					for ( Term t : type.getDomain() ) {
+					for ( Term t : type.generateDomain(tM) ) {
 						if ( !objects.contains(t) ) {
 							if ( verbose ) Logger.msg(getName() ,"Trying to match: " + t + " to " + nO.getVariable(), 2);
 													

@@ -233,7 +233,7 @@ void ProblemDefinition() :
 
 void Init() :
 {
-	Atomic variable;
+	Term variable;
 	Term value;
 	Token termToken = null;
 	boolean isNegated = false;
@@ -275,11 +275,11 @@ void Init() :
 				 	c.getContext().add(new AllenConstraint(s.getKey() + " Release ["+eventTime+","+eventTime+"]"));
 					c.getContext().add(new AllenConstraint(s.getKey(),Duration,new Interval(Term.createInteger(1),Term.createConstant("inf"))));
 				} else { // Function assignments are added to background knowledge (as asserted relational constraints)
-					String newAtomicStr;
+					String newTermStr;
 					if ( variable.getNumArgs() > 0 ) 
-				  		newAtomicStr = variable.toString().substring(0,variable.toString().length()-1)+","+termToken.image+")";
+				  		newTermStr = variable.toString().substring(0,variable.toString().length()-1)+","+termToken.image+")";
 				  	else
-				  		newAtomicStr = variable.toString().substring(0,variable.toString().length()-1)+termToken.image+")";
+				  		newTermStr = variable.toString().substring(0,variable.toString().length()-1)+termToken.image+")";
 				  
 					//if ( c.getTypeManager().getVariableClass(variable.getUniqueName()).equals("cost") ) {
 /*
@@ -288,7 +288,7 @@ void Init() :
 					}
 */
 				  	
-					Atomic r = new Atomic(newAtomicStr);
+					Term r = Term.parse(newTermStr);
 					PrologConstraint rC = new PrologConstraint(r,Term.createConstant("pddlKB"));
 					rC.setAsserted(true);
 					c.getContext().add(rC);
@@ -300,7 +300,7 @@ void Init() :
 
 void Goal() :
 {
-	Atomic variable;
+	Term variable;
 	Term value;
 	boolean isNegated = false;
 	int eventTime = 0;
@@ -341,8 +341,8 @@ void Goal() :
 	{
 		if ( goalList.size() > 1 )
 		{
-		 	Statement gSync = new Statement(Term.createConstant("sync"), new Atomic("sync"), Term.createConstant("true"));
-			c.getTypeManager().attachTypes(new Atomic("sync"), Term.createConstant("boolean") );
+		 	Statement gSync = new Statement(Term.createConstant("sync"), Term.createConstant("sync"), Term.createConstant("true"));
+			c.getTypeManager().attachTypes(Term.createConstant("sync"), Term.createConstant("boolean") );
 		  	
 			for ( Term i : goalList )
 			{
@@ -394,7 +394,7 @@ void Types() :
 				  Term tName = Term.createConstant("t"+tToken.image);
 				  tName = tName.makeConstant();
 				 	
-				  t.setName(tName.toString());
+				  t.setName(tName);
 
 				  if ( ! c.getTypeManager().hasTypeWithName(tName) )
 				  	c.getTypeManager().addNewType(t);
@@ -405,12 +405,12 @@ void Types() :
 					if ( !c.getTypeManager().hasTypeWithName(superTypeName) ) {
 					  
 						EnumType superType = new EnumType();
-						superType.setName("t"+superTypeToken.image);
+						superType.setName(superTypeName);
 						c.getTypeManager().addNewType(superType);
 					}
 				    
 				  	EnumType superType = (EnumType)c.getTypeManager().getTypeByName(superTypeName);
-				  	superType.getDomain().add(Term.createConstant("t"+tToken.image));
+				  	superType.addToDomain(Term.createConstant("t"+tToken.image));
 				  }
 			  }
   	  		}
@@ -442,7 +442,10 @@ void Objects() :
 			{
 			    Term tName = Term.createConstant("t"+typeToken.image);
 				tName = tName.makeConstant();
-			  	c.getTypeManager().getTypeByName(tName).getDomain().addAll(values);
+			  	
+			  	for ( Term t : values ) {
+						((EnumType)c.getTypeManager().getTypeByName(tName)).addToDomain(t);
+					}
 			}			
 		)*
 	< CP >
@@ -476,7 +479,11 @@ void Constants() :
 			{
 			    Term tName = Term.createConstant("t"+typeToken.image);
 				tName = tName.makeConstant();
-			  	c.getTypeManager().getTypeByName(tName).getDomain().addAll(values);
+			  	//c.getTypeManager().getTypeByName(tName).addToDomain(values);
+			  	
+			  for ( Term t : values ) {
+						((EnumType)c.getTypeManager().getTypeByName(tName)).addToDomain(t);
+					}
 			}			
 		)*
 	< CP >
@@ -484,11 +491,11 @@ void Constants() :
 }
 
 
-Atomic Relation() :
+Term Relation() :
 {
 	Token nameToken;
 	Token argToken;
-	Atomic r;
+	Term r;
 	ArrayList<Term> argList = new ArrayList<Term>();
 	
 }
@@ -524,7 +531,7 @@ Atomic Relation() :
 			
 		}
 		
-		r = new Atomic(s);
+		r = Term.parse(s);
 		return r;
 	}
 }
@@ -545,10 +552,10 @@ void Predicates() :
 			{
 				  nameToken.image = "p" + nameToken.image.replace("-","_");
 					String convertedFormat = "("+ nameToken.image.replace(","," ").replace("("," ");
-			  	Atomic name = null;
+			  	Term name = null;
 				if ( typedList.isEmpty() )
 				{
-				  name = new Atomic(convertedFormat);
+				  name = Term.parse(convertedFormat);
 					System.out.println("A: " + name);
 				} else {
 					System.out.println(typedList);
@@ -563,7 +570,7 @@ void Predicates() :
 				  }
 				  s += ")";
 				  
-				  name = new Atomic(s);
+				  name = Term.parse(s);
 					System.out.println("B: " + name);
 				}
 			  System.out.println("C: " + name);
@@ -633,7 +640,9 @@ ArrayList<String> TypedList() :
 				if ( !c.getTypeManager().hasTypeWithName(superTypeToken) ) {
 						EnumType superType = new EnumType();
 						superType.setName(superTypeToken);
-						superType.getDomain().addAll(tNames);
+						for ( Term t : tNames ) {
+							superType.addToDomain(t);
+						}
 						c.getTypeManager().addNewType(superType);
 				}
 
@@ -678,7 +687,7 @@ void Action() :
 
 	Token durToken;
 	Token durVarToken;
-	Atomic functionName;
+	Term functionName;
 
 	Expression costCon;
 }
@@ -704,8 +713,8 @@ void Action() :
 				sArgs += ")";
 				sTypes += ")";	 
 
-				Atomic name = new Atomic(sArgs);
-				Atomic nameDef = new Atomic(sTypes);
+				Term name = Term.parse(sArgs);
+				Term nameDef = Term.parse(sTypes);
 			
 				o.setName(name);
 
@@ -802,7 +811,7 @@ void DurativeAction() :
 
 	Token durToken;
 	Token durVarToken;
-	Atomic functionName;
+	Term functionName;
 }
 {
 	< OP >
@@ -826,8 +835,8 @@ void DurativeAction() :
 				sArgs += ")";
 				sTypes += ")";	 
 
-				Atomic name = new Atomic(sArgs);
-				Atomic nameDef = new Atomic(sTypes);
+				Term name = Term.parse(sArgs);
+				Term nameDef = Term.parse(sTypes);
 
 				System.out.println(name);
 				System.out.println(nameDef);
@@ -856,7 +865,7 @@ void DurativeAction() :
 					Term durVarTerm = Term.createConstant(durVarToken.image);
 					durVarTerm = Term.createVariable(durVarTerm.getName());
 					relConStr += ","+durVarTerm + ")";
-					PrologConstraint durCon = new PrologConstraint(new Atomic(relConStr),Term.createConstant("pddlKB"));
+					PrologConstraint durCon = new PrologConstraint(Term.parse(relConStr),Term.createConstant("pddlKB"));
 					o.addConstraint(new AllenConstraint("?THIS Duration ["+durVarTerm+" "+durVarTerm+"]"));
 					o.addConstraint(durCon);
 				}				
@@ -942,7 +951,7 @@ StatementConstraintPair StatementConstraintPair( String kBase, int i, boolean is
 	boolean isNegated = false;
 	String tcType = null;
 	String boundsStr = "[UNDEF-BOUNDS]";
-	Atomic variable;
+	Term variable;
 }
 {
 	( LOOKAHEAD(2) (
@@ -1026,9 +1035,9 @@ void Metric() :
 			//}
 		  //OptimizationCriterium oC;
 			//if ( dirToken.image.equals("minimize") ) {
-			//	oC = new OptimizationCriterium(new Atomic(optCritStr), OptimizationCriterium.OptDirection.Minimize);
+			//	oC = new OptimizationCriterium(Term.parse(optCritStr), OptimizationCriterium.OptDirection.Minimize);
 			//} else {
-			//	oC = new OptimizationCriterium(new Atomic(optCritStr), OptimizationCriterium.OptDirection.Minimize);	
+			//	oC = new OptimizationCriterium(Term.parse(optCritStr), OptimizationCriterium.OptDirection.Minimize);	
 			//}
 			//c.getContext().add(oC);
 		}
@@ -1058,11 +1067,11 @@ void Functions() :
 				)*
 			< CP > < MINUS > valTypeToken = < TERM >
 			{
-			  	Atomic name = null;
+			  	Term name = null;
 				if ( args.isEmpty() )
 				{
 					String convertedFormat = "("+ nameToken.image.replace(","," ").replace("("," ") + " " + valTypeToken.image;
-				  name = new Atomic(convertedFormat);
+				  name = Term.parse(convertedFormat);
 				} else {
 				  String s = "(" + nameToken.image + " " + args.get(0).image;
 				  for ( int i = 1 ; i < args.size() ; i++ )
@@ -1070,7 +1079,7 @@ void Functions() :
 					s += " "+args.get(i).image;
 				  }
 				  s += " " + valTypeToken.image + ")";
-				  name = new Atomic(s);
+				  name = Term.parse(s);
 				}
 			  	if ( !c.getTypeManager().hasTypeWithName( Term.createConstant(valTypeToken.image) ) )
 				{
@@ -1085,7 +1094,7 @@ void Functions() :
 
 Expression Cost() :
 {
-	Atomic var;
+	Term var;
 	Token amountToken;
 	Token modToken;
 }
@@ -1111,7 +1120,7 @@ Expression Cost() :
 	  	  * a cost definition from it.
 	  	  */
 	  	if ( c.getTypeManager().hasVariable(var.getUniqueName()) ) {
-			String relUniqueName = var.name() + "/" + (var.getNumArgs()+1);
+			String relUniqueName = var.getName() + "/" + (var.getNumArgs()+1);
 			Type t = c.getTypeManager().getPredicateTypes(relUniqueName,var.getNumArgs());
 
 			c.getTypeManager().attachTypes(var, Term.createConstant(t.getName().toString()) );

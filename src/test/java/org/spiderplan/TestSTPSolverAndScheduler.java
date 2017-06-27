@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan;
 
 import java.util.ArrayList;
@@ -37,7 +36,6 @@ import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.resources.ReusableResourceCapacity;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.PossibleIntersection;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.modules.solvers.Core.State;
@@ -90,7 +88,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 
 	public void testBeforeConsistent() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable b)") );
@@ -104,7 +102,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testDurationConsistent() throws Exception {
 		tM.addSimpleEnumType("value", "a");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new AllenConstraint("a1 Duration [1,10]") );
@@ -115,8 +113,8 @@ public class TestSTPSolverAndScheduler extends TestCase {
 
 	public void testEqualsConsistent() throws Exception {
 		tM.addSimpleEnumType("value", "a");
-		tM.attachTypes(new Atomic("variable1"), Term.createConstant("value") );
-		tM.attachTypes(new Atomic("variable2"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable1"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable2"), Term.createConstant("value") );
 		
 		context.add( new AllenConstraint("a1 Duration [1,10]") );
 		context.add( new AllenConstraint("a2 Duration [1,10]") );
@@ -133,8 +131,8 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testTwoEqualsConsistent() throws Exception {
 			tM.addSimpleEnumType("value", "a");
-			tM.attachTypes(new Atomic("variable1"), Term.createConstant("value") );
-			tM.attachTypes(new Atomic("variable2"), Term.createConstant("value") );
+			tM.attachTypes(Term.createConstant("variable1"), Term.createConstant("value") );
+			tM.attachTypes(Term.createConstant("variable2"), Term.createConstant("value") );
 		
 			context.add( new Statement("(a1 variable1 a)") );
 			context.add( new Statement("(a2 variable2 b)") );
@@ -148,8 +146,8 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testDuringAndContains() throws Exception {
 			tM.addSimpleEnumType("value", "a,b");
-			tM.attachTypes(new Atomic("variable1"), Term.createConstant("value") );
-			tM.attachTypes(new Atomic("variable2"), Term.createConstant("value") );
+			tM.attachTypes(Term.createConstant("variable1"), Term.createConstant("value") );
+			tM.attachTypes(Term.createConstant("variable2"), Term.createConstant("value") );
 		
 			context.add( new Statement("(a1 variable1 a)") );
 			context.add( new Statement("(a2 variable2 b)") );
@@ -166,8 +164,8 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testOverlapsMeetsConsistent() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable1"), Term.createConstant("value") );
-		tM.attachTypes(new Atomic("variable2"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable1"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable2"), Term.createConstant("value") );
 	
 		context.add( new AllenConstraint("a2 Duration [30,30]") );
 		context.add( new AllenConstraint("a1 Duration [20,20]") );
@@ -188,8 +186,8 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testTwoOverlapsInconsistent() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable1"), Term.createConstant("value") );
-		tM.attachTypes(new Atomic("variable2"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable1"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable2"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable1  a)") );
 		context.add( new Statement("(a2 variable2  b)") );
@@ -207,8 +205,8 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testStartStartEndEndEqualsConsistent() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable1"), Term.createConstant("value") );
-		tM.attachTypes(new Atomic("variable2"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable1"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable2"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable1 a)") );
 		context.add( new Statement("(a2 variable2 b)") );
@@ -225,7 +223,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 
 	public void testMeetsInconsistent() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable b)") );
@@ -240,8 +238,8 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testEqualsInconsistent() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable1"), Term.createConstant("value") );
-		tM.attachTypes(new Atomic("variable2"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable1"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable2"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable1 a)") );
 		context.add( new Statement("(a2 variable2 b)") );
@@ -257,7 +255,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 
 	public void testEqualsInconsistent2() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 				
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable b)") );
@@ -272,7 +270,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testBeforeInconsistent() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable b)") );
@@ -289,7 +287,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testStateVariableSchedulingInconsistent1() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable b)") );
@@ -307,7 +305,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testStateVariableSchedulingConsistent1() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable b)") );
@@ -324,7 +322,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testStateVariableSchedulingConsistent2() throws Exception {
 		tM.addSimpleEnumType("value", "a,b,c");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable b)") );
@@ -344,7 +342,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testStateVariableSchedulingInconsistent2() throws Exception {
 		tM.addSimpleEnumType("value", "a,b,c");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable b)") );
@@ -364,7 +362,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testStateVariableSchedulingConsistent3() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable b)") );
@@ -378,7 +376,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testStateVariableSchedulingConsistent4() throws Exception {
 		tM.addSimpleEnumType("value", "a");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		
@@ -395,7 +393,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	 */
 	public void testStateVariableSchedulingConsistent5() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a2 variable a)") );
 		context.add( new Statement("(a3 variable b)") );
@@ -411,8 +409,8 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testStateVariableSchedulingConsistent6() throws Exception {
 		tM.addSimpleEnumType("value", "a");
-		tM.attachTypes(new Atomic("variable1"), Term.createConstant("value") );
-		tM.attachTypes(new Atomic("variable2"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable1"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable2"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable1 a)") );
 		context.add( new Statement("(a2 variable2 a)") );
@@ -428,7 +426,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testStateVariableSchedulingConsistent7() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable b)") );
@@ -447,7 +445,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testStateVariableSchedulingConsistent8() throws Exception {
 		tM.addSimpleEnumType("value", "a");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 	
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable a)") );
@@ -460,7 +458,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testStateVariableSchedulingConsistent9() throws Exception {
 		tM.addSimpleEnumType("value", "a,b,c,d");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable b)") );
@@ -476,7 +474,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	}
 	
 	public void testReusableResourceProblemConsistent1() throws Exception {
-		context.add( new ReusableResourceCapacity(new Atomic("rr1"), 1));
+		context.add( new ReusableResourceCapacity(Term.createConstant("rr1"), 1));
 		
 		context.add( new Statement("(a1 rr1 1)") );
 		context.add( new Statement("(a2 rr1 1)") );
@@ -495,7 +493,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	}
 	
 	public void testReusableResourceProblemConsistent2() throws Exception {
-		context.add( new ReusableResourceCapacity(new Atomic("rr1"), 2));
+		context.add( new ReusableResourceCapacity(Term.createConstant("rr1"), 2));
 		
 		context.add( new Statement("(a1 rr1 1)") );
 		context.add( new Statement("(a2 rr1 1)") );
@@ -510,7 +508,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	}
 		
 	public void testReusableResourceProblemConsistent4() throws Exception {
-		context.add( new ReusableResourceCapacity(new Atomic("rr1"), 2));
+		context.add( new ReusableResourceCapacity(Term.createConstant("rr1"), 2));
 		
 		context.add( new Statement("(a1 rr1 1)") );
 		context.add( new Statement("(a2 rr1 1)") );
@@ -527,7 +525,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	}
 
 	public void testReusableResourceProblemInconsistent1() throws Exception {
-		context.add( new ReusableResourceCapacity(new Atomic("rr1"), 1));
+		context.add( new ReusableResourceCapacity(Term.createConstant("rr1"), 1));
 		
 		context.add( new Statement("(a1 rr1 1)") );
 		context.add( new Statement("(a2 rr1 1)") );
@@ -540,7 +538,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	}
 	
 	public void testReusableResourceProblemInconsistent2() throws Exception {
-		context.add( new ReusableResourceCapacity(new Atomic("rr1"), 1));		
+		context.add( new ReusableResourceCapacity(Term.createConstant("rr1"), 1));		
 		
 		context.add( new Statement("(a1 rr1 3)") );
 		context.add( new AllenConstraint("a1 Duration [10,10]") );
@@ -551,8 +549,8 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	}
 	
 	public void testReusableResourceProblemConsistent5() throws Exception {
-		context.add( new ReusableResourceCapacity(new Atomic("rr1"), 1));
-		context.add( new ReusableResourceCapacity(new Atomic("rr2"), 1));
+		context.add( new ReusableResourceCapacity(Term.createConstant("rr1"), 1));
+		context.add( new ReusableResourceCapacity(Term.createConstant("rr2"), 1));
 		
 		context.add( new Statement("(a1 rr1 1)") );
 		context.add( new Statement("(a2 rr2 1)") );	
@@ -567,7 +565,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	}
 	
 	public void testReusableResourceProblemInconsistent3() {
-		context.add( new ReusableResourceCapacity(new Atomic("rr1"), 1));
+		context.add( new ReusableResourceCapacity(Term.createConstant("rr1"), 1));
 		
 		context.add( new Statement("(a1 rr1 1)") );
 		context.add( new AllenConstraint("a1 Release [39,4799]") );
@@ -598,7 +596,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 
 	public void testTwoConsistencyChecksConsistent() throws Exception {
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable b)") );
@@ -623,7 +621,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testDuringInconsistent() throws Exception {
 		tM.addSimpleEnumType("value", "a,b,c,d");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new Statement("(a1 variable a)") );
 		context.add( new Statement("(a2 variable b)") );
@@ -647,7 +645,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	}
 	
 	public void testReusableResourceProblemBecomesSolvable() throws Exception {	
-		context.add( new ReusableResourceCapacity(new Atomic("rr1"), 1));
+		context.add( new ReusableResourceCapacity(Term.createConstant("rr1"), 1));
 						
 		context.add( new Statement("(a1 rr1 1)") );
 		context.add( new Statement("(a2 rr1 1)") );
@@ -690,7 +688,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	}
 	
 	public void testReusableResourceProblemBecomesSolvable1() throws Exception {				
-		context.add( new ReusableResourceCapacity(new Atomic("rr1"), 1));
+		context.add( new ReusableResourceCapacity(Term.createConstant("rr1"), 1));
 						
 		context.add( new Statement("(a1 rr1 1)") );
 		context.add( new Statement("(a2 rr1 1)") );
@@ -711,12 +709,12 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	public void testBeforeAndDuringInconsistent() throws Exception {
 		tM.addSimpleEnumType("var", "x1,x2,x3,x4,x5,x6");
 		tM.addSimpleEnumType("val", "y");
-		tM.attachTypes(new Atomic("(p var)"), Term.createConstant("val") );
+		tM.attachTypes(Term.createConstant("(p var)"), Term.createConstant("val") );
 		
-		context.add( new Statement( Term.createConstant("k1"), new Atomic("(p x1)"), Term.createConstant("y")));
-		context.add( new Statement( Term.createConstant("k2"), new Atomic("(p x2)"), Term.createConstant("y")));
-		context.add( new Statement( Term.createConstant("k3"), new Atomic("(p x3)"), Term.createConstant("y")));
-		context.add( new Statement( Term.createConstant("k4"), new Atomic("(p x4)"), Term.createConstant("y")));
+		context.add( new Statement( Term.createConstant("k1"), Term.createConstant("(p x1)"), Term.createConstant("y")));
+		context.add( new Statement( Term.createConstant("k2"), Term.createConstant("(p x2)"), Term.createConstant("y")));
+		context.add( new Statement( Term.createConstant("k3"), Term.createConstant("(p x3)"), Term.createConstant("y")));
+		context.add( new Statement( Term.createConstant("k4"), Term.createConstant("(p x4)"), Term.createConstant("y")));
 	
 		context.add( new AllenConstraint("k1 Duration [7,7]") );
 		context.add( new AllenConstraint("k2 Duration [2,2]") );
@@ -738,7 +736,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 		StopWatch.keepAllTimes = true;
 		
 		tM.addSimpleEnumType("value", "a,b");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add( new AllenConstraint("a1 Duration [10,10]") );
 		context.add( new AllenConstraint("a2 Duration [10,10]") );
@@ -757,7 +755,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testOrderMattersBug() throws Exception {
 		tM.addSimpleEnumType("value", "a,b,c,d");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		context.add(new Statement("(s0 variable a)"));
 		context.add(new Statement("(s1 variable b)"));
@@ -781,7 +779,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	}
 	
 	public void testResourceProblemNeedsResolving() throws Exception {
-		context.add( new ReusableResourceCapacity(new Atomic("rr1"), 2));
+		context.add( new ReusableResourceCapacity(Term.createConstant("rr1"), 2));
 		
 		context.add( new Statement("(a1 rr1 2)") );
 		context.add( new Statement("(a2 rr1 2)") );
@@ -797,7 +795,7 @@ public class TestSTPSolverAndScheduler extends TestCase {
 	
 	public void testPossibleIntersection() throws Exception {
 		tM.addSimpleEnumType("value", "a,b,c,d");
-		tM.attachTypes(new Atomic("variable"), Term.createConstant("value") );
+		tM.attachTypes(Term.createConstant("variable"), Term.createConstant("value") );
 		
 		ArrayList<Term> intervals = new ArrayList<Term>();
 		intervals.add(Term.createConstant("s0"));

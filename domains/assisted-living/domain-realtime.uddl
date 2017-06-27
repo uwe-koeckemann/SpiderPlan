@@ -53,6 +53,15 @@
 		(sig (human-location human) location)
 		(sig (human-is-moving human location))
 		(sig (activity human) activity-type)
+		
+		;; Operator signatures
+		(sig (move-robot robot location location))
+		(sig (move-human human location location))
+		(sig (move-human-robot human robot location location))
+		(sig (human-robot-cleaning human robot location))
+		(sig (human-robot-empty-trash human robot))
+		(sig (human-put human object  robot location))
+		(sig (human-take human object robot location))
 	)
 
 	(:temporal
@@ -217,7 +226,7 @@
 ;; Operators
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (:operator 
-	(move-robot ?R - robot ?L1 - location ?L2 - location)
+	(move-robot ?R ?L1 ?L2)
 	(:preconditions
 		(?P (at ?R) ?L1)
 	)
@@ -250,7 +259,7 @@
 )
 
 (:operator 
-	(move-human ?H - human ?L1 - location ?L2 - location)
+	(move-human ?H ?L1 ?L2)
 	(:preconditions
 		(?P (at ?H) ?L1)
 	)
@@ -281,7 +290,7 @@
 )
 
 (:operator 
-	(move-human-robot ?H - human ?R - robot ?L1 - location ?L2 - location)
+	(move-human-robot ?H ?R ?L1 ?L2)
 	(:preconditions
 		(?P1 (at ?H) ?L1)
 		(?P2 (at ?R) ?L1)
@@ -321,8 +330,9 @@
 		(:include ((human-robot-moving ?H ?L2) "./data/domains/assisted-living/phrases/human-robot-moving"))
 	)
 )
+
 (:operator 
-	(human-robot-cleaning ?H - human ?R - robot ?L - location)
+	(human-robot-cleaning ?H ?R ?L)
 	(:preconditions
 		(?P1 (object-location trash-can) ?R)
 		(?P2 (at ?R) ?L)
@@ -356,7 +366,7 @@
 )
 
 (:operator 
-	(human-robot-empty-trash ?H - human ?R - robot)
+	(human-robot-empty-trash ?H ?R)
 	(:preconditions
 		(?P1 (at ?R) kitchen)
 		(?P2 (at ?H) kitchen)
@@ -392,7 +402,7 @@
 )
 
 (:operator 
-	(human-put ?H - human ?O - object  ?R - robot ?L - location)
+	(human-put ?H ?O ?R ?L)
 	(:preconditions
 		(?P1 (object-location ?O) ?L)
 		(?P2 (at ?R) ?L)
@@ -423,7 +433,7 @@
 )
 
 (:operator 
-	(human-take ?H - human ?O - object  ?R - robot ?L - location)
+	(human-take ?H ?O ?R ?L)
 	(:preconditions
 		(?P1 (object-location ?O) ?R)
 		(?P2 (at ?R) ?L)

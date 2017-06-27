@@ -1,30 +1,28 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.logic;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
-
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.tools.UniqueID;
 
@@ -79,18 +77,12 @@ public abstract class Term {
 	 */
 	public static Term createConstant( String name ) {		
 		Term v =  new ConstantSymbolicTerm(name);
-		if ( Character.isDigit(name.charAt(0)) ) {
-			throw new IllegalArgumentException("Constant terms are not allowed to start with numbers."); 
-		}
+//		if ( Character.isDigit(name.charAt(0)) ) {
+//			throw new IllegalArgumentException("Constant terms are not allowed to start with numbers."); 
+//		}
 //		poolConstant.add(v);
 		return v;
 	}
-	
-//	public static Term createConstantID() {
-//		Term v =  new ConstantIDTerm();
-////		poolID.add(v);
-//		return v;
-//	}
 	
 	/**
 	 * Create a symbolic term (variable or constant)
@@ -124,6 +116,7 @@ public abstract class Term {
 	public static Term parse( String s ) {	
 		s = s.replace("{", "(list ").replace("}", ")").replace("  ", " ");
 		s = s.replace("[", "(interval ").replace("]", ")").replace("  ", " ");
+		s = s.replace(")(", ") (");
 		
 		if ( s.contains("(") && !s.startsWith("(") ) {
 			throw new IllegalArgumentException("String " + s + " has wrong format. This should not happen!");
@@ -144,7 +137,7 @@ public abstract class Term {
 					bracketLevel--;
 				}
 				
-				if ( bracketLevel == 1 &&  String.valueOf(s.charAt(i)).equals(" ") ) {
+				if ( bracketLevel == 1 && String.valueOf(s.charAt(i)).equals(" ") ) {
 					countTerms++;
 				} else if ( bracketLevel >= 1 ) {
 					if ( terms.size() <= countTerms ) {
@@ -282,17 +275,35 @@ public abstract class Term {
 	public abstract boolean isConstant();
 	
 	/**
-	 * Returns a list of all variable {@link Term}s. In case of compex {@link Term}s this function is called recursively on all sub-terms.
-	 * @return List of all variable {@link Term}s.
-	 */
-	public abstract ArrayList<Term> getVariables();
-	 
-	/**
 	 * Get the unique name of a term (i.e., name/arity)
 	 * @return the unique name
 	 */
 	public String getUniqueName() {
 		return this.getName() + "/" + this.getNumArgs();
+	}
+	
+	/**
+	 * Return all terms recursively involved in this term
+	 * @param collectedTerms all collected terms will be put here
+	 * @param getConstants set <code>true</code> to get all constant terms
+	 * @param getVariables set <code>true</code> to get all variable terms
+	 * @param getComplex set <code>true</code> to get all complex terms
+	 */
+	public void getAllTerms(Collection<Term> collectedTerms, boolean getConstants, boolean getVariables, boolean getComplex) {
+		if ( !this.isComplex() ) {
+			if ( getConstants && this.isConstant() ) {
+				collectedTerms.add(this);
+			} else if ( getVariables && this.isVariable() ) {
+				collectedTerms.add(this);
+			}
+		} else {
+			if ( getComplex ) {
+				collectedTerms.add(this);
+			}
+			for ( int i = 0 ; i < this.getNumArgs() ; i++ ) {
+				this.getArg(i).getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+			}
+		}
 	}
 	
 	/**

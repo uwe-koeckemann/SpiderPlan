@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan;
 
 import java.util.ArrayList;
@@ -38,7 +37,6 @@ import org.spiderplan.representation.expressions.interaction.InteractionConstrai
 import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import junit.framework.TestCase;
@@ -64,7 +62,7 @@ public class TestInteractionConstraints extends TestCase {
 		s.add(new Statement("(s2 (q a) f)"));
 		
 		
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?C ?F ?S1 ?S2)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?A ?B ?C ?F ?S1 ?S2)"));
 	
 		
 		ic.getCondition().add(new Statement("(?S1 (p ?A ?B) ?C)"));
@@ -105,7 +103,7 @@ public class TestInteractionConstraints extends TestCase {
 	}
 	
 	public void testInteractionConstraintSubstituteAndCopy() {
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?C ?F ?S1 ?S2)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?A ?B ?C ?F ?S1 ?S2)"));
 		ic.getCondition().add(new Statement("(?S1 (p ?A ?B) ?C)"));
 		ic.getCondition().add(new Statement("(?S2 (q ?A) ?F)"));	
 		ConstraintDatabase c = new ConstraintDatabase();
@@ -135,7 +133,7 @@ public class TestInteractionConstraints extends TestCase {
 		s.add(new Statement("(s2 (q b) f)"));
 		s.add(new AllenConstraint("s1 After s2 [1,10]"));
 		
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?C ?F ?S1 ?S2)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?A ?B ?C ?F ?S1 ?S2)"));
 		
 
 		
@@ -179,7 +177,7 @@ public class TestInteractionConstraints extends TestCase {
 	
 	public void testInteractionConstraint3() {
 		ConstraintDatabase s = new ConstraintDatabase();
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic A B C F S1 S2)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic A B C F S1 S2)"));
 		
 		s.add(new Statement("(?S1 (p ?A ?B) c)"));
 		s.add(new Statement("(?S2 (q ?B) f)"));
@@ -227,7 +225,7 @@ public class TestInteractionConstraints extends TestCase {
 	
 	public void testInteractionConstraint4() {
 		ConstraintDatabase s = new ConstraintDatabase();
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic A B C F S1 S2)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic A B C F S1 S2)"));
 		
 		s.add(new Statement("(?S1 (p ?A ?B) c)"));
 		s.add(new Statement("(?S2 (q b c) f)"));
@@ -271,7 +269,7 @@ public class TestInteractionConstraints extends TestCase {
 	
 	public void testInteractionConstraint5() {
 		ConstraintDatabase s = new ConstraintDatabase();
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?C ?F ?S1 ?S2)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?A ?B ?C ?F ?S1 ?S2)"));
 		
 		s.add(new Statement("(s1 (p a b) c)"));
 		s.add(new Statement("(s2 (q b) f)"));
@@ -323,7 +321,7 @@ public class TestInteractionConstraints extends TestCase {
 			System.out.println("[Warning] Skipping this because yap binary not in $PATH. To run this test install yap (http://www.dcc.fc.up.pt/~vsc/Yap/) and make sure the binary is in $PATH. When using solvers that require yap it is also possible to set the path to the binary as part of the solver configuration.");
 		} else {
 			ConstraintDatabase s = new ConstraintDatabase();
-			InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?C ?D ?E ?F ?S1 ?S2)"));
+			InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?A ?B ?C ?D ?E ?F ?S1 ?S2)"));
 			Term bkbName = Term.createConstant("prolog");
 			
 			s.add(new Statement("(s1 (p a b) c)"));
@@ -332,7 +330,7 @@ public class TestInteractionConstraints extends TestCase {
 			
 			ic.getCondition().add(new Statement("(?S1 (p ?A ?B) ?C)"));
 			ic.getCondition().add(new Statement("(?S2 (p ?D ?E) ?F)"));
-			ic.getCondition().add(new PrologConstraint(new Atomic("(notEqual ?S1 ?S2)"), bkbName)); // otherwise S1 == S2 will cause conflict
+			ic.getCondition().add(new PrologConstraint(Term.parse("(notEqual ?S1 ?S2)"), bkbName)); // otherwise S1 == S2 will cause conflict
 			
 			ConstraintDatabase r1 = new ConstraintDatabase();
 			r1.add(new AllenConstraint("?S1 Before ?S2 [1,10]"));
@@ -390,7 +388,7 @@ public class TestInteractionConstraints extends TestCase {
 	
 	public void testInteractionConstraint7() {
 		ConstraintDatabase s = new ConstraintDatabase();
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic A B C F S1 S2)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic A B C F S1 S2)"));
 		
 		s.add(new Statement("(?S1 (p ?A ?B) c)"));
 		s.add(new Statement("(?S2 (q ?B) f)"));
@@ -436,7 +434,7 @@ public class TestInteractionConstraints extends TestCase {
 	
 	public void testInteractionConstraint8() {
 		ConstraintDatabase s = new ConstraintDatabase();
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic A B C D S1 S2)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic A B C D S1 S2)"));
 		
 		s.add(new Statement("(?S1 (p a) b)"));
 		s.add(new Statement("(?S2 (p c) c)"));
@@ -501,7 +499,7 @@ public class TestInteractionConstraints extends TestCase {
 		/**
 		 * Setup InteractionConstraint
 		 */
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?S1 ?S2)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?A ?B ?S1 ?S2)"));
 		ic.getCondition().add(new Statement("(?S1 p ?A)"));
 		ic.getCondition().add(new Statement("(?S2 q ?B)"));
 //		ic.getCondition().add(new TemporalConstraint("?S1 After ?S2 [1,inf]"));
@@ -564,7 +562,7 @@ public class TestInteractionConstraints extends TestCase {
 		/**
 		 * Setup InteractionConstraint
 		 */
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?S1 ?S2)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?A ?B ?S1 ?S2)"));
 		ic.getCondition().add(new Statement("(?S1 p ?A)"));
 		ic.getCondition().add(new Statement("(?S2 q ?B)"));
 //		ic.getCondition().add(new TemporalConstraint("?S1 After ?S2 [1,inf]"));
@@ -620,7 +618,7 @@ public class TestInteractionConstraints extends TestCase {
 		/**
 		 * Setup InteractionConstraint
 		 */
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?S1 ?S2)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?A ?B ?S1 ?S2)"));
 		ic.getCondition().add(new Statement("(?S1 p ?A)"));
 		ic.getCondition().add(new Statement("(?S2 q ?B)"));
 		ConstraintDatabase r1 = new ConstraintDatabase();
@@ -673,7 +671,7 @@ public class TestInteractionConstraints extends TestCase {
 		/**
 		 * Setup InteractionConstraint
 		 */
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?S1 ?S2)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?A ?B ?S1 ?S2)"));
 		ic.getCondition().add(new Statement("(?S1 p ?A)"));
 		ic.getCondition().add(new Statement("(?S2 q ?B)"));
 		ConstraintDatabase r1 = new ConstraintDatabase();
@@ -729,7 +727,7 @@ public class TestInteractionConstraints extends TestCase {
 		/**
 		 * Setup InteractionConstraint
 		 */
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?X ?Y)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?A ?B ?X ?Y)"));
 		ic.getCondition().add(new Statement("(?X p ?A)"));
 		ic.getCondition().add(new Statement("(?Y q ?B)"));
 		ic.getCondition().add(new AllenConstraint("?X Before ?Y [1,inf]"));
@@ -799,11 +797,11 @@ public class TestInteractionConstraints extends TestCase {
 			/**
 			 * Setup InteractionConstraint
 			 */
-			InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic A B S1 S2)"));
+			InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic A B S1 S2)"));
 			ic.getCondition().add(new Statement("(?S1 p ?A)"));
 			ic.getCondition().add(new Statement("(?S2 q ?B)"));
-			ic.getCondition().add(new PrologConstraint(new Atomic("(good ?A)"), bkbName));
-			ic.getCondition().add(new PrologConstraint(new Atomic("(good ?B)"), bkbName));
+			ic.getCondition().add(new PrologConstraint(Term.parse("(good ?A)"), bkbName));
+			ic.getCondition().add(new PrologConstraint(Term.parse("(good ?B)"), bkbName));
 			ConstraintDatabase r1 = new ConstraintDatabase();
 			r1.add(new AllenConstraint("?S1 Before ?S2 [1,10]"));
 			ic.addResolver(r1);
@@ -871,18 +869,18 @@ public class TestInteractionConstraints extends TestCase {
 			/**
 			 * Setup interaction constraint
 			 */
-			InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?A ?B ?S1 ?S2)"));
+			InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?A ?B ?S1 ?S2)"));
 			ic.getCondition().add(new Statement("(?S1 p ?A)"));
 			ic.getCondition().add(new Statement("(?S2 q ?B)"));
 			ConstraintDatabase r1 = new ConstraintDatabase();
 			r1.add(new AllenConstraint("?S1 Before ?S2 [1,10]"));
-			r1.add(new PrologConstraint(new Atomic("(good ?A)"), bkbName));
-			r1.add(new PrologConstraint(new Atomic("(good ?B)"), bkbName));
+			r1.add(new PrologConstraint(Term.parse("(good ?A)"), bkbName));
+			r1.add(new PrologConstraint(Term.parse("(good ?B)"), bkbName));
 			ic.addResolver(r1);
 			ConstraintDatabase r2 = new ConstraintDatabase();
 			r2.add(new AllenConstraint("?S1 After ?S2 [1,10]"));
-			r2.add(new PrologConstraint(new Atomic("(good ?A)"), bkbName));
-			r2.add(new PrologConstraint(new Atomic("(good ?B)"), bkbName));
+			r2.add(new PrologConstraint(Term.parse("(good ?A)"), bkbName));
+			r2.add(new PrologConstraint(Term.parse("(good ?B)"), bkbName));
 			ic.addResolver(r2);
 			
 			C.add(ic);
@@ -911,12 +909,7 @@ public class TestInteractionConstraints extends TestCase {
 			cM.set("icResolver","consistencyChecker","checker");
 			
 //			cM.set("icResolver","verbose","true");
-//			cM.set("icResolver","verbosity","5");
-			
-			Logger.addPrintStream("main", System.out);
-			Logger.addPrintStream("checker", System.out);
-			Logger.addPrintStream("icResolver", System.out);
-			
+//			cM.set("icResolver","verbosity","5");			
 		
 			Module icResolver = ModuleFactory.initModule("main",cM);
 			

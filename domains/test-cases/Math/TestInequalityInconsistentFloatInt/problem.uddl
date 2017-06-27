@@ -1,0 +1,7 @@
+(:initial-context
+	(:math
+		(eval-int x (add 0 50))
+		(eval-float y (add 0.0 49.99))
+		(less-than-or-equal x y)
+	)
+)

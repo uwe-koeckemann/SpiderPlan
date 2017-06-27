@@ -1,0 +1,14 @@
+(:initial-context
+	(:domain
+		(sig x boolean)
+	)
+	(:statement 
+		(I1 x)
+	)
+	(:temporal
+		(planning-interval [0 100])
+		(release I1 [0 40])				
+		(release I1 [20 30])				
+		(release I1 [40 70])		
+	)
+)

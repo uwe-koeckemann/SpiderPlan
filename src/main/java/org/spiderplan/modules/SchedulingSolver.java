@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.modules;
 
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.graph.GraphConstraint;
 import org.spiderplan.representation.expressions.resources.ReusableResourceCapacity;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
-import org.spiderplan.representation.logic.Atomic;
+import org.spiderplan.representation.logic.Term;
 import org.spiderplan.scheduling.ReusableResourceScheduler;
 import org.spiderplan.scheduling.StateVariableScheduler;
 import org.spiderplan.tools.logging.Logger;
@@ -126,7 +125,7 @@ public class SchedulingSolver extends Module implements SolverInterface {
 		boolean foundFlaw = false;
 		ResolverIterator resolverIterator = null;
 		
-		Set<Atomic> scheduledVariables = new HashSet<Atomic>();
+		Set<Term> scheduledVariables = new HashSet<Term>();
 		
 		List<Resolver> resolverList = new ArrayList<Resolver>();
 		
@@ -140,7 +139,7 @@ public class SchedulingSolver extends Module implements SolverInterface {
 			if ( rrc.getVariable().isGround() ) {
 				groundCapacities.add(rrc);
 			} else {
-				for ( Atomic resourceVariable : core.getTypeManager().getAllGroundAtomics(rrc.getVariable()) ) {
+				for ( Term resourceVariable : core.getTypeManager().getAllGroundAtomics(rrc.getVariable()) ) {
 					groundCapacities.add(new ReusableResourceCapacity(resourceVariable, rrc.getCapacity()));
 				}
 			}
@@ -191,7 +190,11 @@ public class SchedulingSolver extends Module implements SolverInterface {
 		if ( isConsistent && !foundFlaw ) {
 			if ( verbose ) Logger.msg(getName(), "Scheduling symbolic variables..." , 1);
 			for ( Statement s : core.getContext().get(Statement.class)) {
-				boolean hasNoVariables = s.getVariable().getVariableTerms().isEmpty() && s.getValue().getVariables().isEmpty();
+				Set<Term> variableTerms = new HashSet<Term>();
+				s.getVariable().getAllTerms(variableTerms, false, true, false);
+				s.getValue().getAllTerms(variableTerms, false, true, false);
+				
+				boolean hasNoVariables = variableTerms.isEmpty();
 				if ( hasNoVariables && !scheduledVariables.contains(s.getVariable())) {
 					if ( verbose ) Logger.msg(getName(), "Testing: " + s.getVariable() , 2); 
 					scheduledVariables.add(s.getVariable());

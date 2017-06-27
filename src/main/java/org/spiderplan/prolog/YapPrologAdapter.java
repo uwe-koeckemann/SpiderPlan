@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.prolog;
 
 import java.io.BufferedReader;
@@ -43,10 +42,8 @@ import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
-import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.EnumType;
 import org.spiderplan.representation.types.IntegerType;
@@ -179,10 +176,10 @@ public class YapPrologAdapter {
 	 *  work with relational constraints as preconditions.
 	 * @param O Set of {@link Operator}s
 	 * @param B Background knowledge base
-	 * @param programID ID of the knowledge base that should be evaluated
+	 * @param subProblemID ID of the knowledge base that should be evaluated
 	 * @param tM {@link TypeManager} containing types and variable signatures
 	 */
-	public void saturateConstraints( Collection<Operator> O, ConstraintDatabase B, Term programID, TypeManager tM ) {		
+	public void saturateConstraints( Collection<Operator> O, ConstraintDatabase B, Term subProblemID, TypeManager tM ) {		
 		Set<Operator> remList = new HashSet<Operator>();
 		Set<Operator> addList = new HashSet<Operator>();
 
@@ -190,11 +187,11 @@ public class YapPrologAdapter {
 			remList.add(o);
 	
 			ArrayList<PrologConstraint> query = new ArrayList<PrologConstraint>();
-			ArrayList<Atomic> qLits = new ArrayList<Atomic>();
+			ArrayList<Term> qLits = new ArrayList<Term>();
 			
 			for ( Expression c : o.getConstraints() ) {
 				if ( c instanceof PrologConstraint ) {	
-					if ( ((PrologConstraint) c).getProgramID().equals(programID) ) {
+					if ( ((PrologConstraint) c).getSubProblemID().equals(subProblemID) ) {
 						query.add((PrologConstraint)c);
 						qLits.add(((PrologConstraint)c).getRelation());
 					}
@@ -205,7 +202,7 @@ public class YapPrologAdapter {
 //				System.out.println("Empty query");
 				addList.add(o);
 			} else {					
-				Collection<Substitution> qResult = query(B, query, programID, tM);
+				Collection<Substitution> qResult = query(B, query, subProblemID, tM);
 				
 				
 				
@@ -219,7 +216,7 @@ public class YapPrologAdapter {
 					 * domains are removed from stack and added to results. 
 					 */
 					Map<Term,Type> varTypes = new HashMap<Term,Type>();
-					for ( Atomic a : qLits ) {
+					for ( Term a : qLits ) {
 						for ( int i = 0 ; i < a.getNumArgs() ; i++ ) {
 							if ( a.getArg(i).isVariable() ) {
 								Type t = tM.getPredicateTypes(a.getUniqueName(), i);
@@ -256,7 +253,7 @@ public class YapPrologAdapter {
 //							System.out.println("to=" + to);
 							if ( to.toString().substring(0, 1).equals("_") ) {	
 								isGround = false;
-								ArrayList<Term> domain = varTypes.get(from).getDomain();
+								List<Term> domain = varTypes.get(from).generateDomain(tM);
 								for ( Term val : domain ) {
 									Substitution qNew = q.copy();
 									qNew.getMap().put(from,val);
@@ -282,7 +279,7 @@ public class YapPrologAdapter {
 										qNew.add(from, toNew);
 										workStack.push(qNew);
 									} else {						// need to find matching values in domain
-										for ( Term value : varTypes.get(from).getDomain() ) {
+										for ( Term value : varTypes.get(from).generateDomain(tM) ) {
 //											System.out.println("Possible value: " + value);
 											Substitution sub = value.match(toNew);
 											if ( sub != null ) {
@@ -302,7 +299,7 @@ public class YapPrologAdapter {
 								}
 									
 							} else {
-								if ( !needsNoCheck.contains(from) && !varTypes.get(from).contains(to) ) {
+								if ( !needsNoCheck.contains(from) && !varTypes.get(from).contains(to, tM) ) {
 //									System.out.println("====MISSING===");
 //									System.out.println(from);
 //									System.out.println(varTypes.get(from));
@@ -339,7 +336,7 @@ public class YapPrologAdapter {
 						Collection<Expression> conAddList = new ArrayList<Expression>();
 						for ( Expression c : oCopy.getConstraints() ) {
 							if ( c instanceof PrologConstraint ) {
-								conAddList.add(new Asserted(c));
+								conAddList.add(((PrologConstraint)c).getAssertion());
 							}
 						}
 						oCopy.addConstraints(conAddList);
@@ -484,7 +481,7 @@ public class YapPrologAdapter {
 
 	private String createQueryPredicate( Collection<PrologConstraint> q ) {
 		ArrayList<String> vars = new ArrayList<String>();
-		ArrayList<Atomic> qLits = new ArrayList<Atomic>();
+		ArrayList<Term> qLits = new ArrayList<Term>();
 		
 		Map<String,String> alreadyMapped = new HashMap<String, String>();
 		int varIdx = 0;
@@ -690,8 +687,26 @@ public class YapPrologAdapter {
 		
 			} else if ( t instanceof EnumType ) {
 				EnumType iT = (EnumType)t;
+				
+//				for ( Term value : iT.generateDomain(tM) ) {
+//					String newValueName;
+//					
+//					String pComp = makePrologCompatible(value.getPrologStyleString());
+//					
+//					if ( pComp.equals(value) ) {
+//						newValueName = value.getPrologStyleString();
+//					} else {
+//						newValueName = "val" + (valIdx++) + pComp;
+//					}
+//					prologCompatibilityMap.put(newValueName, value);
+//					
+//					
+//					PrologConstraint rC = new PrologConstraint(Term.createComplex(iT.getName().toString(),  value) , programID );
+//					rC.setAsserted(true);
+//					r.add( rC.getRelation().getPrologStyleString()+"." );
+//				}
 						
-				for ( Term value : iT.getDomain() ) {
+				for ( Term value : iT.getRawDomain() ) {
 					String newValueName;
 					
 					String pComp = makePrologCompatible(value.getPrologStyleString());
@@ -703,10 +718,48 @@ public class YapPrologAdapter {
 					}
 					prologCompatibilityMap.put(newValueName, value);
 					
+					PrologConstraint rC = new PrologConstraint(Term.createComplex(iT.getName().toString(),  value) , programID );
 					
-					PrologConstraint rC = new PrologConstraint(new Atomic(iT.getName().toString(),  value) , programID );
-					rC.setAsserted(true);
-					r.add( rC.getRelation().getPrologStyleString()+"." );
+					String prologLine;
+					
+					
+					if ( !value.isComplex() ) {
+						if ( !tM.hasTypeWithName(value) ) {  // Basic domain member
+							prologLine = rC.getRelation().getPrologStyleString()+".";
+						} else {	// Constant refers to another type.
+							Term variable = Term.createVariable("?X");
+							
+							String head = new PrologConstraint(Term.createComplex(iT.getName().toString(),  variable) , programID ).getRelation().getPrologStyleString();
+							String body = new PrologConstraint(Term.createComplex(value.toString(),  variable) , programID ).getRelation().getPrologStyleString();
+							
+							prologLine = head + " :- " + body + ".";							
+						}
+					} else {
+						Term withVars = tM.replaceTypesNamesWithVariables(value, tM);
+						if ( withVars.equals(value) ) { // No dependence on other type -> basic domain member
+							prologLine = rC.getRelation().getPrologStyleString()+".";
+						} else {  // Create clause requiring all variables to be of correct type.
+							/**
+							 * Example:
+							 * Main type: t
+							 * Value in domain of t: (f t_int t_int t_enum) where t_int and e_enum are types.themselves
+							 * With variables: (f ?Type1_t_int ?Type2_t_int ?Type3_t_enum)
+							 * Prolog clause: t(f(?Type1_t_int,?Type2_t_int,?Type3_t_enum)) :- t_int(?Type1_t_int), t_it(?Type2_t_int), t_enum(?Type3_t_int).
+							 */							
+							String head = new PrologConstraint(Term.createComplex(iT.getName().toString(),  withVars), programID).getRelation().getPrologStyleString();
+													
+							Substitution sub = withVars.match(value);
+							
+							prologLine = head + " :- ";
+							
+							for ( Term var : sub.getMap().keySet() ) {
+								prologLine += sub.getMap().get(var) + "(" + var + ") ,";
+							}
+							prologLine = prologLine.substring(0, prologLine.length()-1) + ".";
+						}
+					}
+					
+					r.add( prologLine );
 				}
 			}
 		}

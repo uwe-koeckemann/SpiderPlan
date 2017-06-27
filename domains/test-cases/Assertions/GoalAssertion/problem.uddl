@@ -1,0 +1,16 @@
+(:initial-context
+	(:domain
+		(enum t_value {a b c})
+		(sig x t_value)
+	)
+	(:goal
+		(G x a)
+	)
+	(:statement 
+		(G x a)
+	)
+	(:temporal
+		(planning-interval [0 100])
+	)
+	(:assertion goal (achieved G))
+)

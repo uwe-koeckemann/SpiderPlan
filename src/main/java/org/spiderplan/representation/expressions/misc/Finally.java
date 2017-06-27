@@ -1,34 +1,31 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.expressions.misc;
 
 import java.util.Collection;
-
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.interfaces.Assertable;
 import org.spiderplan.representation.expressions.interfaces.Mutable;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
 /**
@@ -41,15 +38,18 @@ public class Finally extends Expression implements Mutable, Assertable {
 	
 	final private static Term ConstraintType = Term.createConstant("finally");
 
+	private Term id;
 	private ConstraintDatabase cDB;
 	private boolean isAsserted = false;
 	
 	/**
 	 * Set a constraint to asserted.
+	 * @param id Identifier of this finally constraint
 	 * @param cDB The constraint that is asserted.
 	 */
-	public Finally( ConstraintDatabase cDB ) {
+	public Finally( Term id, ConstraintDatabase cDB ) {
 		super(ConstraintType);
+		this.id = id;
 		this.cDB = cDB;
 	}
 		
@@ -62,30 +62,32 @@ public class Finally extends Expression implements Mutable, Assertable {
 		cDB.add(this.cDB);
 	}
 	
+	/**
+	 * Get assertion that marks this finally constraint as added
+	 * @return the assertion
+	 */
+	public Assertion getAssertion() {
+		Term added = Term.createComplex("added", this.id);
+		Assertion assertion = new Assertion(super.getType(), added);
+		return assertion;
+	}
+	
 	@Override
 	public boolean isAssertable() { return true; }
 	
 	@Override
 	public boolean isMutable() { return true; }
-	
+		
 	@Override
-	public Collection<Term> getVariableTerms() {
-		return cDB.getVariableTerms();
-	}
-
-	@Override
-	public Collection<Term> getGroundTerms() {
-		return cDB.getGroundTerms();
-	}
-
-	@Override
-	public Collection<Atomic> getAtomics() {
-		return cDB.getAtomics();
+	public void getAllTerms(Collection<Term> collectedTerms, boolean getConstants, boolean getVariables, boolean getComplex) {
+		super.type.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.id.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.cDB.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
 	}
 
 	@Override
 	public Expression copy() {
-		Finally c = new Finally(cDB.copy());
+		Finally c = new Finally(id, cDB.copy());
 		c.setAsserted(this.isAsserted());
 		return c;		
 	}
@@ -105,7 +107,7 @@ public class Finally extends Expression implements Mutable, Assertable {
 
 	@Override
 	public String toString() {
-		return "finally: "+ cDB.toString();
+		return "(:finally " + id + " " + cDB.toString() + ")";
 	}
 
 	@Override
@@ -116,6 +118,12 @@ public class Finally extends Expression implements Mutable, Assertable {
 	public Expression setAsserted(boolean asserted) {
 		isAsserted = asserted;
 		return this;
+	}
+
+	@Override
+	public boolean appliesTo(Assertion assertion) {
+		return assertion.getExpressionType().equals(super.getType())
+				&& assertion.getParameter(0).getArg(0).equals(this.id);
 	}
 
 }

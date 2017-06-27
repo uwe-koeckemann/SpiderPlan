@@ -1,0 +1,1 @@
+Test a single non-binary resource with three overlapping usages that cannot be separated.

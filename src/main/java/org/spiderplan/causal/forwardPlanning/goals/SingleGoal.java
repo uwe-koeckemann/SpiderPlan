@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.causal.forwardPlanning.goals;
 
 import java.util.AbstractMap;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
 
@@ -42,7 +40,7 @@ import org.spiderplan.representation.logic.Term;
 public class SingleGoal implements Goal { 
 	private static int currentID = 0;
 	
-	private Atomic var;
+	private Term var;
 	private Term val;
 	private boolean reached = false;
 	private int ID;
@@ -56,7 +54,7 @@ public class SingleGoal implements Goal {
 	 * @param variable
 	 * @param value
 	 */
-	public SingleGoal( Atomic variable, Term value ) {
+	public SingleGoal( Term variable, Term value ) {
 		this.var = variable;
 		this.val = value;
 		this.ID = currentID++;
@@ -68,7 +66,7 @@ public class SingleGoal implements Goal {
 	 * @param value
 	 * @param ID
 	 */
-	private SingleGoal( Atomic variable, Term value, int ID ) {
+	private SingleGoal( Term variable, Term value, int ID ) {
 		this.var = variable;
 		this.val = value;
 		this.ID = ID;
@@ -83,7 +81,7 @@ public class SingleGoal implements Goal {
 	 * Get state-variable used by this goal.
 	 * @return this goal's state-variable
 	 */
-	public Atomic 	getVariable() 	{ return var; };
+	public Term 	getVariable() 	{ return var; };
 	/**
 	 * Get goal value.
 	 * @return the value
@@ -122,14 +120,14 @@ public class SingleGoal implements Goal {
 	}
 	
 	@Override
-	public boolean reachedInState( Map<Atomic,Term> state ) {
+	public boolean reachedInState( Map<Term,Term> state ) {
 		if ( state.get(var) == null )
 			return false;
 		return state.get(var).equals(val); 
 	}
 	    
 	@Override
-	public boolean reachedInMultiState( Map<Atomic,List<Term>> state ) { 
+	public boolean reachedInMultiState( Map<Term,List<Term>> state ) { 
 		if ( state.get(var) == null )
 			return false;
 		return state.get(var).contains(val); 
@@ -169,9 +167,9 @@ public class SingleGoal implements Goal {
 	}
 	
 	@Override
-	public ArrayList<Entry<Atomic,Term>> getEntries() {
-		ArrayList<Entry<Atomic,Term>> r = new ArrayList<Map.Entry<Atomic,Term>>();
-		r.add( new AbstractMap.SimpleEntry<Atomic, Term>(var, val) );
+	public ArrayList<Entry<Term,Term>> getEntries() {
+		ArrayList<Entry<Term,Term>> r = new ArrayList<Map.Entry<Term,Term>>();
+		r.add( new AbstractMap.SimpleEntry<Term, Term>(var, val) );
 		return r;
 	}
 	

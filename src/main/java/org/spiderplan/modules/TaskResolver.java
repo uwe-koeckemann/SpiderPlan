@@ -1,3 +1,24 @@
+/*******************************************************************************
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.modules;
 
 import java.util.ArrayList;
@@ -20,7 +41,6 @@ import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.causal.Task;
 import org.spiderplan.representation.expressions.domain.Substitution;
-import org.spiderplan.representation.expressions.misc.Asserted;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.UniqueID;
@@ -100,11 +120,65 @@ public class TaskResolver extends Module implements SolverInterface {
 		ArrayList<Resolver> resolvers = new ArrayList<Resolver>();
 
 		for ( Operator o : O ) {
+			System.out.println(o.getName());
 			Operator oCopy = o.copy();
 			long ID = UniqueID.getID();
 			oCopy.makeUniqueVariables(ID);	
+			
+			Statement oName = oCopy.getNameStateVariable();
+			Substitution thetaName = task.getStatement().matchWithoutKey(oName);
+			if ( thetaName != null ) {
+				Operator resOp = oCopy.copy();
+				resOp.substitute(thetaName);
+
+				/**
+				 * Create the resolver
+				 */
+				if ( tM.isConsistentVariableTermAssignment(resOp.getName(), null) ) {
+					ConstraintDatabase resDB = new ConstraintDatabase();
+
+					resOp.makeEffectIntervalKeysGround();
+//					Term newKey = resOp.getLabel();
+					Term newKey = null;
+					
+					newKey = oName.getKey();
+										
+					/**
+					 * Add elements that operator provides (effects and constraints)
+					 */
+					resDB.add(resOp.getNameStateVariable());
+					for ( Statement eff : resOp.getEffects() ) {
+						resDB.add(eff);
+					}
+					resDB.addAll(resOp.getConstraints());
+					
+					/**
+					 * Preconditions become OpenGoals
+					 */
+					for ( Statement pre : resOp.getPreconditions() ) {
+						resDB.add(new OpenGoal(pre));
+					}
+					
+					/**
+					 * Add Operator
+					 */
+					resDB.add(resOp);
+													
+					thetaName.add(task.getStatement().getKey(), newKey);
+					
+					Task tCopy = task.copy().substitute(thetaName);
+					tCopy.setAsserted(true);
+					
+					resDB.add(tCopy.getAssertion());
+					
+					Resolver r = new Resolver(thetaName, resDB);
+					
+					resolvers.add(r);
+				}
+			}
+			
 			for ( Statement e : oCopy.getEffects() ) {
-//			Statement e = oCopy.getNameStateVariable();
+			
 				Substitution theta = task.getStatement().matchWithoutKey(e);
 			
 				if ( theta != null ) {
@@ -153,7 +227,7 @@ public class TaskResolver extends Module implements SolverInterface {
 						Task tCopy = task.copy().substitute(theta);
 						tCopy.setAsserted(true);
 						
-						resDB.add(new Asserted(tCopy));
+						resDB.add(tCopy.getAssertion());
 						
 						Resolver r = new Resolver(theta, resDB);
 						

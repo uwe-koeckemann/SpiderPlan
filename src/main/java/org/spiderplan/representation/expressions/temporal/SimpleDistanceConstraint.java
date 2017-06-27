@@ -1,38 +1,32 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.expressions.temporal;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.ExpressionTypes;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interfaces.Matchable;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
 /**
@@ -92,7 +86,7 @@ public class SimpleDistanceConstraint extends Expression implements Matchable, S
 	 * <b>Example atomic:</b> (distance (ST I1) (ET I2) [0 10])
 	 * @param a the atomic
 	 */
-	public SimpleDistanceConstraint( Atomic a ) {
+	public SimpleDistanceConstraint( Term a ) {
 		super(ExpressionTypes.Temporal);
 		this.from = a.getArg(0).getArg(0);
 		this.to = a.getArg(1).getArg(0);
@@ -149,33 +143,12 @@ public class SimpleDistanceConstraint extends Expression implements Matchable, S
 	
 	@Override
 	public boolean isSubstitutable() { return true; }
-	
+		
 	@Override
-	public Collection<Term> getVariableTerms() {
-		Set<Term> r = new HashSet<Term>(); 
-		r.addAll(from.getVariables());
-		r.addAll(to.getVariables());
-		r.addAll(bound.getLowerTerm().getVariables());
-		r.addAll(bound.getUpperTerm().getVariables());
-		return r;
-	}
-	@Override
-	public Collection<Term> getGroundTerms() {
-		Set<Term> r = new HashSet<Term>();
-		if ( from.isGround() )
-			r.add(from);
-		if ( to.isGround() )
-			r.add(to);
-		if ( bound.getLowerTerm().isGround() )
-			r.add(bound.getLowerTerm());
-		if ( bound.getUpperTerm().isGround() )
-			r.add(bound.getUpperTerm());
-		return r;
-	}
-	@Override
-	public Collection<Atomic> getAtomics() {
-		ArrayList<Atomic> r = new ArrayList<Atomic>();
-		return r;		
+	public void getAllTerms(Collection<Term> collectedTerms, boolean getConstants, boolean getVariables, boolean getComplex) {
+		super.type.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.from.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.to.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
 	}
 	
 	@Override

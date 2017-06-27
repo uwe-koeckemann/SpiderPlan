@@ -1,47 +1,50 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.types;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.plaf.synth.SynthSpinnerUI;
 
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.domain.TypeDomainConstraint;
 import org.spiderplan.representation.expressions.domain.TypeSignatureConstraint;
+import org.spiderplan.representation.expressions.interfaces.Unique;
 import org.spiderplan.representation.expressions.resources.ReusableResourceCapacity;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.GenericComboBuilder;
+import org.spiderplan.tools.UniqueID;
 
 /**
  * Used to register types and their domains and to store the {@link Type}s of arguments of 
- * {@link Atomic}s, etc. 
+ * {@link Term}s, etc. 
  * @author Uwe Köckemann
  */
 public class TypeManager {
@@ -66,9 +69,9 @@ public class TypeManager {
 	 */
 	public void collectTypeInformation( ConstraintDatabase cDB ) {
 		for ( TypeDomainConstraint dC : cDB.get(TypeDomainConstraint.class) ) {
-			Atomic r = dC.getRelation(); 
+			Term r = dC.getRelation(); 
 			try {
-				if ( r.name().equals("enum") ) {
+				if ( r.getName().equals("enum") ) {
 					Term typeName = r.getArg(0);
 					EnumType t;
 					
@@ -96,7 +99,7 @@ public class TypeManager {
 					
 					this.addNewType(t);
 					this.attachTypes("(" + t.getName() + " " + t.getName() + ")");
-				} else if ( r.name().equals("int") ) {
+				} else if ( r.getName().equals("int") ) {
 					Term typeName = r.getArg(0);
 					IntegerType t;
 					
@@ -124,7 +127,7 @@ public class TypeManager {
 					
 					this.addNewType(t);
 					this.attachTypes("(" + t.getName() + " " + t.getName() + ")");
-				} else if ( r.name().equals("float") ) {
+				} else if ( r.getName().equals("float") ) {
 					Term typeName = r.getArg(0);
 					FloatType t;
 					
@@ -160,7 +163,8 @@ public class TypeManager {
 		for ( TypeSignatureConstraint tsC : cDB.get(TypeSignatureConstraint.class) ) {
 			this.attachTypes(tsC.getVariableSignature(), tsC.getValueTypeName());
 		}
-		this.updateTypeDomains();
+//		System.out.println("Updating type domains");
+//		this.updateTypeDomains();
 	}
 	
 	/**
@@ -204,11 +208,11 @@ public class TypeManager {
 		ArrayList<Type> tList = new ArrayList<Type>();
 		ArrayList<Term> tNameList = new ArrayList<Term>();
 		
-		Atomic a;
+		Term a;
 		if ( s.contains("=") ) {
-			a = new Atomic(s.split("=")[0]);
+			a = Term.parse(s.split("=")[0]);
 		} else {
-			a = new Atomic(s);
+			a = Term.parse(s);
 		}
 		
 		for ( int i = 0 ; i < a.getNumArgs() ; i++ ) {
@@ -236,10 +240,10 @@ public class TypeManager {
 	
 	/**
 	 * Attaches type definitions to a variable.
-	 * @param a {@link Atomic} variable name, where arguments of <code>a</code> are {@link Type} names.
+	 * @param a {@link Term} variable name, where arguments of <code>a</code> are {@link Type} names.
 	 * @param v {@link Type} name of value.
 	 */
-	public void attachTypes( Atomic a, Term v ) {
+	public void attachTypes( Term a, Term v ) {
 		if ( v == null ) {
 			v = BooleanTerm;
 		}
@@ -314,7 +318,7 @@ public class TypeManager {
 	 * @param a the state-variable
 	 * @return all objects of the given type's domain
 	 */
-	public Collection<Term> getAllObjectsFromDomains( Term tName, Atomic a ) {
+	public Collection<Term> getAllObjectsFromDomains( Term tName, Term a ) {
 		Collection<Term> r = new ArrayList<Term>();
 		
 		for ( int i = 0 ; i < a.getNumArgs() ; i++ ) {
@@ -380,14 +384,14 @@ public class TypeManager {
 	
 	
 	/**
-	 * Flatten {@link Type} hierarchy so that each {@link Type}'s domain only contains constants.
+	 * Flatten {@link Type} hierarchy so that each {@link Type}'s domain only contains ground terms.
 	 * If there are {@link Type}s that consist of sub-types, the sub-types in the types domains
 	 * will be replaced by the sub-types domain values.
 	 */	 
 	public void updateTypeDomains() {
 		for ( Term tName : typeNames ) {
 			Type t = types.get(tName);
-			for ( Term v : t.getDomain() )  {
+			for ( Term v : t.generateDomain(this) )  {
 				if ( !types.containsKey(v) ) {
 					types.put(v, t);
 				}
@@ -404,18 +408,16 @@ public class TypeManager {
 		for ( Term tName : this.typeNames ) {
 			Type t = this.types.get(tName);
 			if ( t instanceof EnumType ) {
-//				System.out.println(tName);
 				EnumType et = (EnumType)t;
 				ArrayList<Term> removeList = new ArrayList<Term>();
 				ArrayList<Term> addList = new ArrayList<Term>(); 
 				for ( Term val : et.D ) {
-//					System.out.println(val);
 					Type valType = types.get(val);
 					if ( !valType.name.equals(et.name) && typeNames.contains(val) ) {
-//						System.out.println("r----->emoving");
+//						System.out.println("----->removing");
 						if ( !removeList.contains(val) ) {
 							removeList.add(val);
-							for ( Term val2 : valType.getDomain() ) {
+							for ( Term val2 : valType.generateDomain(this) ) {
 								if ( !et.D.contains(val2) ) {
 									addList.add(val2);
 								}
@@ -428,22 +430,17 @@ public class TypeManager {
 				this.types.put(et.name, et);
 			}			
 		}
-		
 		/*
 		 * In case of enumeration, go through the domain and expand non-ground objects to collections of ground objects
 		 */
 		for ( Term tName : typeNames ) {
 			Type t = types.get(tName);
 			if ( t instanceof EnumType ) {
-//				System.out.println(t.getName());
-				
 				EnumType et = (EnumType)types.get(t.name);
 				ArrayList<Term> newObjects = new ArrayList<Term>();
 				ArrayList<Term> removeObjects = new ArrayList<Term>();
 				
 				for ( Term s : et.D ) {
-//					System.out.println("s: " + s);
-
 					if ( s.isComplex() ) {
 						
 //						for ( Term tArg : sTerm.getArgs() ) {
@@ -454,21 +451,23 @@ public class TypeManager {
 //							}
 //						}
 						
-						ArrayList<Term> combos = getAllGroundCombos(s);
+						List<Term> combos = getAllGroundCombos(s);
 						
 						if ( !combos.isEmpty() ) {
-							newObjects.addAll(getAllGroundCombos(s));
+							newObjects.addAll(combos);
 							removeObjects.add(s);		
 						}						
 					}
 				}
+							
 				removeObjects.removeAll(newObjects);
-				
-				for ( Term s : newObjects ) {
+								
+				for ( Term s : newObjects ) {					
 					if ( !et.D.contains(s) ) {
 						et.D.add(s);
 					}
 				}
+				
 //				et.D.addAll(newObjects);
 				et.D.removeAll(removeObjects);
 				for ( Term s : newObjects ) {
@@ -482,13 +481,13 @@ public class TypeManager {
 	 * Generate all ground substitutions for a functor/literal by reading
 	 * domain of all {@link Type}s in arguments
 	 * 
-	 * Example: ground(locations) and locations in { kitchen, bathroom }
-	 * returns list: { ground(kitchen), ground(bathroom) }
-	 * @param s String representation of {@link Atomic} or complex {@link Term}.
-	 * @return List of combinations of all ground {@link Atomic}s or {@link Term} substituting all {@link Type} names
+	 * Example: (ground location) and location = { kitchen bathroom }
+	 * returns list: { (ground kitchen) (ground bathroom) }
+	 * @param s term to be expanded.
+	 * @return List of combinations of all ground {@link Term}s or {@link Term} substituting all {@link Type} names
 	 * in s by their domains.
 	 */
-	public ArrayList<Term> getAllGroundCombos( Term s ) {
+	public List<Term> getAllGroundCombos( Term s ) {
 		ArrayList<Term> r = new ArrayList<Term>();
 		
 		if ( !s.isComplex() ) {
@@ -496,10 +495,10 @@ public class TypeManager {
 				r.add(s);
 				return r;
 			} else {
-				return types.get(s).getDomain();
+				return types.get(s).generateDomain(this);
 			}
 		} else {
-			ArrayList<ArrayList<Term>> allDomains = new ArrayList<ArrayList<Term>>();
+			ArrayList<List<Term>> allDomains = new ArrayList<List<Term>>();
 			
 			for ( int i = 0 ; i < s.getNumArgs() ; i++ ) {
 				allDomains.add(getAllGroundCombos(s.getArg(i)));
@@ -507,9 +506,9 @@ public class TypeManager {
 			
 			GenericComboBuilder<Term> cBuilder = new GenericComboBuilder<Term>();
 			
-			ArrayList<ArrayList<Term>> combos = cBuilder.getCombos(allDomains);
+			List<List<Term>> combos = cBuilder.getCombos(allDomains);
 			
-			for ( ArrayList<Term> combo : combos ) {
+			for ( List<Term> combo : combos ) {
 				Term[] args = combo.toArray(new Term[combo.size()]);
 				r.add(Term.createComplex(s.getName(),args));
 			}
@@ -524,17 +523,17 @@ public class TypeManager {
 	 * @param a the state-variable
 	 * @return list of substitutions
 	 */
-	public ArrayList<Substitution> getAllGroundSubstitutions( Atomic a ) {
+	public ArrayList<Substitution> getAllGroundSubstitutions( Term a ) {
 		ArrayList<Substitution> r = new ArrayList<Substitution>();
 
 		if ( a.isGround() ) {
 			return r;
 		}
 
-		Map<Term,ArrayList<Term>> varsAndDomains = getAllVariablesAndDomains(a);
+		Map<Term,List<Term>> varsAndDomains = getAllVariablesAndDomains(a);
 		
 		ArrayList<Term> vars = new ArrayList<Term>();
-		ArrayList<ArrayList<Term>> domains = new ArrayList<ArrayList<Term>>();
+		List<List<Term>> domains = new ArrayList<List<Term>>();
 		
 		for ( Term k : varsAndDomains.keySet() ) {
 			vars.add(k);
@@ -543,10 +542,10 @@ public class TypeManager {
 		
 		GenericComboBuilder<Term> cB = new GenericComboBuilder<Term>(); 
 		
-		ArrayList<ArrayList<Term>> allCombos = cB.getCombos(domains);
+		List<List<Term>> allCombos = cB.getCombos(domains);
 		
 		
-		for ( ArrayList<Term> assignment : allCombos ) {
+		for ( List<Term> assignment : allCombos ) {
 			Substitution theta = new Substitution();
 			for ( int i = 0 ; i < vars.size() ; i++ ) {
 				theta.add(vars.get(i), assignment.get(i));
@@ -566,8 +565,8 @@ public class TypeManager {
 	 * @param v state-variable
 	 * @return ground versions of the state-variable
 	 */
-	public Collection<Atomic> getAllGroundAtomics( Atomic v ) {
-		Set<Atomic> r = new HashSet<Atomic>();
+	public Collection<Term> getAllGroundAtomics( Term v ) {
+		Set<Term> r = new HashSet<Term>();
 		
 		if ( v.isGround() ) {
 			r.add(v);
@@ -589,19 +588,19 @@ public class TypeManager {
 	 * @param a the state-variable
 	 * @return map from variables to their domains 
 	 */
-	public Map<Term,ArrayList<Term>> getAllVariablesAndDomains( Atomic a ) {
-		Map<Term,ArrayList<Term>> r = new HashMap<Term, ArrayList<Term>>();
-		
-		for ( int i = 0 ; i < a.getNumArgs() ; i++ ) {
-			Term arg = a.getArg(i);
-			if ( arg.isVariable() ) {
-				r.put( arg , this.getPredicateTypes(a.getUniqueName(), i).getDomain());
-			} else if ( arg.isComplex() ) {
-				r.putAll(getAllVariablesAndDomains(arg));
-			}
-		}
-		return r;
-	}
+//	public Map<Term,ArrayList<Term>> getAllVariablesAndDomains( Term a ) {
+//		Map<Term,ArrayList<Term>> r = new HashMap<Term, ArrayList<Term>>();
+//		
+//		for ( int i = 0 ; i < a.getNumArgs() ; i++ ) {
+//			Term arg = a.getArg(i);
+//			if ( arg.isVariable() ) {
+//				r.put( arg , this.getPredicateTypes(a.getUniqueName(), i).getDomain());
+//			} else if ( arg.isComplex() ) {
+//				r.putAll(getAllVariablesAndDomains(arg));
+//			}
+//		}
+//		return r;
+//	}
 	
 	/**
 	 * Returns a lookup of all variables used in a term
@@ -611,8 +610,8 @@ public class TypeManager {
 	 * @param t the the term
 	 * @return map from variables to their domains 
 	 */
-	public Map<Term,ArrayList<Term>> getAllVariablesAndDomains( Term t ) {
-		Map<Term,ArrayList<Term>> r = new HashMap<Term, ArrayList<Term>>();
+	public Map<Term,List<Term>> getAllVariablesAndDomains( Term t ) {
+		Map<Term,List<Term>> r = new HashMap<Term, List<Term>>();
 		
 		if ( !t.isComplex() ) {
 			return r;
@@ -621,7 +620,7 @@ public class TypeManager {
 		for ( int i = 0 ; i < t.getNumArgs() ; i++ ) {
 			Term arg = t.getArg(i);
 			if ( arg.isVariable() ) {
-				r.put( arg , this.getPredicateTypes( t.getUniqueName(), i).getDomain() );
+				r.put( arg , this.getPredicateTypes( t.getUniqueName(), i).generateDomain(this) );
 			} else if ( arg.isComplex() ) {
 				r.putAll( getAllVariablesAndDomains(arg) );
 			}
@@ -641,32 +640,32 @@ public class TypeManager {
 		/*
 		 * In case of enumeration, go through the domain and expand non-ground objects to collections of ground objects
 		 */
-		if ( t instanceof EnumType ) {
-			EnumType et = (EnumType)types.get(t.name);
-			ArrayList<Term> newObjects = new ArrayList<Term>();
-			ArrayList<Term> removeObjects = new ArrayList<Term>();
-			
-			for ( Term s : et.D ) {
-				if ( s.isComplex() ) {
-					ArrayList<Term> combos = getAllGroundCombos(s);
-					if ( !combos.isEmpty() ) {
-						newObjects.addAll(getAllGroundCombos(s));
-						removeObjects.add(s);
-					}
-				}
-			}
-			et.D.addAll(newObjects);
-			et.D.removeAll(removeObjects);
-		}
-		
-		/*
-		 * Add all values in domain to type lookup:
-		 */
-		for ( Term s : t.getDomain() ) {
-			if ( !types.containsKey(s) ) {
-				types.put(s, t);
-			}
-		}
+//		if ( t instanceof EnumType ) {
+//			EnumType et = (EnumType)types.get(t.name);
+//			ArrayList<Term> newObjects = new ArrayList<Term>();
+//			ArrayList<Term> removeObjects = new ArrayList<Term>();
+//			
+//			for ( Term s : et.D ) {
+//				if ( s.isComplex() ) {
+//					ArrayList<Term> combos = getAllGroundCombos(s);
+//					if ( !combos.isEmpty() ) {
+//						newObjects.addAll(getAllGroundCombos(s));
+//						removeObjects.add(s);
+//					}
+//				}
+//			}
+//			et.D.addAll(newObjects);
+//			et.D.removeAll(removeObjects);
+//		}
+//		
+//		/*
+//		 * Add all values in domain to type lookup:
+//		 */
+//		for ( Term s : t.getDomain() ) {
+//			if ( !types.containsKey(s) ) {
+//				types.put(s, t);
+//			}
+//		}
 	}
 		
 	private HashSet<String> resourcesVars = new HashSet<String>();
@@ -680,17 +679,34 @@ public class TypeManager {
 	 * @param val the value
 	 * @return <code>true</code> if all assignments are consistent with their domains, <code>false</code> otherwise
 	 */
-	public boolean isConsistentVariableTermAssignment( Atomic var, Term val ) {
+	public boolean isConsistentVariableTermAssignment( Term var, Term val ) {
 		for ( int i = 0 ; i < var.getNumArgs(); i++ ) {
 			Term t = var.getArg(i);
-			if ( t.isGround() && !this.getPredicateTypes(var.getUniqueName(), i).contains(t)) {
+			if ( t.isGround() && !this.getPredicateTypes(var.getUniqueName(), i).contains(t, this)) {
 				return false;
 			}
 		}
-		if ( val != null && val.isGround() && !this.getPredicateTypes(var.getUniqueName(), -1).contains(val)) {
+		if ( val != null && val.isGround() && !this.getPredicateTypes(var.getUniqueName(), -1).contains(val, this)) {
 			return false;
 		}		
 		return true;
+	}
+	
+	public Term replaceTypesNamesWithVariables( Term t, TypeManager tM ) {
+		if ( !t.isComplex() ) {
+			if ( tM.hasTypeWithName(t) ) {
+				long idx = UniqueID.getID();
+				return Term.createVariable("?Type"+idx+"_"+t.getName());
+			} else {
+				return t;
+			}
+		} else {
+			Term[] argList = new Term[t.getNumArgs()];
+			for ( int i = 0 ; i < t.getNumArgs() ; i++ ) {
+				argList[i] = replaceTypesNamesWithVariables(t.getArg(i), tM);
+			}
+			return Term.createComplex(t.getName(), argList);
+		}
 	}
 	
 	/**

@@ -10,6 +10,14 @@
 		(I4 y)
 	)
 	(:temporal
+		;; Set date-time for timestep 0
+		;; Set timestep delta to 1 hour
+		(date-time-reference
+			"yyyy-MM-dd hh:mm:ss SSS"
+			"2017-02-01 12:00:00 000"
+			0 1 0 0 0 ;; d_days, d_hours, d_minutes, d_seconds, d_milliseconds
+		)
+	
 		;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 		;; Unary constraints
 		;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -1,31 +1,29 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.causal.forwardPlanning.causalGraph;
 
 import java.util.Collection;
 
 import org.spiderplan.causal.forwardPlanning.StateVariableOperator;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 
@@ -42,7 +40,7 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
  */
 public class DomainTransitionGraph {
 	
-	private Atomic v;
+	private Term v;
 	private DirectedSparseMultigraph<Term, DomainTransitionEdge> g;
 	private final static Term UnknownValue = Term.createConstant("unknown_value");
 
@@ -53,7 +51,7 @@ public class DomainTransitionGraph {
 	 * @param O set of operators describeing allowed transitions
 	 * @param tM type manager
 	 */
-	public DomainTransitionGraph( Atomic v, Collection<StateVariableOperator> O, TypeManager tM ) {
+	public DomainTransitionGraph( Term v, Collection<StateVariableOperator> O, TypeManager tM ) {
 		this.v = v;
 		
 		g = new DirectedSparseMultigraph<Term, DomainTransitionEdge>();
@@ -67,30 +65,21 @@ public class DomainTransitionGraph {
 				if ( oldValue != null ) {
 					DomainTransitionEdge edge = new DomainTransitionEdge(oldValue, newValue, edgeCount++);
 					
-//					edge.ID = edgeCount++;
-//					edge.addOperator(o);
-					
-					for ( Atomic var : o.getPreconditions().keySet() ) {
+					for ( Term var : o.getPreconditions().keySet() ) {
 						if ( !var.equals(v)) {
 							edge.getConditions().put(var, o.getPreconditions().get(var));
 						}
 					}
 					if ( !oldValue.equals(newValue)) {
 						g.addEdge(edge, oldValue, newValue);
-//						edge.setSource(oldValue); 
-//						edge.setDest(newValue);
 					}
 					
 				} else {
-					for ( Term value : tM.getPredicateTypes(v.getUniqueName(), -1).getDomain() ) {
+					for ( Term value : tM.getPredicateTypes(v.getUniqueName(), -1).generateDomain(tM) ) {
 						if ( !value.equals(newValue) ) {
 							DomainTransitionEdge edge = new DomainTransitionEdge(value, newValue, edgeCount++);
 							edge.getConditions().putAll(o.getPreconditions());
-//							edge.ID = edgeCount++;
-//							oldValue = value;
 							g.addEdge(edge, value, newValue);
-//							edge.setSource(oldValue); 
-//							edge.setDest(newValue);
 						}
 					}
 					
@@ -98,14 +87,11 @@ public class DomainTransitionGraph {
 					 * Add an edge from "unknown_value" which is used
 					 * in cases where the state is not fully determined.
 					 */
-//					oldValue = UnknownValue;
 					DomainTransitionEdge edge = new DomainTransitionEdge(UnknownValue, newValue, edgeCount++);
 					edge.getConditions().putAll(o.getPreconditions());
 					edge.ID = edgeCount++;
 					
 					g.addEdge(edge, UnknownValue, newValue);
-//					edge.setSource(oldValue); 
-//					edge.setDest(newValue);
 				}
 				
 			}
@@ -116,7 +102,7 @@ public class DomainTransitionGraph {
 	 * Returns the variable associated to this domain transition graph.
 	 * @return variable associated to this domain transition graph
 	 */
-	public Atomic getVariable() {
+	public Term getVariable() {
 		return v;
 	}
 	

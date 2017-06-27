@@ -1,28 +1,28 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
@@ -36,6 +36,7 @@ import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.misc.Delete;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.DateTimeReference;
 import org.spiderplan.representation.logic.*;
 import org.spiderplan.representation.parser.Compile;
 import org.spiderplan.representation.parser.pddl.ParseException;
@@ -77,20 +78,29 @@ public class TestSmallClasses extends TestCase {
 		assertTrue ( tC.getFrom().equals(Term.createConstant("S0")) );
 	}
 	
+	public void testDateTimeReference() throws java.text.ParseException {
+		DateTimeReference ref = new DateTimeReference("yyyy/MM/dd hh:mm:ss.SSS", 
+													  "2017/02/08 14:00:00.000",
+													   1,0,0,0,0);
+	
+		Date t = new Date(ref.internal2external(20));
+		System.out.println(t);
+	}
+	
 	/**
 	 * Testing the {@link Delete} constraint on a {@link ConstraintDatabase}
 	 * with and without {@link Resolver}.
 	 */
 	public void testDeleteConstraint() {
 		ConstraintDatabase cDB = new ConstraintDatabase();
-		cDB.add(new PrologConstraint(new Atomic("(p x)"), Term.createConstant("pProg")));
-		cDB.add(new AllenConstraint(new Atomic("(Meets a b)")));
-		Cost cost = new Cost(new Atomic("(add c ?X)")); 
+		cDB.add(new PrologConstraint(Term.parse("(p x)"), Term.createConstant("pProg")));
+		cDB.add(new AllenConstraint(Term.parse("(Meets a b)")));
+		Cost cost = new Cost(Term.parse("(add c ?X)")); 
 		cDB.add(cost);
 		
 		assertTrue(cDB.size() == 3);
 		
-		Delete d = new Delete(new PrologConstraint(new Atomic("(p x)"), Term.createConstant("pProg")));
+		Delete d = new Delete(new PrologConstraint(Term.parse("(p x)"), Term.createConstant("pProg")));
 		
 		d.apply(cDB);
 		
@@ -102,7 +112,7 @@ public class TestSmallClasses extends TestCase {
 		
 		assertTrue(cDB.size() == 1);
 		
-		d = new Delete(new AllenConstraint(new Atomic("(Meets a b)")));
+		d = new Delete(new AllenConstraint(Term.parse("(Meets a b)")));
 		ConstraintDatabase rcDB = new ConstraintDatabase();
 		rcDB.add(d);
 		Resolver r = new Resolver(rcDB);
@@ -170,14 +180,14 @@ public class TestSmallClasses extends TestCase {
 	 * list and single choice
 	 */
 	public void testComboBuilderSingleListSingleValue()  {
-		ArrayList<ArrayList<String>> in = new ArrayList<ArrayList<String>>();
-		ArrayList<String> inner = new ArrayList<String>();		
+		List<List<String>> in = new ArrayList<List<String>>();
+		List<String> inner = new ArrayList<String>();		
 		inner.add("A"); 
 		in.add(inner);
 		
 		GenericComboBuilder<String> cB = new GenericComboBuilder<String>();
 		
-		ArrayList<ArrayList<String>> combos = cB.getCombos(in);
+		List<List<String>> combos = cB.getCombos(in);
 				
 		assertTrue( combos.size() == 1 );
 	}

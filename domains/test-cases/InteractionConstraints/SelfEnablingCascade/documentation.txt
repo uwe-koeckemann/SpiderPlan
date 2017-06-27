@@ -1,0 +1,2 @@
+IC that triggers itself. This fails only because of the 
+temporal constraint and the limited temporal horizon.

@@ -1,0 +1,20 @@
+(:initial-context
+	(:domain
+		(int t_value [0 5])
+		(sig x t_value)
+	)
+	(:resource
+		(reusable x 5)
+	)
+	(:statement 
+		(I1 x 2)		
+		(I2 x 5)
+		(I3 x 1)
+	)
+	(:temporal
+		(planning-interval [0 100])
+		(at I1 [0 20] [40 60])	
+		(at I2 [0 20] [40 60])	
+		(at I3 [0 20] [40 60])				
+	)
+)

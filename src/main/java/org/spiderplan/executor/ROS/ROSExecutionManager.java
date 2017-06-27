@@ -1,7 +1,27 @@
+/*******************************************************************************
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.executor.ROS;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,10 +29,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.spiderplan.executor.ExecutionManager;
-import org.spiderplan.executor.Reactor;
-import org.spiderplan.modules.configuration.ConfigurationManager;
-import org.spiderplan.modules.configuration.ParameterDescription;
-import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
@@ -22,12 +38,9 @@ import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelatio
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.execution.ros.ROSConstraint;
 import org.spiderplan.representation.expressions.execution.ros.ROSGoal;
-import org.spiderplan.representation.expressions.execution.ros.ROSRegisterAction;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
-import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.UniqueID;
 import org.spiderplan.tools.logging.Logger;
 
@@ -55,11 +68,11 @@ public class ROSExecutionManager extends ExecutionManager {
 	int ROS_SameValueCounter = 0;
 	Term ROS_NewValue = null;
 	
-	private Set<Atomic> variablesObservedByROS = new HashSet<Atomic>();
+	private Set<Term> variablesObservedByROS = new HashSet<Term>();
 	
 	// TODO: this came from ExecutionModule before
-	Map<Atomic,Statement> lastChangingStatement = new HashMap<Atomic, Statement>();
-	Map<Atomic,Expression> lastAddedDeadline = new HashMap<Atomic, Expression>();
+	Map<Term,Statement> lastChangingStatement = new HashMap<Term, Statement>();
+	Map<Term,Expression> lastAddedDeadline = new HashMap<Term, Expression>();
 	
 
 	
@@ -159,7 +172,7 @@ public class ROSExecutionManager extends ExecutionManager {
 		
 		ValueLookup propagatedTimes = cdb.getUnique(ValueLookup.class);
 		
-		Atomic variable;
+		Term variable;
 		Term value;
 		Term rosMessage;
 		/*

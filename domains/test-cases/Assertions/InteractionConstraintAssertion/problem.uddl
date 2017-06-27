@@ -1,0 +1,28 @@
+(:initial-context
+	(:domain
+		(enum t_value {a b c})
+		(sig x t_value)
+	)
+	(:conditional (name I x a)
+		(:condition 		)
+		(:resolver
+			(:statement
+				(I1 x a)
+			  (I2 x b)
+			)
+			(:temporal
+				(duration I1 [10 10])
+				(duration I2 [10 10])
+				(met-by I1 I2)
+				(meets I1 I2)
+			)
+		)
+	)
+	(:statement
+		(It x a)
+	)
+	(:temporal
+		(planning-interval [0 100])
+	)
+	(:assertion ic (name I x a) (resolver 1))
+)

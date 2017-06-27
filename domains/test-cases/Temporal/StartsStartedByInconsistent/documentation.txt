@@ -1,0 +1,3 @@
+Testing the starts and started-by constraints. This one fails because
+the starting interval has to be shorter than the one it starts (which
+is not the case here).

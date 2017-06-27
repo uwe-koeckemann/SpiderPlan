@@ -1,0 +1,1 @@
+Test a single IC that has been asserted. No resolving is necessary.

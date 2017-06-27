@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.causal.forwardPlanning;
 
 import java.util.ArrayList;
@@ -28,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
-import org.spiderplan.modules.configuration.ParameterDescription;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Resolver;
 import org.spiderplan.modules.solvers.ResolverIterator;
@@ -39,7 +37,6 @@ import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelatio
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
@@ -106,7 +103,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 		
 		addGoals = isSolution;
 				
-		Map<Atomic,List<Term>> sortedIntervals = TemporalNetworkTools.getSequencedIntervals(cDB);
+		Map<Term,List<Term>> sortedIntervals = TemporalNetworkTools.getSequencedIntervals(cDB);
 
 		/**
 		 * Collect goal statements
@@ -142,7 +139,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 					if ( verbose ) print("Precondition: " + pre, 3);
 					ArrayList<Substitution> possibleMachtes = new ArrayList<Substitution>();
 					ArrayList<AllenConstraint> possibleLinks = new ArrayList<AllenConstraint>();
-					for ( Atomic var : sortedIntervals.keySet() ) {
+					for ( Term var : sortedIntervals.keySet() ) {
 						Substitution theta = pre.getVariable().match(var);	
 						if ( theta != null ) {	
 							Substitution sub = theta.copy();
@@ -209,7 +206,7 @@ public class ApplyPlanIterator extends ResolverIterator {
 				if ( verbose ) print("Goal: " + goal, 3);
 				ArrayList<Substitution> possibleMatches = new ArrayList<Substitution>();
 				ArrayList<AllenConstraint> possibleLinks = new ArrayList<AllenConstraint>();
-				for ( Atomic var : sortedIntervals.keySet() ) {
+				for ( Term var : sortedIntervals.keySet() ) {
 					Substitution theta = goal.getVariable().match(var);	
 					
 					if ( theta != null ) {		

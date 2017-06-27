@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.causal.forwardPlanning;
 
 import java.util.ArrayList;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.spiderplan.causal.forwardPlanning.goals.GoalCNF;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.SequentialPlan;
 import org.spiderplan.search.MultiHeuristicNode;
@@ -77,7 +75,7 @@ public class ForwardPlanningNode extends MultiHeuristicNode { //TODO: proper con
 	/**
 	 * Resulting state 
 	 */
-	public Map<Atomic,List<Term>> s;
+	public Map<Term,List<Term>> s;
 	/**
 	 * Applied action
 	 */
@@ -197,8 +195,8 @@ public class ForwardPlanningNode extends MultiHeuristicNode { //TODO: proper con
 			} else if ( eqCriteria.equals(EqualityCriteria.StateBased) ) {	// Equal if same state and same action
 				equals = n.a.equals(this.a) && n.s.equals(this.s);
 			} else {														// Equal if resulting state is equal
-				HashMap<Atomic,List<Term>> resultingStateThis = new HashMap<Atomic, List<Term>>(); 
-				HashMap<Atomic,List<Term>> resultingStateN = new HashMap<Atomic, List<Term>>();
+				HashMap<Term,List<Term>> resultingStateThis = new HashMap<Term, List<Term>>(); 
+				HashMap<Term,List<Term>> resultingStateN = new HashMap<Term, List<Term>>();
 				
 				resultingStateThis.putAll(this.s);
 				if ( this.a != null ) {
@@ -228,7 +226,7 @@ public class ForwardPlanningNode extends MultiHeuristicNode { //TODO: proper con
 			}
 			return 17 + 31 * s.hashCode() + 31 * a.hashCode();
 		} else {
-			HashMap<Atomic,List<Term>> resultingStateThis = new HashMap<Atomic, List<Term>>(); 
+			HashMap<Term,List<Term>> resultingStateThis = new HashMap<Term, List<Term>>(); 
 			
 			resultingStateThis.putAll(this.s);
 			

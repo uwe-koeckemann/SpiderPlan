@@ -1,43 +1,42 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.expressions.temporal;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
+import java.util.Collection;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.ExpressionTypes;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interfaces.Matchable;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
 /**
  * Representing quantitative Allen interval constraints.
+ *
+ * TODO: check construction during parsing (e.g., duration constraints with > 1 interval leads 
+ * to error)
  * 
  * @author Uwe Köckemann
  *
@@ -120,16 +119,16 @@ public class AllenConstraint extends Expression implements Matchable, Substituta
 	}
 	
 	/**
-	 * Create a {@link AllenConstraint} based on its {@link Atomic} representation.
+	 * Create a {@link AllenConstraint} based on its {@link Term} representation.
 	 * @param a
 	 */
-	public AllenConstraint( Atomic a ) {
+	public AllenConstraint( Term a ) {
 		super(ExpressionTypes.Temporal);
 		from = null;
 		to = null;		
 		bounds = null;
 		
-		String baseName = a.name();
+		String baseName = a.getName();
 		baseName = baseName.toLowerCase().replace("-", "");
 				
 		if ( baseName.equals("duration") ) {
@@ -495,38 +494,6 @@ public class AllenConstraint extends Expression implements Matchable, Substituta
 	@Override
 	public boolean isSubstitutable() { return true; }
 	
-	@Override
-	public Collection<Term> getVariableTerms() {
-		Set<Term> r = new HashSet<Term>(); 
-		r.addAll(from.getVariables());
-		if ( to != null )
-			r.addAll(to.getVariables());
-		for ( Interval b : bounds ) {
-			r.addAll(b.getLowerTerm().getVariables());
-			r.addAll(b.getUpperTerm().getVariables());
-		}
-		return r;
-	}
-	@Override
-	public Collection<Term> getGroundTerms() {
-		Set<Term> r = new HashSet<Term>();
-		if ( from.isGround() )
-			r.add(from);
-		if ( to != null && to.isGround() )
-			r.add(to);
-		for ( Interval b : bounds ) {
-			if ( b.getLowerTerm().isGround() )
-				r.add(b.getLowerTerm());
-			if ( b.getUpperTerm().isGround() )
-				r.add(b.getUpperTerm());
-		}
-		return r;
-	}
-	@Override
-	public Collection<Atomic> getAtomics() {
-		ArrayList<Atomic> r = new ArrayList<Atomic>();
-		return r;		
-	}
 	
 	@Override
 	public boolean isGround() {
@@ -692,5 +659,14 @@ public class AllenConstraint extends Expression implements Matchable, Substituta
 			}
 		}
 		return s;
+	}
+
+	@Override
+	public void getAllTerms(Collection<Term> collectedTerms, boolean getConstants, boolean getVariables, boolean getComplex) {
+		super.type.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.from.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		if ( to != null ) {
+			to.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		}
 	}
 }

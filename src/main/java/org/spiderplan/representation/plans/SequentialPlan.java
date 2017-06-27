@@ -1,31 +1,30 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.plans;
 
 import java.util.ArrayList;
 
 import org.spiderplan.representation.expressions.domain.Substitution;
-import org.spiderplan.representation.logic.Atomic;
+import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.UniqueID;
 
 
@@ -38,7 +37,7 @@ import org.spiderplan.tools.UniqueID;
  * the plan can be understood by any other representation easily. 
  */
 public class SequentialPlan {
-	private ArrayList<Atomic> names = new ArrayList<Atomic>();
+	private ArrayList<Term> names = new ArrayList<Term>();
 	private ArrayList<Substitution> substitutions = new ArrayList<Substitution>();
 	private ArrayList<Integer> uniqueKeys = new ArrayList<Integer>();
 		
@@ -68,12 +67,12 @@ public class SequentialPlan {
 	 * @param name name of the action
 	 * @param theta a substitution
 	 */
-	public void add(Atomic name, Substitution theta) {
+	public void add(Term name, Substitution theta) {
 		Integer ID = new Integer((int)UniqueID.getID());
 		this.add(name, theta, ID);
 	}
 
-	private void add(Atomic name, Substitution theta, Integer ID) {
+	private void add(Term name, Substitution theta, Integer ID) {
 		this.names.add(name);
 		this.substitutions.add(theta);
 		this.uniqueKeys.add(ID);		
@@ -115,8 +114,8 @@ public class SequentialPlan {
 		Substitution theta = new Substitution();
 		
 		for ( int i = 0 ; i < sub.names.size(); i++ ) {
-			Atomic a1 = sub.names.get(i).substitute(theta); 
-			Atomic a2 = this.names.get(i).substitute(theta);
+			Term a1 = sub.names.get(i).substitute(theta); 
+			Term a2 = this.names.get(i).substitute(theta);
 						
 			Substitution subst = a1.match(a2); 
 						
@@ -150,8 +149,8 @@ public class SequentialPlan {
 		int thisLen = this.length();
 		
 		for ( int i = 0 ; i < thisLen; i++ ) {
-			Atomic a1 = this.names.get(thisLen-i-1).substitute(theta);
-			Atomic a2 = sub.names.get(subLen-i-1).substitute(theta);
+			Term a1 = this.names.get(thisLen-i-1).substitute(theta);
+			Term a2 = sub.names.get(subLen-i-1).substitute(theta);
 						
 			Substitution subst = a1.match(a2); 
 						
@@ -224,7 +223,7 @@ public class SequentialPlan {
 	 * @param i
 	 * @return action name
 	 */
-	public Atomic getAtomic(int i) {
+	public Term getAtomic(int i) {
 		return this.names.get(i);
 	}
 	

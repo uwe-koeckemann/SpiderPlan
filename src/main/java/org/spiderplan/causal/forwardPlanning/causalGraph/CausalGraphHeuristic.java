@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.causal.forwardPlanning.causalGraph;
 
 import java.util.AbstractMap;
@@ -35,7 +34,6 @@ import org.spiderplan.causal.forwardPlanning.Heuristic;
 import org.spiderplan.causal.forwardPlanning.StateVariableOperator;
 import org.spiderplan.causal.forwardPlanning.goals.Goal;
 import org.spiderplan.causal.forwardPlanning.goals.SingleGoal;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.stopWatch.StopWatch;
@@ -51,7 +49,7 @@ import org.spiderplan.tools.stopWatch.StopWatch;
  */
 public class CausalGraphHeuristic implements Heuristic {
  
-	HashMap<Atomic, DomainTransitionGraph> DTGs;
+	HashMap<Term, DomainTransitionGraph> DTGs;
 	CausalGraph CG;
 	TypeManager tM;
 	
@@ -74,7 +72,7 @@ public class CausalGraphHeuristic implements Heuristic {
 	 * @param CG causal graph
 	 * @param tM type manager
 	 */
-	public CausalGraphHeuristic( HashMap<Atomic, DomainTransitionGraph> DTGs, CausalGraph CG, TypeManager tM ) {
+	public CausalGraphHeuristic( HashMap<Term, DomainTransitionGraph> DTGs, CausalGraph CG, TypeManager tM ) {
 		this.DTGs = DTGs;
 		this.CG = CG;
 		this.tM = tM;
@@ -98,7 +96,7 @@ public class CausalGraphHeuristic implements Heuristic {
 	 * @param d_target target value
 	 * @return heuristic value for changing state-variable to target value
 	 */
-	public long computeCost( Map<Atomic,Term> s , Atomic v, Term d, Term d_target ) {
+	public long computeCost( Map<Term,Term> s , Term v, Term d, Term d_target ) {
 		if ( d.equals(d_target) ) {
 			return 0;
 		}
@@ -116,16 +114,16 @@ public class CausalGraphHeuristic implements Heuristic {
 		/**
 		 * Immediate predecessors of v in causal graph:
 		 */			
-		HashMap<Term,HashMap<Atomic,Term>> localState = new HashMap<Term,HashMap<Atomic,Term>>();
-		HashMap<Atomic,Term> localState_d = new HashMap<Atomic,Term>();
+		HashMap<Term,HashMap<Term,Term>> localState = new HashMap<Term,HashMap<Term,Term>>();
+		HashMap<Term,Term> localState_d = new HashMap<Term,Term>();
 		Term d_relevant;
 		
 		QueryID costKey;
 		Term e_prime, e;
 		Term d_prime, d_second;
-		HashMap<Atomic,Term> localState_d_second;
+		HashMap<Term,Term> localState_d_second;
 		
-		for ( Atomic v_relevant : CG.getPredecessors(v) ) {
+		for ( Term v_relevant : CG.getPredecessors(v) ) {
 			d_relevant = s.get(v_relevant);
 			if ( d_relevant != null ) {					// value is set
 				localState_d.put( v_relevant, d_relevant );			
@@ -141,7 +139,7 @@ public class CausalGraphHeuristic implements Heuristic {
 		
 		if ( keepTimes ) StopWatch.start("[FastDownwardHeuristic] Init costs... (depth " + recursionDepth+")");
 		HashMap<Term,QueryID> keyLookUp = new HashMap<Term, QueryID>();
-		for ( Term d_prime_t : tM.getPredicateTypes(v.getUniqueName(), -1).getDomain() ) {
+		for ( Term d_prime_t : tM.getPredicateTypes(v.getUniqueName(), -1).generateDomain(tM) ) {
 			keyLookUp.put( d_prime_t , new QueryID(contextID, d, d_prime_t) );
 			unreached.add(d_prime_t);
 			if ( !d_prime_t.equals(d) ) {
@@ -176,7 +174,7 @@ public class CausalGraphHeuristic implements Heuristic {
 			
 			
 			unreached.remove(d_prime);
-			HashMap<Atomic,Term> localState_d_prime = localState.get(d_prime);	
+			HashMap<Term,Term> localState_d_prime = localState.get(d_prime);	
 			
 			if ( keepTimes ) StopWatch.start("[FastDownwardHeuristic] Getting out edges (depth " + recursionDepth+")");
 			outEdges =  DTG.getGraph().getOutEdges(d_prime);
@@ -195,7 +193,7 @@ public class CausalGraphHeuristic implements Heuristic {
 					long transitionCost = 1;
 					
 					if ( keepTimes ) StopWatch.start("[FastDownwardHeuristic] inner loop (depth " + recursionDepth+")");
-					for ( Atomic v_prime : t.getConditions().keySet() ) { 
+					for ( Term v_prime : t.getConditions().keySet() ) { 
 						e_prime = t.getConditions().get(v_prime);
 						e = localState_d_prime.get(v_prime);
 						
@@ -244,7 +242,7 @@ public class CausalGraphHeuristic implements Heuristic {
 							costToTarget = newCost;
 						}
 						costCache.put(costKey, newCost);
-						localState_d_second = new HashMap<Atomic, Term>();
+						localState_d_second = new HashMap<Term, Term>();
 						localState_d_second.putAll(localState_d_prime);
 						localState_d_second.putAll( t.getConditions() );
 						localState.put(d_second, localState_d_second);
@@ -296,14 +294,14 @@ public class CausalGraphHeuristic implements Heuristic {
 	private HashMap<QueryID,Long> costCache = new HashMap<QueryID, Long>();
 	
 	private class ContextID {
-		private Map<Atomic,Term> s;
-		private Atomic v;
+		private Map<Term,Term> s;
+		private Term v;
 		private Term d;
 		
-		public ContextID( Map<Atomic,Term> s, Atomic v, Term d ) {
+		public ContextID( Map<Term,Term> s, Term v, Term d ) {
 			Term val;
-			this.s = new HashMap<Atomic, Term>();
-			for ( Atomic var : CG.getAncestors(v) ) {
+			this.s = new HashMap<Term, Term>();
+			for ( Term var : CG.getAncestors(v) ) {
 				 val = s.get(var);
 				 if ( val != null ) {
 					this.s.put(var, val);
@@ -356,8 +354,8 @@ public class CausalGraphHeuristic implements Heuristic {
 	public void initializeHeuristic( Collection<Goal> g, Collection<StateVariableOperator> A, TypeManager tM ) {
 		this.tM = tM;
 		  
-		DTGs = new HashMap<Atomic, DomainTransitionGraph>();
-		Set<Atomic> variables = new HashSet<Atomic>();
+		DTGs = new HashMap<Term, DomainTransitionGraph>();
+		Set<Term> variables = new HashSet<Term>();
 		
 		for ( Goal goal : g ) {
 			for ( SingleGoal sg : goal.getSingleGoals() ) {
@@ -369,7 +367,7 @@ public class CausalGraphHeuristic implements Heuristic {
 			variables.addAll(a.getPreconditions().keySet());
 			variables.addAll(a.getEffects().keySet());
 		}
-		for ( Atomic v : variables ) {
+		for ( Term v : variables ) {
 			DTGs.put( v, new DomainTransitionGraph(v, A, tM));	
 		}
 		CG = new CausalGraph(A);
@@ -383,7 +381,7 @@ public class CausalGraphHeuristic implements Heuristic {
 
 
 	@Override
-	public long calculateHeuristicValue( Map<Atomic, Term> s, Collection<Goal> g, CommonDataStructures dStructs ) {
+	public long calculateHeuristicValue( Map<Term, Term> s, Collection<Goal> g, CommonDataStructures dStructs ) {
 		if ( keepTimes ) StopWatch.start("[FastDownwardHeuristic] Calculate heuristic");			
 		
 		HashMap<SingleGoal,Long> singleGoalCosts = new HashMap<SingleGoal, Long>();
@@ -391,7 +389,7 @@ public class CausalGraphHeuristic implements Heuristic {
 		for ( Goal goals : g ) {
 			for ( SingleGoal goal : goals.getSingleGoals() ) {
 				if ( !goal.wasReached() && goal.requirementsSatisfied() ) {
-					Entry<Atomic,Term> g_sva = new AbstractMap.SimpleEntry<Atomic, Term>(goal.getVariable(), goal.getValue() );
+					Entry<Term,Term> g_sva = new AbstractMap.SimpleEntry<Term, Term>(goal.getVariable(), goal.getValue() );
 					
 					if ( keepTimes ) StopWatch.start("[FastDownwardHeuristic] Checking relevance");
 					Term svaValue = s.get(g_sva.getKey());

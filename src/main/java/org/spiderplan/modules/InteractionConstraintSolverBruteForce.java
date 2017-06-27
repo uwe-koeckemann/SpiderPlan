@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.modules;
 
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
-import org.spiderplan.representation.expressions.misc.Asserted;
+import org.spiderplan.representation.expressions.misc.Assertion;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.tools.GenericComboIterator;
@@ -441,7 +440,8 @@ public class InteractionConstraintSolverBruteForce extends Module implements Sol
 //					if ( keepTimes ) StopWatch.stop(msg("4b) Preparing enabled IC (subst)"));
 //					
 //					if ( keepTimes ) StopWatch.start(msg("4c) Preparing enabled IC (asserting)"));
-					Asserted a = new Asserted(icCopy);
+//					Asserted a = new Asserted(icCopy);
+					Assertion a = icCopy.getAssertion();
 					if ( cdb.contains(a) ) {
 						if ( keepTimes ) StopWatch.stop(msg("4) Preparing enabled IC"));
 						continue;
@@ -529,7 +529,8 @@ public class InteractionConstraintSolverBruteForce extends Module implements Sol
 								icCopy.setResolverIndex(j);
 								
 								resolverCDB.add(icCopy.copy());
-								resolverCDB.add(new Asserted(icCopy));
+//								resolverCDB.add(new Asserted(icCopy));
+								resolverCDB.add(icCopy.getAssertion());
 								Resolver r = new Resolver(resolverCDB);
 								resolverList.add(r);
 							}

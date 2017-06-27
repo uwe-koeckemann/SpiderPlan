@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.parser;
 
 import java.io.ByteArrayInputStream;
@@ -36,6 +35,7 @@ import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.domain.Substitution;
+import org.spiderplan.representation.expressions.misc.Assertion;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.parser.domain_v4.DomainParser_v4;
 import org.spiderplan.representation.parser.pddl.PDDLParser;
@@ -150,11 +150,7 @@ public class Compile {
 			nextBKB_ID = 0;
 			
 			c.setTypeManager(new TypeManager());
-			/**
-			 * Add "executing" Type with one value "executing" which is used to
-			 * assert that an action is being executed.
-			 */
-			c.getTypeManager().addSimpleEnumType("executing","executing");
+
 			/**
 			 * Another default EnumType: boolean
 			 */
@@ -180,9 +176,9 @@ public class Compile {
 				}
 			}
 			
-			if ( keepTimes || printTimes ) StopWatch.start("Updating type domains");
-			c.getTypeManager().updateTypeDomains();
-			if ( keepTimes || printTimes ) StopWatch.stop("Updating type domains");
+//			if ( keepTimes || printTimes ) StopWatch.start("Updating type domains");
+//			c.getTypeManager().updateTypeDomains();
+//			if ( keepTimes || printTimes ) StopWatch.stop("Updating type domains");
 			
 			
 			/**
@@ -196,13 +192,17 @@ public class Compile {
 				}
 			}
 			c.getContext().substitute(theta);
-					
+							
 			if ( domainVersion.equals(DomainVersion.v4) ) {
 				c.getTypeManager().collectTypeInformation(c.getContext());
 			}
 			
 			if ( isPDDL ) {
 				c.getContext().export(Global.workingDir + "dump.uddl");
+			}
+			
+			for ( Assertion a : c.getContext().get(Assertion.class) ) {
+				c.getContext().processAssertedTerm(a);
 			}
 			
 //			Global.initialContext = c.getContext().copy();

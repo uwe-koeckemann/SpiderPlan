@@ -155,7 +155,7 @@ public class PDDLParser implements PDDLParserConstants {
   }
 
   final public void Init() throws ParseException {
-        Atomic variable;
+        Term variable;
         Term value;
         Token termToken = null;
         boolean isNegated = false;
@@ -261,11 +261,11 @@ public class PDDLParser implements PDDLParserConstants {
                                         c.getContext().add(new AllenConstraint(s.getKey() + " Release ["+eventTime+","+eventTime+"]"));
                                         c.getContext().add(new AllenConstraint(s.getKey(),Duration,new Interval(Term.createInteger(1),Term.createConstant("inf"))));
                                 } else { // Function assignments are added to background knowledge (as asserted relational constraints)
-                                        String newAtomicStr;
+                                        String newTermStr;
                                         if ( variable.getNumArgs() > 0 )
-                                                newAtomicStr = variable.toString().substring(0,variable.toString().length()-1)+","+termToken.image+")";
+                                                newTermStr = variable.toString().substring(0,variable.toString().length()-1)+","+termToken.image+")";
                                         else
-                                                newAtomicStr = variable.toString().substring(0,variable.toString().length()-1)+termToken.image+")";
+                                                newTermStr = variable.toString().substring(0,variable.toString().length()-1)+termToken.image+")";
 
                                         //if ( c.getTypeManager().getVariableClass(variable.getUniqueName()).equals("cost") ) {
 /*
@@ -274,7 +274,7 @@ public class PDDLParser implements PDDLParserConstants {
 					}
 */
 
-                                        Atomic r = new Atomic(newAtomicStr);
+                                        Term r = Term.parse(newTermStr);
                                         PrologConstraint rC = new PrologConstraint(r,Term.createConstant("pddlKB"));
                                         rC.setAsserted(true);
                                         c.getContext().add(rC);
@@ -284,7 +284,7 @@ public class PDDLParser implements PDDLParserConstants {
   }
 
   final public void Goal() throws ParseException {
-        Atomic variable;
+        Term variable;
         Term value;
         boolean isNegated = false;
         int eventTime = 0;
@@ -339,8 +339,8 @@ public class PDDLParser implements PDDLParserConstants {
     jj_consume_token(CP);
                 if ( goalList.size() > 1 )
                 {
-                        Statement gSync = new Statement(Term.createConstant("sync"), new Atomic("sync"), Term.createConstant("true"));
-                        c.getTypeManager().attachTypes(new Atomic("sync"), Term.createConstant("boolean") );
+                        Statement gSync = new Statement(Term.createConstant("sync"), Term.createConstant("sync"), Term.createConstant("true"));
+                        c.getTypeManager().attachTypes(Term.createConstant("sync"), Term.createConstant("boolean") );
 
                         for ( Term i : goalList )
                         {
@@ -437,7 +437,7 @@ public class PDDLParser implements PDDLParserConstants {
                                   Term tName = Term.createConstant("t"+tToken.image);
                                   tName = tName.makeConstant();
 
-                                  t.setName(tName.toString());
+                                  t.setName(tName);
 
                                   if ( ! c.getTypeManager().hasTypeWithName(tName) )
                                         c.getTypeManager().addNewType(t);
@@ -448,12 +448,12 @@ public class PDDLParser implements PDDLParserConstants {
                                         if ( !c.getTypeManager().hasTypeWithName(superTypeName) ) {
 
                                                 EnumType superType = new EnumType();
-                                                superType.setName("t"+superTypeToken.image);
+                                                superType.setName(superTypeName);
                                                 c.getTypeManager().addNewType(superType);
                                         }
 
                                         EnumType superType = (EnumType)c.getTypeManager().getTypeByName(superTypeName);
-                                        superType.getDomain().add(Term.createConstant("t"+tToken.image));
+                                        superType.addToDomain(Term.createConstant("t"+tToken.image));
                                   }
                           }
     }
@@ -495,7 +495,10 @@ public class PDDLParser implements PDDLParserConstants {
       typeToken = jj_consume_token(TERM);
                             Term tName = Term.createConstant("t"+typeToken.image);
                                 tName = tName.makeConstant();
-                                c.getTypeManager().getTypeByName(tName).getDomain().addAll(values);
+
+                                for ( Term t : values ) {
+                                                ((EnumType)c.getTypeManager().getTypeByName(tName)).addToDomain(t);
+                                        }
     }
     jj_consume_token(CP);
                 System.out.println(c.getTypeManager() + "\u005cn===");
@@ -537,15 +540,19 @@ public class PDDLParser implements PDDLParserConstants {
       typeToken = jj_consume_token(TERM);
                             Term tName = Term.createConstant("t"+typeToken.image);
                                 tName = tName.makeConstant();
-                                c.getTypeManager().getTypeByName(tName).getDomain().addAll(values);
+                                //c.getTypeManager().getTypeByName(tName).addToDomain(values);
+
+                          for ( Term t : values ) {
+                                                ((EnumType)c.getTypeManager().getTypeByName(tName)).addToDomain(t);
+                                        }
     }
     jj_consume_token(CP);
   }
 
-  final public Atomic Relation() throws ParseException {
+  final public Term Relation() throws ParseException {
         Token nameToken;
         Token argToken;
-        Atomic r;
+        Term r;
         ArrayList<Term> argList = new ArrayList<Term>();
     jj_consume_token(OP);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -614,7 +621,7 @@ public class PDDLParser implements PDDLParserConstants {
 
                 }
 
-                r = new Atomic(s);
+                r = Term.parse(s);
                 {if (true) return r;}
     throw new Error("Missing return statement in function");
   }
@@ -661,10 +668,10 @@ public class PDDLParser implements PDDLParserConstants {
       jj_consume_token(CP);
                                   nameToken.image = "p" + nameToken.image.replace("-","_");
                                         String convertedFormat = "("+ nameToken.image.replace(","," ").replace("("," ");
-                                Atomic name = null;
+                                Term name = null;
                                 if ( typedList.isEmpty() )
                                 {
-                                  name = new Atomic(convertedFormat);
+                                  name = Term.parse(convertedFormat);
                                         System.out.println("A: " + name);
                                 } else {
                                         System.out.println(typedList);
@@ -679,7 +686,7 @@ public class PDDLParser implements PDDLParserConstants {
                                   }
                                   s += ")";
 
-                                  name = new Atomic(s);
+                                  name = Term.parse(s);
                                         System.out.println("B: " + name);
                                 }
                           System.out.println("C: " + name);
@@ -772,7 +779,9 @@ public class PDDLParser implements PDDLParserConstants {
                                 if ( !c.getTypeManager().hasTypeWithName(superTypeToken) ) {
                                                 EnumType superType = new EnumType();
                                                 superType.setName(superTypeToken);
-                                                superType.getDomain().addAll(tNames);
+                                                for ( Term t : tNames ) {
+                                                        superType.addToDomain(t);
+                                                }
                                                 c.getTypeManager().addNewType(superType);
                                 }
 
@@ -815,7 +824,7 @@ public class PDDLParser implements PDDLParserConstants {
 
         Token durToken;
         Token durVarToken;
-        Atomic functionName;
+        Term functionName;
 
         Expression costCon;
     jj_consume_token(OP);
@@ -840,8 +849,8 @@ public class PDDLParser implements PDDLParserConstants {
                                 sArgs += ")";
                                 sTypes += ")";
 
-                                Atomic name = new Atomic(sArgs);
-                                Atomic nameDef = new Atomic(sTypes);
+                                Term name = Term.parse(sArgs);
+                                Term nameDef = Term.parse(sTypes);
 
                                 o.setName(name);
 
@@ -968,7 +977,7 @@ public class PDDLParser implements PDDLParserConstants {
 
         Token durToken;
         Token durVarToken;
-        Atomic functionName;
+        Term functionName;
     jj_consume_token(OP);
     jj_consume_token(DURATIVE_ACTION);
     nameToken = jj_consume_token(TERM);
@@ -991,8 +1000,8 @@ public class PDDLParser implements PDDLParserConstants {
                                 sArgs += ")";
                                 sTypes += ")";
 
-                                Atomic name = new Atomic(sArgs);
-                                Atomic nameDef = new Atomic(sTypes);
+                                Term name = Term.parse(sArgs);
+                                Term nameDef = Term.parse(sTypes);
 
                                 System.out.println(name);
                                 System.out.println(nameDef);
@@ -1020,7 +1029,7 @@ public class PDDLParser implements PDDLParserConstants {
                                         Term durVarTerm = Term.createConstant(durVarToken.image);
                                         durVarTerm = Term.createVariable(durVarTerm.getName());
                                         relConStr += ","+durVarTerm + ")";
-                                        PrologConstraint durCon = new PrologConstraint(new Atomic(relConStr),Term.createConstant("pddlKB"));
+                                        PrologConstraint durCon = new PrologConstraint(Term.parse(relConStr),Term.createConstant("pddlKB"));
                                         o.addConstraint(new AllenConstraint("?THIS Duration ["+durVarTerm+" "+durVarTerm+"]"));
                                         o.addConstraint(durCon);
       break;
@@ -1141,7 +1150,7 @@ public class PDDLParser implements PDDLParserConstants {
         boolean isNegated = false;
         String tcType = null;
         String boundsStr = "[UNDEF-BOUNDS]";
-        Atomic variable;
+        Term variable;
     if (jj_2_20(2)) {
       jj_consume_token(OP);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1307,11 +1316,11 @@ public class PDDLParser implements PDDLParserConstants {
       jj_consume_token(CP);
       jj_consume_token(MINUS);
       valTypeToken = jj_consume_token(TERM);
-                                Atomic name = null;
+                                Term name = null;
                                 if ( args.isEmpty() )
                                 {
                                         String convertedFormat = "("+ nameToken.image.replace(","," ").replace("("," ") + " " + valTypeToken.image;
-                                  name = new Atomic(convertedFormat);
+                                  name = Term.parse(convertedFormat);
                                 } else {
                                   String s = "(" + nameToken.image + " " + args.get(0).image;
                                   for ( int i = 1 ; i < args.size() ; i++ )
@@ -1319,7 +1328,7 @@ public class PDDLParser implements PDDLParserConstants {
                                         s += " "+args.get(i).image;
                                   }
                                   s += " " + valTypeToken.image + ")";
-                                  name = new Atomic(s);
+                                  name = Term.parse(s);
                                 }
                                 if ( !c.getTypeManager().hasTypeWithName( Term.createConstant(valTypeToken.image) ) )
                                 {
@@ -1332,7 +1341,7 @@ public class PDDLParser implements PDDLParserConstants {
   }
 
   final public Expression Cost() throws ParseException {
-        Atomic var;
+        Term var;
         Token amountToken;
         Token modToken;
     jj_consume_token(OP);
@@ -1367,7 +1376,7 @@ public class PDDLParser implements PDDLParserConstants {
 	  	  * a cost definition from it.
 	  	  */
                 if ( c.getTypeManager().hasVariable(var.getUniqueName()) ) {
-                        String relUniqueName = var.name() + "/" + (var.getNumArgs()+1);
+                        String relUniqueName = var.getName() + "/" + (var.getNumArgs()+1);
                         Type t = c.getTypeManager().getPredicateTypes(relUniqueName,var.getNumArgs());
 
                         c.getTypeManager().attachTypes(var, Term.createConstant(t.getName().toString()) );
@@ -1537,38 +1546,24 @@ public class PDDLParser implements PDDLParserConstants {
     return false;
   }
 
+  private boolean jj_3R_32() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_19()) {
+    jj_scanpos = xsp;
+    if (jj_3R_33()) return true;
+    }
+    return false;
+  }
+
   private boolean jj_3_4() {
     if (jj_3R_26()) return true;
     return false;
   }
 
-  private boolean jj_3_3() {
-    if (jj_3R_25()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_31() {
-    if (jj_scan_token(OVER_ALL)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_30() {
-    if (jj_scan_token(AT_END)) return true;
-    return false;
-  }
-
-  private boolean jj_3_14() {
-    if (jj_3R_28()) return true;
-    return false;
-  }
-
-  private boolean jj_3_2() {
-    if (jj_3R_24()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_29() {
-    if (jj_scan_token(AT_START)) return true;
+  private boolean jj_3_17() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(AND)) return true;
     return false;
   }
 
@@ -1592,35 +1587,19 @@ public class PDDLParser implements PDDLParserConstants {
     return false;
   }
 
-  private boolean jj_3R_32() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_19()) {
-    jj_scanpos = xsp;
-    if (jj_3R_33()) return true;
-    }
+  private boolean jj_3_3() {
+    if (jj_3R_25()) return true;
     return false;
   }
 
-  private boolean jj_3_17() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(AND)) return true;
+  private boolean jj_3_2() {
+    if (jj_3R_24()) return true;
     return false;
   }
 
   private boolean jj_3R_23() {
     if (jj_scan_token(OP)) return true;
     if (jj_scan_token(DOMAIN)) return true;
-    return false;
-  }
-
-  private boolean jj_3_10() {
-    if (jj_scan_token(TERM)) return true;
-    return false;
-  }
-
-  private boolean jj_3_1() {
-    if (jj_3R_23()) return true;
     return false;
   }
 
@@ -1655,14 +1634,14 @@ public class PDDLParser implements PDDLParserConstants {
     return false;
   }
 
-  private boolean jj_3R_26() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(DURATIVE_ACTION)) return true;
+  private boolean jj_3_10() {
+    if (jj_scan_token(TERM)) return true;
     return false;
   }
 
-  private boolean jj_3_9() {
-    if (jj_3R_27()) return true;
+  private boolean jj_3R_26() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(DURATIVE_ACTION)) return true;
     return false;
   }
 
@@ -1676,8 +1655,8 @@ public class PDDLParser implements PDDLParserConstants {
     return false;
   }
 
-  private boolean jj_3_11() {
-    if (jj_scan_token(TERM)) return true;
+  private boolean jj_3_1() {
+    if (jj_3R_23()) return true;
     return false;
   }
 
@@ -1687,26 +1666,24 @@ public class PDDLParser implements PDDLParserConstants {
     return false;
   }
 
+  private boolean jj_3_9() {
+    if (jj_3R_27()) return true;
+    return false;
+  }
+
+  private boolean jj_3_11() {
+    if (jj_scan_token(TERM)) return true;
+    return false;
+  }
+
   private boolean jj_3_16() {
     if (jj_scan_token(OP)) return true;
     if (jj_scan_token(AND)) return true;
     return false;
   }
 
-  private boolean jj_3_5() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(AT)) return true;
-    return false;
-  }
-
   private boolean jj_3_19() {
     if (jj_3R_27()) return true;
-    return false;
-  }
-
-  private boolean jj_3_6() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(NOT)) return true;
     return false;
   }
 
@@ -1721,14 +1698,46 @@ public class PDDLParser implements PDDLParserConstants {
     return false;
   }
 
-  private boolean jj_3_7() {
-    if (jj_3R_27()) return true;
+  private boolean jj_3_5() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(AT)) return true;
     return false;
   }
 
   private boolean jj_3R_24() {
     if (jj_scan_token(OP)) return true;
     if (jj_scan_token(CONSTANTS)) return true;
+    return false;
+  }
+
+  private boolean jj_3_6() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(NOT)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_31() {
+    if (jj_scan_token(OVER_ALL)) return true;
+    return false;
+  }
+
+  private boolean jj_3_7() {
+    if (jj_3R_27()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_30() {
+    if (jj_scan_token(AT_END)) return true;
+    return false;
+  }
+
+  private boolean jj_3_14() {
+    if (jj_3R_28()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_29() {
+    if (jj_scan_token(AT_START)) return true;
     return false;
   }
 

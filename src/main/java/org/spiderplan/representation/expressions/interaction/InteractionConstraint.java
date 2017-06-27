@@ -1,32 +1,29 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.representation.expressions.interaction;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.ExpressionTypes;
@@ -38,7 +35,7 @@ import org.spiderplan.representation.expressions.interfaces.Assertable;
 import org.spiderplan.representation.expressions.interfaces.Matchable;
 import org.spiderplan.representation.expressions.interfaces.Mutable;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
-import org.spiderplan.representation.logic.Atomic;
+import org.spiderplan.representation.expressions.misc.Assertion;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.UniqueID;
 
@@ -56,7 +53,7 @@ import org.spiderplan.tools.UniqueID;
  */
 public class InteractionConstraint extends Expression implements Substitutable, Matchable, Mutable, Assertable {
 	
-	private Atomic name;
+	private Term name;
 	
 	private ConstraintDatabase Condition = new ConstraintDatabase();
 	private ArrayList<ConstraintDatabase> Resolvers = new ArrayList<ConstraintDatabase>();
@@ -70,8 +67,8 @@ public class InteractionConstraint extends Expression implements Substitutable, 
 	 * 
 	 * @param name the name
 	 */
-	public InteractionConstraint( Atomic name ) {
-		super(ExpressionTypes.Conditional);
+	public InteractionConstraint( Term name ) {
+		super(ExpressionTypes.Interaction);
 		this.name = name;
 	}
 
@@ -79,7 +76,7 @@ public class InteractionConstraint extends Expression implements Substitutable, 
 	 * Get the name of this interaction constraint.
 	 * @return the name
 	 */
-	public Atomic getName() { return name; };
+	public Term getName() { return name; };
 	
 	/**
 	 * Set the condition of this interaction constraint.
@@ -123,6 +120,21 @@ public class InteractionConstraint extends Expression implements Substitutable, 
 	 * @return index of chosen resolver
 	 */
 	public int getResolverIndex() { return pickedResolver; };
+	
+	/**
+	 * Get assertion that marks this IC as satisfied
+	 * @return the assertion
+	 */
+	public Assertion getAssertion() {
+		Term resolver;
+		if ( this.pickedResolver != -1 ) {
+			resolver = Term.createComplex("resolver", Term.createInteger(this.getResolverIndex()));
+		} else {
+			resolver = Term.createComplex("resolver", Term.createVariable("Unknown_"+UniqueID.getID()));
+		}
+		Assertion assertion = new Assertion(super.getType(), name, resolver);
+		return assertion;
+	}
 			
 	/**
 	 * Replace all interval terms that are variables by unique ground terms.
@@ -169,48 +181,57 @@ public class InteractionConstraint extends Expression implements Substitutable, 
 	@Override
 	public boolean isSubstitutable() { return true; }
 		
+//	@Override
+//	public Collection<Term> getVariableTerms() {
+//		ArrayList<Term> r = new ArrayList<Term>();
+//		r.addAll(this.Condition.getVariableTerms());
+//		for ( ConstraintDatabase res : this.Resolvers ) {
+//			r.addAll(res.getVariableTerms());
+//		}
+//		r.addAll(this.name.getVariableTerms());
+//		return r;		
+//	}
+//	@Override
+//	public Collection<Term> getGroundTerms() {
+//		ArrayList<Term> r = new ArrayList<Term>();
+//		r.addAll(this.Condition.getGroundTerms());
+//		for ( ConstraintDatabase res : this.Resolvers ) {
+//			r.addAll(res.getGroundTerms());
+//		}
+//		r.addAll(this.name.getGroundTerms());
+//		return r;		
+//	}
+//	@Override
+//	public Collection<Term> getComplexTerms() {
+//		Set<Term> r = new HashSet<Term>();
+//		r.add(this.name);
+//		r.addAll(this.Condition.getAtomics());
+//		for ( ConstraintDatabase resolver : this.Resolvers ) {
+//			r.addAll(resolver.getAtomics());
+//		}
+//		return r;
+//	}
+	
 	@Override
-	public Collection<Term> getVariableTerms() {
-		ArrayList<Term> r = new ArrayList<Term>();
-		r.addAll(this.Condition.getVariableTerms());
-		for ( ConstraintDatabase res : this.Resolvers ) {
-			r.addAll(res.getVariableTerms());
-		}
-		r.addAll(this.name.getVariableTerms());
-		return r;		
-	}
-	@Override
-	public Collection<Term> getGroundTerms() {
-		ArrayList<Term> r = new ArrayList<Term>();
-		r.addAll(this.Condition.getGroundTerms());
-		for ( ConstraintDatabase res : this.Resolvers ) {
-			r.addAll(res.getGroundTerms());
-		}
-		r.addAll(this.name.getGroundTerms());
-		return r;		
-	}
-	@Override
-	public Collection<Atomic> getAtomics() {
-		Set<Atomic> r = new HashSet<Atomic>();
-		r.add(this.name);
-		r.addAll(this.Condition.getAtomics());
+	public void getAllTerms(Collection<Term> collectedTerms, boolean getConstants, boolean getVariables, boolean getComplex) {
+		this.name.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
+		this.Condition.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
 		for ( ConstraintDatabase resolver : this.Resolvers ) {
-			r.addAll(resolver.getAtomics());
+			resolver.getAllTerms(collectedTerms, getConstants, getVariables, getComplex);
 		}
-		return r;
 	}
 		
 	@Override
 	public String toString() {
 		StringBuilder r = new StringBuilder();
-		r.append("(conditional\n\t" + this.name + "\n");
-		r.append("\t(condition\n");
+		r.append("(:ic\n\t" + this.name + "\n");
+		r.append("\t(:condition\n");
 		String s = "\t\t"+this.Condition.toString().toString().replace("\n", "\n\t\t");	
 		r.append(s.substring(0, s.length()-2));
 		r.append("\t)");
 		
 		for ( ConstraintDatabase c : this.Resolvers ) {
-			r.append("\n\t(resolver\n");
+			r.append("\n\t(:resolver\n");
 			s = "\t\t"+c.toString().replace("\n", "\n\t\t");
 			
 			r.append(s.substring(0, s.length()-2));
@@ -292,4 +313,10 @@ public class InteractionConstraint extends Expression implements Substitutable, 
 		isAsserted = asserted;
 		return this;
 	}
+
+	@Override
+	public boolean appliesTo(Assertion assertion) {
+		return assertion.getExpressionType().equals(super.getType()) && this.name.equals(assertion.getParameter(0));
+	}
+	
 }

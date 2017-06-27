@@ -1,0 +1,44 @@
+(:initial-context
+	(:domain
+		(sig x boolean)
+		(sig y boolean)
+	)
+	(:statement 
+		(I1 x)
+		(I2 y)
+	)
+	(:temporal
+		(planning-interval [0 100])
+		(duration I1 [20 20])				
+		(duration I2 [40 40])				
+		(release I1 [30 40])
+		(release I2 [30 40])
+	)
+	(:ic
+		(scheduling ?I1 ?I2)
+		(:condition
+			(:statement
+				(?I1 x)
+				(?I2 y)
+			)
+			(:temporal
+				(intersection {?I1 ?I2})
+			)
+		)
+		(:resolver
+			(:temporal
+				(before ?I1 ?I2 [1 inf])
+			)
+		)
+		(:resolver
+			(:temporal
+				(before ?I1 ?I2 [1 inf])
+			)
+		)
+		(:resolver
+			(:temporal
+				(equals ?I1 ?I2)
+			)
+		)
+	)
+)

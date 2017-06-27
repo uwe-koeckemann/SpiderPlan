@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan;
 
 import java.util.ArrayList;
@@ -37,7 +36,6 @@ import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.prolog.PrologConstraint;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
@@ -61,18 +59,18 @@ public class TestPlan extends TestCase {
 	public void testIsMatchingSubPlan() {
 		
 		Operator a1 = new Operator();
-		a1.setName(new Atomic("(a1 o1)"));
+		a1.setName(Term.parse("(a1 o1)"));
 		Operator a2 = new Operator();
-		a2.setName(new Atomic("(a2 o1)"));
+		a2.setName(Term.parse("(a2 o1)"));
 		Operator a3 = new Operator();
-		a3.setName(new Atomic("(a4 o1)"));
+		a3.setName(Term.parse("(a4 o1)"));
 		Operator a4 = new Operator();
-		a4.setName(new Atomic("(a5 o1)"));
+		a4.setName(Term.parse("(a5 o1)"));
 		Operator a5 = new Operator();
-		a5.setName(new Atomic("(a5 o1)"));
+		a5.setName(Term.parse("(a5 o1)"));
 		
 		Operator a6 = new Operator();
-		a6.setName(new Atomic("(a5 ?O)"));		
+		a6.setName(Term.parse("(a5 ?O)"));		
 		
 		Plan p1 = new Plan();
 		p1.addAction(a1);
@@ -113,7 +111,7 @@ public class TestPlan extends TestCase {
 		
 		Plan p = new Plan();
 		Operator a = new Operator();
-		a.setName(new Atomic("op"));
+		a.setName(Term.parse("op"));
 		a.addPrecondition(new Statement("(?P1 x a)"));
 		a.addPrecondition(new Statement("(?P2 y b)"));
 		p.addAction(a);
@@ -176,9 +174,9 @@ public class TestPlan extends TestCase {
 		
 		TypeManager tM = new TypeManager();
 		tM.addSimpleEnumType("t", "a,b");
-		tM.attachTypes(new Atomic("x"), Term.createConstant("t")); 
-		tM.attachTypes(new Atomic("y"), Term.createConstant("t"));
-		tM.attachTypes(new Atomic("z"), Term.createConstant("t"));
+		tM.attachTypes(Term.parse("x"), Term.createConstant("t")); 
+		tM.attachTypes(Term.parse("y"), Term.createConstant("t"));
+		tM.attachTypes(Term.parse("z"), Term.createConstant("t"));
 		
 		ConstraintDatabase context = new ConstraintDatabase();
 		context.add(new Statement("(i1 x a)"));
@@ -191,13 +189,13 @@ public class TestPlan extends TestCase {
 		G.add(new OpenGoal(new Statement("(g1 y b)")));
 		
 		Operator a1 = new Operator();
-		a1.setName(new Atomic("op1"));
+		a1.setName(Term.parse("op1"));
 		a1.addPrecondition(new Statement("(?P x a)"));
 		a1.addEffect(new Statement("(?E y b)"));
 		a1.addConstraint(new AllenConstraint("?P Meets ?E"));
 		
 		Operator a2 = new Operator();
-		a2.setName(new Atomic("op2"));
+		a2.setName(Term.parse("op2"));
 		a2.addPrecondition(new Statement("(?P z b)"));
 		a2.addEffect(new Statement("(?E y b)"));
 		a2.addConstraint(new AllenConstraint("?P Meets ?E"));
@@ -240,18 +238,18 @@ public class TestPlan extends TestCase {
 		tM.addSimpleEnumType("bool", "true,false");
 		tM.addSimpleEnumType("location", "room,robot");
 		tM.addSimpleEnumType("object", "robot,key");
-		tM.addSimpleEnumType("executing", "executing");
+//		tM.addSimpleEnumType("executing", "executing");
+//		
+//		tM.updateTypeDomains();
 		
-		tM.updateTypeDomains();
+		tM.attachTypes(Term.parse("(at object)"), Term.createConstant("location")); 
+		tM.attachTypes(Term.parse("(doorBetween location location)"), Term.createConstant("door"));
+		tM.attachTypes(Term.parse("(state door)"), Term.createConstant("doorState"));
+		tM.attachTypes(Term.parse("(requires door)"), Term.createConstant("key"));
 		
-		tM.attachTypes(new Atomic("(at object)"), Term.createConstant("location")); 
-		tM.attachTypes(new Atomic("(doorBetween location location)"), Term.createConstant("door"));
-		tM.attachTypes(new Atomic("(state door)"), Term.createConstant("doorState"));
-		tM.attachTypes(new Atomic("(requires door)"), Term.createConstant("key"));
-		
-		tM.attachTypes(new Atomic("(move robot room room)"), Term.createConstant("executing"));
-		tM.attachTypes(new Atomic("(open robot door room key)"), Term.createConstant("executing"));
-		tM.attachTypes(new Atomic("(pickup robot key location)"), Term.createConstant("executing"));
+		tM.attachTypes(Term.parse("(move robot room room)"), Term.createConstant("bool"));
+		tM.attachTypes(Term.parse("(open robot door room key)"), Term.createConstant("bool"));
+		tM.attachTypes(Term.parse("(pickup robot key location)"), Term.createConstant("bool"));
 
 		ConstraintDatabase context = new ConstraintDatabase();
 		context.add(new Statement("(s0 (at r) a)"));
@@ -286,7 +284,7 @@ public class TestPlan extends TestCase {
 		G.add(new OpenGoal(new Statement("(g1 (at r) c)")));
 		
 		Operator a1 = new Operator();
-		a1.setName(new Atomic("(move ?R ?A ?B)"));
+		a1.setName(Term.parse("(move ?R ?A ?B)"));
 		a1.addPrecondition(new Statement("(?P1 (at ?R) ?A)"));
 		a1.addPrecondition(new Statement("(?P2 (doorBetween ?A ?B) ?D)"));
 		a1.addPrecondition(new Statement("(?P3 (state ?D) open)"));
@@ -297,7 +295,7 @@ public class TestPlan extends TestCase {
 		a1.addConstraint(new AllenConstraint("?THIS During  ?P3 [1,inf] [1,inf]"));
 		
 		Operator a2 = new Operator();
-		a2.setName(new Atomic("(open ?R ?D ?L ?K)"));
+		a2.setName(Term.parse("(open ?R ?D ?L ?K)"));
 		a2.addPrecondition(new Statement("(?P1 (at ?R) ?L)"));
 		a2.addPrecondition(new Statement("(?P2 (at ?K) ?R)"));
 		a2.addPrecondition(new Statement("(?P3 (doorBetween ?L ?B) ?D)"));
@@ -307,7 +305,7 @@ public class TestPlan extends TestCase {
 		a2.addConstraint(new AllenConstraint("?P4 Meets ?E"));
 		
 		Operator a3 = new Operator();
-		a3.setName(new Atomic("(pickup ?R ?K ?L)"));
+		a3.setName(Term.parse("(pickup ?R ?K ?L)"));
 		a3.addPrecondition(new Statement("(?P1 (at ?R) ?L)"));
 		a3.addPrecondition(new Statement("(?P2 (at ?K) ?L)"));
 		a3.addEffect(new Statement("(?E (at ?K) ?R)"));
@@ -337,24 +335,26 @@ public class TestPlan extends TestCase {
 	public void testLiftingTerm() {
 		
 		Operator oLoad1 = new Operator();
-		oLoad1.setName(new Atomic("(load r c1 l)"));
+		oLoad1.setLabel(Term.createConstant("i_o1"));
+		oLoad1.setName(Term.parse("(load r c1 l)"));
 		oLoad1.addPrecondition(new Statement("(p1 (at r) l)"));
 		oLoad1.addPrecondition(new Statement("(p2 (at c1) l)"));
 		oLoad1.addEffect(new Statement("(e1 (at c1) r)"));
 		oLoad1.addEffect(new Statement("(e2 (space r) 3)"));
-		oLoad1.addConstraint(new AllenConstraint(new Atomic("(duration this1 (interval 10 10))")));
-		oLoad1.addConstraint(new PrologConstraint(new Atomic("(size c1 3)"), Term.createConstant("prologProgram")));
-		oLoad1.addConstraint(new PrologConstraint(new Atomic("(timeToLift c1 10)"), Term.createConstant("prologProgram")));
+		oLoad1.addConstraint(new AllenConstraint(Term.parse("(duration this1 (interval 10 10))")));
+		oLoad1.addConstraint(new PrologConstraint(Term.parse("(size c1 3)"), Term.createConstant("prologProgram")));
+		oLoad1.addConstraint(new PrologConstraint(Term.parse("(timeToLift c1 10)"), Term.createConstant("prologProgram")));
 		
 		Operator oLoad2 = new Operator();
-		oLoad2.setName(new Atomic("(load r c2 l)"));
+		oLoad2.setLabel(Term.createConstant("i_o2"));
+		oLoad2.setName(Term.parse("(load r c2 l)"));
 		oLoad2.addPrecondition(new Statement("(p1 (at r) l)"));
 		oLoad2.addPrecondition(new Statement("(p2 (at c2) l)"));
 		oLoad2.addEffect(new Statement("(e1 (at c2) r)"));
 		oLoad2.addEffect(new Statement("(e2 (space r) 1)"));
-		oLoad2.addConstraint(new AllenConstraint(new Atomic("(duration this2 (interval 20 20))")));
-		oLoad2.addConstraint(new PrologConstraint(new Atomic("(size c2 1)"), Term.createConstant("prologProgram")));
-		oLoad2.addConstraint(new PrologConstraint(new Atomic("(timeToLift c2 20)"), Term.createConstant("prologProgram")));
+		oLoad2.addConstraint(new AllenConstraint(Term.parse("(duration this2 (interval 20 20))")));
+		oLoad2.addConstraint(new PrologConstraint(Term.parse("(size c2 1)"), Term.createConstant("prologProgram")));
+		oLoad2.addConstraint(new PrologConstraint(Term.parse("(timeToLift c2 20)"), Term.createConstant("prologProgram")));
 		
 		Plan plan = new Plan();
 		plan.addAction(oLoad1);
@@ -362,26 +362,27 @@ public class TestPlan extends TestCase {
 				
 		plan.liftTerm(Term.createConstant("r"));
 		Set<Term> S = new HashSet<Term>();
-		S.addAll(plan.getActions().get(0).getVariableTerms());
-		S.addAll(plan.getActions().get(1).getVariableTerms());
+		plan.getActions().get(0).getAllTerms(S, false, true, false);
+		plan.getActions().get(1).getAllTerms(S, false, true, false);
+				
 		assertTrue(S.size() == 1);
 		
 		plan.liftTerm(Term.createConstant("c1"));
 		S = new HashSet<Term>();
-		S.addAll(plan.getActions().get(0).getVariableTerms());
-		S.addAll(plan.getActions().get(1).getVariableTerms());
+		plan.getActions().get(0).getAllTerms(S, false, true, false);
+		plan.getActions().get(1).getAllTerms(S, false, true, false);
 		assertTrue(S.size() == 2);
 
 		plan.liftTerm(Term.createConstant("c2"));
 		S = new HashSet<Term>();
-		S.addAll(plan.getActions().get(0).getVariableTerms());
-		S.addAll(plan.getActions().get(1).getVariableTerms());
+		plan.getActions().get(0).getAllTerms(S, false, true, false);
+		plan.getActions().get(1).getAllTerms(S, false, true, false);
 		assertTrue(S.size() == 3);
 
 		plan.liftTerm(Term.createConstant("l"));
 		S = new HashSet<Term>();
-		S.addAll(plan.getActions().get(0).getVariableTerms());
-		S.addAll(plan.getActions().get(1).getVariableTerms());
+		plan.getActions().get(0).getAllTerms(S, false, true, false);
+		plan.getActions().get(1).getAllTerms(S, false, true, false);
 		assertTrue(S.size() == 4);
 	}
 }

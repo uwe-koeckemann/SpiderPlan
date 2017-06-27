@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan;
 
 import org.spiderplan.modules.MathSolver;
@@ -34,7 +33,6 @@ import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelatio
 import org.spiderplan.representation.expressions.resources.ReusableResourceCapacity;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.logging.Logger;
@@ -62,13 +60,13 @@ public class TestScheduling extends TestCase {
 	Term I5 = Term.createConstant("I5");
 	Term I6 = Term.createConstant("I6");
 	
-	Statement s1 = new Statement(I1, new Atomic("x"), Term.createInteger(1));
-	Statement s2 = new Statement(I2, new Atomic("x"), Term.createInteger(1));
-	Statement s3 = new Statement(I3, new Atomic("x"), Term.createInteger(1));
+	Statement s1 = new Statement(I1, Term.createConstant("x"), Term.createInteger(1));
+	Statement s2 = new Statement(I2, Term.createConstant("x"), Term.createInteger(1));
+	Statement s3 = new Statement(I3, Term.createConstant("x"), Term.createInteger(1));
 	
-	Statement s4 = new Statement(I4, new Atomic("y"), Term.createInteger(1));
-	Statement s5 = new Statement(I5, new Atomic("y"), Term.createInteger(1));
-	Statement s6 = new Statement(I6, new Atomic("y"), Term.createInteger(1));
+	Statement s4 = new Statement(I4, Term.createConstant("y"), Term.createInteger(1));
+	Statement s5 = new Statement(I5, Term.createConstant("y"), Term.createInteger(1));
+	Statement s6 = new Statement(I6, Term.createConstant("y"), Term.createInteger(1));
 	
 	ConfigurationManager cM = new ConfigurationManager();		
 	Module solver;
@@ -118,7 +116,7 @@ public class TestScheduling extends TestCase {
 				new Interval(Term.createInteger(0), Term.createInteger(10)),
 				new Interval(Term.createInteger(20), Term.createInteger(20))));
 		
-		cDB.add(new ReusableResourceCapacity(new Atomic("x"), 2));
+		cDB.add(new ReusableResourceCapacity(Term.createConstant("x"), 2));
 		
 		Core testCore = new Core();
 		testCore.setContext( cDB );
@@ -146,7 +144,7 @@ public class TestScheduling extends TestCase {
 				new Interval(Term.createInteger(0), Term.createInteger(0)),
 				new Interval(Term.createInteger(20), Term.createInteger(20))));
 		
-		cDB.add(new ReusableResourceCapacity(new Atomic("x"), 2));
+		cDB.add(new ReusableResourceCapacity(Term.createConstant("x"), 2));
 
 		Core testCore = new Core();
 		testCore.setContext( cDB );
@@ -175,7 +173,7 @@ public class TestScheduling extends TestCase {
 		cDB.add(new AllenConstraint(I2, TemporalRelation.Duration, 
 				new Interval(Term.createInteger(1), Term.createInteger(600))));
 		
-		cDB.add(new ReusableResourceCapacity(new Atomic("(x)"), 1));
+		cDB.add(new ReusableResourceCapacity(Term.parse("(x)"), 1));
 
 		Core testCore = new Core();
 		testCore.setContext( cDB );
@@ -188,12 +186,12 @@ public class TestScheduling extends TestCase {
 	public void test4_needs_matching() {
 		ConstraintDatabase cDB = new ConstraintDatabase();
 
-		Statement sv1 = new Statement(I1, new Atomic("(x a)"), Term.createInteger(1));
-		Statement sv2 = new Statement(I2, new Atomic("(x a)"), Term.createInteger(1));
+		Statement sv1 = new Statement(I1, Term.parse("(x a)"), Term.createInteger(1));
+		Statement sv2 = new Statement(I2, Term.parse("(x a)"), Term.createInteger(1));
 		
 		TypeManager tM = new TypeManager();
 		tM.addSimpleEnumType("t", "a");
-		tM.attachTypes(new Atomic("(x t)"), null);
+		tM.attachTypes(Term.parse("(x t)"), null);
 		
 		cDB.add(sv1);
 		cDB.add(sv2);
@@ -210,7 +208,7 @@ public class TestScheduling extends TestCase {
 		cDB.add(new AllenConstraint(I2, TemporalRelation.Duration, 
 				new Interval(Term.createInteger(1), Term.createInteger(600))));
 		
-		cDB.add(new ReusableResourceCapacity(new Atomic("(x ?V)"), 1));
+		cDB.add(new ReusableResourceCapacity(Term.parse("(x ?V)"), 1));
 
 		Core testCore = new Core();
 		testCore.setTypeManager(tM);

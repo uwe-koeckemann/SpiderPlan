@@ -38,33 +38,33 @@ public interface DomainParser_v4Constants {
   /** RegularExpression Id. */
   int TASK = 18;
   /** RegularExpression Id. */
-  int FINALLY = 19;
+  int OBSERVATION = 19;
   /** RegularExpression Id. */
-  int MINIZINC = 20;
+  int FINALLY = 20;
   /** RegularExpression Id. */
-  int RESOURCE = 21;
+  int MINIZINC = 21;
   /** RegularExpression Id. */
-  int CONDITIONAL = 22;
+  int RESOURCE = 22;
   /** RegularExpression Id. */
-  int IC = 23;
+  int CONDITIONAL = 23;
   /** RegularExpression Id. */
-  int CONDITION = 24;
+  int IC = 24;
   /** RegularExpression Id. */
-  int SAMPLING = 25;
+  int CONDITION = 25;
   /** RegularExpression Id. */
-  int CONFIGURATIONPLANNING = 26;
+  int SAMPLING = 26;
   /** RegularExpression Id. */
-  int ROS = 27;
+  int CONFIGURATIONPLANNING = 27;
   /** RegularExpression Id. */
-  int DBEXEC = 28;
+  int ROS = 28;
   /** RegularExpression Id. */
-  int RESOLVER = 29;
+  int DBEXEC = 29;
   /** RegularExpression Id. */
-  int CAPACITY = 30;
+  int RESOLVER = 30;
   /** RegularExpression Id. */
-  int INITIAL = 31;
+  int CAPACITY = 31;
   /** RegularExpression Id. */
-  int CUSTOM = 32;
+  int INITIAL = 32;
   /** RegularExpression Id. */
   int SIMULATE = 33;
   /** RegularExpression Id. */
@@ -72,53 +72,51 @@ public interface DomainParser_v4Constants {
   /** RegularExpression Id. */
   int OPERATOR = 35;
   /** RegularExpression Id. */
-  int PRECONDITIONS = 36;
+  int SIGNATURE = 36;
   /** RegularExpression Id. */
-  int EFFECTS = 37;
+  int PRECONDITIONS = 37;
   /** RegularExpression Id. */
-  int CONSTRAINTS = 38;
+  int EFFECTS = 38;
   /** RegularExpression Id. */
-  int ROSPUBLISH = 39;
+  int ASSERTION = 39;
   /** RegularExpression Id. */
-  int ROSSUBSCRIBE = 40;
+  int CONSTRAINTS = 40;
   /** RegularExpression Id. */
-  int ROSGOAL = 41;
+  int ROSPUBLISH = 41;
   /** RegularExpression Id. */
-  int REUSABLE = 42;
+  int ROSSUBSCRIBE = 42;
   /** RegularExpression Id. */
-  int OP = 43;
+  int ROSGOAL = 43;
   /** RegularExpression Id. */
-  int CP = 44;
+  int REUSABLE = 44;
   /** RegularExpression Id. */
-  int OBRACKET = 45;
+  int SOCKETS = 45;
   /** RegularExpression Id. */
-  int CBRACKET = 46;
+  int CARESSES = 46;
   /** RegularExpression Id. */
-  int OBRACE = 47;
+  int ONTOLOGY = 47;
   /** RegularExpression Id. */
-  int CBRACE = 48;
+  int OP = 48;
   /** RegularExpression Id. */
-  int BAR = 49;
+  int CP = 49;
   /** RegularExpression Id. */
-  int COMMA = 50;
+  int OBRACKET = 50;
   /** RegularExpression Id. */
-  int DOT = 51;
+  int CBRACKET = 51;
   /** RegularExpression Id. */
-  int COLON = 52;
+  int OBRACE = 52;
   /** RegularExpression Id. */
-  int PLUS = 53;
+  int CBRACE = 53;
   /** RegularExpression Id. */
-  int MINUS = 54;
+  int BAR = 54;
   /** RegularExpression Id. */
-  int QMARKS = 55;
+  int QPOINT = 55;
   /** RegularExpression Id. */
-  int QPOINT = 56;
+  int QMARKS = 56;
   /** RegularExpression Id. */
   int NON_COMPLEX_TERM = 57;
   /** RegularExpression Id. */
   int STRING = 58;
-  /** RegularExpression Id. */
-  int UFLOAT = 59;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -144,6 +142,7 @@ public interface DomainParser_v4Constants {
     "\":domain\"",
     "\":goal\"",
     "\":task\"",
+    "\":observation\"",
     "\":finally\"",
     "\":minizinc\"",
     "\":resource\"",
@@ -157,17 +156,21 @@ public interface DomainParser_v4Constants {
     "\":resolver\"",
     "\":capacity\"",
     "\":initial-context\"",
-    "\":custom\"",
     "\":simulate\"",
     "\":statement\"",
     "\":operator\"",
+    "\":signature\"",
     "\":preconditions\"",
     "\":effects\"",
+    "\":assertion\"",
     "\":constraints\"",
     "\"publish\"",
     "\"subscribe\"",
     "\"actionlib\"",
     "\"reusable\"",
+    "\":sockets\"",
+    "\":caresses\"",
+    "\":ontology\"",
     "\"(\"",
     "\")\"",
     "\"[\"",
@@ -175,16 +178,10 @@ public interface DomainParser_v4Constants {
     "\"{\"",
     "\"}\"",
     "\"|\"",
-    "\",\"",
-    "\".\"",
-    "\":\"",
-    "\"+\"",
-    "\"-\"",
-    "\"\\\"\"",
     "\"?\"",
+    "\"\\\"\"",
     "<NON_COMPLEX_TERM>",
     "<STRING>",
-    "<UFLOAT>",
   };
 
 }

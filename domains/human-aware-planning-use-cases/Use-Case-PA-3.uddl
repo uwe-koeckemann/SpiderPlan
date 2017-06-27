@@ -72,7 +72,8 @@ property(h1,grandparent).
 				(equals ?I1 ?I3) ) ) )
 )
 (:operator
-	(assist ?R - robot ?H - human ?L - location)
+	(assist ?R ?H ?L)
+	(:signature robot human location)
 	(:preconditions
 		(?P1 (at ?R) ?L)
 		(?P2 (at ?H) ?L)

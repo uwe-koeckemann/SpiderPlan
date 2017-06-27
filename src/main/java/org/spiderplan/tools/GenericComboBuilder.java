@@ -1,28 +1,28 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.tools;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Allows to input a list of a list of choices (instances of class T) and returns a list of 
@@ -43,8 +43,8 @@ public class GenericComboBuilder<T> {
 	 * @param in a list of lists to be combined
 	 * @return list of combinations
 	 */
-	public ArrayList<ArrayList<T>> getCombos(ArrayList<ArrayList<T>> in) {
-		ArrayList<ArrayList<T>> out = new ArrayList<ArrayList<T>>();
+	public List<List<T>> getCombos(List<List<T>> in) {
+		List<List<T>> out = new ArrayList<List<T>>();
 		
 		/**
 		 * Return when missing choices
@@ -52,7 +52,7 @@ public class GenericComboBuilder<T> {
 		if ( in.isEmpty() ) {
 			return out;
 		}
-		for ( ArrayList<T> choices : in ) {
+		for ( List<T> choices : in ) {
 			if ( choices.isEmpty() ) {
 				return out;
 			}
@@ -65,7 +65,7 @@ public class GenericComboBuilder<T> {
 		}
 		
 		while ( ! this.done ) {
-			ArrayList<T> combo = new ArrayList<T>(slots.length);
+			List<T> combo = new ArrayList<T>(slots.length);
 			
 			for ( int i = 0 ; i < slots.length ; i++ ) {
 				combo.add(in.get(i).get(slots[i]));

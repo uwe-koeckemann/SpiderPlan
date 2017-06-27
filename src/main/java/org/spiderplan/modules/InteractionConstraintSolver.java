@@ -1,31 +1,31 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.modules;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
@@ -46,7 +46,7 @@ import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
-import org.spiderplan.representation.expressions.misc.Asserted;
+import org.spiderplan.representation.expressions.misc.Assertion;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.search.GenericSingleNodeSearch;
@@ -402,14 +402,16 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 		enabledDB.removeAll(icsInCoreContext);	// (a) We only consider ICs belonging to the tested condition
 		Map<Class<? extends Expression>,Integer> cCount = enabledDB.getConstraintCount();
 		
-		Collection<Term> variablesInCDB = enabledDB.getVariableTerms();
+		Set<Term> variablesInCDB = new HashSet<Term>(); 
+		enabledDB.getAllTerms(variablesInCDB, false, true, false);
 		
 //		ConstraintDatabase focused = new ConstraintDatabase();
 //		focused.addStatements(TemporalNetworkTools.getStatementsInPlanningInterval(cdb, core.getTypeManager()));
 		if ( keepTimes ) StopWatch.stop(msg("1) Preparing"));
 
-		for ( InteractionConstraint ic : ICs ) {				
-			if ( !ic.isAsserted() ) {					
+		for ( InteractionConstraint ic : ICs ) {
+			if ( !ic.isAsserted() ) {
+				if ( verbose ) Logger.msg(getName() ,"Checking: "+ ic.getName(), 2);
 //				ArrayList<Substitution> enablingSubst = new ArrayList<Substitution>();
 				if ( keepTimes ) StopWatch.start(msg("2) Getting enablers"));
 //				enablingSubst.addAll(cdb.getSubstitutions(ic.getCondition()));
@@ -425,8 +427,9 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 //				boolean foundFlaw = false;
 				boolean approvedSubstitution;
 				if ( enablerSearch != null ) {
+					if ( verbose ) Logger.depth++;
 					while ( !enablerSearch.failure() ) {
-						if ( verbose ) Logger.msg(getName() ,"Next try "+ enablerSearch.getAssignment(), 2);
+						if ( verbose ) Logger.msg(getName() ,"Possible substitution: "+ enablerSearch.getAssignment(), 2);
 	
 						if ( keepTimes ) StopWatch.start(msg("3) Preparing next enabler"));
 						Substitution enabler = new Substitution();
@@ -442,14 +445,24 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 							enablerSearch.advance(false);
 							continue; // illegal substitution -> try next one
 						}
-						
 						if ( keepTimes ) StopWatch.start(msg("4) Preparing enabled IC"));
 						/* Create copy of IC and make all its variables unique */
 						InteractionConstraint icCopy = ic.copy();
 						icCopy.substitute(enabler);
 	
-						Asserted a = new Asserted(icCopy);
-						if ( cdb.contains(a) ) {
+						Assertion a = icCopy.getAssertion();
+						boolean cdbContainsMatchingAssertion = false;
+						for ( Assertion a_cdb : cdb.get(Assertion.class ) ) {
+							Substitution sub = a.match(a_cdb);
+							if ( sub != null ) {
+								cdbContainsMatchingAssertion = true;
+								break;
+							}
+						}
+
+						if ( cdbContainsMatchingAssertion ) {		
+							if ( verbose ) Logger.msg(getName() ,"Skipping: Found matching assertion in CDB", 2);
+							
 							if ( keepTimes ) StopWatch.stop(msg("4) Preparing enabled IC"));
 							enablerSearch.advance(false);
 							continue;
@@ -536,7 +549,9 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 									
 									Substitution s = new Substitution();
 									long ID = UniqueID.getID();
-									for ( Term var : icCopy.getVariableTerms() ) {
+									Set<Term> collectedTerms = new HashSet<Term>();
+									icCopy.getAllTerms(collectedTerms, false, true, false);
+									for ( Term var : collectedTerms ) {
 										if ( !variablesInCDB.contains(var) ) {
 											Term newVar = var.makeUnique(ID);
 											s.add(var, newVar);
@@ -550,7 +565,8 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 									
 									
 									resolverCDB.add(icCopy.copy());
-									resolverCDB.add(new Asserted(icCopy));
+//									resolverCDB.add(new Asserted(icCopy));
+									resolverCDB.add(icCopy.getAssertion());
 									Resolver r = new Resolver(resolverCDB);
 									resolverList.add(r);
 								}
@@ -569,6 +585,7 @@ public class InteractionConstraintSolver extends Module implements SolverInterfa
 							}
 						} 
 					}
+					if ( verbose ) Logger.depth--;
 				}
 			}
 		}

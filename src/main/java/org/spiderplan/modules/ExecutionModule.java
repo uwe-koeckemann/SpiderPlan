@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.modules;
 
 import java.util.ArrayList;
@@ -30,17 +29,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.spiderplan.executor.Reactor;
-import org.spiderplan.executor.ReactorObservation;
 import org.spiderplan.executor.ReactorRandomSimulation;
 import org.spiderplan.executor.ReactorSoundPlaySpeech;
 import org.spiderplan.executor.ROS.ROSProxy;
 import org.spiderplan.executor.ROS.ReactorROS;
+import org.spiderplan.executor.observation.ObservationReactor;
 import org.spiderplan.executor.simulation.ReactorPerfectSimulation;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.solvers.Core.State;
-import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
@@ -56,12 +54,11 @@ import org.spiderplan.representation.expressions.execution.ros.ROSConstraint;
 import org.spiderplan.representation.expressions.execution.ros.ROSGoal;
 import org.spiderplan.representation.expressions.execution.ros.ROSRegisterAction;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
-import org.spiderplan.representation.expressions.misc.Asserted;
+import org.spiderplan.representation.expressions.misc.Assertion;
 import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
@@ -116,15 +113,15 @@ public class ExecutionModule  extends Module {
 //	IncrementalSTPSolver execCSP;
 	IncrementalSTPSolver simCSP;
 	
-	Atomic tHorizon = new Atomic("time");
+	Term tHorizon = Term.createConstant("time");
 	
 	Statement past = new Statement(Term.createConstant("past"), tHorizon, Term.createConstant("past") );
 	Statement future = new Statement(Term.createConstant("future"), tHorizon, Term.createConstant("future") );
 	
-	AllenConstraint rPast = new AllenConstraint(new Atomic("(release past (interval 0 0))"));
-	AllenConstraint mPastFuture = new AllenConstraint(new Atomic("(meets past future)"));
-	AllenConstraint dFuture = new AllenConstraint(new Atomic("(deadline future (interval "+(tMax-1)+" "+(tMax-1)+"))"));
-	AllenConstraint rFuture = new AllenConstraint(new Atomic("(deadline past (interval 1 1)"));
+	AllenConstraint rPast = new AllenConstraint(Term.parse("(release past (interval 0 0))"));
+	AllenConstraint mPastFuture = new AllenConstraint(Term.parse("(meets past future)"));
+	AllenConstraint dFuture = new AllenConstraint(Term.parse("(deadline future (interval "+(tMax-1)+" "+(tMax-1)+"))"));
+	AllenConstraint rFuture = new AllenConstraint(Term.parse("(deadline past (interval 1 1)"));
 	AllenConstraint mFuture;
 	
 	private Map<Statement,Collection<Expression>> addedConstraints = new HashMap<Statement, Collection<Expression>>();
@@ -132,7 +129,7 @@ public class ExecutionModule  extends Module {
 	private ConstraintDatabase addedOnReleaseDB = new ConstraintDatabase();
 	private ConstraintDatabase addedByROS = new ConstraintDatabase();
 	
-	private Set<Atomic> variablesObservedByROS = new HashSet<Atomic>();
+	private Set<Term> variablesObservedByROS = new HashSet<Term>();
 	
 	private Map<Long,ConstraintDatabase> dispatchedDBs = new HashMap<Long, ConstraintDatabase>();
 	
@@ -200,10 +197,10 @@ public class ExecutionModule  extends Module {
 		execList = new ArrayList<Statement>();
 		simList = new ArrayList<Statement>();
 		
-		rPast = new AllenConstraint(new Atomic("(release past (interval 0 0))"));
-		mPastFuture = new AllenConstraint(new Atomic("(meets past future)"));
-		dFuture = new AllenConstraint(new Atomic("(deadline future (interval "+(tMax-1)+" "+(tMax-1)+"))"));
-		rFuture = new AllenConstraint(new Atomic("(deadline past (interval 1 1)"));
+		rPast = new AllenConstraint(Term.parse("(release past (interval 0 0))"));
+		mPastFuture = new AllenConstraint(Term.parse("(meets past future)"));
+		dFuture = new AllenConstraint(Term.parse("(deadline future (interval "+(tMax-1)+" "+(tMax-1)+"))"));
+		rFuture = new AllenConstraint(Term.parse("(deadline past (interval 1 1)"));
 		
 		for ( Operator a : core.getContext().getUnique(Plan.class).getActions() ) {
 			execList.add(a.getNameStateVariable());
@@ -306,10 +303,10 @@ public class ExecutionModule  extends Module {
 		for ( Operator a : core.getContext().getUnique(Plan.class).getActions() ) {
 			for ( Statement e : a.getEffects() ) {
 				if ( variablesObservedByROS.contains(e.getVariable()) ) {
-					ReactorObservation r = new ReactorObservation(e, lastChangingStatement);
-					execList.add(e);
-					hasReactorList.add(e);
-					this.reactors.add(r);
+//					ObservationReactor r = new ObservationReactor(e, lastChangingStatement);
+//					execList.add(e);
+//					hasReactorList.add(e);
+//					this.reactors.add(r);
 				}
 			}
 		}
@@ -420,7 +417,7 @@ public class ExecutionModule  extends Module {
 				
 		execDB.remove(rFuture);
 		simDB.remove(rFuture);
-		rFuture = new AllenConstraint(new Atomic("(deadline past (interval "+(t)+" "+(t)+"))"));
+		rFuture = new AllenConstraint(Term.parse("(deadline past (interval "+(t)+" "+(t)+"))"));
 		execDB.add(rFuture);
 		simDB.add(rFuture);
 		
@@ -627,10 +624,10 @@ public class ExecutionModule  extends Module {
 			for ( Statement e : a.getEffects() ) {
 				if ( !execList.contains(e) && !doneList.contains(e) && !hasReactorList.contains(e) ) {
 					if ( variablesObservedByROS.contains(e.getVariable()) ) {
-						ReactorObservation r = new ReactorObservation(e, lastChangingStatement);
-						execList.add(e);
-						hasReactorList.add(e);
-						this.reactors.add(r);
+//						ObservationReactor r = new ObservationReactor(e, lastChangingStatement);
+//						execList.add(e);
+//						hasReactorList.add(e);
+//						this.reactors.add(r);
 					}
 				}
 			}
@@ -640,10 +637,10 @@ public class ExecutionModule  extends Module {
 			for ( Statement e : a.getEffects() ) {
 				if ( !execList.contains(e) && !doneList.contains(e) && !hasReactorList.contains(e) ) {
 					if ( variablesObservedByROS.contains(e.getVariable()) ) {
-						ReactorObservation r = new ReactorObservation(e, lastChangingStatement);
-						execList.add(e);
-						hasReactorList.add(e);
-						this.reactors.add(r);
+//						ObservationReactor r = new ObservationReactor(e, lastChangingStatement);
+//						execList.add(e);
+//						hasReactorList.add(e);
+//						this.reactors.add(r);
 					}
 				}
 			}
@@ -951,7 +948,8 @@ public class ExecutionModule  extends Module {
 //					fromScratchDB.remove(og);
 					OpenGoal ogCopy = og.copy();
 					ogCopy.setAsserted(true);
-					reachedGoals.add(new Asserted(ogCopy));
+//					reachedGoals.add(new Asserted(ogCopy));
+					reachedGoals.add(ogCopy.getAssertion());
 					reachedGoals.add(og.getStatement());
 					reachedGoals.add(ogCopy);
 				} else {
@@ -1033,9 +1031,12 @@ public class ExecutionModule  extends Module {
 		}
 		
 		for ( Expression c : reachedGoals ) {
-			if ( c instanceof Asserted ) {
-				fromScratchDB.processAsserted((Asserted)c);			
-			}
+//			if ( c instanceof Asserted ) {
+//				fromScratchDB.processAsserted((Asserted)c);			
+//			}
+			if ( c instanceof Assertion ) {
+				fromScratchDB.processAssertedTerm((Assertion)c);
+			}				
 		}
 				
 		if ( verbose ) Logger.depth--;
@@ -1303,8 +1304,8 @@ public class ExecutionModule  extends Module {
 //		return fromScratchDB;
 //	}
 	
-	Map<Atomic,Statement> lastChangingStatement = new HashMap<Atomic, Statement>();
-	Map<Atomic,Expression> lastAddedDeadline = new HashMap<Atomic, Expression>();
+	Map<Term,Statement> lastChangingStatement = new HashMap<Term, Statement>();
+	Map<Term,Expression> lastAddedDeadline = new HashMap<Term, Expression>();
 	List<ROSConstraint> ROSsubs = new ArrayList<ROSConstraint>();
 	List<ROSConstraint> ROSpubs = new ArrayList<ROSConstraint>();
 	Term rosSubInterval = Term.createVariable("?I_ROS");
@@ -1316,7 +1317,7 @@ public class ExecutionModule  extends Module {
 		ValueLookup propagatedTimes = execDB.getUnique(ValueLookup.class);
 		
 		boolean change = false;
-		Atomic variable;
+		Term variable;
 		Term value;
 		Term rosMessage;
 		/*

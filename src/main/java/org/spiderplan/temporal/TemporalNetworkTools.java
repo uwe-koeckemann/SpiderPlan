@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.temporal;
 
 import java.io.BufferedWriter;
@@ -34,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.spiderplan.modules.tools.ConstraintRetrieval;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
@@ -44,7 +42,6 @@ import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
@@ -261,18 +258,18 @@ public class TemporalNetworkTools {
 						allToChoices.add( tC.getTo() );
 					}
 					
-					ArrayList<ArrayList<Term>> input = new ArrayList<ArrayList<Term>>();
+					List<List<Term>> input = new ArrayList<List<Term>>();
 					input.add(allFromChoices);
 					input.add(allToChoices);
 					GenericComboBuilder<Term> cB = new GenericComboBuilder<Term>();
-					ArrayList<ArrayList<Term>> combos = cB.getCombos(input);
+					List<List<Term>> combos = cB.getCombos(input);
 					
 					Interval[] bounds = new Interval[tC.getNumBounds()];
 					for ( int i = 0 ; i < tC.getNumBounds() ; i++ ) {
 						bounds[i] = tC.getBound(i);
 					}
 					
-					for ( ArrayList<Term> combo : combos ) {
+					for ( List<Term> combo : combos ) {
 						addList.add( new AllenConstraint(combo.get(0), combo.get(1), tC.getRelation(), bounds ) );
 					}
 					remList.add(tC);					
@@ -316,13 +313,13 @@ public class TemporalNetworkTools {
 	 * intervals that change this state-variable. Each sequence is sorted by 
 	 * the earliest start time (EST) of its intervals.
 	 * @param cdb {@link ConstraintDatabase} which should be sequenced
-	 * @return Map from state-variables (represented by {@link Atomic}) to sequenced intervals (represented by {@link Term}).
+	 * @return Map from state-variables (represented by {@link Term}) to sequenced intervals (represented by {@link Term}).
 	 */
-	public static Map<Atomic,List<Term>> getSequencedIntervals( ConstraintDatabase cdb ) {
+	public static Map<Term,List<Term>> getSequencedIntervals( ConstraintDatabase cdb ) {
 		TemporalNetworkTools tools = new TemporalNetworkTools();
 		ValueLookup tiLookup = cdb.getUnique(ValueLookup.class);
 		
-		Map<Atomic,List<TermAndEST>> sequencedValues = new HashMap<Atomic, List<TermAndEST>>();
+		Map<Term,List<TermAndEST>> sequencedValues = new HashMap<Term, List<TermAndEST>>();
 		
 		for ( Statement s : cdb.get(Statement.class)) {
 			if ( !sequencedValues.containsKey(s.getVariable()) ) {
@@ -332,8 +329,8 @@ public class TemporalNetworkTools {
 			sequencedValues.get(s.getVariable()).add(x);
 		}
 		
-		Map<Atomic,List<Term>> r = new HashMap<Atomic, List<Term>>();
-		for ( Atomic key : sequencedValues.keySet() ) {
+		Map<Term,List<Term>> r = new HashMap<Term, List<Term>>();
+		for ( Term key : sequencedValues.keySet() ) {
 			Collections.sort(sequencedValues.get(key));
 //			System.out.println(key + " -> " + sequencedValues.get(key));
 			List<Term> l = new ArrayList<Term>();

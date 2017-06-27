@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan;
 
 import java.util.Collection;
@@ -27,9 +26,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.spiderplan.representation.expressions.domain.Substitution;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
+import org.spiderplan.representation.types.EnumType;
+import org.spiderplan.representation.types.IntegerType;
 import org.spiderplan.representation.types.TypeManager;
+
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.IntType;
 
 import junit.framework.TestCase;
 
@@ -46,9 +48,9 @@ public class TestLogic extends TestCase {
 	}
 	
 	public void testAtomic() {	
-		Atomic a = new Atomic("(p a ?B (f ?x))");
+		Term a = Term.parse("(p a ?B (f ?x))");
 				
-		assertTrue( a.name().equals("p") );
+		assertTrue( a.getName().equals("p") );
 
 		assertTrue( a.getArg(0).toString().equals("a") );
 		
@@ -57,8 +59,14 @@ public class TestLogic extends TestCase {
 		assertTrue( a.getNumArgs() == 3 );
 		assertTrue( a.toString().equals("(p a ?B (f ?x))"));
 		
-		Atomic b = new Atomic("(sv1 sv1_t sv2_t)");
+		Term b = Term.parse("(sv1 sv1_t sv2_t)");
 		assertTrue(b.toString().equals("(sv1 sv1_t sv2_t)"));
+	}
+	
+	public void testMissingSpace() {	
+		Term a = Term.parse("(f (g x)(h x))");
+		assertTrue(a.getNumArgs() == 2);
+		
 	}
 	
 	public void testIsVariable() {
@@ -82,22 +90,22 @@ public class TestLogic extends TestCase {
 	}
 	
 	public void testAtomicEquals() {	
-		Atomic a = new Atomic("(p a B (f x))");
-		Atomic b = new Atomic("(p a B (f x))");
+		Term a = Term.parse("(p a B (f x))");
+		Term b = Term.parse("(p a B (f x))");
 		
 		assertTrue( a.hashCode() == b.hashCode() );
 		assertTrue( a.equals(b) ); //
 		
 		
-		Atomic c = new Atomic("p");
-		Atomic d = new Atomic("(p)");
+		Term c = Term.parse("p");
+		Term d = Term.parse("(p)");
 				
 		assertTrue( c.equals(d) );		
 	}
 	
 	public void testMatching() {	
-		Atomic a1 = new Atomic("(p A ?x1 ?x2)");
-		Atomic a2 = new Atomic("(p ?x3 ?x4 C)");
+		Term a1 = Term.parse("(p A ?x1 ?x2)");
+		Term a2 = Term.parse("(p ?x3 ?x4 C)");
 		
 		Substitution theta = new Substitution();
 		
@@ -112,8 +120,8 @@ public class TestLogic extends TestCase {
 	}
 	
 	public void testMatching2() {	
-		Atomic a1 = new Atomic("(p A x1 x2)");
-		Atomic a2 = new Atomic("(p B x4 C)");
+		Term a1 = Term.parse("(p A x1 x2)");
+		Term a2 = Term.parse("(p B x4 C)");
 		
 		Substitution theta = new Substitution();
 		
@@ -123,8 +131,8 @@ public class TestLogic extends TestCase {
 	}
 	
 	public void testMatching3() {	
-		Atomic a1 = new Atomic("(p A B C)");
-		Atomic a2 = new Atomic("(p ?x1 ?x2 ?x3)");
+		Term a1 = Term.parse("(p A B C)");
+		Term a2 = Term.parse("(p ?x1 ?x2 ?x3)");
 		
 		Substitution theta = new Substitution();
 		
@@ -139,8 +147,8 @@ public class TestLogic extends TestCase {
 	}
 	
 	public void testMatching4() {	
-		Atomic a1 = new Atomic("p");
-		Atomic a2 = new Atomic("p");
+		Term a1 = Term.parse("p");
+		Term a2 = Term.parse("p");
 		
 		Substitution theta = new Substitution();
 		
@@ -150,39 +158,125 @@ public class TestLogic extends TestCase {
 		assertTrue( theta.isEmpty() );
 	}
 	
-//	public void testLiteral() {
-//		Literal l,l2;
-//
-//		l = new Literal("!p(a,B,f(x))");
-//		l2 = new Literal("p(a,B,f(x))");
-//		
-//		assertTrue( l.isNegated() );
-//		assertTrue( ! l2.isNegated() );
-//		assertTrue( l2.toString().equals("p(a,B,f(x))"));
-//		assertTrue ( l.toString().equals("!p(a,B,f(x))"));
-//	}
-//	
-//	public void testLiteralSubstitution() {
-//		Literal l,l2;
-//
-//		l = new Literal("!p(a,B,f(x))");
-//		l2 = new Literal("p(a,B,f(x))");
-//		Substitution theta = new Substitution();
-//		theta.add(Term.Parse("x"),Term.Parse("H"));
-//		
-//		l2.substitute(theta);
-//
-//		Literal l3 = l.copySubstitute(theta);
-//		
-//		assertTrue( l.toString().equals("!p(a,B,f(x))"));
-//		
-//		assertTrue( l3.toString().equals("!p(a,B,f(H))"));		
-//	}
+	public void testTypeManagerChange() {
+		TypeManager tM = new TypeManager();
+		tM.addIntegerType("intType", -100, 100);
+		
+				
+		EnumType enumType = new EnumType();
+		enumType.setName(Term.createConstant("enumType"));
+		enumType.addToDomain(Term.createConstant("a"));
+		enumType.addToDomain(Term.createConstant("b"));
+		enumType.addToDomain(Term.createConstant("c"));
+		enumType.addToDomain(Term.createConstant("d"));
+		enumType.addToDomain(Term.createConstant("e"));
+		enumType.addToDomain(Term.createConstant("f"));
+		enumType.addToDomain(Term.createConstant("g"));
+		
+		assertTrue(enumType.generateDomain(tM).size() == 7);
+		
+		EnumType composedType = new EnumType();
+		composedType.setName(Term.createConstant("composedType"));
+		composedType.addToDomain(Term.createConstant("enumType"));
+		composedType.addToDomain(Term.parse("intType"));
+		
+		EnumType fancyType = new EnumType();
+		fancyType.setName(Term.createConstant("fancyType"));
+		fancyType.addToDomain(Term.parse("(vector intType intType)"));
+		fancyType.addToDomain(Term.parse("(f enumType enumType)"));
+		
+		EnumType fancyType2 = new EnumType();
+		fancyType2.setName(Term.createConstant("fancyType2"));
+		fancyType2.addToDomain(Term.parse("(f1 10 fancyType enumType)"));
+		fancyType2.addToDomain(Term.parse("(f2 20 fancyType enumType)"));
+		fancyType2.addToDomain(Term.createConstant("fancyType"));
+		
+		EnumType fancyType3 = new EnumType();
+		fancyType3.setName(Term.createConstant("fancyType3"));
+		fancyType3.addToDomain(Term.parse("(tuple enumType enumType)"));
+		
+		tM.addNewType(enumType);
+		tM.addNewType(fancyType);
+		tM.addNewType(fancyType2);
+		tM.addNewType(fancyType3);
+		tM.addNewType(composedType);
+		
+		assertTrue( fancyType3.generateDomain(tM).size() == 49 );
+
+		assertTrue(enumType.contains(Term.createConstant("d"), tM));
+		assertTrue(!enumType.contains(Term.createConstant("h"), tM));
+		
+		assertTrue(fancyType.contains(Term.parse("(vector 1 10"), tM));
+		assertTrue(fancyType.contains(Term.parse("(vector -100 100"), tM));
+		assertTrue(!fancyType.contains(Term.parse("(vector 0 101"), tM));
+		
+		assertTrue(fancyType.contains(Term.parse("(f a b"), tM));
+		assertTrue(!fancyType.contains(Term.parse("(f aa bb"), tM));
+		
+		assertTrue(fancyType2.contains(Term.parse("(f1 10 (vector 10 10) a)"), tM));
+		assertTrue(fancyType2.contains(Term.parse("(f2 20 (f c d) a)"), tM));
+		assertTrue(fancyType2.contains(Term.parse("(f a b"), tM));
+		
+		assertTrue(composedType.contains(Term.createConstant("d"), tM));
+		assertTrue(composedType.contains(Term.createConstant("50"), tM));
+		assertTrue(composedType.contains(Term.createConstant("-10"), tM));
+	}
+	
+	
+	public void testReplaceTypes() {
+		TypeManager tM = new TypeManager();
+		tM.addIntegerType("intType", -100, 100);
+		
+				
+		EnumType enumType = new EnumType();
+		enumType.setName(Term.createConstant("enumType"));
+		enumType.addToDomain(Term.createConstant("a"));
+		enumType.addToDomain(Term.createConstant("b"));
+		enumType.addToDomain(Term.createConstant("c"));
+		enumType.addToDomain(Term.createConstant("d"));
+		enumType.addToDomain(Term.createConstant("e"));
+		enumType.addToDomain(Term.createConstant("f"));
+		enumType.addToDomain(Term.createConstant("g"));
+		
+		assertTrue(enumType.generateDomain(tM).size() == 7);
+		
+		EnumType composedType = new EnumType();
+		composedType.setName(Term.createConstant("composedType"));
+		composedType.addToDomain(Term.createConstant("enumType"));
+		composedType.addToDomain(Term.parse("intType"));
+		
+		EnumType fancyType = new EnumType();
+		fancyType.setName(Term.createConstant("fancyType"));
+		fancyType.addToDomain(Term.parse("(vector intType intType)"));
+		fancyType.addToDomain(Term.parse("(f enumType enumType)"));
+		
+		EnumType fancyType2 = new EnumType();
+		fancyType2.setName(Term.createConstant("fancyType2"));
+		fancyType2.addToDomain(Term.parse("(f1 10 fancyType enumType)"));
+		fancyType2.addToDomain(Term.parse("(f2 20 fancyType enumType)"));
+		fancyType2.addToDomain(Term.createConstant("fancyType"));
+		
+		EnumType fancyType3 = new EnumType();
+		fancyType3.setName(Term.createConstant("fancyType3"));
+		fancyType3.addToDomain(Term.parse("(tuple enumType enumType)"));
+		
+		tM.addNewType(enumType);
+		tM.addNewType(fancyType);
+		tM.addNewType(fancyType2);
+		tM.addNewType(fancyType3);
+		tM.addNewType(composedType);
+			
+		Term replacedTerm = tM.replaceTypesNamesWithVariables(Term.parse("(vector (f4 enumType fancyType) intType)"), tM);
+		Collection<Term> variables = new HashSet<Term>();
+		replacedTerm.getAllTerms(variables, false, true, false);
+		
+		assertTrue(variables.size() == 3);
+	}
 	
 	public void testMatchBug() {
 		
-		Atomic a = new Atomic("(movable (ground handRob2))");
-		Atomic b = new Atomic("(movable a)");
+		Term a = Term.parse("(movable (ground handRob2))");
+		Term b = Term.parse("(movable a)");
 		Substitution theta = a.match(b);
 		assertTrue( theta == null );
 		
@@ -312,8 +406,8 @@ public class TestLogic extends TestCase {
 //		Operator: Put(R,Thing,Thing2,L)
 //		Theta: {R/rob1, Thing/d, L/loc3}
 		
-		Atomic a = new Atomic("Put", Term.createConstant("rob1"), Term.createConstant("d"), Term.createComplex("ground", Term.createConstant("loc3")),Term.createConstant("loc3"));
-		Atomic b = new Atomic("Put", Term.createVariable("?R"),Term.createVariable("?Thing"),Term.createVariable("?Thing2"),Term.createVariable("?L"));
+		Term a = Term.createComplex("Put", Term.createConstant("rob1"), Term.createConstant("d"), Term.createComplex("ground", Term.createConstant("loc3")),Term.createConstant("loc3"));
+		Term b = Term.createComplex("Put", Term.createVariable("?R"),Term.createVariable("?Thing"),Term.createVariable("?Thing2"),Term.createVariable("?L"));
 		Substitution theta = a.match(b);
 
 		assertTrue( theta.size() == 4 );
@@ -346,7 +440,7 @@ public class TestLogic extends TestCase {
 		
 		TypeManager tM;
 		
-		Atomic v1 = new Atomic("sv1", Term.parse("?A"), Term.parse("?B"));
+		Term v1 = Term.createComplex("sv1", Term.parse("?A"), Term.parse("?B"));
 	
 		tM = new TypeManager();
 		
@@ -357,23 +451,23 @@ public class TestLogic extends TestCase {
 		
 		tM.attachTypes("(sv1 sv1_t sv2_t)");
 		
-		Collection<Atomic> a = tM.getAllGroundAtomics(v1);
+		Collection<Term> a = tM.getAllGroundAtomics(v1);
 			
 		assertTrue( a.size() == 4 );
 		
-		assertTrue( a.contains(new Atomic("(sv1 a d)")) );
-		assertTrue( a.contains(new Atomic("(sv1 a c)")) );
-		assertTrue( a.contains(new Atomic("(sv1 b c)")) );
-		assertTrue( a.contains(new Atomic("(sv1 b d)")) );
+		assertTrue( a.contains(Term.parse("(sv1 a d)")) );
+		assertTrue( a.contains(Term.parse("(sv1 a c)")) );
+		assertTrue( a.contains(Term.parse("(sv1 b c)")) );
+		assertTrue( a.contains(Term.parse("(sv1 b d)")) );
 		
 		
 	}
 	
 	public void testSetMembership() {
-		Set<Atomic> S = new HashSet<Atomic>();
+		Set<Term> S = new HashSet<Term>();
 		
-		Atomic v1 = new Atomic("(p a b)");
-		Atomic v2 = new Atomic("(p a b)");
+		Term v1 = Term.parse("(p a b)");
+		Term v2 = Term.parse("(p a b)");
 		
 		S.add(v1);
 		

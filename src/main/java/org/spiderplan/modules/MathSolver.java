@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.modules;
 
 import java.util.Collection;
@@ -36,10 +35,9 @@ import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.ExpressionTypes.MathRelation;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.math.MathConstraint;
-import org.spiderplan.representation.logic.Atomic;
+import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.logic.FloatTerm;
 import org.spiderplan.representation.logic.IntegerTerm;
-import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.logging.Logger;
 
 /**
@@ -246,7 +244,7 @@ public class MathSolver extends Module implements SolverInterface {
 		Substitution theta = new Substitution();
 		
 		for ( MathConstraint gC : C ) {
-			Atomic r = gC.getConstraint().substitute(theta);
+			Term r = gC.getConstraint().substitute(theta);
 			if ( verbose ) Logger.msg(getName(),"Evaluating: " + r, 1);
 			
 			if ( gC.getRelation().equals(MathRelation.EvalInt) ) {
@@ -300,9 +298,10 @@ public class MathSolver extends Module implements SolverInterface {
 		
 		if ( verbose ) Logger.msg(getName(), "Checking inequalities... ", 1);
 		for ( MathConstraint  mathCon : core.getContext().get(MathConstraint.class) ) {
-			Atomic relation = mathCon.getConstraint();
+			Term relation = mathCon.getConstraint();
 
-			if ( mathCon.getRelation().equals(MathRelation.LessThan) 
+			if (   mathCon.getRelation().equals(MathRelation.Equals)
+				|| mathCon.getRelation().equals(MathRelation.LessThan) 
 				|| mathCon.getRelation().equals(MathRelation.LessThanOrEquals) 
 				|| mathCon.getRelation().equals(MathRelation.GreaterThan)
 				|| mathCon.getRelation().equals(MathRelation.GreaterThanOrEquals) ) {
@@ -366,10 +365,11 @@ public class MathSolver extends Module implements SolverInterface {
 				}
 			
 				ignored = (xLong == null && xDouble == null) || (yLong == null && yDouble == null);
-				
 				if ( !ignored ) {
 					if ( xLong != null && yLong != null ) {
-						if ( mathCon.getRelation().equals(MathRelation.LessThan) ) { 
+						if ( mathCon.getRelation().equals(MathRelation.Equals) ) {
+							atLeastOneViolation = !(xLong == yLong);
+						} else if ( mathCon.getRelation().equals(MathRelation.LessThan) ) { 
 							atLeastOneViolation = !(xLong < yLong);
 						} else if ( mathCon.getRelation().equals(MathRelation.LessThanOrEquals) ) { 
 							atLeastOneViolation = !(xLong <= yLong);
@@ -379,7 +379,9 @@ public class MathSolver extends Module implements SolverInterface {
 							atLeastOneViolation = !(xLong >= yLong);
 						}
 					} else if ( xLong != null ) {
-						if ( mathCon.getRelation().equals(MathRelation.LessThan) ) { 
+						if ( mathCon.getRelation().equals(MathRelation.Equals) ) {
+							atLeastOneViolation = true; // Cannot be equal
+						} else if ( mathCon.getRelation().equals(MathRelation.LessThan) ) { 
 							atLeastOneViolation = !(xLong < yDouble);
 						} else if ( mathCon.getRelation().equals(MathRelation.LessThanOrEquals) ) { 
 							atLeastOneViolation = !(xLong <= yDouble);
@@ -388,8 +390,10 @@ public class MathSolver extends Module implements SolverInterface {
 						} else if ( mathCon.getRelation().equals(MathRelation.GreaterThanOrEquals) ) { 
 							atLeastOneViolation = !(xLong >= yDouble);
 						}
-					}  else if ( yLong != null ) {	
-						if ( mathCon.getRelation().equals(MathRelation.LessThan) ) { 
+					} else if ( yLong != null ) {
+						if ( mathCon.getRelation().equals(MathRelation.Equals) ) {
+							atLeastOneViolation = false; // Cannot be equal
+						} if ( mathCon.getRelation().equals(MathRelation.LessThan) ) { 
 							atLeastOneViolation = !(xDouble < yLong);
 						} else if ( mathCon.getRelation().equals(MathRelation.LessThanOrEquals) ) { 
 							atLeastOneViolation = !(xDouble <= yLong);
@@ -397,6 +401,18 @@ public class MathSolver extends Module implements SolverInterface {
 							atLeastOneViolation = !(xDouble > yLong);
 						} else if ( mathCon.getRelation().equals(MathRelation.GreaterThanOrEquals) ) { 
 							atLeastOneViolation = !(xDouble >= yLong);
+						}
+					} else {
+						if ( mathCon.getRelation().equals(MathRelation.Equals) ) {
+							atLeastOneViolation = !(xDouble == yDouble); 
+						} if ( mathCon.getRelation().equals(MathRelation.LessThan) ) { 
+							atLeastOneViolation = !(xDouble < yDouble);
+						} else if ( mathCon.getRelation().equals(MathRelation.LessThanOrEquals) ) { 
+							atLeastOneViolation = !(xDouble <= yDouble);
+						} else if ( mathCon.getRelation().equals(MathRelation.GreaterThan) ) { 
+							atLeastOneViolation = !(xDouble > yDouble);
+						} else if ( mathCon.getRelation().equals(MathRelation.GreaterThanOrEquals) ) { 
+							atLeastOneViolation = !(xDouble >= yDouble);
 						}
 					}
 					if ( atLeastOneViolation ) {
@@ -406,6 +422,8 @@ public class MathSolver extends Module implements SolverInterface {
 				}
 			}
 		}
+		
+		isConsistent = !atLeastOneViolation;
 		
 		State state;
 		SingleResolver r = null;	

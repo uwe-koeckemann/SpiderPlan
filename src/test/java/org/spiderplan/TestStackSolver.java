@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan;
 
 import org.spiderplan.modules.FinallySolver;
@@ -35,7 +34,6 @@ import org.spiderplan.representation.expressions.cost.Cost;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
 import org.spiderplan.representation.expressions.misc.Finally;
 import org.spiderplan.representation.expressions.optimization.OptimizationTarget;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.statistics.Statistics;
@@ -81,13 +79,13 @@ public class TestStackSolver extends TestCase {
 		testCore.setContext( new ConstraintDatabase() );
 		testCore.setTypeManager(new TypeManager());
 				
-		testCore.getContext().add(new Cost(new Atomic("less-than",  Term.createConstant("c"), Term.createInteger(15))));
-		testCore.getContext().add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(10))));
+		testCore.getContext().add(new Cost(Term.createComplex("less-than",  Term.createConstant("c"), Term.createInteger(15))));
+		testCore.getContext().add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(10))));
 		
 		testCore = solver.run(testCore);
 		assertTrue(testCore.getResultingState("Solver").equals(State.Consistent));
 		
-		testCore.getContext().add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(10))));
+		testCore.getContext().add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(10))));
 		testCore = solver.run(testCore);
 		assertTrue(testCore.getResultingState("Solver").equals(State.Inconsistent));
 	}
@@ -126,18 +124,18 @@ public class TestStackSolver extends TestCase {
 		
 		testCore.getTypeManager().addSimpleEnumType("t", "a,b,c,d,e,f");
 		
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("ic"));
+		InteractionConstraint ic = new InteractionConstraint(Term.createConstant("ic"));
 		ConstraintDatabase r1 = new ConstraintDatabase();
-		r1.add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(10))));
+		r1.add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(10))));
 		ConstraintDatabase r2 = new ConstraintDatabase();
-		r2.add(new Cost(new Atomic("add", Term.createConstant("d"), Term.createInteger(3))));
+		r2.add(new Cost(Term.createComplex("add", Term.createConstant("d"), Term.createInteger(3))));
 		ic.addResolver(r1);
 		ic.addResolver(r2);
 		testCore.getContext().add(ic);
 				
-		testCore.getContext().add(new Cost(new Atomic("less-than",  Term.createConstant("c"), Term.createInteger(15))));
-		testCore.getContext().add(new Cost(new Atomic("less-than",  Term.createConstant("d"), Term.createInteger(5))));
-		testCore.getContext().add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(10))));
+		testCore.getContext().add(new Cost(Term.createComplex("less-than",  Term.createConstant("c"), Term.createInteger(15))));
+		testCore.getContext().add(new Cost(Term.createComplex("less-than",  Term.createConstant("d"), Term.createInteger(5))));
+		testCore.getContext().add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(10))));
 		
 		testCore = solver.run(testCore);
 		assertTrue(testCore.getResultingState("Solver").equals(State.Consistent));
@@ -175,18 +173,18 @@ public class TestStackSolver extends TestCase {
 		
 		testCore.getTypeManager().addSimpleEnumType("t", "a,b,c,d,e,f");
 		
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("ic"));
+		InteractionConstraint ic = new InteractionConstraint(Term.createConstant("ic"));
 		ConstraintDatabase r1 = new ConstraintDatabase();
-		r1.add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(10))));
+		r1.add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(10))));
 		ConstraintDatabase r2 = new ConstraintDatabase();
-		r2.add(new Cost(new Atomic("add", Term.createConstant("d"), Term.createInteger(3))));
+		r2.add(new Cost(Term.createComplex("add", Term.createConstant("d"), Term.createInteger(3))));
 		ic.addResolver(r1);
 		ic.addResolver(r2);
 		testCore.getContext().add(ic);
 				
-		testCore.getContext().add(new Cost(new Atomic("less-than",  Term.createConstant("c"), Term.createInteger(15))));
-		testCore.getContext().add(new Cost(new Atomic("less-than",  Term.createConstant("d"), Term.createInteger(5))));
-		testCore.getContext().add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(10))));
+		testCore.getContext().add(new Cost(Term.createComplex("less-than",  Term.createConstant("c"), Term.createInteger(15))));
+		testCore.getContext().add(new Cost(Term.createComplex("less-than",  Term.createConstant("d"), Term.createInteger(5))));
+		testCore.getContext().add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(10))));
 		
 		testCore = solver.run(testCore);
 		assertTrue(testCore.getResultingState("Solver").equals(State.Consistent));
@@ -227,15 +225,15 @@ public class TestStackSolver extends TestCase {
 		
 		testCore.getTypeManager().addSimpleEnumType("t", "a,b,c,d,e,f");
 		testCore.getTypeManager().addSimpleEnumType("boolean", "true,false");
-		testCore.getTypeManager().attachTypes(new Atomic("(p t)"), Term.createConstant("boolean"));
+		testCore.getTypeManager().attachTypes(Term.parse("(p t)"), Term.createConstant("boolean"));
 		
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?K ?X)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?K ?X)"));
 		ic.getCondition().add(new Statement("(?K (p ?X) true)"));
 		
 		ConstraintDatabase r1 = new ConstraintDatabase();
-		r1.add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(10))));
+		r1.add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(10))));
 		ConstraintDatabase r2 = new ConstraintDatabase();
-		r2.add(new Cost(new Atomic("add", Term.createConstant("d"), Term.createInteger(3))));
+		r2.add(new Cost(Term.createComplex("add", Term.createConstant("d"), Term.createInteger(3))));
 		ic.addResolver(r1);
 		ic.addResolver(r2);
 		testCore.getContext().add(ic);
@@ -243,9 +241,9 @@ public class TestStackSolver extends TestCase {
 		testCore.getContext().add(new Statement("(i1 (p a) true)"));
 		testCore.getContext().add(new Statement("(i2 (p b) true)"));
 		testCore.getContext().add(new Statement("(i3 (p c) true)"));
-		testCore.getContext().add(new Cost(new Atomic("less-than",  Term.createConstant("c"), Term.createInteger(15))));
-		testCore.getContext().add(new Cost(new Atomic("less-than",  Term.createConstant("d"), Term.createInteger(10))));
-		testCore.getContext().add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(10))));
+		testCore.getContext().add(new Cost(Term.createComplex("less-than",  Term.createConstant("c"), Term.createInteger(15))));
+		testCore.getContext().add(new Cost(Term.createComplex("less-than",  Term.createConstant("d"), Term.createInteger(10))));
+		testCore.getContext().add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(10))));
 		
 		
 		testCore = solver.run(testCore);
@@ -304,15 +302,15 @@ public class TestStackSolver extends TestCase {
 		
 		testCore.getTypeManager().addSimpleEnumType("t", "a,b,c,d,e,f");
 		testCore.getTypeManager().addSimpleEnumType("boolean", "true,false");
-		testCore.getTypeManager().attachTypes(new Atomic("(p t)"), Term.createConstant("boolean"));
+		testCore.getTypeManager().attachTypes(Term.parse("(p t)"), Term.createConstant("boolean"));
 		
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?K ?X)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?K ?X)"));
 		ic.getCondition().add(new Statement("(?K (p ?X) true)"));
 		
 		ConstraintDatabase r1 = new ConstraintDatabase();
-		r1.add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(10))));
+		r1.add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(10))));
 		ConstraintDatabase r2 = new ConstraintDatabase();
-		r2.add(new Cost(new Atomic("add", Term.createConstant("d"), Term.createInteger(3))));
+		r2.add(new Cost(Term.createComplex("add", Term.createConstant("d"), Term.createInteger(3))));
 		ic.addResolver(r1);
 		ic.addResolver(r2);
 		testCore.getContext().add(ic);
@@ -320,9 +318,9 @@ public class TestStackSolver extends TestCase {
 		testCore.getContext().add(new Statement("(i1 (p a) true)"));
 		testCore.getContext().add(new Statement("(i2 (p b) true)"));
 		testCore.getContext().add(new Statement("(i3 (p c) true)"));
-		testCore.getContext().add(new Cost(new Atomic("less-than",  Term.createConstant("c"), Term.createInteger(15))));
-		testCore.getContext().add(new Cost(new Atomic("less-than",  Term.createConstant("d"), Term.createInteger(10))));
-		testCore.getContext().add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(10))));
+		testCore.getContext().add(new Cost(Term.createComplex("less-than",  Term.createConstant("c"), Term.createInteger(15))));
+		testCore.getContext().add(new Cost(Term.createComplex("less-than",  Term.createConstant("d"), Term.createInteger(10))));
+		testCore.getContext().add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(10))));
 		
 		testCore = solver.run(testCore);
 		assertTrue(testCore.getResultingState("Solver").equals(State.Consistent));
@@ -371,15 +369,15 @@ public class TestStackSolver extends TestCase {
 		
 		testCore.getTypeManager().addSimpleEnumType("t", "a,b,c,d,e,f");
 		testCore.getTypeManager().addSimpleEnumType("boolean", "true,false");
-		testCore.getTypeManager().attachTypes(new Atomic("(p t)"), Term.createConstant("boolean"));
+		testCore.getTypeManager().attachTypes(Term.parse("(p t)"), Term.createConstant("boolean"));
 		
 					
-		testCore.getContext().add(new Cost(new Atomic("less-than",  Term.createConstant("c"), Term.createInteger(15))));
-		testCore.getContext().add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(10))));
+		testCore.getContext().add(new Cost(Term.createComplex("less-than",  Term.createConstant("c"), Term.createInteger(15))));
+		testCore.getContext().add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(10))));
 		
 		ConstraintDatabase finallyDB = new ConstraintDatabase();
-		finallyDB.add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(1))));
-		testCore.getContext().add(new Finally(finallyDB));
+		finallyDB.add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(1))));
+		testCore.getContext().add(new Finally(Term.createConstant("finally-1"), finallyDB));
 		
 		
 		testCore = solver.run(testCore);
@@ -401,15 +399,15 @@ public class TestStackSolver extends TestCase {
 		
 		testCore.getTypeManager().addSimpleEnumType("t", "a,b,c,d,e,f");
 		testCore.getTypeManager().addSimpleEnumType("boolean", "true,false");
-		testCore.getTypeManager().attachTypes(new Atomic("(p t)"), Term.createConstant("boolean"));
+		testCore.getTypeManager().attachTypes(Term.parse("(p t)"), Term.createConstant("boolean"));
 		
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(ic ?K ?X)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(ic ?K ?X)"));
 		ic.getCondition().add(new Statement("(?K (p ?X) true)"));
 		
 		ConstraintDatabase r1 = new ConstraintDatabase();
-		r1.add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(10))));
+		r1.add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(10))));
 		ConstraintDatabase r2 = new ConstraintDatabase();
-		r2.add(new Cost(new Atomic("add", Term.createConstant("d"), Term.createInteger(3))));
+		r2.add(new Cost(Term.createComplex("add", Term.createConstant("d"), Term.createInteger(3))));
 		ic.addResolver(r1);
 		ic.addResolver(r2);
 		testCore.getContext().add(ic);
@@ -417,13 +415,13 @@ public class TestStackSolver extends TestCase {
 		testCore.getContext().add(new Statement("(i1 (p a) true)"));
 		testCore.getContext().add(new Statement("(i2 (p b) true)"));
 		testCore.getContext().add(new Statement("(i3 (p c) true)"));
-		testCore.getContext().add(new Cost(new Atomic("less-than",  Term.createConstant("c"), Term.createInteger(15))));
-		testCore.getContext().add(new Cost(new Atomic("less-than-or-equals", Term.createConstant("d"), Term.createInteger(10))));
-		testCore.getContext().add(new Cost(new Atomic("add", Term.createConstant("c"), Term.createInteger(10))));
+		testCore.getContext().add(new Cost(Term.createComplex("less-than",  Term.createConstant("c"), Term.createInteger(15))));
+		testCore.getContext().add(new Cost(Term.createComplex("less-than-or-equals", Term.createConstant("d"), Term.createInteger(10))));
+		testCore.getContext().add(new Cost(Term.createComplex("add", Term.createConstant("c"), Term.createInteger(10))));
 		
 		ConstraintDatabase finallyDB = new ConstraintDatabase();
-		finallyDB.add(new Cost(new Atomic("add", Term.createConstant("d"), Term.createInteger(1))));
-		testCore.getContext().add(new Finally(finallyDB));
+		finallyDB.add(new Cost(Term.createComplex("add", Term.createConstant("d"), Term.createInteger(1))));
+		testCore.getContext().add(new Finally(Term.createConstant("finally-1"), finallyDB));
 		
 //		System.out.println(testCore.getContext());
 		
@@ -510,24 +508,24 @@ public class TestStackSolver extends TestCase {
 
 		SolverStack solver = new SolverStack("Solver", cM);
 
-		InteractionConstraint ic = new InteractionConstraint(new Atomic("(simple-ic)"));
+		InteractionConstraint ic = new InteractionConstraint(Term.parse("(simple-ic)"));
 		ConstraintDatabase r1 = new ConstraintDatabase();
-		r1.add(new Cost(new Atomic("(add x 10)")));
+		r1.add(new Cost(Term.parse("(add x 10)")));
 		ic.addResolver(r1);
 		
 		ConstraintDatabase r2 = new ConstraintDatabase();
-		r2.add(new Cost(new Atomic("(add x 8)")));
+		r2.add(new Cost(Term.parse("(add x 8)")));
 		ic.addResolver(r2);
 		
 		ConstraintDatabase r3 = new ConstraintDatabase();
-		r3.add(new Cost(new Atomic("(add x 6)")));
+		r3.add(new Cost(Term.parse("(add x 6)")));
 		ic.addResolver(r3);
 		
 		/**
 		 * Setup Core
 		 */
 		ConstraintDatabase init = new ConstraintDatabase();
-		init.add(new OptimizationTarget(new Atomic("(min x)")));
+		init.add(new OptimizationTarget(Term.parse("(min x)")));
 		init.add(ic);
 		Core testCore = new Core();
 		testCore.setContext( init );

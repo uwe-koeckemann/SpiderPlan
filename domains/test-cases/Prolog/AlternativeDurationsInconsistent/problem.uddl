@@ -1,0 +1,22 @@
+(:initial-context
+	(:include 
+		(kb "./kb.prolog")
+	)
+	(:domain 
+		(enum t {v})
+		(int t_dur [0 100])
+		(sig x t)
+		(sig (possibleDuration t_dur))
+	)
+	(:statement
+		(?I x v)
+	)
+	(:prolog kb
+		(possibleDuration ?D)
+	)
+	(:temporal
+		(duration ?I [?D ?D])
+		(release ?I [0 0])
+		(deadline ?I [10 20])
+	)
+)

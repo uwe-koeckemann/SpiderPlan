@@ -1,0 +1,14 @@
+ConstraintDatabase resultCDB = resultCore.getContext();
+ValueLookup valueLookup = resultCDB.getUnique(ValueLookup.class);
+assertTrue(valueLookup.getEST(Term.createConstant("I1")) == 0);
+assertTrue(valueLookup.getLST(Term.createConstant("I1")) == 68);
+assertTrue(valueLookup.getEET(Term.createConstant("I1")) == 10);
+assertTrue(valueLookup.getLET(Term.createConstant("I1")) == 78);
+assertTrue(valueLookup.getEST(Term.createConstant("I2")) == 11);
+assertTrue(valueLookup.getLST(Term.createConstant("I2")) == 79);
+assertTrue(valueLookup.getEET(Term.createConstant("I2")) == 21);
+assertTrue(valueLookup.getLET(Term.createConstant("I2")) == 89);
+assertTrue(valueLookup.getEST(Term.createConstant("I3")) == 22);
+assertTrue(valueLookup.getLST(Term.createConstant("I3")) == 90);
+assertTrue(valueLookup.getEET(Term.createConstant("I3")) == 32);
+assertTrue(valueLookup.getLET(Term.createConstant("I3")) == 100);

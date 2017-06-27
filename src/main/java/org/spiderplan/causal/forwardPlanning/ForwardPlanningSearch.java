@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.causal.forwardPlanning;
 
 import java.util.ArrayList;
@@ -40,7 +39,6 @@ import org.spiderplan.causal.forwardPlanning.goals.DisjunctiveGoal;
 import org.spiderplan.causal.forwardPlanning.goals.Goal;
 import org.spiderplan.causal.forwardPlanning.goals.SingleGoal;
 import org.spiderplan.representation.expressions.Expression;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.search.MultiHeuristicNodeComparatorIndex;
@@ -60,7 +58,7 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 	
 	private boolean yahspLookahead = false;
 
-	Map<Atomic,List<Term>> s0;
+	Map<Term,List<Term>> s0;
 	Collection<Goal> g;
 	
 	List<StateVariableOperatorMultiState> A;
@@ -97,16 +95,16 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 	 * Goals are part of the search nodes since some {@link Expression}s can add
 	 * new ones that are need to be achieved in addition to make the node consistent.
 	 * 
-	 * @param s0 A map from {@link Atomic} variables to {@link List}s of value {@link Term}s.
+	 * @param s0 A map from {@link Term} variables to {@link List}s of value {@link Term}s.
 	 * @param g A {@link Collection} of {@link Goal}s.
 	 */
-	private void init( Map<Atomic,List<Term>> s0, Collection<Goal> g ) {
+	private void init( Map<Term,List<Term>> s0, Collection<Goal> g ) {
 		dStructs.setOperators(reducedOperators);
 		
-		ArrayList<Atomic> variables = new ArrayList<Atomic>();
-		ArrayList<ArrayList<Term>> values = new ArrayList<ArrayList<Term>>();
+		ArrayList<Term> variables = new ArrayList<Term>();
+		List<List<Term>> values = new ArrayList<List<Term>>();
 		
-		for ( Atomic k : s0.keySet() ) {	
+		for ( Term k : s0.keySet() ) {	
 			variables.add(k);
 			ArrayList<Term> vals = new ArrayList<Term>();
 			for ( Term t : s0.get(k) ) {
@@ -123,20 +121,20 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 		
 		if ( verbose ) Logger.msg(getName(), "Values to combo: " + values, 2);
 		
-		ArrayList<ArrayList<Term>> s0Combos = cB.getCombos(values);
+		List<List<Term>> s0Combos = cB.getCombos(values);
 		
 		if ( verbose ) Logger.msg(getName(), "Found " + s0Combos.size() + " combos for initial state...", 2);
 		
 		for ( int k = s0Combos.size()-1 ; k >= 0 ; k-- ) {
 			if ( verbose ) Logger.msg(getName(), "Getting initial heuristics for combo #" + k, 2);
 			
-			ArrayList<Term> s0Combo = s0Combos.get(k);
+			List<Term> s0Combo = s0Combos.get(k);
 			
 			ForwardPlanningNode initNode = new ForwardPlanningNode(this.heuristics.size());
 			
 			initNode.prev = null;
 			initNode.a = null;
-			initNode.s = new HashMap<Atomic, List<Term>>();
+			initNode.s = new HashMap<Term, List<Term>>();
 			
 			if ( verbose ) Logger.msg(getName(), "State combo #" + k, 4);
 			Logger.depth++;
@@ -199,7 +197,7 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 	 * @param heuristicNames names of heuristics
 	 * @param useHelpfulActions boolean array that determines which heuristics will also be asked to supply helpful actions
 	 */
-	public void initSingleHeuristicPerQueue( Map<Atomic,List<Term>> s0, Collection<Goal> g, List<StateVariableOperatorMultiState> A, 
+	public void initSingleHeuristicPerQueue( Map<Term,List<Term>> s0, Collection<Goal> g, List<StateVariableOperatorMultiState> A, 
 									TypeManager tM, List<String> heuristicNames, boolean[] useHelpfulActions ) {
 		Logger.registerSource(super.name, super.verbosity);
 		
@@ -252,7 +250,7 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 	 * @param heuristicNames names of heuristics
 	 * @param useHelpfulActions boolean array that determines which heuristics will also be asked to supply helpful actions
 	 */
-	public void initLexicographicHeuristicOrder( Map<Atomic,List<Term>> s0, Collection<Goal> g, List<StateVariableOperatorMultiState> A, 
+	public void initLexicographicHeuristicOrder( Map<Term,List<Term>> s0, Collection<Goal> g, List<StateVariableOperatorMultiState> A, 
 									TypeManager tM, List<String> heuristicNames, boolean useHelpfulActions ) {
 		Logger.registerSource(super.name, super.verbosity);
 		
@@ -305,7 +303,7 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 				
 		if ( verbose ) Logger.msg(getName(),"Expanding state:", 4);
 		if ( verbose ) {
-			for ( Atomic key : fpn.s.keySet() ) {
+			for ( Term key : fpn.s.keySet() ) {
 				if ( verbose ) Logger.msg(getName(), "    " + key + " -> " + fpn.s.get(key), 4);
 			}
 		}
@@ -378,7 +376,7 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 					Map<Object,Long> cost = dStructs.getActionCostsOfSequentialState(nNew.s);
 					if ( keepTimes ) StopWatch.stop("[ForwardPlanner] YAHSP getActionCostsOfSequentialState");
 					
-					ArrayList<Entry<Atomic,Term>> activeGoals = new ArrayList<Map.Entry<Atomic,Term>>();
+					ArrayList<Entry<Term,Term>> activeGoals = new ArrayList<Map.Entry<Term,Term>>();
 					for ( Goal g : nNew.g ) {
 						if ( !g.wasReached() && g.requirementsSatisfied() ) {
 							if ( g instanceof SingleGoal ) {
@@ -465,9 +463,9 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 	 * Prunes all nodes that use actions with matching names. Also removes them from the
 	 * set of ground actions and re-initializes all heuristics without the given actions 
 	 * and updates the heuristic value of all nodes in the search space.
-	 * @param prunedActionNames List of {@link Atomic} action names that are to be pruned.
+	 * @param prunedActionNames List of {@link Term} action names that are to be pruned.
 	 */
-	public void pruneMatchingActions( Collection<Atomic> prunedActionNames ) {
+	public void pruneMatchingActions( Collection<Term> prunedActionNames ) {
 		this.pruneMatchingActionsAndReinitHeuristics(prunedActionNames);
 	}
 	
@@ -477,9 +475,9 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 	 * Instead of updating all heuristic values this method just restarts search, which
 	 * may be reasonable since many nodes in the old search space may never be visited
 	 * now.
-	 * @param prunedActionNames List of {@link Atomic} action names that are to be pruned.
+	 * @param prunedActionNames List of {@link Term} action names that are to be pruned.
 	 */
-	public void pruneMatchingActionsAndRestartSearch( Collection<Atomic> prunedActionNames ) {
+	public void pruneMatchingActionsAndRestartSearch( Collection<Term> prunedActionNames ) {
 		this.pruneMatchingActionsAndReinitHeuristics(prunedActionNames);
 		this.reset();
 		this.init(s0, g);
@@ -489,14 +487,14 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 	 * Prunes all nodes that use actions with matching names. Also removes them from the
 	 * set of ground actions and re-initializes all heuristics without the given actions 
 	 * and updates the heuristic value of all nodes in the search space.
-	 * @param prunedActionNames List of {@link Atomic} action names that are to be pruned.
+	 * @param prunedActionNames List of {@link Term} action names that are to be pruned.
 	 */
-	private void pruneMatchingActionsAndReinitHeuristics( Collection<Atomic> prunedActionNames ) {
+	private void pruneMatchingActionsAndReinitHeuristics( Collection<Term> prunedActionNames ) {
 		/**
 		 * Remove operators
 		 */
 		ArrayList<StateVariableOperatorMultiState> remList = new ArrayList<StateVariableOperatorMultiState>();
-		for ( Atomic prunedActionName : prunedActionNames ) {
+		for ( Term prunedActionName : prunedActionNames ) {
 			for ( StateVariableOperatorMultiState svo : this.A ) {
 				if ( svo.getName().match(prunedActionName) != null ) {
 					remList.add(svo);
@@ -560,11 +558,11 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 	
 	private Collection<StateVariableOperator> getAllStateVariableOperatorCombos( StateVariableOperatorMultiState svo ) {
 		StateVariableOperatorMultiState svCopy = svo.copy();
-		List<Map<Atomic,Term>> allEffCombos = SequentialStateFunctions.getAllStateCombos(svCopy.getEffects());
+		List<Map<Term,Term>> allEffCombos = SequentialStateFunctions.getAllStateCombos(svCopy.getEffects());
 		
 		Collection<StateVariableOperator> r = new ArrayList<StateVariableOperator>();
 		
-		for ( Map<Atomic,Term> effCombo : allEffCombos ) {
+		for ( Map<Term,Term> effCombo : allEffCombos ) {
 			StateVariableOperator svoNew = new StateVariableOperator();
 			svoNew.setName(svCopy.getName());
 			
@@ -590,7 +588,7 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 	 * @param lookahead Lookahead value
 	 * @return
 	 */
-	private long getHeuristicValueFromMultiStateLookahead( Heuristic h, Map<Atomic,List<Term>> state, Collection<Goal> goal, int lookahead ) {
+	private long getHeuristicValueFromMultiStateLookahead( Heuristic h, Map<Term,List<Term>> state, Collection<Goal> goal, int lookahead ) {
 		long minCost = Long.MAX_VALUE;
 //		int hashValue = state.hashCode()+17*lookahead+31*h.hashCode();
 		
@@ -600,8 +598,8 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 //		}
 		
 		if ( lookahead == 0 ) {	
-			List<Map<Atomic,Term>> allStates = SequentialStateFunctions.getAllStateCombos(state);
-			for ( Map<Atomic,Term> s : allStates ) {
+			List<Map<Term,Term>> allStates = SequentialStateFunctions.getAllStateCombos(state);
+			for ( Map<Term,Term> s : allStates ) {
 			
 				long hVal = h.calculateHeuristicValue(s, goal, dStructs);
 				
@@ -613,7 +611,7 @@ public class ForwardPlanningSearch extends MultiHeuristicSearch<ForwardPlanningN
 			Set<StateVariableOperatorMultiState> app = SequentialStateFunctions.getApplicable(state, this.A);
 			
 			for ( StateVariableOperatorMultiState a : app ) {
-				 Map<Atomic,List<Term>> s_prime = SequentialStateFunctions.apply(state, a);
+				 Map<Term,List<Term>> s_prime = SequentialStateFunctions.apply(state, a);
 				 long hVal = getHeuristicValueFromMultiStateLookahead(h, s_prime, goal, lookahead-1);
 				 if ( hVal < minCost ) {
 					 minCost = hVal; 

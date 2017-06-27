@@ -1,25 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2015 Uwe Köckemann <uwe.kockemann@oru.se>
- *  
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
 package org.spiderplan.executor;
 
 import java.util.ArrayList;
@@ -33,7 +32,6 @@ import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
-import org.spiderplan.representation.logic.Atomic;
 import org.spiderplan.representation.logic.Term;
 
 /**
@@ -81,7 +79,11 @@ public abstract class Reactor {
 	Finished, /**
 	 * 
 	 */
-	Done };
+	Done, /**
+	 * 
+	 */
+	Error
+	};
 	
 	private long EST,LST,EET,LET;
 	
@@ -139,13 +141,13 @@ public abstract class Reactor {
 			change = false;
 		
 			if ( s == State.WaitingForStart ) {
-				if ( hasStarted(EST,LST) ) {
+				if ( hasStarted(EST,LST, execDB) ) {
 					print("Started at " + t, 2);
 					s = State.Started;
 					change = true;
 				}
 			} else if ( s == State.WaitingForFinished ) {
-				if ( hasEnded(EET,LET) ) {
+				if ( hasEnded(EET,LET, execDB) ) {
 					print("Finished at " + t, 2);
 					s = State.Finished;
 					change = true;
@@ -171,7 +173,7 @@ public abstract class Reactor {
 				execDB.remove(afterPast);
 				activeConstraints.remove(afterPast);
 	//			overlapsFuture = new AllenConstraint(new Term("future",false),target.getKey(), TemporalRelation.ContainsOrStartedByOrOverlappedByOrMetBy, new Interval(new Term(0), new Term("inf",false)));
-				overlapsFuture = new AllenConstraint(new Atomic("(met-by-or-overlapped-by future "+ target.getKey().toString() +" (interval 0 inf))"));
+				overlapsFuture = new AllenConstraint(Term.parse("(met-by-or-overlapped-by future "+ target.getKey().toString() +" (interval 0 inf))"));
 				execDB.add(overlapsFuture);
 				activeConstraints.add(overlapsFuture);
 				s = State.WaitingForFinished;
@@ -179,7 +181,7 @@ public abstract class Reactor {
 				change = true;
 			} else if ( s == State.Finished ) {
 				print("Finished at " + t, 2);
-				AllenConstraint r = new AllenConstraint(new Atomic("(deadline " + target.getKey().toString() + " (interval "+t+" "+t+"))"));
+				AllenConstraint r = new AllenConstraint(Term.parse("(deadline " + target.getKey().toString() + " (interval "+t+" "+t+"))"));
 				execDB.remove(overlapsFuture);
 				activeConstraints.remove(overlapsFuture);
 				execDB.add(r);		
@@ -200,9 +202,9 @@ public abstract class Reactor {
 	protected void initStart() {  
 	}
 
-	protected abstract boolean hasStarted( long EST, long LST );
+	protected abstract boolean hasStarted( long EST, long LST, ConstraintDatabase execDB );
 	
-	protected abstract boolean hasEnded( long EET, long LET );
+	protected abstract boolean hasEnded( long EET, long LET, ConstraintDatabase execDB );
 	
 	/**
 	 * Setup for the print method
