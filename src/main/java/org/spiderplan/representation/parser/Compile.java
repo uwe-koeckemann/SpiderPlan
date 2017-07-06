@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.tools.ModuleFactory;
+import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.misc.Assertion;
@@ -209,9 +210,9 @@ public class Compile {
 			
 //			System.out.println(c.getTypeManager());
 //			
-//			for ( Operator o : c.getOperators() ) {
-//				System.out.println(o);
-//			}
+			for ( Operator o : c.getOperators() ) {
+				System.out.println(o);
+			}
 //			
 //			System.out.println(c .getContext());
 			

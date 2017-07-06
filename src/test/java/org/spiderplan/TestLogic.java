@@ -28,6 +28,7 @@ import java.util.Set;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.EnumType;
+import org.spiderplan.representation.types.FloatType;
 import org.spiderplan.representation.types.IntegerType;
 import org.spiderplan.representation.types.TypeManager;
 
@@ -220,6 +221,31 @@ public class TestLogic extends TestCase {
 		assertTrue(composedType.contains(Term.createConstant("d"), tM));
 		assertTrue(composedType.contains(Term.createConstant("50"), tM));
 		assertTrue(composedType.contains(Term.createConstant("-10"), tM));
+	}
+	
+	public void testSameName() {
+		TypeManager tM = new TypeManager();
+		tM.addIntegerType("intType", -100, 100);
+		
+		FloatType fType = new FloatType();
+		fType.setName(Term.parse("floatType"));
+		fType.min = -100.0;
+		fType.max = 100.0;
+		tM.addNewType(fType);
+		
+		tM.addSimpleEnumType("enumType", "a,b,c,d");
+	
+		EnumType type = new EnumType();
+		type.setName(Term.createConstant("t"));
+		type.addToDomain(Term.parse("(tuple enumType enumType enumType enumType)"));
+		type.addToDomain(Term.parse("(tuple intType intType intType)"));
+		type.addToDomain(Term.parse("(tuple floatType)"));
+		type.addToDomain(Term.parse("(tuple floatType floatType floatType)"));
+		tM.addNewType(type);
+		
+		assertTrue(type.contains(Term.parse("(tuple 10.0)"), tM));
+		assertTrue(type.contains(Term.parse("(tuple 10.0 10.0 10.0)"), tM));
+		assertTrue(type.contains(Term.parse("(tuple 100 100 100)"), tM));
 	}
 	
 	

@@ -105,7 +105,7 @@ public class ExecutionModuleMK2  extends Module {
 //	private ConstraintDatabase addedOnReleaseDB = new ConstraintDatabase();
 //	private ConstraintDatabase addedByROS = new ConstraintDatabase();
 	
-	boolean drawTimeLines = true;
+	boolean drawTimeLines = false;
 	TimeLineViewer timeLineViewer = null;
 		
 	private String repairSolverName;

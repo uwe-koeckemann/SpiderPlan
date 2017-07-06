@@ -190,11 +190,11 @@ public class DomainSolver extends Module implements SolverInterface {
 						core.getContext().getAllTerms(atomics, false, false, true);
 //						Collection<Term> atomics = core.getContext().getAllTerms(collectedTerms, false, false, true);
 						Set<Term> objects = new HashSet<Term>();
-						for ( Term a : atomics ) {
-							if ( a.isComplex() ) {
-								objects.addAll(tM.getAllObjectsFromDomains(typeName, a));
-							}
-						}
+//						for ( Term a : atomics ) {
+//							if ( a.isComplex() ) {
+//								objects.addAll(tM.getAllObjectsFromDomains(typeName, a));
+//							}
+//						}
 						if ( verbose ) Logger.msg(getName() ,"Used objects: " + objects, 2);
 						usedObjects.put(typeName, objects);
 					}
