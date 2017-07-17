@@ -25,7 +25,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.spiderplan.executor.ExecutionManager;
 import org.spiderplan.executor.Reactor;
 import org.spiderplan.executor.ROS.ROSExecutionManager;
@@ -42,6 +47,8 @@ import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ValueLookup;
+import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
+import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.execution.Observation;
 import org.spiderplan.representation.expressions.execution.Simulation;
 import org.spiderplan.representation.expressions.execution.caresses.CaressesExpression;
@@ -49,11 +56,15 @@ import org.spiderplan.representation.expressions.execution.ros.ROSConstraint;
 import org.spiderplan.representation.expressions.execution.ros.ROSGoal;
 import org.spiderplan.representation.expressions.execution.ros.ROSRegisterAction;
 import org.spiderplan.representation.expressions.execution.sockets.SocketExpression;
+import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
+import org.spiderplan.representation.expressions.misc.Assertion;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
+import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.visulization.timeLineViewer.TimeLineViewer;
@@ -82,9 +93,6 @@ public class ExecutionModuleMK2  extends Module {
 
 	ArrayList<Reactor> reactors = new ArrayList<Reactor>();
 
-	ArrayList<Operator> executedActions = new ArrayList<Operator>();
-	ArrayList<Expression> executedLinks = new ArrayList<Expression>();
-	ArrayList<Expression> reachedGoals = new ArrayList<Expression>();
 	ArrayList<Statement> removedStatements = new ArrayList<Statement>();
 	
 	TypeManager tM;
@@ -105,7 +113,7 @@ public class ExecutionModuleMK2  extends Module {
 //	private ConstraintDatabase addedOnReleaseDB = new ConstraintDatabase();
 //	private ConstraintDatabase addedByROS = new ConstraintDatabase();
 	
-	boolean drawTimeLines = false;
+	boolean drawTimeLines = true;
 	TimeLineViewer timeLineViewer = null;
 		
 	private String repairSolverName;
@@ -343,7 +351,12 @@ public class ExecutionModuleMK2  extends Module {
 		 ************************************************************************************************/
 		if ( !firstUpdate ) { 
 			for ( ExecutionManager em : managerList ) {
-				em.update(t, execDB);	
+				if ( verbose ) {
+					Logger.msg(this.getName(), "Updating: " + em.getName(), 0);
+					Logger.depth++;
+				}
+				em.update(t, execDB);
+				if ( verbose ) Logger.depth--;
 				//TODO: Statements can be added that are used later but without having been propagated...
 				// Might be best to only consider current information for all exec. managers?
 				// + The order is arbitrary... so they should ignore each others additions... but how to make sure?
@@ -360,7 +373,8 @@ public class ExecutionModuleMK2  extends Module {
 
 		/************************************************************************************************
 		 * Update visualization
-		 ************************************************************************************************/	
+		 ************************************************************************************************/
+
 		if ( firstUpdate && drawTimeLines ) {
 //			execCSP.isConsistent(execDB, tM);
 			firstUpdate = false;
@@ -429,5 +443,519 @@ public class ExecutionModuleMK2  extends Module {
 		timeLineViewer.update();
 		timeLineViewer.snapshot();
 	}
+	
+	/**
+	 * Only used to create from scratch databases.
+	 */
+	boolean useForgetting = true;
+	int fromScratchDBsCreated = 0;
+	Set<Expression> remList = new HashSet<Expression>();
+	Set<Statement> writtenInStoneStatements = new HashSet<Statement>();	
+	Set<Term> writtenInStone = new HashSet<Term>();
+	
+//	private Map<Statement,Collection<Expression>> addedConstraints = new HashMap<Statement, Collection<Expression>>();
+	ArrayList<Expression> executedLinks = new ArrayList<Expression>();
+	
+	private ConstraintDatabase getFromScrathDB( ) {
+		
+		ArrayList<Expression> reachedGoals = new ArrayList<Expression>();
+
+		fromScratchDBsCreated++;
+		
+		/**********************************************************************************************
+		 * Get current value lookup to have propagated bounds for temporal intervals
+		 **********************************************************************************************/
+		for ( OpenGoal og : execDB.get(OpenGoal.class) ) {
+			execDB.add(og.getStatement());
+		}
+		
+		IncrementalSTPSolver execCSP = new IncrementalSTPSolver(0, this.tMax);
+		if ( !execCSP.isConsistent(execDB) ) {
+			IncrementalSTPSolver csp = new IncrementalSTPSolver(0, this.tMax);
+			csp.debug = true;
+			csp.isConsistent(execDB);
+			
+			for ( Statement s : execDB.get(Statement.class) ) {
+				System.out.println("[S] " + s);
+			}
+			for ( AllenConstraint tc : execDB.get(AllenConstraint.class) ) {
+				System.out.println("[T] " + tc);
+			}	
+			
+			throw new IllegalStateException("This should not happen!");
+		}
+		ValueLookup propagatedTimes = new ValueLookup();
+		execCSP.getPropagatedTemporalIntervals(propagatedTimes); 
+		
+		if ( verbose ) { 
+			Logger.msg(getName(), "Building from scratch CDB:", 0);
+			Logger.depth++;
+			Logger.msg(getName(), "Checking which operators to keep...", 2);
+			Logger.depth++;
+		}
+		/**********************************************************************************************
+		 * Find actions that are or have been executed
+		 **********************************************************************************************/
+		Set<Term> actionIntervals = new HashSet<Term>();
+		ArrayList<Operator> executedActions = new ArrayList<Operator>();
+		Set<Term> nonExecutedActionIntervals = new HashSet<Term>();
+		for ( Operator a : this.plan.getActions() ) {
+			if ( !executedActions.contains(a) && (this.isCommittedStatement(a.getNameStateVariable())) ) {
+				if ( verbose ) Logger.msg(getName(), a.getNameStateVariable().toString(), 2);
+				executedActions.add(a.copy());
+				
+				actionIntervals.add(a.getNameStateVariable().getKey());
+				for ( Statement p : a.getPreconditions() ) {
+					actionIntervals.add(p.getKey());
+				}
+				for ( Statement e : a.getEffects() ) {
+					actionIntervals.add(e.getKey());
+				}
+			} else if ( !executedActions.contains(a) ) {
+				if ( verbose ) Logger.msg(getName(), "Won't keep: " + a.getNameStateVariable().toString(), 2);
+				nonExecutedActionIntervals.add(a.getNameStateVariable().getKey());
+				for ( Statement p : a.getPreconditions() ) {
+					nonExecutedActionIntervals.add(p.getKey());
+				}
+				for ( Statement e : a.getEffects() ) {
+					nonExecutedActionIntervals.add(e.getKey());
+				}
+			}
+		}
+				
+		ConstraintDatabase fromScratchDB = initialContext.copy();
+		
+		if ( verbose ) { 
+			Logger.depth--;
+			if ( verbose ) Logger.msg(getName(), "nonExecutedActionIntervals = " + nonExecutedActionIntervals.toString(), 2);
+			Logger.msg(getName(), "Checking which statements to keep...", 2);
+			Logger.depth++;
+		}
+		/**********************************************************************************************
+		 * Find statements with intervals that have started or ended already
+		 **********************************************************************************************/
+		for ( Statement s : execDB.get(Statement.class) ) { 
+
+			if ( !nonExecutedActionIntervals.contains(s.getKey()) &&  ((propagatedTimes.getLST(s.getKey()) < t || propagatedTimes.getLET(s.getKey()) < t)) ) {
+				long EST = propagatedTimes.getEST(s.getKey());
+				long LST = propagatedTimes.getLST(s.getKey());
+				long EET = propagatedTimes.getEET(s.getKey());
+				long LET = propagatedTimes.getLET(s.getKey());
+				if ( LET < t || t > LST ) {
+					if ( !s.getKey().toString().equals("past") )  {
+						if ( verbose ) Logger.msg(getName(), s.toString() + " " + Interval2String(EST, LST, EET, LET) , 2);		
+						Interval b1 = new Interval(EST,LST);
+						Interval b2 = new Interval(EET,LET);
+						AllenConstraint atCon = new AllenConstraint(s.getKey(), TemporalRelation.At, b1, b2);
+						
+						fromScratchDB.add(s);
+						fromScratchDB.add(atCon);
+					}
+				} else {
+					if ( verbose ) Logger.msg(getName(), "...not keeping it.", 2);
+				}
+			}
+		}
+		
+		/**********************************************************************************************
+		 * Create planning interval
+		 **********************************************************************************************/
+		PlanningInterval pI = fromScratchDB.getUnique(PlanningInterval.class);
+		fromScratchDB.remove(pI);
+		fromScratchDB.add(new PlanningInterval(Term.createInteger(t), Term.createInteger(tMax)));
+		
+		/**********************************************************************************************
+		 * TODO: do this directly above? this seems out of place
+		 **********************************************************************************************/
+		for ( Statement s : fromScratchDB.get(Statement.class) ) {
+			actionIntervals.add(s.getKey());
+		}
+		
+		
+		if ( verbose ) { 
+			Logger.depth--;
+			Logger.msg(getName(), "Checking causal links that have been executed...", 2);
+			Logger.depth++;
+		}
+		
+		/**********************************************************************************************
+		 * Keep only connected AllenConstraints (TODO: What about simple distance constraints, etc.?)
+		 **********************************************************************************************/
+		for ( AllenConstraint tc : this.plan.getConstraints().get(AllenConstraint.class) ) {
+			if ( !executedLinks.contains(tc) && (actionIntervals.contains(tc.getFrom()) && actionIntervals.contains(tc.getTo())) ) {
+				if ( execDB.hasKey(tc.getFrom()) && execDB.hasKey(tc.getTo())) {
+					if ( verbose ) Logger.msg(getName(), tc.toString(), 2);
+					executedLinks.add(tc);
+				} else {
+					if ( verbose ) Logger.msg(getName(), "Not keeping " + tc, 3);
+				}
+			} else {
+				if ( verbose ) Logger.msg(getName(), "Not keeping " + tc, 3);
+			}
+			
+		}
+		
+		if ( verbose ) { 
+			Logger.depth--;
+			Logger.msg(getName(), "Checking open goals that have been achieved...", 2);
+			Logger.depth++;
+		}
+		/**********************************************************************************************
+		 * Find goals that are achieved (and keep them asserted)
+		 **********************************************************************************************/
+		for ( OpenGoal og : execDB.get(OpenGoal.class)) {
+			if ( execDB.hasKey(og.getStatement().getKey())) {
+				if ( verbose ) Logger.msg(getName(), "Goal " + og + " with " + og.getStatement().getKey() 
+																	+ " [" + propagatedTimes.getEST(og.getStatement().getKey()) 
+																	+ " " + propagatedTimes.getLST(og.getStatement().getKey())
+																	+ "] [" + propagatedTimes.getEET(og.getStatement().getKey())
+																	+ " " + propagatedTimes.getLET(og.getStatement().getKey()) + "]", 2);
+				
+				
+				boolean connectedToExecutedEffect = false;
+				for ( AllenConstraint ac : this.plan.getConstraints().get(AllenConstraint.class ) ) {
+					if ( ac.getFrom().equals(og.getStatement().getKey()) && actionIntervals.contains(ac.getTo()) ) {
+						connectedToExecutedEffect = true; 
+						executedLinks.add(ac);
+						break;
+					}
+					
+					if ( ac.getTo().equals(og.getStatement().getKey()) && actionIntervals.contains(ac.getFrom()) ) {
+						connectedToExecutedEffect = true;
+						executedLinks.add(ac);
+						break;
+					}
+				}
+				
+//				if ( execCSP.getEST(og.getStatement().getKey()) <= t || connectedToExecutedEffect ) {
+					
+				if ( connectedToExecutedEffect ) {
+					if ( verbose ) Logger.msg(getName(), "... was already achieved.", 2);
+//					fromScratchDB.remove(og);
+					OpenGoal ogCopy = og.copy();
+					ogCopy.setAsserted(true);
+//					reachedGoals.add(new Asserted(ogCopy));
+					reachedGoals.add(ogCopy.getAssertion());
+					reachedGoals.add(og.getStatement());
+					reachedGoals.add(ogCopy);
+				} else {
+					if ( verbose ) Logger.msg(getName(), "... will be added again.", 2);
+				}
+			}
+		}
+		fromScratchDB.addAll(reachedGoals);
+		
+
+				
+		if ( verbose ) { 
+			Logger.depth--;
+			Logger.msg(getName(), "Adding operators...", 2);
+			Logger.depth++;
+		}		
+		/**********************************************************************************************
+		 * Add preconditions, effects and constraints of executed operators
+		 **********************************************************************************************/
+		Collection<Operator> oRemList = new HashSet<Operator>();
+		for ( Operator a : executedActions ) {
+			if ( execDB.hasKey(a.getNameStateVariable().getKey()) ) {
+				if ( verbose ) Logger.msg(getName(), a.getNameStateVariable().toString(), 2);
+				long bounds[] = propagatedTimes.getBoundsArray(a.getNameStateVariable().getKey());
+				Interval[] intervals = new Interval[2];
+				intervals[0] = new Interval(Term.createInteger(bounds[0]), Term.createInteger(bounds[1]));
+				intervals[1] = new Interval(Term.createInteger(bounds[2]), Term.createInteger(bounds[3]));
+				
+				AllenConstraint aC = new AllenConstraint(a.getNameStateVariable().getKey(), TemporalRelation.At, intervals); 
+						
+				fromScratchDB.add(aC);
+				
+				fromScratchDB.add(a.getNameStateVariable());
+				for ( Statement p : a.getPreconditions() ) {
+					fromScratchDB.add(p);	
+				}
+				for ( Statement e : a.getEffects() ) {
+					fromScratchDB.add(e);	
+				}
+				fromScratchDB.addAll(a.getConstraints());
+				
+				for ( ExecutionManager eM : this.managerList ) {
+					fromScratchDB.addAll(eM.getAddedReactorExpressions(a.getNameStateVariable()));
+				}
+				
+			} else {
+				oRemList.add(a);
+			}
+		}
+		executedActions.removeAll(oRemList);
+		
+		
+		if ( verbose ) { 
+			Logger.depth--;
+			Logger.msg(getName(), "Checking ICs that applied or have been resolved in the past", 2);
+			Logger.depth++;
+		}	
+		/**********************************************************************************************
+		 * Decide which IC resolvers to keep
+		 **********************************************************************************************/
+		for ( InteractionConstraint ic : execDB.get(InteractionConstraint.class) ) {
+			
+			if ( ic.isAsserted() ) {
+				boolean allConditionStatementsInPast = true;
+				
+				for ( Statement s : ic.getCondition().get(Statement.class) ) {
+					if ( !(execDB.hasKey(s.getKey()) && (propagatedTimes.getLST(s.getKey()) < t || propagatedTimes.getLET(s.getKey()) < t)) ) {
+						allConditionStatementsInPast = false;
+						break;
+					}
+				}
+				
+				boolean allResolverStatementsInPast = true;
+				for ( Statement s : ic.getResolvers().get(ic.getResolverIndex()).get(Statement.class) ) {
+					if ( !(execDB.hasKey(s.getKey()) && (propagatedTimes.getLST(s.getKey()) < t || propagatedTimes.getLET(s.getKey()) < t)) ) {
+						allResolverStatementsInPast = false;
+						break;
+					}
+				}
+				
+				if ( allConditionStatementsInPast || allResolverStatementsInPast ) {
+					if ( verbose ) Logger.msg(getName(), ic.getName().toString(), 2);
+					fromScratchDB.add(ic);
+					fromScratchDB.add(ic.getResolvers().get(ic.getResolverIndex()));
+				}
+			}
+		}
+		
+		/**********************************************************************************************
+		 * Process goal assertions (TODO: why is this here and not earlier?!?)
+		 **********************************************************************************************/
+		for ( Expression c : reachedGoals ) {
+			if ( c instanceof Assertion ) {
+				fromScratchDB.processAssertedTerm((Assertion)c);
+			}				
+		}
+				
+		if ( verbose ) Logger.depth--;
+		/**********************************************************************************************
+		 * Add everything (TODO: make sure that things are added only after this for clarity?)
+		 **********************************************************************************************/
+		fromScratchDB.addAll(executedLinks);
+		
+		for ( ExecutionManager eM : this.managerList ) {
+			fromScratchDB.addAll(eM.getAddedExpressions());
+		}
+
+		fromScratchDB.add(past);
+		fromScratchDB.add(future);
+		fromScratchDB.add(rPast);
+		fromScratchDB.add(rFuture);
+		fromScratchDB.add(mPastFuture);
+		fromScratchDB.add(dFuture);
+		
+		for ( ExecutionManager eM : this.managerList ) {
+			fromScratchDB.addAll(eM.getStartedOrDoneExpressions());
+		}
+
+		
+		for ( Term k : nonExecutedActionIntervals ) {
+			if ( fromScratchDB.hasKey(k) ) {
+				throw new IllegalStateException("Interval " + k  + " has no business here (this should never happen).");
+			} 
+		}
+		
+//		System.out.println("==================================");
+//		System.out.println("INIT DB: ");
+//		System.out.println("==================================");
+//		for ( Statement s : Global.initialContext.getStatements() ) {
+//			System.out.println("[S] " + s);
+//		}
+//		for ( OpenGoal s : Global.initialContext.get(OpenGoal.class) ) {
+//			System.out.println("[G] " + s);
+//		}
+//		for ( AllenConstraint tc : Global.initialContext.get(AllenConstraint.class) ) {
+//			System.out.println("[T] " + tc);
+//		}	
+//		System.out.println("==================================");
+//		System.out.println("BEFORE: ");
+//		System.out.println("==================================");
+//		for ( Statement s : fromScratchDB.getStatements() ) {
+//			System.out.println("[S] " + s);
+//		}
+//		for ( OpenGoal s : fromScratchDB.get(OpenGoal.class) ) {
+//			System.out.println("[G] " + s);
+//		}
+//		for ( AllenConstraint tc : fromScratchDB.get(AllenConstraint.class) ) {
+//			System.out.println("[T] " + tc);
+//		}
+
+		if ( useForgetting ) {
+			removeWrittenInStone( fromScratchDB, nonExecutedActionIntervals );
+		}
+		
+//		System.out.println("==================================");
+//		System.out.println("FINALLY: ");
+//		System.out.println("==================================");
+//		for ( Statement s : fromScratchDB.getStatements() ) {
+//			System.out.println("[S] " + s);
+//		}
+//		for ( OpenGoal s : fromScratchDB.get(OpenGoal.class) ) {
+//			System.out.println("[G] " + s + " " + s.isAsserted());
+//		}
+//		for ( AllenConstraint tc : fromScratchDB.get(AllenConstraint.class) ) {
+//			System.out.println("[T] " + tc);
+//		}
+
+		if ( verbose ) Logger.depth--;
+		
+		return fromScratchDB;
+	}
+	
+	private boolean isCommittedStatement( Statement s ) {
+		for ( ExecutionManager eM : this.managerList ) {
+			if ( eM.isCommittedStatement(s) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean isOnExecutionList( Statement s ) {
+		for ( ExecutionManager eM : this.managerList ) {
+			if ( eM.isOnExecutionList(s) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private String Interval2String( long EST, long LST, long EET, long LET) {
+		return String.format("[%d %d] [%d %d]", EST, LST, EET, LET);
+	}
+		
+	private void removeWrittenInStone( ConstraintDatabase cdb, Set<Term> doNotAdd ) {		
+		ValueLookup propagatedTimes = execDB.getUnique(ValueLookup.class);
+		
+		if ( verbose ) { 
+			Logger.msg(getName(),"Searching for fixed statements...", 2);
+			Logger.depth++;
+		}
+
+		Set<Expression> writtenInStoneConstraints = new HashSet<Expression>();
+		
+		for ( Statement s : execDB.get(Statement.class) ) {
+			if ( propagatedTimes.hasInterval(s.getKey()) && !doNotAdd.contains(s.getKey()) ) { //TODO: work-around 
+				long EST = propagatedTimes.getEST(s.getKey());
+				long LST = propagatedTimes.getLST(s.getKey());
+				long EET = propagatedTimes.getEET(s.getKey());
+				long LET = propagatedTimes.getLET(s.getKey());
+				
+				if ( LET < t || t > LST ) {
+					if ( !s.getKey().toString().equals("past") && !s.getKey().toString().equals("future") && !isOnExecutionList(s) )  {
+						
+						cdb.add(s); 
+						Interval b1 = new Interval(EST,LST);
+						Interval b2 = new Interval(EET,LET);
+						AllenConstraint atCon = new AllenConstraint(s.getKey(), TemporalRelation.At, b1, b2); 
+						cdb.add(atCon);
+						
+						if ( EST == LST && EET == LET ) {
+							if ( verbose ) Logger.msg(getName(), s + " " + Interval2String(EST, LST, EET, LET), 2);
+							writtenInStone.add(s.getKey());
+							writtenInStoneConstraints.add(atCon);
+						}
+					}
+				} 
+			}
+		}
+			
+		/**
+		 * Temporal constraints between two "written in stone" statements have already been 
+		 * propagated and can be removed (since we add the (at ...) constraint above.
+		 */
+
+		Set<Term> connectedToOutside = new HashSet<Term>();
+		for ( AllenConstraint ac : cdb.get(AllenConstraint.class)) {
+			if ( ac.isBinary() && writtenInStone.contains(ac.getFrom()) && writtenInStone.contains(ac.getTo()) ) {
+				remList.add(ac);
+			} else if ( ac.isUnary() && writtenInStone.contains(ac.getFrom()) ) {
+				remList.add(ac);
+			} else {
+				connectedToOutside.add(ac.getFrom());
+				if ( ac.isBinary() ) {
+					connectedToOutside.add(ac.getTo());
+				}
+			}
+		}
+		
+		/**
+		 * Remove all statements that are only connected to other "written in stone"
+		 * statements. (They may be a problem for ICs that rely on past statements.) 
+		 */
+		if ( verbose ) { 
+			Logger.depth--;
+			Logger.msg(getName(),"The following statements will be removed...", 2);
+			Logger.depth++;
+		}
+		
+		List<OpenGoal> remGoalList = new ArrayList<OpenGoal>();
+		for ( Statement s : cdb.get(Statement.class) ) {
+			if ( writtenInStone.contains(s.getKey()) && !connectedToOutside.contains(s.getKey()) ) {
+				if ( verbose ) Logger.msg(getName(), s.toString(), 2);
+				remList.add(s);
+				
+				for ( OpenGoal og : cdb.get(OpenGoal.class) ) {
+					if ( og.getStatement().equals(s)) {
+						remGoalList.add(og);
+					}
+				}
+				
+				for ( AllenConstraint ac : cdb.get(AllenConstraint.class)) {
+					if ( ac.getFrom().equals(s.getKey()) || (ac.isBinary() && ac.getTo().equals(s.getKey()))) {
+						remList.add(ac);
+						writtenInStoneConstraints.remove(ac);
+						executedLinks.remove(ac);
+					}
+				}				
+			} 
+		}
+		
+		if ( verbose ) { 
+			Logger.depth--;
+			Logger.msg(getName(),"Statistics:", 2);
+			Logger.depth++;
+		}
+		
+		
+		int beforeAC =  (cdb.get(AllenConstraint.class).size());
+		int beforeStatements = (cdb.get(Statement.class).size());
+		int beforeOpenGoals = (cdb.get(OpenGoal.class).size());
+		if ( verbose ) Logger.msg(this.getName(), "Number of constraints (before removal) " + beforeAC, 2);		
+		if ( verbose ) Logger.msg(this.getName(), "Number of statements (before removal) " + beforeStatements, 2);
+		if ( verbose ) Logger.msg(this.getName(), "Number of open goals (before removal) " + beforeOpenGoals, 2);		
+		cdb.removeAll(remList);
+		cdb.removeAll(remGoalList);
+		cdb.addAll(writtenInStoneConstraints);
+		
+		remList.clear();
+		for ( AllenConstraint ac : cdb.get(AllenConstraint.class)) {
+			if ( !cdb.hasKey(ac.getFrom()) || (ac.isBinary() && !cdb.hasKey(ac.getTo())) ) {
+				remList.add(ac);
+			}
+		}				
+		cdb.removeAll(remList);
+		
+		int afterAC =  (cdb.get(AllenConstraint.class).size());
+		int afterStatements = (cdb.get(Statement.class).size());		
+				
+//		if ( keepStats ) Statistics.addLong(msg("FromScratchDB #" +fromScratchDBsCreated+ " removed written in stone"), (long) (remList.size()-writtenInStoneConstraints.size()));
+		if ( verbose ) {
+			Logger.msg(this.getName(), "Removed " + (beforeAC-afterAC) + " temporal constraints whose intervals are fixed anyways." , 2);
+			Logger.msg(this.getName(), "Removed " + (beforeStatements-afterStatements) + " statements whose intervals are fixed anyways." , 2);
+			Logger.msg(this.getName(), "Final number of temporal constraints " + (long) (cdb.get(AllenConstraint.class).size())  , 2);
+			Logger.msg(this.getName(), "Final number of statements " + (cdb.get(Statement.class).size()) , 2);
+			Logger.msg(this.getName(), "Final number of goals " + (cdb.get(OpenGoal.class).size()) , 2);
+			Logger.msg(this.getName(), "Final number of constraints " + (long) (cdb.size()) , 2);
+			Logger.depth--;
+		}
+	}
+	
 }
 

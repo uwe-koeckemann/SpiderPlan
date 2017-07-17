@@ -334,8 +334,11 @@ public class LoggerFrame extends JFrame implements ListSelectionListener, Compon
 		listChangeLock = false;
 	}
 	
-	private void update() {
-		StopWatch.start("Logger");
+	protected void addToSelection( String name ) {
+		this.selectedSources.add(name);
+	}
+	
+	protected void update() {
 		availableSources = Logger.getAllSources();
 		updateListModel();		
 
@@ -346,7 +349,6 @@ public class LoggerFrame extends JFrame implements ListSelectionListener, Compon
 		for ( String source : selectedSources ) {
 			Logger.addPrintStream(source, mainPrintStream);
 		}
-		StopWatch.stop("Logger");
 	}
 	
 	@Override

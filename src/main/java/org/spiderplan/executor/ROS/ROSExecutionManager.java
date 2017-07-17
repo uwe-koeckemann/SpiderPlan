@@ -59,7 +59,7 @@ public class ROSExecutionManager extends ExecutionManager {
 	}
 
 
-	private ConstraintDatabase addedByROS = new ConstraintDatabase();
+//	private ConstraintDatabase addedExpressions = new ConstraintDatabase();
 	
 	List<ROSConstraint> ROSsubs = new ArrayList<ROSConstraint>();
 	List<ROSConstraint> ROSpubs = new ArrayList<ROSConstraint>();
@@ -195,10 +195,10 @@ public class ROSExecutionManager extends ExecutionManager {
 			} else if ( (s != null && value == null) || (s != null && s.getValue().equals(value)) ) {
 				// same as before: just update deadline
 				
-				addedByROS.remove(lastAddedDeadline.get(variable));
+				addedExpressions.remove(lastAddedDeadline.get(variable));
 				cdb.remove(lastAddedDeadline.get(variable));
 				AllenConstraint deadline = new AllenConstraint(s.getKey(), TemporalRelation.Deadline, new Interval(Term.createInteger(t+1),Term.createConstant("inf")));
-				addedByROS.add(deadline);
+				addedExpressions.add(deadline);
 				cdb.add(deadline);
 				
 				lastAddedDeadline.put(variable, deadline);
@@ -218,10 +218,10 @@ public class ROSExecutionManager extends ExecutionManager {
 					
 					if ( s != null ) {
 						Statement oldAssignment = lastChangingStatement.get(variable);
-						addedByROS.remove(lastAddedDeadline.get(variable));
+						addedExpressions.remove(lastAddedDeadline.get(variable));
 						cdb.remove(lastAddedDeadline.get(variable));
 						AllenConstraint finalDeadline = new AllenConstraint(oldAssignment.getKey(), TemporalRelation.Deadline, new Interval(t,t));
-						addedByROS.add(finalDeadline);
+						addedExpressions.add(finalDeadline);
 						cdb.add(finalDeadline);
 					}			
 
@@ -233,9 +233,9 @@ public class ROSExecutionManager extends ExecutionManager {
 					lastChangingStatement.put(variable, newStatement);
 					lastAddedDeadline.put(variable, deadline);
 					
-					addedByROS.add(newStatement);
-					addedByROS.add(release);
-					addedByROS.add(deadline);
+					addedExpressions.add(newStatement);
+					addedExpressions.add(release);
+					addedExpressions.add(deadline);
 					cdb.add(newStatement);
 					cdb.add(release);
 					cdb.add(deadline);

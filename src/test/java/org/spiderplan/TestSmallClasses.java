@@ -84,7 +84,7 @@ public class TestSmallClasses extends TestCase {
 													   1,0,0,0,0);
 	
 		Date t = new Date(ref.internal2external(20));
-		System.out.println(t);
+//		System.out.println(t);
 	}
 	
 	/**

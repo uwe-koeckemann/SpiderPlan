@@ -210,9 +210,9 @@ public class Compile {
 			
 //			System.out.println(c.getTypeManager());
 //			
-			for ( Operator o : c.getOperators() ) {
-				System.out.println(o);
-			}
+//			for ( Operator o : c.getOperators() ) {
+//				System.out.println(o);
+//			}
 //			
 //			System.out.println(c .getContext());
 			

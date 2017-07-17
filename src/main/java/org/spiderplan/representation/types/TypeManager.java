@@ -346,6 +346,17 @@ public class TypeManager {
 	}
 	
 	/**
+	 * Check if a unique name (name/arity) has 
+	 * a type signature definition.
+	 * 
+	 * @param uName Unique name of a complex term including the name of the term and the arity. Example: adjacent/2
+	 * @return <code>true</code> if the term has a signature, <code>false</code> otherwise.
+	 */
+	public boolean hasSignature( String uName ) {
+		return typeLookUp.containsKey(uName);
+	}
+	
+	/**
 	 * 
 	 * Get type of a specific argument of a predicate.
 	 * Last element in the list is the return value (boolean in case of relations).
@@ -355,7 +366,7 @@ public class TypeManager {
 	 */
 	public Type getPredicateTypes( String predID, int i ) {
 		if ( !typeLookUp.containsKey(predID) ) {
-			System.out.println(typeLookUp.keySet());
+			System.err.println(typeLookUp.keySet());
 			throw new IllegalStateException("Requesting non-existing type of " + predID);
 		}
 		Type r;
@@ -366,8 +377,8 @@ public class TypeManager {
 		}
 		
 		if ( r == null ) {
-			System.out.println(this);
-			System.out.println(predID);
+			System.err.println(this);
+			System.err.println(predID);
 			throw new IllegalStateException(predID  + " has Type signature ("+this.typeSignatures.get(predID)+"), but no type found for argument " + i + " (-1 is legal and used for return/last type in signature). This is probably caused by a misspelled type name.)" );
 		}
 		

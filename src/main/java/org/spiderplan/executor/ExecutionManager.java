@@ -54,7 +54,8 @@ public abstract class ExecutionManager {
 	protected boolean verbose = false;
 	protected int verbosity = 0;
 	
-	private Map<Statement,Collection<Expression>> addedConstraints = new HashMap<Statement, Collection<Expression>>();
+	protected ConstraintDatabase addedExpressions = new ConstraintDatabase();
+	private Map<Statement,Collection<Expression>> addedReactorConstraints = new HashMap<Statement, Collection<Expression>>();
 		
 	protected List<Reactor> reactors = new ArrayList<Reactor>();
 	protected ArrayList<Statement> hasReactorList = new ArrayList<Statement>();
@@ -94,7 +95,6 @@ public abstract class ExecutionManager {
 		ArrayList<Reactor> remList = new ArrayList<Reactor>();
 		boolean someoneDone = false;
 		for ( Reactor r : reactors ) {
-			
 			r.printSetting(name, Logger.depth, verbose);
 			if ( r.getState() == Reactor.State.Done ) {
 				doneList.add(r.getTarget());
@@ -120,7 +120,7 @@ public abstract class ExecutionManager {
 				
 				Collection<Expression> store = new ArrayList<Expression>();
 				store.addAll(addedCons);
-				addedConstraints.put(r.getTarget(), store);
+				addedReactorConstraints.put(r.getTarget(), store);
 				
 			}
 		}
@@ -129,6 +129,72 @@ public abstract class ExecutionManager {
 		return someoneDone;
 	}
 	
+	/**
+	 * Get all expressions added for a statement 
+	 * 
+	 * @param s statement
+	 * @return collection of expressions added by this manager
+	 */
+	public Collection<Expression> getStartedOrDoneExpressions( ) {
+		Collection<Expression> r = new ArrayList<Expression>();
+		for ( Statement s : this.startedList ) {
+			if ( addedReactorConstraints.containsKey(s) ) {
+				r.addAll(addedReactorConstraints.get(s));
+			}
+		}
+		for ( Statement s : this.doneList ) {
+			if ( addedReactorConstraints.containsKey(s) ) {
+				r.addAll(addedReactorConstraints.get(s));
+			}
+		}
+		return r;
+	}
+	
+	/**
+	 * Get all expressions added for a statement 
+	 * 
+	 * @param s statement
+	 * @return collection of expressions added by this manager
+	 */
+	public Collection<Expression> getAddedReactorExpressions( Statement s ) {
+		Collection<Expression> r = new ArrayList<Expression>();
+		if ( addedReactorConstraints.containsKey(s) ) {
+			r.addAll(addedReactorConstraints.get(s));
+		}		
+		return r;
+	}
+	
+	/**
+	 * Get expressions that were added by this manager (e.g., state information, 
+	 * goals, etc.).
+	 * 
+	 * @return expressions that were added through this manager
+	 */
+	public Collection<Expression> getAddedExpressions() {
+		return this.addedExpressions;
+	}
+	
+	/**
+	 * Check if a statement has been committed (i.e., it has been started or already finished executing)
+	 * to by this manager.
+	 * 
+	 * @param s The statement (e.g., the name of an operator)
+	 * @return <code>true</code> if the statement is committed, <code>false</code> otherwise
+	 */
+	public boolean isCommittedStatement( Statement s ) {
+		return this.startedList.contains(s) || this.doneList.contains(s);
+	}
+	
+	/**
+	 * Check if a statement has been added for execution.
+	 * 
+	 * @param s The statement (e.g., the name of an operator)
+	 * @return <code>true</code> if the statement is on execution list, <code>false</code> otherwise
+	 */
+	public boolean isOnExecutionList( Statement s ) {
+		return this.startedList.contains(s) || this.doneList.contains(s);
+	}
+		
 	/**
 	 * Returns the name of this {@link Module}
 	 * @return The name of this {@link Module}

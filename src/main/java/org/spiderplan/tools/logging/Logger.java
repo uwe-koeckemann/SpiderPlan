@@ -63,6 +63,7 @@ public class Logger {
 	
 	protected static HashMap<String,Vector<PrintStream>> outStreamMap = new HashMap<String, Vector<PrintStream>>();
 		
+	private static LoggerFrame frame;
 //	public static boolean keepAllLogs = true;
 //	public static boolean stop = false;
 	
@@ -103,6 +104,9 @@ public class Logger {
 			logLevelMap.put(sourceName, new Integer(maxlevel));
 			outStreamMap.put(sourceName, new Vector<PrintStream>());	
 		}		
+		if ( frame != null ) {
+			frame.addToSelection(sourceName);
+		}
 	}
 		
 //	/**
@@ -290,7 +294,7 @@ public class Logger {
 	public static void drawWithName( String name ) {
 		ArrayList<String> sources = getAllSources();
 		sources.remove("broadcast");
-		new LoggerFrame( name, sources );
+		frame = new LoggerFrame( name, sources );
 	}
 	
 	/**
@@ -299,7 +303,7 @@ public class Logger {
 	public static void draw() {
 		ArrayList<String> sources = getAllSources();
 		sources.remove("broadcast");
-		new LoggerFrame( sources );
+		frame =  new LoggerFrame( sources );
 	}
 	
 	/**
@@ -312,7 +316,7 @@ public class Logger {
 		for ( String s : sourceInput ) {
 			sources.add(s);
 		}
-		new LoggerFrame( sources );
+		frame = new LoggerFrame( sources );
 	}
 	
 	/**
@@ -320,8 +324,15 @@ public class Logger {
 	 * @param sources
 	 */
 	public static void draw( ArrayList<String> sources ) {
-		new LoggerFrame( sources );
+		frame = new LoggerFrame( sources );
 	}
 	
-
+	/**
+	 * Update frame with new print streams.
+	 */
+	public static void updateFrame() {
+		if ( frame != null ) {
+			frame.update();
+		}
+	}
 }
