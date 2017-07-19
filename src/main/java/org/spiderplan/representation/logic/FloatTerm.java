@@ -68,20 +68,20 @@ public class FloatTerm extends Term {
 	 * @param a The {@link FloatTerm} to match to <code>this</code>.
 	 * @return {@link Substitution} that makes both {@link FloatTerm}s match or <code>null</code> if there is none.
 	 */
-	@Override
-	public Substitution match( Term a ) {
-		Substitution theta = new Substitution();
-		
-		if ( a.isConstant() ) {
-			if ( this.getName().equals(a.getName()) ) {
-				return theta;
-			} else {
-				return null;
-			}
-		}
-			
-		return theta;
-	}
+//	@Override
+//	public Substitution match( Term a ) {
+//		Substitution theta = new Substitution();
+//		
+//		if ( a.isConstant() ) {
+//			if ( this.getName().equals(a.getName()) ) {
+//				return theta;
+//			} else {
+//				return null;
+//			}
+//		}
+//			
+//		return theta;
+//	}
 	
 	/**
 	 * Checks if this {@link FloatTerm} is ground. Ground {@link FloatTerm}s are either constants or complex {@link FloatTerm}s containing no variables.

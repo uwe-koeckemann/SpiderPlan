@@ -68,20 +68,20 @@ public class IntegerTerm extends Term {
 	 * @param a The {@link IntegerTerm} to match to <code>this</code>.
 	 * @return {@link Substitution} that makes both {@link IntegerTerm}s match or <code>null</code> if there is none.
 	 */
-	@Override
-	public Substitution match( Term a ) {
-		Substitution theta = new Substitution();
-		
-		if ( a.isConstant() ) {
-			if ( this.getName().equals(a.getName()) ) {
-				return theta;
-			} else {
-				return null;
-			}
-		}
-			
-		return theta;
-	}
+//	@Override
+//	public Substitution match( Term a ) {
+//		Substitution theta = new Substitution();
+//		
+//		if ( a.isConstant() ) {
+//			if ( this.getName().equals(a.getName()) ) {
+//				return theta;
+//			} else {
+//				return null;
+//			}
+//		}
+//			
+//		return theta;
+//	}
 	
 	/**
 	 * Checks if this {@link IntegerTerm} is ground. Ground {@link IntegerTerm}s are either constants or complex {@link IntegerTerm}s containing no variables.

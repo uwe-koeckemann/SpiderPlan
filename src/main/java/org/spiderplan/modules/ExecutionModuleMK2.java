@@ -65,6 +65,7 @@ import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
+import org.spiderplan.tools.Global;
 import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.visulization.timeLineViewer.TimeLineViewer;
@@ -335,15 +336,29 @@ public class ExecutionModuleMK2  extends Module {
 		execCore.setOperators(this.O);
 		execCore.setContext(execDB.copy());		
 		execCore.getContext().add(new Plan());
+//		execCore.getContext().add(new PlanningInterval(Term.createInteger(t), Term.createConstant("inf")));
 		execCore = repairSolver.run(execCore);
 		
 		execDB = execCore.getContext();
 		
+		
+		/**
+		 * TODO: This is a bit of a hack to ensure that actions are related to the current time even
+		 * if planner is unaware of it. This should be included in planning to begin with though to find temporal
+		 * Inconsistencies when backtracking is possible and easy
+		 */
+		for ( Operator o : execDB.getUnique(Plan.class).getActions() ) {
+			AllenConstraint ac = new AllenConstraint(o.getLabel(), TemporalRelation.Release, new Interval(Term.createInteger(t), Term.createConstant("inf")));
+			execDB.add(ac);
+		}
+		IncrementalSTPSolver stpSolver = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
+		stpSolver.isConsistent(execDB);		
+		stpSolver.getPropagatedTemporalIntervals(execDB.getUnique(ValueLookup.class));
+		
+				
 		/************************************************************************************************
 		 * TODO: Re-plan on failure
 		 ************************************************************************************************/
-		
-//				
 //		needFromScratch = execCore.getResultingState(repairSolverName).equals(Core.State.Inconsistent);
 
 		/************************************************************************************************

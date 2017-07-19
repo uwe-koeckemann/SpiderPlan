@@ -159,6 +159,33 @@ public class TestLogic extends TestCase {
 		assertTrue( theta.isEmpty() );
 	}
 	
+	public void testMatching5() {
+		Term a = Term.parse("{(id ?ID1) (type ApproachUser) (robot ?R) (apar ?Distance)}");
+		Term b = Term.parse("{(id ?ID) (type ApproachUser) (robot ?R) (apar  0.5)}");
+		
+		Substitution s = b.match(a);
+		assertTrue(s != null);
+		assertTrue(s.getMap().size() == 2);
+		
+		
+		Term c = Term.parse("(apar ?Distance)");
+		Term d = Term.parse("(apar  0.5)");
+		s = d.match(c);
+		assertTrue(s != null);
+		assertTrue(s.getMap().size() == 1);
+	}
+	
+	public void testStringArgs1() {
+		Term a = Term.parse("(arg \"1 2 3 4 5\")");
+		assertTrue(a.getNumArgs() == 1);
+	}
+	
+	public void testStringArgs2() {
+		Term a = Term.parse("(arg \"1 2 3 4 5\" x y)");
+		assertTrue(a.getNumArgs() == 3);
+	}
+	
+	
 	public void testTypeManagerChange() {
 		TypeManager tM = new TypeManager();
 		tM.addIntegerType("intType", -100, 100);

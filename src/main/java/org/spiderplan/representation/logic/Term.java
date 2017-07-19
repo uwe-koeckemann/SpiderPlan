@@ -23,6 +23,9 @@ package org.spiderplan.representation.logic;
 
 import java.util.Collection;
 import java.util.LinkedList;
+
+import javax.swing.plaf.synth.SynthSpinnerUI;
+
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.tools.UniqueID;
 
@@ -124,6 +127,7 @@ public abstract class Term {
 		
 		String value = s;
 		Term[] args = null;
+		boolean stringLock = false;
 	
 		if ( s.contains("(") ) {
 			LinkedList<String> terms = new LinkedList<String>();
@@ -131,13 +135,13 @@ public abstract class Term {
 			
 			int bracketLevel = 0;
 			for ( int i = 0; i < s.length(); i++ ) {
-				if ( String.valueOf(s.charAt(i)).equals("(") ) {
+				if ( !stringLock && String.valueOf(s.charAt(i)).equals("(") ) {
 					bracketLevel++;
-				} else if  ( String.valueOf(s.charAt(i)).equals(")") ) {
+				} else if ( !stringLock && String.valueOf(s.charAt(i)).equals(")") ) {
 					bracketLevel--;
 				}
 				
-				if ( bracketLevel == 1 && String.valueOf(s.charAt(i)).equals(" ") ) {
+				if ( !stringLock && bracketLevel == 1 && String.valueOf(s.charAt(i)).equals(" ") ) {
 					countTerms++;
 				} else if ( bracketLevel >= 1 ) {
 					if ( terms.size() <= countTerms ) {
@@ -145,10 +149,13 @@ public abstract class Term {
 					}
 					if ( ! (bracketLevel == 1 && String.valueOf(s.charAt(i)).equals("(")) )
 						terms.set(countTerms, terms.get(countTerms) + String.valueOf(s.charAt(i)));
+					if ( s.charAt(i) == '\"' ) {
+						stringLock = !stringLock;
+					}
 				}
 			}
 			while ( terms.remove("") );
-			
+						
 			value = terms.get(0);
 			terms.remove(0);
 			
@@ -214,10 +221,10 @@ public abstract class Term {
 	 * @param a The {@link Term} to match to <code>this</code>.
 	 * @return {@link Substitution} that makes both {@link Term}s match or <code>null</code> if there is none.
 	 */
-	public Substitution match( Term a ) {
+	public Substitution match( Term a ) {		
 		Substitution theta = new Substitution();
 		
-		if ( this.isConstant() && a.isConstant() ) {			
+		if ( this.isConstant() && a.isConstant() ) {	
 			if ( this.getName().equals(a.getName()) ) {
 				return theta;
 			} else {
