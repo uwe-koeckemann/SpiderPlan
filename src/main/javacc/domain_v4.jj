@@ -578,6 +578,8 @@ Expression DomainConstraint():
 			return new TypeDomainConstraint(constraint);
 		} else if ( constraint.getName().equals("float") ) {
 			return new TypeDomainConstraint(constraint);
+		} else if ( constraint.getName().equals("unrestricted") ) {
+			return new TypeDomainConstraint(constraint);
 		} else if ( constraint.getName().equals("int") ) {
 			return new TypeDomainConstraint(constraint);
 		} else if ( constraint.getName().equals("sig") ) {

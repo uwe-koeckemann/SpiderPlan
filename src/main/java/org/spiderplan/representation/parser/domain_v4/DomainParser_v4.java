@@ -817,6 +817,8 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
                         {if (true) return new TypeDomainConstraint(constraint);}
                 } else if ( constraint.getName().equals("float") ) {
                         {if (true) return new TypeDomainConstraint(constraint);}
+                } else if ( constraint.getName().equals("unrestricted") ) {
+                        {if (true) return new TypeDomainConstraint(constraint);}
                 } else if ( constraint.getName().equals("int") ) {
                         {if (true) return new TypeDomainConstraint(constraint);}
                 } else if ( constraint.getName().equals("sig") ) {
@@ -1549,6 +1551,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3R_79() {
+    if (jj_3R_82()) return true;
+    return false;
+  }
+
   private boolean jj_3R_55() {
     if (jj_scan_token(SOCKETS)) return true;
     return false;
@@ -1556,11 +1563,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3R_54() {
     if (jj_scan_token(DBEXEC)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_79() {
-    if (jj_3R_82()) return true;
     return false;
   }
 
@@ -1589,16 +1591,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_50() {
-    if (jj_scan_token(SET)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_49() {
-    if (jj_scan_token(MATH)) return true;
-    return false;
-  }
-
   private boolean jj_3R_76() {
     Token xsp;
     xsp = jj_scanpos;
@@ -1609,8 +1601,8 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_48() {
-    if (jj_scan_token(CONFIGURATIONPLANNING)) return true;
+  private boolean jj_3R_50() {
+    if (jj_scan_token(SET)) return true;
     return false;
   }
 
@@ -1622,6 +1614,16 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     xsp = jj_scanpos;
     if (jj_3R_83()) jj_scanpos = xsp;
     if (jj_scan_token(CP)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_49() {
+    if (jj_scan_token(MATH)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_48() {
+    if (jj_scan_token(CONFIGURATIONPLANNING)) return true;
     return false;
   }
 
@@ -1675,13 +1677,13 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_38() {
-    if (jj_scan_token(COST)) return true;
+  private boolean jj_3R_65() {
+    if (jj_3R_82()) return true;
     return false;
   }
 
-  private boolean jj_3R_65() {
-    if (jj_3R_82()) return true;
+  private boolean jj_3R_38() {
+    if (jj_scan_token(COST)) return true;
     return false;
   }
 
@@ -1702,12 +1704,12 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_74() {
+  private boolean jj_3R_64() {
     if (jj_3R_82()) return true;
     return false;
   }
 
-  private boolean jj_3R_64() {
+  private boolean jj_3R_74() {
     if (jj_3R_82()) return true;
     return false;
   }
@@ -1811,14 +1813,14 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_80() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_3R_82()) return true;
+  private boolean jj_3R_84() {
+    if (jj_3R_37()) return true;
     return false;
   }
 
-  private boolean jj_3R_84() {
-    if (jj_3R_37()) return true;
+  private boolean jj_3R_80() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_3R_82()) return true;
     return false;
   }
 
@@ -1835,11 +1837,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_81() {
-    if (jj_3R_82()) return true;
-    return false;
-  }
-
   private boolean jj_3_29() {
     Token xsp;
     xsp = jj_scanpos;
@@ -1850,13 +1847,13 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3_25() {
-    if (jj_scan_token(ROSPUBLISH)) return true;
+  private boolean jj_3R_81() {
     if (jj_3R_82()) return true;
     return false;
   }
 
-  private boolean jj_3R_93() {
+  private boolean jj_3_25() {
+    if (jj_scan_token(ROSPUBLISH)) return true;
     if (jj_3R_82()) return true;
     return false;
   }
@@ -1869,6 +1866,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
       xsp = jj_scanpos;
       if (jj_3_30()) { jj_scanpos = xsp; break; }
     }
+    return false;
+  }
+
+  private boolean jj_3R_93() {
+    if (jj_3R_82()) return true;
     return false;
   }
 
@@ -1937,14 +1939,19 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3_28() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(SIGNATURE)) return true;
+    return false;
+  }
+
   private boolean jj_3R_78() {
     if (jj_3R_82()) return true;
     return false;
   }
 
-  private boolean jj_3_28() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(SIGNATURE)) return true;
+  private boolean jj_3_27() {
+    if (jj_3R_82()) return true;
     return false;
   }
 
@@ -1953,11 +1960,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     xsp = jj_scanpos;
     if (jj_3R_36()) jj_scanpos = xsp;
     if (jj_3R_37()) return true;
-    return false;
-  }
-
-  private boolean jj_3_27() {
-    if (jj_3R_82()) return true;
     return false;
   }
 
@@ -2011,14 +2013,14 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_35() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(INITIAL)) return true;
+  private boolean jj_3_24() {
+    if (jj_3R_82()) return true;
     return false;
   }
 
-  private boolean jj_3_24() {
-    if (jj_3R_82()) return true;
+  private boolean jj_3R_35() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(INITIAL)) return true;
     return false;
   }
 

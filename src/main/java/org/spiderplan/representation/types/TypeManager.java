@@ -154,6 +154,24 @@ public class TypeManager {
 					
 					this.addNewType(t);
 					this.attachTypes("(" + t.getName() + " " + t.getName() + ")");
+				} else if ( r.getName().equals("unrestricted") ) {
+					Term typeName = r.getArg(0);
+					UnrestrictedType t;
+					
+					if ( this.typeNames.contains(typeName) ) {
+						Type tKnown = types.get(typeName);
+						if ( tKnown instanceof IntegerType ) {
+							t = (UnrestrictedType)tKnown;
+						} else {
+							throw new IllegalStateException("Name " + typeName + " from " + dC + " also used for " + tKnown.getClass().getSimpleName());
+						}
+					} else {
+						t = new UnrestrictedType();
+						t.setName(typeName);
+					}
+					
+					this.addNewType(t);
+					this.attachTypes("(" + t.getName() + " " + t.getName() + ")");
 				}
 			} catch ( Exception e ) {
 				e.printStackTrace();

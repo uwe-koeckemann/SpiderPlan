@@ -136,7 +136,7 @@ public class ExpressionTypes {
 	public enum SetRelation { Set, Add, In, NotIn, IsDomain, Equals, Subset, ProperSubset };
 	public enum GraphRelation { Directed, Undirected, Vertex, Edge, Draw, DAG, Flow, Capacity, Path, ShortestPath, HasEdge };
 	public enum CostRelation { Add, Sub, LessThan, LessThanOrEquals, GreaterThan, GreaterThanOrEquals };
-	public enum DomainRelation { Enum, Int, Float, Equal, NotEqual, In, NotIn, Signature, Uncontrollable };
+	public enum DomainRelation { Enum, Int, Float, Unrestricted, Equal, NotEqual, In, NotIn, Signature, Uncontrollable };
 	public enum SamplingRelation { RandomVariable, Sample };
 	public enum TemporalRelation { 
 		Equals, Before, BeforeOrMeets, After, Meets, MetBy,  MetByOrAfter, 
@@ -172,7 +172,10 @@ public class ExpressionTypes {
 				DomainRelation.Float, TypeDomainConstraint.class);
 		DomainConstraints.add("float/2", 		"(float t (interval a b)) or (float t [a b])", 
 				"Type t has a float domain with a range from a to b (inclusive).", 
-				DomainRelation.Float, TypeDomainConstraint.class);		
+				DomainRelation.Float, TypeDomainConstraint.class);
+		DomainConstraints.add("unrestricted/1", "(unrestricted t)", 
+				"Type t has an unrestricted domain.", 
+				DomainRelation.Unrestricted, TypeDomainConstraint.class);
 		DomainConstraints.add("equal/2", 		"(equal a b)", 
 				"a == b", 
 				DomainRelation.Equal, DomainMemberConstraint.class);

@@ -28,6 +28,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.swing.plaf.synth.SynthSpinnerUI;
+
 import java.util.Set; 
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.statistics.Statistics;
@@ -924,6 +927,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 				if ( !violatesVarDomRestriction ) {
 					for ( Statement s : o.getEffects() ) {
 						if ( !tM.isConsistentVariableTermAssignment(s.getVariable(), s.getValue())) {
+							System.out.println(s + " violates var dom rest.");
 							violatesVarDomRestriction = true;
 							break;
 						}
