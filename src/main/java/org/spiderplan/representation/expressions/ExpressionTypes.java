@@ -30,7 +30,6 @@ import org.spiderplan.representation.expressions.domain.DomainMemberConstraint;
 import org.spiderplan.representation.expressions.domain.TypeDomainConstraint;
 import org.spiderplan.representation.expressions.domain.TypeSignatureConstraint;
 import org.spiderplan.representation.expressions.domain.Uncontrollable;
-import org.spiderplan.representation.expressions.execution.caresses.CaressesExpression;
 import org.spiderplan.representation.expressions.execution.database.DatabaseExecutionExpression;
 import org.spiderplan.representation.expressions.execution.program.ExternalProgramCall;
 import org.spiderplan.representation.expressions.execution.sockets.SocketExpression;
@@ -102,7 +101,6 @@ public class ExpressionTypes {
 	final public static Term ExternalProgram = Term.createConstant("external-program");
 	final public static Term Socket = Term.createConstant("socket");
 	final public static Term Observation = Term.createConstant("observation");
-	final public static Term Caresses = Term.createConstant("caresses");
 	
 	
 	public static Collection<Term> singleExpressionPerKeyword = new HashSet<Term>();
@@ -125,7 +123,6 @@ public class ExpressionTypes {
 	final public static SupportedExpressions<DatabaseExecutionRelation> DatabaseExecutionExpressions = new SupportedExpressions<DatabaseExecutionRelation>(DatabaseExecution);
 	final public static SupportedExpressions<ExternalProgramRelation> ExternalProgramExecutionExpressions = new SupportedExpressions<ExternalProgramRelation>(ExternalProgram);
 	final public static SupportedExpressions<SocketRelation> SocketExecutionExpressions = new SupportedExpressions<SocketRelation>(Socket);
-	final public static SupportedExpressions<CaressesRelation> CaressesExpressions = new SupportedExpressions<CaressesRelation>(Caresses);
 	final public static SupportedExpressions<OntologyRelation> OntologyExpressions = new SupportedExpressions<OntologyRelation>(Ontology);
 	
 
@@ -158,9 +155,7 @@ public class ExpressionTypes {
 	public enum ExternalProgramRelation { Execute };
 	
 	public enum SocketRelation { Setup, Send, Receive };
-	
-	public enum CaressesRelation { Action, Socket };
-	
+
 	public enum OntologyRelation { Prefix, Triple };
 	
 	static {
@@ -327,9 +322,6 @@ public class ExpressionTypes {
 		SocketExecutionExpressions.add("send/3", "(send alias var val)", "Assign variable to send value over socket.", SocketRelation.Send, SocketExpression.class);
 		SocketExecutionExpressions.add("receive/3", "(receive alias var val)", "Assign variable to receive data over socket and match it with value.", SocketRelation.Receive, SocketExpression.class);
 		SocketExecutionExpressions.add("receive/5", "(receive alias var val msg (list (head \"s1\") (tail \"s2\") (replace \"s3\" \"s4\")))", "Assign variable to receive data over socket. Apply sting operations to received message, then parse it and match it to msg. The resulting substitution will be applied to val. Current string operations are (head \"s\") (tail \"s\") to add string s to the front or back of the message and (replace \"s1\" \"s2\") to replace string s1 with s2 in the message.", SocketRelation.Receive, SocketExpression.class);
-		
-		CaressesExpressions.add("socket/2", "(socket \"localhost\" 12347)", "Set socket connectecion to uAAL skeleton.", CaressesRelation.Socket, CaressesExpression.class);
-		CaressesExpressions.add("action/1", "(action {(id ?ID) (type Wave) (robot R1) (apar ?ActionPar1) (cpar ?CulturalPar1)})", "Define action request for Caresses.", CaressesRelation.Action, CaressesExpression.class);
 		
 		OntologyExpressions.add("prefix/2", "(prefix name URI)", "Add a prefix as context for following triplets.", OntologyRelation.Prefix, OntologyExpression.class);
 		OntologyExpressions.add("triple/3", "(triple ...)", "", OntologyRelation.Triple, OntologyExpression.class);

@@ -51,7 +51,6 @@ import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelatio
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.execution.Observation;
 import org.spiderplan.representation.expressions.execution.Simulation;
-import org.spiderplan.representation.expressions.execution.caresses.CaressesExpression;
 import org.spiderplan.representation.expressions.execution.ros.ROSConstraint;
 import org.spiderplan.representation.expressions.execution.ros.ROSGoal;
 import org.spiderplan.representation.expressions.execution.ros.ROSRegisterAction;

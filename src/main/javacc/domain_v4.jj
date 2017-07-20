@@ -28,7 +28,6 @@ import org.spiderplan.representation.expressions.*;
 import org.spiderplan.representation.expressions.execution.ros.*;
 import org.spiderplan.representation.expressions.execution.database.*;
 import org.spiderplan.representation.expressions.execution.sockets.*;
-import org.spiderplan.representation.expressions.execution.caresses.*;
 import org.spiderplan.representation.expressions.causal.*;
 import org.spiderplan.representation.expressions.cost.*;
 import org.spiderplan.representation.expressions.optimization.*;
@@ -122,7 +121,6 @@ TOKEN :
 |   < ROSGOAL : "actionlib" >
 |   < REUSABLE : "reusable" >
 |   < SOCKETS : ":sockets" >
-|   < CARESSES : ":caresses" >
 |   < ONTOLOGY : ":ontology" >
 }
 
@@ -351,7 +349,6 @@ ConstraintDatabase ConstraintDatabase() :
 		| ( < ROS > 		( 			   c = ROSConstraint() 				{ cDB.add(c); } )+ )
 		| ( < DBEXEC > 		( 			   c = DatabaseExecutionExpression() 				{ cDB.add(c); } )+ )
 		| ( < SOCKETS > 		( 			   c = SocketExpression() 				{ cDB.add(c); } )+ )
-		| ( < CARESSES > 		( 			   c = CaressesExpression() 				{ cDB.add(c); } )+ )
 		| ( < INCLUDE > 	( LOOKAHEAD(2) c = IncludeProgram() 			{ cDB.add(c); } )+ )
 		| ( < STATEMENT > 	( LOOKAHEAD(2) c = Statement()	 				{ cDB.add(c); } )+ ) 
 		| ( < PROLOG >	 programID = Term()  ( LOOKAHEAD(2) c = PrologConstraint(programID) 	{ cDB.add(c); } )+ )
@@ -925,14 +922,6 @@ Expression SocketExpression() :
 }
 {
  	( cRel = Term() )  	{ 	return new SocketExpression(cRel); 	}
-}
-
-Expression CaressesExpression() :
-{
-  	Term cRel;
-}
-{
- 	( cRel = Term() )  	{ 	return new CaressesExpression(cRel); 	}
 }
 
 Expression OntologyExpression( Term programID ) :

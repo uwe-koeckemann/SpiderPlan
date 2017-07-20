@@ -92,31 +92,29 @@ public interface DomainParser_v4Constants {
   /** RegularExpression Id. */
   int SOCKETS = 45;
   /** RegularExpression Id. */
-  int CARESSES = 46;
+  int ONTOLOGY = 46;
   /** RegularExpression Id. */
-  int ONTOLOGY = 47;
+  int OP = 47;
   /** RegularExpression Id. */
-  int OP = 48;
+  int CP = 48;
   /** RegularExpression Id. */
-  int CP = 49;
+  int OBRACKET = 49;
   /** RegularExpression Id. */
-  int OBRACKET = 50;
+  int CBRACKET = 50;
   /** RegularExpression Id. */
-  int CBRACKET = 51;
+  int OBRACE = 51;
   /** RegularExpression Id. */
-  int OBRACE = 52;
+  int CBRACE = 52;
   /** RegularExpression Id. */
-  int CBRACE = 53;
+  int BAR = 53;
   /** RegularExpression Id. */
-  int BAR = 54;
+  int QPOINT = 54;
   /** RegularExpression Id. */
-  int QPOINT = 55;
+  int QMARKS = 55;
   /** RegularExpression Id. */
-  int QMARKS = 56;
+  int NON_COMPLEX_TERM = 56;
   /** RegularExpression Id. */
-  int NON_COMPLEX_TERM = 57;
-  /** RegularExpression Id. */
-  int STRING = 58;
+  int STRING = 57;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -169,7 +167,6 @@ public interface DomainParser_v4Constants {
     "\"actionlib\"",
     "\"reusable\"",
     "\":sockets\"",
-    "\":caresses\"",
     "\":ontology\"",
     "\"(\"",
     "\")\"",
