@@ -27,16 +27,21 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.tools.ModuleFactory;
-import org.spiderplan.representation.Operator;
+import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.misc.Assertion;
+import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.DateTimeReference;
+import org.spiderplan.representation.expressions.temporal.Interval;
+import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.parser.domain_v4.DomainParser_v4;
 import org.spiderplan.representation.parser.pddl.PDDLParser;
@@ -64,11 +69,11 @@ public class Compile {
 	 */
 	public static enum DomainVersion { 
 		/**
-		 * Old version
+		 * Older version
 		 */
 		v2,  
 		/**
-		 * Older version
+		 * Old version
 		 */
 		v3,
 		/**
@@ -214,8 +219,57 @@ public class Compile {
 //				System.out.println(o);
 //			}
 //			
-//			System.out.println(c .getContext());
 			
+			DateTimeReference dtRef = c.getContext().getUnique(DateTimeReference.class);
+			if ( dtRef != null ) {
+				Global.DateTimeConverter = dtRef;
+				List<Expression> addList = new ArrayList<Expression>();
+				List<Expression> remList = new ArrayList<Expression>(); 
+				for ( AllenConstraint ac : c.getContext().get(AllenConstraint.class) ) {
+					boolean change = false;
+					Interval[] newBounds = new Interval[ac.getNumBounds()];
+					for ( int i = 0 ; i < ac.getNumBounds() ; i++ ) {
+						Term newLower = ac.getBound(i).getLowerTerm();
+						Term newUpper = ac.getBound(i).getUpperTerm();
+						if ( newLower.isComplex() ) {
+							newLower = Term.createInteger(dtRef.term2internal(newLower));
+							change = true;
+						}
+						if ( newUpper.isComplex() ) {
+							newUpper= Term.createInteger(dtRef.term2internal(newUpper));
+							change = true;
+						}
+						newBounds[i] = new Interval(newLower, newUpper);
+					}
+					if ( change ) {
+						remList.add(ac);
+						addList.add(ac.setBounds(newBounds));
+					}
+				}
+				c.getContext().removeAll(remList);
+				c.getContext().addAll(addList);
+				
+				PlanningInterval pI = c.getContext().getUnique(PlanningInterval.class);
+				
+				if ( pI != null ) {
+					boolean change = false;
+					Term start = pI.getStartTime();
+					Term horizon = pI.getHorizon();
+					if ( start.isComplex()) {
+						start = Term.createInteger(dtRef.term2internal(start));
+						change = true;
+					} 
+					if ( horizon.isComplex()) {
+						horizon = Term.createInteger(dtRef.term2internal(horizon));
+						change = true;
+					}
+					if ( change ) {
+						c.getContext().add(new PlanningInterval(start, horizon));
+					}					
+				}
+			}
+
+//			System.out.println(c.getContext());
 
 			
 //			c.getInitialContext().addConstraints(c.getConstraints());

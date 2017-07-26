@@ -121,6 +121,6 @@ public class PlanningInterval extends Expression implements Unique {
 
 	@Override
 	public String toString() {
-		return "( planning-interval [" + t0 + " " + tHorizon + "] )"; 
+		return "(planning-interval [" + t0 + " " + tHorizon + "])"; 
 	}
 }

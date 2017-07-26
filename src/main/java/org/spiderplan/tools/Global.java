@@ -25,6 +25,7 @@ import org.spiderplan.causal.forwardPlanning.goals.DisjunctiveGoal;
 import org.spiderplan.causal.forwardPlanning.goals.SingleGoal;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
+import org.spiderplan.representation.expressions.temporal.DateTimeReference;
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.stopWatch.StopWatch;
 
@@ -54,10 +55,9 @@ public class Global {
 	public static final long MaxTemporalHorizon = 1000000000;
 	
 	/**
-	 * Used to remember initial context. 
-	 * TODO: this is a work around that should be removed at some point 
+	 * Converts internal time to real time and vice versa
 	 */
-	public static ConstraintDatabase initialContext;
+	public static DateTimeReference DateTimeConverter = null;
 	
 	/**
 	 * Used to clean up static data between experiments.
@@ -74,6 +74,6 @@ public class Global {
 //		Atomic.resetStatics();
 //		Module.getStats().reset();
 		ConstraintDatabase.resetStatic();
-		initialContext = null;
+		DateTimeConverter = null;
 	}
 }

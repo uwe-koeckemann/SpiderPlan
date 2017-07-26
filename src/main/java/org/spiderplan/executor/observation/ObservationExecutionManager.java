@@ -21,38 +21,9 @@
  ******************************************************************************/
 package org.spiderplan.executor.observation;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.spiderplan.executor.ExecutionManager;
-import org.spiderplan.executor.ROS.ROSProxy;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.expressions.Expression;
-import org.spiderplan.representation.expressions.Statement;
-import org.spiderplan.representation.expressions.ValueLookup;
-import org.spiderplan.representation.expressions.ExpressionTypes.ROSRelation;
-import org.spiderplan.representation.expressions.ExpressionTypes.SocketRelation;
-import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
-import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.execution.Observation;
-import org.spiderplan.representation.expressions.execution.ros.ROSConstraint;
-import org.spiderplan.representation.expressions.execution.ros.ROSGoal;
-import org.spiderplan.representation.expressions.execution.sockets.SocketExpression;
-import org.spiderplan.representation.expressions.interfaces.Unique;
-import org.spiderplan.representation.expressions.temporal.AllenConstraint;
-import org.spiderplan.representation.expressions.temporal.Interval;
-import org.spiderplan.representation.logic.Term;
-import org.spiderplan.tools.UniqueID;
-import org.spiderplan.tools.logging.Logger;
 
 /**
  * @author Uwe Köckemann

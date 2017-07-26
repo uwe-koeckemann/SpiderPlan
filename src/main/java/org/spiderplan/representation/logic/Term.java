@@ -24,8 +24,6 @@ package org.spiderplan.representation.logic;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import javax.swing.plaf.synth.SynthSpinnerUI;
-
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.tools.UniqueID;
 

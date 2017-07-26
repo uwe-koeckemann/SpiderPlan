@@ -24,7 +24,6 @@ package org.spiderplan.representation.expressions;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.spiderplan.representation.expressions.domain.Substitution;
-import org.spiderplan.representation.expressions.interfaces.Matchable;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.tools.SimpleParsing;

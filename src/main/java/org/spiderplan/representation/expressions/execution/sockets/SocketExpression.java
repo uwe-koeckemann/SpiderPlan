@@ -26,7 +26,6 @@ import java.util.Collection;
 import org.spiderplan.executor.sockets.SocketExecutionManager;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.ExpressionTypes;
-import org.spiderplan.representation.expressions.ExpressionTypes.DatabaseExecutionRelation;
 import org.spiderplan.representation.expressions.ExpressionTypes.SocketRelation;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interfaces.Matchable;

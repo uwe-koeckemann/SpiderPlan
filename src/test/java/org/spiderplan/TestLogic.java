@@ -29,10 +29,7 @@ import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.types.EnumType;
 import org.spiderplan.representation.types.FloatType;
-import org.spiderplan.representation.types.IntegerType;
 import org.spiderplan.representation.types.TypeManager;
-
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.IntType;
 
 import junit.framework.TestCase;
 

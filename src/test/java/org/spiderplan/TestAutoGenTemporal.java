@@ -29,8 +29,10 @@ import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.tools.ModuleFactory;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.ValueLookup;
+import org.spiderplan.representation.expressions.temporal.DateTimeReference;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.parser.Compile;
+
 
 // contents from imports.java will end up after this comment
 
@@ -742,6 +744,96 @@ public class TestAutoGenTemporal extends TestCase {
 		assertTrue(resultStr.equals("Inconsistent"));
 		// Code from .java files in the test case folder will end up below (except imports.java)
 		
+	}		
+/*******************************************************************************
+ * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
+	/**
+	 * Tests a simple at constraint.
+	 */ 	
+	public void testDateTimeReference() {
+		String plannerFilename = "./domains/test-cases/Temporal/temporal.spider";
+		
+		ArrayList<String> domainFiles = new ArrayList<String>(); 
+		domainFiles.add("./domains/test-cases/Temporal/DateTimeReference/problem.uddl");
+
+	
+		Compile.compile( domainFiles, plannerFilename );
+		ConfigurationManager oM = Compile.getPlannerConfig();
+		Module main = ModuleFactory.initModule("main", oM);
+		Core initCore = Compile.getCore();
+		Core resultCore = main.run(initCore);
+		String resultStr = resultCore.getResultingState("main").toString();
+		assertTrue(resultStr.equals("Consistent"));
+		// Code from .java files in the test case folder will end up below (except imports.java)
+		/*******************************************************************************
+		 * Copyright (c) 2015-2017 Uwe Köckemann <uwe.kockemann@oru.se>
+		 * 
+		 * Permission is hereby granted, free of charge, to any person obtaining a copy
+		 * of this software and associated documentation files (the "Software"), to deal
+		 * in the Software without restriction, including without limitation the rights
+		 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		 * copies of the Software, and to permit persons to whom the Software is
+		 * furnished to do so, subject to the following conditions:
+		 * 
+		 * The above copyright notice and this permission notice shall be included in all
+		 * copies or substantial portions of the Software.
+		 * 
+		 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		 * SOFTWARE.
+		 ******************************************************************************/
+		ConstraintDatabase resultCDB = resultCore.getContext();
+		ValueLookup valueLookup = resultCDB.getUnique(ValueLookup.class);
+		DateTimeReference dtRef = resultCDB.getUnique(DateTimeReference.class);
+//		for ( Statement s : resultCDB.get(Statement.class) ) {
+//			Term k = s.getKey();
+//			System.out.println(k);
+//			System.out.println("\tEST: " + dtRef.internalDateTimeToString(valueLookup.getEST(k)));
+//			System.out.println("\tLST: " + dtRef.internalDateTimeToString(valueLookup.getLST(k)));
+//			System.out.println("\tEET: " + dtRef.internalDateTimeToString(valueLookup.getEET(k)));
+//			System.out.println("\tLET: " + dtRef.internalDateTimeToString(valueLookup.getLET(k)));
+//		}
+//		
+//		System.out.println(valueLookup);
+		assertTrue(valueLookup.getEST(Term.createConstant("I1")) == 0);
+		assertTrue(valueLookup.getLST(Term.createConstant("I1")) == 755994);
+		assertTrue(valueLookup.getEET(Term.createConstant("I1")) == 21600);
+		assertTrue(valueLookup.getLET(Term.createConstant("I1")) == 777594);
+		assertTrue(valueLookup.getEST(Term.createConstant("I2")) == 21606);
+		assertTrue(valueLookup.getLST(Term.createConstant("I2")) == 777600);
+		assertTrue(valueLookup.getEET(Term.createConstant("I2")) == 21606);
+		assertTrue(valueLookup.getLET(Term.createConstant("I2")) == 777600);
+		assertTrue(valueLookup.getEST(Term.createConstant("I3")) == 360);
+		assertTrue(valueLookup.getLST(Term.createConstant("I3")) == 720);
+		assertTrue(valueLookup.getEET(Term.createConstant("I3")) == 360);
+		assertTrue(valueLookup.getLET(Term.createConstant("I3")) == 864000);
+		assertTrue(valueLookup.getEST(Term.createConstant("I4")) == 108006);
+		assertTrue(valueLookup.getLST(Term.createConstant("I4")) == 864000);
+		assertTrue(valueLookup.getEET(Term.createConstant("I4")) == 108006);
+		assertTrue(valueLookup.getLET(Term.createConstant("I4")) == 864000);
 	}		
 
 }

@@ -50,7 +50,7 @@ public class Interval {
 	 */
 	public Interval(Term intTerm ) {
 		if ( !intTerm.getName().equals("interval")) {
-			throw new IllegalArgumentException(intTerm + " not supported. Term in this constructor must be interval(min,max). (The compiler also allows [min,max].)");
+			throw new IllegalArgumentException(intTerm + " not supported. Term in this constructor must be in the form (interval min max). (The compiler also allows [min,max].)");
 		}
 		this.min = intTerm.getArg(0);
 		this.max = intTerm.getArg(1);

@@ -25,10 +25,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.spiderplan.executor.ExecutionManager;
@@ -58,6 +56,7 @@ import org.spiderplan.representation.expressions.execution.sockets.SocketExpress
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
 import org.spiderplan.representation.expressions.misc.Assertion;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.DateTimeReference;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Term;
@@ -79,7 +78,17 @@ import org.spiderplan.tools.visulization.timeLineViewer.TimeLineViewer;
  */
 public class ExecutionModuleMK2  extends Module {
 
-	long t = 0;	
+	// Planner's time
+	private long t = 0;	
+	private long tPrev;
+	// Real time (milliseconds)
+	private long tReal;
+	private long tPrevReal;
+	private long tDiffReal;
+	private long tPreferredUpdateInterval = 1000;
+	// Updates are missed when flaw resolution takes longer than preferred update interval 
+	private int missedUpdates = 0;
+	
 	long tMax = 1000;
 	
 	long t0;
@@ -113,7 +122,7 @@ public class ExecutionModuleMK2  extends Module {
 //	private ConstraintDatabase addedOnReleaseDB = new ConstraintDatabase();
 //	private ConstraintDatabase addedByROS = new ConstraintDatabase();
 	
-	boolean drawTimeLines = true;
+	boolean drawTimeLines = false;
 	TimeLineViewer timeLineViewer = null;
 		
 	private String repairSolverName;
@@ -132,6 +141,10 @@ public class ExecutionModuleMK2  extends Module {
 	List<ExecutionManager> managerList = new ArrayList<ExecutionManager>();
 	
 	List<String> execModuleNames = new ArrayList<String>();
+	
+	DateTimeReference dtRef = null;
+	
+	Runtime runtime = Runtime.getRuntime();
 	
 	/**
 	 * Create new instance by providing name and configuration manager.
@@ -212,6 +225,7 @@ public class ExecutionModuleMK2  extends Module {
 		PlanningInterval pI = core.getContext().getUnique(PlanningInterval.class);
 //		DateTimeReference timeRef = core.getContext().getUnique(DateTimeReference.class);
 		
+		this.dtRef = core.getContext().getUnique(DateTimeReference.class);
 		this.t0 = 0;
 		
 		this.t = pI.getStartTimeValue();
@@ -312,16 +326,43 @@ public class ExecutionModuleMK2  extends Module {
 	}
 	
 	boolean newInformationReleased = false;
-	
-	private void update( ) {
 
-//		boolean needFromScratch = true;
+	private void update( ) {
 		/************************************************************************************************
-		 * Update time
+		 * Update times
 		 ************************************************************************************************/
-		t++;
-		if ( verbose ) Logger.landmarkMsg(this.getName());
-		if ( verbose ) Logger.landmarkMsg(this.getName() + "@t=" + t);
+		tPrev = t;
+		tPrevReal = tReal;
+		tReal = System.currentTimeMillis();
+		tDiffReal = tReal - tPrevReal;
+		if ( !useRealTime ) {
+			t++;
+		} else {
+			if ( dtRef != null ) { 
+				t = dtRef.externalDateTime2internal(tReal);
+			} else {
+				t = tReal;
+			}
+		}				
+		if ( dtRef != null ) { 
+			t = dtRef.externalDateTime2internal(tReal);
+		} else {
+			t = tReal;
+		}
+		if ( verbose ) {
+			Logger.landmarkMsg(this.getName() + "@t=" + t);
+			Logger.msg(this.getName(), String.format("t=%d (%d since last)", t, (t-tPrev)), 1);
+			Logger.msg(this.getName(), String.format("tReal=%d (%d since last)", tReal, tDiffReal), 1);
+//			long maxMem = runtime.maxMemory() /1024;
+//			long alocMem = runtime.totalMemory() /1024;
+//			long freeMem = runtime.freeMemory() /1024;
+			
+//			Logger.msg(this.getName(), String.format("Free memory: %dkb", freeMem), 0);
+//			Logger.msg(this.getName(), String.format("Allocated memory: %dkb", alocMem), 0);
+//			Logger.msg(this.getName(), String.format("Max memory: %dkb", maxMem), 0);
+//			Logger.msg(this.getName(), String.format("Total free memory: %dkb", (freeMem + (maxMem - alocMem))), 0);
+			Logger.msg(this.getName(), String.format("Missed updates: %d", this.missedUpdates), 0);
+		}
 						
 		execDB.remove(rFuture);
 		rFuture = new AllenConstraint(Term.parse("(deadline past (interval "+(t)+" "+(t)+"))"));
@@ -393,6 +434,8 @@ public class ExecutionModuleMK2  extends Module {
 //			execCSP.isConsistent(execDB, tM);
 			firstUpdate = false;
 			this.draw();
+		} else if (firstUpdate ) {
+			firstUpdate = false;
 		}
 		if ( timeLineViewer != null ) {
 			
@@ -425,12 +468,17 @@ public class ExecutionModuleMK2  extends Module {
 		}
 	
 		/************************************************************************************************
-		 * Force some delay - TODO: adapt when doing real time
+		 * Wait until next update or count missed updates.
 		 ************************************************************************************************/
-		try {
-			Thread.sleep(1000);
-		} catch ( Exception e ) {
-			
+		long tUpdateReal = System.currentTimeMillis() - tReal;
+		if ( tUpdateReal < tPreferredUpdateInterval ) {
+			try {
+				Thread.sleep(tPreferredUpdateInterval - tUpdateReal);
+			} catch ( Exception e ) { }
+		} else if ( tUpdateReal > tPreferredUpdateInterval ) {
+			long missedUpdatesNow = tUpdateReal/tPreferredUpdateInterval;
+			missedUpdates += missedUpdatesNow;
+			Logger.msg(this.getName(), String.format("Missed %d updates (%d total).", missedUpdatesNow, missedUpdates), 0);
 		}
 	}
 		

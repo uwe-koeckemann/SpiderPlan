@@ -27,9 +27,6 @@ import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
 import org.spiderplan.modules.tools.ModuleFactory;
-import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.expressions.ValueLookup;
-import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.parser.Compile;
 
 // contents from imports.java will end up after this comment

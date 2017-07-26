@@ -22,7 +22,6 @@
 package org.spiderplan;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.spiderplan.modules.configuration.ConfigurationManager;
@@ -79,12 +78,26 @@ public class TestSmallClasses extends TestCase {
 	}
 	
 	public void testDateTimeReference() throws java.text.ParseException {
-		DateTimeReference ref = new DateTimeReference("yyyy/MM/dd hh:mm:ss.SSS", 
-													  "2017/02/08 14:00:00.000",
-													   1,0,0,0,0);
+		DateTimeReference ref = new DateTimeReference(Term.createComplex("(date-time-reference", 
+				Term.createConstant("yyyy/MM/dd hh:mm:ss.SSS"), 
+				Term.parse("(datetime now)"), 
+				Term.parse("(timespan (hours 1))")));
 	
-		Date t = new Date(ref.internal2external(20));
-//		System.out.println(t);
+	
+		long internalTimeOffset = ref.term2internal(Term.parse("(offset (datetime now) (timespan (hours 10))"));
+		assertTrue(internalTimeOffset == 10);
+		
+		long internalTimeSpan = ref.term2internal(Term.parse("(timespan (hours 10)"));
+		assertTrue( internalTimeSpan == 10 );
+		
+		internalTimeSpan = ref.term2internal(Term.parse("(timespan (hours 10) (minutes 30))"));
+		assertTrue( internalTimeSpan == 10 );
+		
+		internalTimeSpan = ref.term2internal(Term.parse("(timespan (hours 10) (minutes 90))"));
+		assertTrue( internalTimeSpan == 11 );
+		
+		internalTimeSpan = ref.term2internal(Term.parse("(timespan (days 2))"));
+		assertTrue( internalTimeSpan == 48 );
 	}
 	
 	/**

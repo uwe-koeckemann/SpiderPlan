@@ -22,10 +22,11 @@
 package org.spiderplan.representation.expressions.temporal;
 
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.spiderplan.representation.expressions.Expression;
@@ -36,61 +37,122 @@ import org.spiderplan.representation.logic.Term;
 /**
  * Reference between internal time points and real date-time.
  * 
+ * What this should do:
+ * - Allow to take timestamps and convert them to internal time points
+ * - Convert internal time points to timestamps
+ * - Convert between internal and external time points
+ * - Do offset calculations
+ * - Convert timestamp and timespan terms to external time points 
+ * 
  * @author Uwe Köckemann
  *
  */
 public class DateTimeReference extends Expression implements Unique {
 	
-	String timeFormatStr;
+	Term dtRefTerm;
+	
+	Date t0; // Contains ms since 1970-01-01
+	
 	String t0Str;
+	String dateFormatStr;
 	
-	long d_days;
-	long d_hours;
-	long d_minutes;
-	long d_seconds;
-	long d_milliseconds;
 	
-	DateFormat timeFormat;
-	Date t0;
+	DateFormat dateFormat;
 	DateFormat deltaFormat;
-	long total_d_milliseconds;
-
+	
+	long d_days = 0;
+	long d_hours = 0;
+	long d_minutes = 0;
+	long d_seconds = 0;
+	long d_milliseconds = 0;
+		
+	long total_d_milliseconds; // How many milliseconds pass between internal time points
+	
+	private static List<String> YEAR = new ArrayList<String>();
+	private static List<String> MONTH = new ArrayList<String>();
+	private static List<String> DAY = new ArrayList<String>();
+	private static List<String> HOUR = new ArrayList<String>();
+	private static List<String> MINUTE = new ArrayList<String>();
+	private static List<String> SECOND = new ArrayList<String>();
+	private static List<String> MILLISECOND = new ArrayList<String>();
+	{
+		YEAR.add("y");
+		YEAR.add("yyyy");
+		YEAR.add("year");
+		MONTH.add("M");
+		MONTH.add("MM");
+		MONTH.add("month");
+		DAY.add("d");
+		DAY.add("dd");
+		DAY.add("day");
+		DAY.add("days");
+		HOUR.add("hour");
+		HOUR.add("hours");
+		HOUR.add("h");
+		HOUR.add("hh");
+		MINUTE.add("m");
+		MINUTE.add("mm");
+		MINUTE.add("min");		
+		MINUTE.add("minute");
+		MINUTE.add("minutes");
+		SECOND.add("s");
+		SECOND.add("ss");
+		SECOND.add("second");
+		SECOND.add("seconds");
+		MILLISECOND.add("f");
+		MILLISECOND.add("ms");
+		MILLISECOND.add("fff");
+		MILLISECOND.add("millisecond");
+		MILLISECOND.add("milliseconds");
+	}
+	
 	/**
-	 * Create new time reference.
-	 * 
-	 * @param timeFormatStr
-	 * @param t0Str
-	 * @param d_days 
-	 * @param d_hours 
-	 * @param d_minutes 
-	 * @param d_seconds 
-	 * @param d_milliseconds 
+	 * @param t
 	 */
-	public DateTimeReference( String timeFormatStr, String t0Str, long d_days, long d_hours, long d_minutes, long d_seconds, long d_milliseconds ) {
+	public DateTimeReference( Term t ) {
 		super(ExpressionTypes.Temporal);
-		try {
-			this.timeFormatStr = timeFormatStr;
-			this.t0Str = t0Str;
+		dtRefTerm = t;
+		dateFormatStr = t.getArg(0).toString();
 
-			this.timeFormat = new SimpleDateFormat(timeFormatStr);
-			this.t0 = this.timeFormat.parse(t0Str);
-			
-			this.d_days = d_days;
-			this.d_hours = d_hours;
-			this.d_minutes = d_minutes;
-			this.d_seconds = d_seconds;
-			this.d_milliseconds = d_milliseconds;
+		Term initialDateTime = t.getArg(1);
+		
+		if ( initialDateTime.getArg(0).equals(Term.createConstant("now"))) {
+			t0 = new Date();
+		} else {
+			t0 = this.term2date(initialDateTime);
+		}
+	
+		try {
+			Term deltaTimespan = t.getArg(2);
+			for ( int i = 0 ; i < deltaTimespan.getNumArgs() ; i++ ) {
+				Term arg = deltaTimespan.getArg(i);
+				String name = arg.getName();
+				long value = Long.valueOf(arg.getArg(0).toString());
+				
+				if ( DAY.contains(name)) {
+					this.d_days = value;
+				} else if ( HOUR.contains(name) ) {
+					this.d_hours = value;
+				} else if ( MINUTE.contains(name) ) {
+					this.d_minutes = value;
+				} else if ( SECOND.contains(name) ) {
+					this.d_seconds = value;
+				} else if ( MILLISECOND.contains(name) ) {
+					this.d_milliseconds = value;
+				}
+			}
 			
 			total_d_milliseconds = TimeUnit.DAYS.toMillis(d_days);
 			total_d_milliseconds += TimeUnit.HOURS.toMillis(d_hours);
 			total_d_milliseconds += TimeUnit.MINUTES.toMillis(d_minutes);
 			total_d_milliseconds += TimeUnit.SECONDS.toMillis(d_seconds);
 			total_d_milliseconds += d_milliseconds;			
-		} catch (ParseException e) {
+		} catch ( NumberFormatException e ) {
+			System.err.println("Last 5 arguments of " +t.toString()+ " must be long values. Exiting...");
 			e.printStackTrace();
 			System.exit(1);
-		}
-	}		
+		} 
+	}
 	
 	/**
 	 * Get the earliest time in the reference. 
@@ -99,34 +161,108 @@ public class DateTimeReference extends Expression implements Unique {
 	public Date getTime0() {
 		return t0;
 	}
+		
+//	private long internalDateTime2external( long tInternal ) {
+//		return t0.getTime() + tInternal * total_d_milliseconds;
+//	}	
+	
 	
 	/**
-	 * Get the time in miliseconds that passes between two timepoints.
-	 * @return time delta in miliseconds
+	 * Convert time in millis since 1970-01-01 to internal planner time.
+	 * @param tReal
+	 * @return planning time step
 	 */
-	public long getTotalDelta() {
-		return total_d_milliseconds;
-	}
-	
-	/**
-	 * Convert internal time point to date time in milliseconds.
-	 * 
-	 * @param tInternal Internal time point (e.g., from temporal propagation)
-	 * @return time point that corresponds to real date time
-	 */
-	public long internal2external( long tInternal ) {
-
-		return t0.getTime() + tInternal * total_d_milliseconds;
-	}
-	
-	/**
-	 * Convert real date time (in milliseconds) to internal time point.
-	 * 
-	 * @param tReal current real time in milliseconds
-	 * @return internal time step that corresponds to tReal
-	 */
-	public long external2internal( long tReal ) {
+	public long externalDateTime2internal( long tReal ) {
 		return (tReal-t0.getTime())/total_d_milliseconds;
+	}	
+	private long externalTimeSpan2internal( long tReal ) {
+		return tReal/total_d_milliseconds;
+	}
+	
+	public String internalDateTimeToString( long tInternal ) {
+		long external = this.t0.getTime() + tInternal*total_d_milliseconds;
+		Date d = new Date(external);
+		return d.toString();
+	}
+		
+	/**
+	 * Convert a term to internal time point. This term 
+	 * may describe a date-time (datetime (y 2017) (M 7) (d 20) (h 10) (m 30) (s 20) (f 100))
+	 * or a time span (timespan (d 10)) or an offset (offset (datetime (y 2017) (M 7) (d 10)) (timespan (d 1))).
+	 * @param t A term as described abode
+	 * @return internal time point representation of the planner
+	 */
+	public long term2internal( Term t ) {
+		if ( t.getName().equals("datetime") ) {
+			return externalDateTime2internal(term2date(t).getTime());
+		} else if ( t.getName().equals("timespan") ) {
+			return externalTimeSpan2internal(term2delta(t));
+		} else if ( t.getName().equals("offset") ) {
+			return term2internal(t.getArg(0)) + term2internal(t.getArg(1));
+		} else {
+			throw new IllegalArgumentException("Illegal term for time reference: " + t + " use (datetime (year 2017) (month 1) (day 1) ...), (timespan (days 1) (hours ...)), or (offset (datetime ...) (timespan ...))");
+		}
+	}
+	
+	private Date term2date( Term dtTerm ) {
+		Calendar c = Calendar.getInstance();
+		
+		if ( dtTerm.getArg(0).toString().equals("now") ) {
+			return Date.from(c.toInstant());
+		}
+		
+		c.clear();
+		
+		for ( int i = 0 ; i < dtTerm.getNumArgs() ; i++ ) {
+			Term arg = dtTerm.getArg(i);
+			String name = arg.getName();
+			int value = Integer.valueOf(arg.getArg(0).toString());
+			
+			
+			if ( YEAR.contains(name) ) {
+				c.set(Calendar.YEAR, value);
+			} else if ( MONTH.contains(name) ) {
+				c.set(Calendar.MONTH, value-1); // Calendar starts counting month at 0
+			} else if ( DAY.contains(name) ) {
+				c.set(Calendar.DAY_OF_MONTH, value);
+			} else if ( HOUR.contains(name) ) {
+				c.set(Calendar.HOUR_OF_DAY, value);
+			} else if ( MINUTE.contains(name) ) {
+				c.set(Calendar.MINUTE, value);
+			} else if ( SECOND.contains(name) ) {
+				c.set(Calendar.SECOND, value);
+			} else if ( MILLISECOND.contains(name) ) {
+				c.set(Calendar.MILLISECOND, value);
+			}
+		}
+				
+		Date r = Date.from(c.toInstant());
+		
+		return r;
+	}
+	
+	private long term2delta( Term deltaTerm ) {
+		long total_d_ms = 0;
+		
+		for ( int i = 0 ; i < deltaTerm.getNumArgs() ; i++ ) {
+			Term arg = deltaTerm.getArg(i);
+			String name = arg.getName();
+			int value = Integer.valueOf(arg.getArg(0).toString());
+						
+			if ( DAY.contains(name) ) {
+				total_d_ms += TimeUnit.DAYS.toMillis(value);
+			} else if ( HOUR.contains(name) ) {
+				total_d_ms += TimeUnit.HOURS.toMillis(value);
+			} else if ( MINUTE.contains(name) ) {
+				total_d_ms += TimeUnit.MINUTES.toMillis(value);
+			} else if ( SECOND.contains(name) ) {
+				total_d_ms += TimeUnit.SECONDS.toMillis(value);
+			} else if ( MILLISECOND.contains(name) ) {
+				total_d_ms += value;
+			}
+		}
+					
+		return total_d_ms;
 	}
 	
 	@Override
@@ -155,23 +291,6 @@ public class DateTimeReference extends Expression implements Unique {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("(date-time-format ");
-		
-		sb.append(this.timeFormatStr);
-		sb.append(" ");
-		sb.append(this.t0Str);
-		sb.append(" ");
-		sb.append(this.d_days);
-		sb.append(" ");
-		sb.append(this.d_hours);
-		sb.append(" ");
-		sb.append(this.d_minutes);
-		sb.append(" ");
-		sb.append(this.d_seconds);
-		sb.append(" ");
-		sb.append(this.d_milliseconds);
-		sb.append(")");
-		return sb.toString();
+		return dtRefTerm.toString();
 	}
 }

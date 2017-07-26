@@ -21,32 +21,21 @@
  ******************************************************************************/
 package org.spiderplan.executor.sockets;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.spiderplan.executor.ExecutionManager;
-import org.spiderplan.executor.ROS.ROSProxy;
 import org.spiderplan.representation.ConstraintDatabase;
-import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ValueLookup;
-import org.spiderplan.representation.expressions.ExpressionTypes.ROSRelation;
 import org.spiderplan.representation.expressions.ExpressionTypes.SocketRelation;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
 import org.spiderplan.representation.expressions.domain.Substitution;
-import org.spiderplan.representation.expressions.execution.ros.ROSConstraint;
-import org.spiderplan.representation.expressions.execution.ros.ROSGoal;
 import org.spiderplan.representation.expressions.execution.sockets.SocketExpression;
-import org.spiderplan.representation.expressions.interfaces.Unique;
 import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
@@ -67,9 +56,6 @@ public class SocketExecutionManager extends ExecutionManager {
 	public SocketExecutionManager( String name ) {
 		super(name);
 	}
-
-
-	private ConstraintDatabase addedByROS = new ConstraintDatabase();
 	
 	List<SocketExpression> receivers = new ArrayList<SocketExpression>();
 	List<SocketExpression> senders = new ArrayList<SocketExpression>();
@@ -79,14 +65,7 @@ public class SocketExecutionManager extends ExecutionManager {
 	Map<Term,Socket> socketLookup = new HashMap<Term, Socket>();
 	Map<Term,SocketMessageThreadReceiver> messageThreadLookup = new HashMap<Term, SocketMessageThreadReceiver>();
 	Map<Term,SocketMessageThreadSend> messageThreadSendLookup = new HashMap<Term, SocketMessageThreadSend>();
-	
-	// TODO: this came from ExecutionModule before
-//	Map<Term,Statement> lastChangingStatement = new HashMap<Term, Statement>();
-//	Map<Term,Expression> lastAddedDeadline = new HashMap<Term, Expression>();
-	
-
-	
-	
+		
 	@Override
 	public void initialize( ConstraintDatabase cdb ) {
 		/**
@@ -107,15 +86,11 @@ public class SocketExecutionManager extends ExecutionManager {
 				
 				// Create socket and threat put both in lookup under alias
 				
-				
-				
-				System.out.println("HOST: " + hostName.replace("\"", ""));
-				
 				try {
 					Socket socket = new Socket(hostName, portNumber);
 //					socket.setSoTimeout(100);
-					SocketMessageThreadReceiver socketThread = new SocketMessageThreadReceiver(socket);
-					SocketMessageThreadSend socketThreadSend = new SocketMessageThreadSend(socket);
+					SocketMessageThreadReceiver socketThread = new SocketMessageThreadReceiver(socket, false);
+					SocketMessageThreadSend socketThreadSend = new SocketMessageThreadSend(socket, false);
 					socketThread.start();
 					socketThreadSend.start();
 					

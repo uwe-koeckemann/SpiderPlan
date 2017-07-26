@@ -21,10 +21,7 @@
  ******************************************************************************/
 package org.spiderplan.executor.sockets;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -38,21 +35,26 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class SocketMessageThreadSend extends Thread {
 
 	private Socket socket;
-	private ConcurrentLinkedQueue<String> msgQueue = new ConcurrentLinkedQueue<String>();
 	private ConcurrentLinkedQueue<String> msgQueueOut = new ConcurrentLinkedQueue<String>();
+	private boolean verbose = false;
 	
-	
-	public SocketMessageThreadSend( Socket socket ) {
+	/**
+	 * Create a thread to send messages through a socket
+	 * @param socket socket to use
+	 * @param verbose switches console output on/off
+	 */
+	public SocketMessageThreadSend( Socket socket, boolean verbose ) {
 		this.socket = socket;
 		this.setDaemon(true);
+		this.verbose = verbose;
 	}
 	
+	/**
+	 * Queue a message to be sent through the socket.
+	 * @param message the message to send
+	 */
 	public void queueMessageToSend( String message ) {
 		msgQueueOut.add(message);
-	}
-	
-	public ConcurrentLinkedQueue<String> getMessages() {
-		return msgQueue;
 	}
 	
     @Override
@@ -65,11 +67,17 @@ public class SocketMessageThreadSend extends Thread {
 		        
 		        while ( !msgQueueOut.isEmpty() ) {
 		        	String nextMessage = msgQueueOut.poll();
-					outStream.write(nextMessage.replaceAll("\"", "") + "\n\n");
+					outStream.write(nextMessage + "\n");
 					outStream.flush();		
+		            if ( verbose ) {
+		            	System.out.println("-------------------------------------------------------------------");
+		            	System.out.println("- OUTGOING MESSAGE");
+		            	System.out.println("-------------------------------------------------------------------");
+		            	System.out.println(nextMessage);
+		            }
 		        }
 		        
-		        Thread.sleep(1000);
+		        Thread.sleep(100);
 			}
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();

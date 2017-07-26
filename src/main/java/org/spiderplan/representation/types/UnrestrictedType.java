@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.spiderplan.representation.types;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.spiderplan.representation.logic.Term;

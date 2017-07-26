@@ -25,7 +25,6 @@ import java.util.Collection;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.ExpressionTypes;
 import org.spiderplan.representation.expressions.ExpressionTypes.OntologyRelation;
-import org.spiderplan.representation.expressions.ExpressionTypes.OptimizationRelation;
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.interfaces.Matchable;
 import org.spiderplan.representation.expressions.interfaces.Substitutable;

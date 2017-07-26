@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.plaf.synth.SynthSpinnerUI;
-
 import java.util.Set; 
 import org.spiderplan.tools.logging.Logger;
 import org.spiderplan.tools.statistics.Statistics;
@@ -57,8 +55,10 @@ import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.plans.SequentialPlan;
+import org.spiderplan.representation.types.Type;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.Global;
+import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.UniqueID;
 
 /**
@@ -921,30 +921,59 @@ public class ForwardPlanningIterator extends ResolverIterator {
 				for ( Statement s : o.getPreconditions() ) {
 					if ( !tM.isConsistentVariableTermAssignment(s.getVariable(), s.getValue())) {
 						violatesVarDomRestriction = true;
+						if ( verbose ) {
+							super.print(String.format("Precondition %s not consistent with signature:",  s.toString()), 1);
+							Logger.depth++;
+							List<Type> types = tM.getPredicateTypes(s.getVariable().getUniqueName());
+							for ( int i = 0 ; i < types.size()-1 ; i++ ) {
+								if ( s.getVariable().getArg(i).isGround() && !types.get(i).contains(s.getVariable().getArg(i), tM) )
+									super.print(String.format("[FAILURE] Argument: %d -> %s not in arg's type: %s", i, s.getVariable().getArg(i), types.get(i).toString()), 1);
+							}
+							int valueArg = types.size()-1;
+							if ( s.getValue().isGround() && !types.get(valueArg).contains(s.getValue(), tM) )
+								super.print(String.format("[FAILURE] Statement's value -> %s not in value's type: %s", valueArg, s.getValue(), types.get(valueArg).toString()), 1);
+							Logger.depth--;
+						}
+						
 						break;
 					}
 				}
 				if ( !violatesVarDomRestriction ) {
 					for ( Statement s : o.getEffects() ) {
 						if ( !tM.isConsistentVariableTermAssignment(s.getVariable(), s.getValue())) {
-							System.out.println(s + " violates var dom rest.");
 							violatesVarDomRestriction = true;
+							if ( verbose ) {
+								super.print(String.format("Effect %s not consistent with signature:",  s.toString()), 1);
+								Logger.depth++;
+								List<Type> types = tM.getPredicateTypes(s.getVariable().getUniqueName());
+								for ( int i = 0 ; i < types.size()-1 ; i++ ) {
+									if ( s.getVariable().getArg(i).isGround() && !types.get(i).contains(s.getVariable().getArg(i), tM) )
+										super.print(String.format("[FAILURE] Argument: %d -> %s not in arg's type: %s", i, s.getVariable().getArg(i), types.get(i).toString()), 1);
+								}
+								int valueArg = types.size()-1;
+								if ( s.getValue().isGround() && !types.get(valueArg).contains(s.getValue(), tM) )
+									super.print(String.format("[FAILURE] Statement's value -> %s not in value's type: %s", valueArg, s.getValue(), types.get(valueArg).toString()), 1);
+								Logger.depth--;
+							}
 							break;
 						}
 					}
-				}				
+				}			
 				if ( !violatesVarDomRestriction ) {
 					for ( Expression c : o.getConstraints() ) {
 						if ( c instanceof VariableDomainRestriction ) {
 							VariableDomainRestriction vdr = (VariableDomainRestriction)c;
 							if ( !vdr.isConsistent() ) {
 								violatesVarDomRestriction = true;
+								if ( verbose ) super.print(String.format("VariableDomainRestriction %s violated.",  vdr.toString()), 1);
 								break;
 							}
 						}
 					}
 				}
 				if ( violatesVarDomRestriction ) {
+					if ( verbose ) super.print(String.format("Removing %s because of variable domain restriction violation. If this is a problem check type domains.",  o.getName().toString()), 1);
+					
 					remList.add(o);
 				}
 			}

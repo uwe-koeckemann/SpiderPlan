@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collection;
 import java.util.Scanner;
 
 import java.nio.file.Files;
@@ -17,7 +14,6 @@ import java.io.IOException;
 import java.net.URL;
 
 import org.spiderplan.representation.*;
-import org.spiderplan.representation.types.*;
 import org.spiderplan.representation.expressions.*;
 import org.spiderplan.representation.expressions.execution.ros.*;
 import org.spiderplan.representation.expressions.execution.database.*;
@@ -650,27 +646,8 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
               } else {
                  {if (true) return new PlanningInterval(constraint.getArg(0), constraint.getArg(1));}
               }
-            } else if ( name.equals("date-time-reference") ) {
-                                 ExpressionTypes.TemporalConstraints.assertSupported(constraint, DateTimeReference.class);
-
-                                                String dateFormatStr = constraint.getArg(0).toString();
-                                                String initialDate = constraint.getArg(1).toString();
-
-                                                try {
-                                                                                long d_days = Long.valueOf(constraint.getArg(2).toString()).longValue();
-                                                                                long d_hours = Long.valueOf(constraint.getArg(3).toString()).longValue();
-                                                                                long d_minutes = Long.valueOf(constraint.getArg(4).toString()).longValue();
-                                                                                long d_seconds = Long.valueOf(constraint.getArg(5).toString()).longValue();
-                                                                                long d_milliseconds = Long.valueOf(constraint.getArg(6).toString()).longValue();
-                                                                                {if (true) return new DateTimeReference(dateFormatStr, initialDate, d_days, d_hours, d_minutes, d_seconds, d_milliseconds);}
-                                                } catch ( NumberFormatException e ) {
-                                                                                System.err.println("Last 5 arguments of " +constraint.toString()+ " must be long values. Exiting...");
-                                                                                e.printStackTrace();
-                                                                                System.exit(1);
-                                                }
-
-                                {if (true) return null;}
-
+            } else if (  constraint.getName().equals("date-time-reference") ) {
+                                        {if (true) return new DateTimeReference(constraint);}
             } else if ( name.equals("possibleintersection") || name.equals("intersection") ) {
               ArrayList<Term> terms = new ArrayList<Term>();
           for ( int i = 0 ; i < constraint.getNumArgs() ; i++ )
@@ -1541,6 +1518,11 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3R_71() {
+    if (jj_3R_82()) return true;
+    return false;
+  }
+
   private boolean jj_3R_57() {
     if (jj_scan_token(STATEMENT)) return true;
     return false;
@@ -1548,11 +1530,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3R_56() {
     if (jj_scan_token(INCLUDE)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_79() {
-    if (jj_3R_82()) return true;
     return false;
   }
 
@@ -1576,11 +1553,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_72() {
-    if (jj_3R_82()) return true;
-    return false;
-  }
-
   private boolean jj_3R_51() {
     Token xsp;
     xsp = jj_scanpos;
@@ -1591,29 +1563,8 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_76() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_26()) {
-    jj_scanpos = xsp;
-    if (jj_3R_87()) return true;
-    }
-    return false;
-  }
-
   private boolean jj_3R_50() {
     if (jj_scan_token(SET)) return true;
-    return false;
-  }
-
-  private boolean jj_3_26() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_3R_82()) return true;
-    if (jj_scan_token(STRING)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_83()) jj_scanpos = xsp;
-    if (jj_scan_token(CP)) return true;
     return false;
   }
 
@@ -1667,23 +1618,18 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_75() {
-    if (jj_3R_82()) return true;
-    return false;
-  }
-
   private boolean jj_3R_39() {
     if (jj_scan_token(OPTIMIZATION)) return true;
     return false;
   }
 
-  private boolean jj_3R_65() {
-    if (jj_3R_82()) return true;
+  private boolean jj_3R_38() {
+    if (jj_scan_token(COST)) return true;
     return false;
   }
 
-  private boolean jj_3R_38() {
-    if (jj_scan_token(COST)) return true;
+  private boolean jj_3R_79() {
+    if (jj_3R_82()) return true;
     return false;
   }
 
@@ -1698,19 +1644,29 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_86() {
+  private boolean jj_3R_72() {
+    if (jj_3R_82()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_76() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_26()) {
+    jj_scanpos = xsp;
+    if (jj_3R_87()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3_26() {
     if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(REUSABLE)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_64() {
     if (jj_3R_82()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_74() {
-    if (jj_3R_82()) return true;
+    if (jj_scan_token(STRING)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_83()) jj_scanpos = xsp;
+    if (jj_scan_token(CP)) return true;
     return false;
   }
 
@@ -1797,8 +1753,41 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
+  private boolean jj_3R_75() {
+    if (jj_3R_82()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_65() {
+    if (jj_3R_82()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_86() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(REUSABLE)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_64() {
+    if (jj_3R_82()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_74() {
+    if (jj_3R_82()) return true;
+    return false;
+  }
+
   private boolean jj_3R_66() {
     if (jj_3R_86()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_77() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_3R_88()) return true;
+    if (jj_3R_82()) return true;
     return false;
   }
 
@@ -1824,9 +1813,14 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_77() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_3R_88()) return true;
+  private boolean jj_3R_93() {
+    if (jj_3R_82()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_92() {
+    if (jj_scan_token(OBRACKET)) return true;
+    if (jj_3R_82()) return true;
     if (jj_3R_82()) return true;
     return false;
   }
@@ -1858,34 +1852,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_88() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_29()) jj_scanpos = xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3_30()) { jj_scanpos = xsp; break; }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_93() {
-    if (jj_3R_82()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_92() {
-    if (jj_scan_token(OBRACKET)) return true;
-    if (jj_3R_82()) return true;
-    if (jj_3R_82()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_70() {
-    if (jj_3R_77()) return true;
-    return false;
-  }
-
   private boolean jj_3R_94() {
     if (jj_3R_82()) return true;
     return false;
@@ -1902,12 +1868,18 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_69() {
-    if (jj_3R_77()) return true;
+  private boolean jj_3R_88() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_29()) jj_scanpos = xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3_30()) { jj_scanpos = xsp; break; }
+    }
     return false;
   }
 
-  private boolean jj_3R_68() {
+  private boolean jj_3R_70() {
     if (jj_3R_77()) return true;
     return false;
   }
@@ -1924,8 +1896,8 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_73() {
-    if (jj_3R_82()) return true;
+  private boolean jj_3R_69() {
+    if (jj_3R_77()) return true;
     return false;
   }
 
@@ -1939,27 +1911,16 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3_28() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_scan_token(SIGNATURE)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_78() {
-    if (jj_3R_82()) return true;
-    return false;
-  }
-
-  private boolean jj_3_27() {
-    if (jj_3R_82()) return true;
-    return false;
-  }
-
   private boolean jj_3_2() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_36()) jj_scanpos = xsp;
     if (jj_3R_37()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_68() {
+    if (jj_3R_77()) return true;
     return false;
   }
 
@@ -1982,8 +1943,24 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_83() {
-    if (jj_scan_token(STRING)) return true;
+  private boolean jj_3R_73() {
+    if (jj_3R_82()) return true;
+    return false;
+  }
+
+  private boolean jj_3_28() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_scan_token(SIGNATURE)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_78() {
+    if (jj_3R_82()) return true;
+    return false;
+  }
+
+  private boolean jj_3_27() {
+    if (jj_3R_82()) return true;
     return false;
   }
 
@@ -2007,14 +1984,8 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_87() {
-    if (jj_scan_token(OP)) return true;
-    if (jj_3R_82()) return true;
-    return false;
-  }
-
-  private boolean jj_3_24() {
-    if (jj_3R_82()) return true;
+  private boolean jj_3R_83() {
+    if (jj_scan_token(STRING)) return true;
     return false;
   }
 
@@ -2044,11 +2015,6 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
     return false;
   }
 
-  private boolean jj_3R_71() {
-    if (jj_3R_82()) return true;
-    return false;
-  }
-
   private boolean jj_3_11() {
     if (jj_3R_70()) return true;
     return false;
@@ -2066,6 +2032,17 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
 
   private boolean jj_3_12() {
     if (jj_3R_71()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_87() {
+    if (jj_scan_token(OP)) return true;
+    if (jj_3R_82()) return true;
+    return false;
+  }
+
+  private boolean jj_3_24() {
+    if (jj_3R_82()) return true;
     return false;
   }
 

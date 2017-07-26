@@ -54,8 +54,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.spiderplan.tools.stopWatch.StopWatch;
-
 /**
  * Frame for the Logger class. Create using one of the Logger.draw() methods.
  * 

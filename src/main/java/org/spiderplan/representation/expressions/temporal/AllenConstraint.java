@@ -464,6 +464,15 @@ public class AllenConstraint extends Expression implements Matchable, Substituta
 		}
 	}
 	
+	/**
+	 * Return an Allen constraint with a different set of bounds.
+	 * @param intervals the new bounds
+	 * @return the new constraint
+	 */
+	public AllenConstraint setBounds( Interval ... intervals )  {
+		return new AllenConstraint(this.from, this.to, this.relation, intervals);
+	}
+	
 //	private boolean checkLegalBounds() {
 //		for ( Interval i : bounds ) {
 //			if ( i != null ) {

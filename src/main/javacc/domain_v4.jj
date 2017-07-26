@@ -380,27 +380,8 @@ Expression TemporalConstraint() :
  	      } else {
  	         return new PlanningInterval(constraint.getArg(0), constraint.getArg(1));
  	      }
- 	    } else if ( name.equals("date-time-reference") ) {
-				 ExpressionTypes.TemporalConstraints.assertSupported(constraint, DateTimeReference.class);
-
-						String dateFormatStr = constraint.getArg(0).toString();
-						String initialDate = constraint.getArg(1).toString();
-
-						try {
-										long d_days = Long.valueOf(constraint.getArg(2).toString()).longValue();
-										long d_hours = Long.valueOf(constraint.getArg(3).toString()).longValue();
-										long d_minutes = Long.valueOf(constraint.getArg(4).toString()).longValue();
-										long d_seconds = Long.valueOf(constraint.getArg(5).toString()).longValue();
-										long d_milliseconds = Long.valueOf(constraint.getArg(6).toString()).longValue();
-										return new DateTimeReference(dateFormatStr, initialDate, d_days, d_hours, d_minutes, d_seconds, d_milliseconds);
-						} catch ( NumberFormatException e ) {
-										System.err.println("Last 5 arguments of " +constraint.toString()+ " must be long values. Exiting...");
-										e.printStackTrace();
-										System.exit(1);
-						}
-				
-				return null;
-				
+ 	    } else if (  constraint.getName().equals("date-time-reference") ) {
+					return new DateTimeReference(constraint);
 	    } else if ( name.equals("possibleintersection") || name.equals("intersection") ) {
 	      ArrayList<Term> terms = new ArrayList<Term>();
           for ( int i = 0 ; i < constraint.getNumArgs() ; i++ )

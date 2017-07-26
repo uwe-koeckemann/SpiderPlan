@@ -21,14 +21,11 @@
  ******************************************************************************/
 package org.spiderplan.executor.observation;
 
-import java.util.Map;
-
 import org.spiderplan.executor.Reactor;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.domain.Substitution;
-import org.spiderplan.representation.logic.Term;
 
 /**
  * Waits for a {@link Statement} to be observed (e.g., via ROS message).

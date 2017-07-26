@@ -33,7 +33,6 @@ import org.spiderplan.executor.ReactorRandomSimulation;
 import org.spiderplan.executor.ReactorSoundPlaySpeech;
 import org.spiderplan.executor.ROS.ROSProxy;
 import org.spiderplan.executor.ROS.ReactorROS;
-import org.spiderplan.executor.observation.ObservationReactor;
 import org.spiderplan.executor.simulation.ReactorPerfectSimulation;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;

@@ -22,7 +22,6 @@
 package org.spiderplan.executor.sockets;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
@@ -37,12 +36,24 @@ public class SocketMessageThreadReceiver extends Thread {
 
 	private Socket socket;
 	private ConcurrentLinkedQueue<String> msgQueue = new ConcurrentLinkedQueue<String>();
+	private boolean verbose = false;
 	
-	public SocketMessageThreadReceiver( Socket socket ) {
+	/**
+	 * Create a new thread to receive messages from a socket
+	 * @param socket socket to listen to
+	 * @param verbose switches console output on/off
+	 */
+	public SocketMessageThreadReceiver( Socket socket, boolean verbose ) {
 		this.socket = socket;
 		this.setDaemon(true);
+		this.verbose = verbose;
 	}
 		
+	
+	/**
+	 * Get all messages received on the socket
+	 * @return the messages
+	 */
 	public ConcurrentLinkedQueue<String> getMessages() {
 		return msgQueue;
 	}
@@ -57,9 +68,15 @@ public class SocketMessageThreadReceiver extends Thread {
 		        String line = in.readLine();
 		        if ( line != null ){
 		            msgQueue.add(line);
+		            if ( verbose ) {
+		            	System.out.println("-------------------------------------------------------------------");
+		            	System.out.println("- INCOMING MESSAGE");
+		            	System.out.println("-------------------------------------------------------------------");
+		            	System.out.println(line);
+		            }
 		        }
 		        
-		        Thread.sleep(1000);
+		        Thread.sleep(100);
 			}
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
