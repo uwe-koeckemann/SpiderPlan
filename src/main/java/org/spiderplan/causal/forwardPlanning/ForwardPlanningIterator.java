@@ -1046,6 +1046,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		Map<Term,List<Term>> possibleSubGoals = new HashMap<Term,List<Term>>();
 		for ( Goal goal : g ) {
 			for ( SingleGoal sg : goal.getSingleGoals() ) {
+				System.out.println(sg);
 				Term var = sg.getVariable();
 				Term val = sg.getValue();
 				if ( !possibleSubGoals.keySet().contains(var) ) {
@@ -1060,12 +1061,13 @@ public class ForwardPlanningIterator extends ResolverIterator {
 			List<StateVariableOperatorMultiState> remList = new ArrayList<StateVariableOperatorMultiState>();
 			
 			for ( StateVariableOperatorMultiState a : A ) {
-				
 				for ( Term e_key : a.getEffects().keySet() ) {
-					List<Term> values = possibleSubGoals.get(e_key); 
+					List<Term> values = possibleSubGoals.get(e_key); 								
 					if ( values != null ) {
 						for ( Term e_value : a.getEffects().get(e_key) ) {
 							if ( values.contains(e_value) ) {
+								if ( verbose ) super.print(String.format("Keeping %s for effect %s <- %s", a.getName(), e_key.toString(), e_value.toString()), 1);
+								
 								remList.add(a);
 								filteredA.add(a);
 								change = true;

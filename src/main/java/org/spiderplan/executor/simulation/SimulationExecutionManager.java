@@ -33,7 +33,10 @@ import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.execution.Simulation;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.DateTimeReference;
+import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Term;
+import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
 import org.spiderplan.tools.logging.Logger;
@@ -81,6 +84,8 @@ public class SimulationExecutionManager extends ExecutionManager {
 	@Override
 	public void initialize(ConstraintDatabase cdb) {
 		simDB = new ConstraintDatabase();
+		simDB.add(cdb.getUnique(DateTimeReference.class));
+		simDB.add(cdb.getUnique(PlanningInterval.class));
 		
 		for ( Simulation simCon : cdb.get(Simulation.class) ) {
 			if ( simCon.getDispatchTime().toString().equals("on-release")) {
@@ -116,6 +121,8 @@ public class SimulationExecutionManager extends ExecutionManager {
 		simDB.add(rFuture);
 		simDB.add(mPastFuture);
 		simDB.add(dFuture);
+		
+		TemporalNetworkTools.ensurePlanningTimeIsUsed(simDB);
 				
 		if ( !simCSP.isConsistent(simDB) ) {
 			throw new IllegalStateException("Execution failure: Temporal inconsistency in simulation CDB.");
@@ -176,6 +183,11 @@ public class SimulationExecutionManager extends ExecutionManager {
 							addedOnReleaseDB.removeAll(addedConstraints.get(r.getTarget()));
 						}
 						cdb.addAll(addedCons);
+						
+						if ( verbose ) {
+							Logger.msg(getName(), "On release adding:\n" + addedCons, 1);
+						}
+						
 						addedOnReleaseDB.addAll(addedCons);
 						if ( !cdb.contains(r.getTarget()) ) {
 							addedOnReleaseDB.add(r.getTarget());

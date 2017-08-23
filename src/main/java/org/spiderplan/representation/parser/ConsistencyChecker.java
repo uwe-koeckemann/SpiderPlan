@@ -68,6 +68,8 @@ public class ConsistencyChecker {
 	 */
 	public static boolean ignoreWarnings = false;
 	
+	public static boolean ignoreDisconnectedVariables = false;
+	
 	private int numChars = 80;
 	private int warnings = 0;
 	
@@ -396,11 +398,16 @@ public class ConsistencyChecker {
 			
 			for ( String v : disconnectedVars ) {
 				if ( !connectedVars.contains(v) ) {
-					if ( verbose ) {
-						System.out.println("[FAIL]");
-						System.err.println( "ERROR: Variable '" + v + "' is disconnected. Connect it by making it an argument of the operator." );
+					
+					if ( !ConsistencyChecker.ignoreDisconnectedVariables ) {
+						if ( verbose ) {
+							System.out.println("[FAIL]");
+							System.err.println( "ERROR: Variable '" + v + "' is disconnected. Connect it by making it an argument of the operator." );
+						}
+						return false;
+					} else {
+						System.err.println( "[WARNING] Variable '" + v + "' is disconnected. Connect it by making it an argument of the operator." );
 					}
-					return false;
 				}
 				
 				if ( !allVars.contains(v) ) {

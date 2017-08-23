@@ -99,7 +99,12 @@ public class ValueLookup extends Expression implements Unique, Mutable {
 	 * @return EST
 	 */
 	public long getEST( Term interval ) {
-		return this.intervals.get(interval)[0];
+		try {
+			return this.intervals.get(interval)[0];
+		} catch ( NullPointerException e ) {
+			System.err.println(String.format("Interval %s not found in value lookup! It might have been added after the last temporal propagation.", interval.toString()));
+			throw e;
+		}
 	}
 	/**
 	 * Get latest start time (LST) of an interval.
@@ -107,7 +112,12 @@ public class ValueLookup extends Expression implements Unique, Mutable {
 	 * @return LST
 	 */
 	public long getLST( Term interval ) {
-		return this.intervals.get(interval)[1];
+		try {
+			return this.intervals.get(interval)[1];
+		} catch ( NullPointerException e ) {
+			System.err.println(String.format("Interval %s not found in value lookup! It might have been added after the last temporal propagation.", interval.toString()));
+			throw e;
+		}
 	}
 	/**
 	 * Get earliest end time (EET) of an interval.
@@ -115,7 +125,12 @@ public class ValueLookup extends Expression implements Unique, Mutable {
 	 * @return EET
 	 */
 	public long getEET( Term interval ) {
-		return this.intervals.get(interval)[2];
+		try {
+			return this.intervals.get(interval)[2];
+		} catch ( NullPointerException e ) {
+			System.err.println(String.format("Interval %s not found in value lookup! It might have been added after the last temporal propagation.", interval.toString()));
+			throw e;
+		}
 	}
 	/**
 	 * Get latest end time (LET) of an interval.
@@ -123,7 +138,12 @@ public class ValueLookup extends Expression implements Unique, Mutable {
 	 * @return LET
 	 */
 	public long getLET( Term interval ) {
-		return this.intervals.get(interval)[3];
+		try {
+			return this.intervals.get(interval)[3];
+		} catch ( NullPointerException e ) {
+			System.err.println(String.format("Interval %s not found in value lookup! It might have been added after the last temporal propagation.", interval.toString()));
+			throw e;
+		}
 	}
 	
 	/**

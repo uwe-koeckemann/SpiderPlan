@@ -50,6 +50,14 @@ public class SocketMessageThreadSend extends Thread {
 	}
 	
 	/**
+	 * Create a thread to send messages through a socket
+	 * @param socket socket to use
+	 */
+	public SocketMessageThreadSend( Socket socket ) {
+		this(socket, false);
+	}
+	
+	/**
 	 * Queue a message to be sent through the socket.
 	 * @param message the message to send
 	 */

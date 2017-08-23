@@ -24,6 +24,7 @@ package org.spiderplan.executor.observation;
 import org.spiderplan.executor.ExecutionManager;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.execution.Observation;
+import org.spiderplan.tools.logging.Logger;
 
 /**
  * @author Uwe Köckemann
@@ -43,6 +44,7 @@ public class ObservationExecutionManager extends ExecutionManager {
 	public void initialize( ConstraintDatabase cdb ) {
 		for ( Observation obs : cdb.get(Observation.class) ) {
 //			if ( !obs.isAsserted() ) {
+				if ( verbose ) Logger.msg(this.getName(), String.format("Creating observation reactor: %s", obs.toString()), 1);
 				ObservationReactor r = new ObservationReactor(obs.getStatement(), cdb);
 				execList.add(obs.getStatement());
 				hasReactorList.add(obs.getStatement());
@@ -63,6 +65,7 @@ public class ObservationExecutionManager extends ExecutionManager {
 		for ( Observation obs : cdb.get(Observation.class) ) {
 //			if ( !obs.isAsserted() ) {
 				if ( !super.hasReactorList.contains(obs.getStatement()) ) {
+					if ( verbose ) Logger.msg(this.getName(), String.format("Creating observation reactor: %s", obs.toString()), 1);
 					ObservationReactor r = new ObservationReactor(obs.getStatement(), cdb);
 					execList.add(obs.getStatement());
 					hasReactorList.add(obs.getStatement());
@@ -70,8 +73,6 @@ public class ObservationExecutionManager extends ExecutionManager {
 				}
 //			}
 		}
-
-		
 		
 		super.update(t, cdb);
 		

@@ -40,6 +40,7 @@ import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelatio
 import org.spiderplan.representation.expressions.domain.Substitution;
 import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.DateTimeReference;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Term;
@@ -58,6 +59,63 @@ import org.spiderplan.tools.visulization.TemporalNetworkVisualizer;
  */
 public class TemporalNetworkTools {
 			
+	
+	/**
+	 * Go through all temporal constraints in a CDB and make sure
+	 * that internal planning time representation is used and not timestamps.
+	 * @param cdb 
+	 */
+	public static void ensurePlanningTimeIsUsed( ConstraintDatabase cdb ) {
+		DateTimeReference dtRef = cdb.getUnique(DateTimeReference.class);
+		if ( dtRef != null ) {
+			Global.DateTimeConverter = dtRef;
+			List<Expression> addList = new ArrayList<Expression>();
+			List<Expression> remList = new ArrayList<Expression>(); 
+			for ( AllenConstraint ac : cdb.get(AllenConstraint.class) ) {
+				boolean change = false;
+				Interval[] newBounds = new Interval[ac.getNumBounds()];
+				for ( int i = 0 ; i < ac.getNumBounds() ; i++ ) {
+					Term newLower = ac.getBound(i).getLowerTerm();
+					Term newUpper = ac.getBound(i).getUpperTerm();
+					if ( newLower.isComplex() ) {
+						newLower = Term.createInteger(dtRef.term2internal(newLower));
+						change = true;
+					}
+					if ( newUpper.isComplex() ) {
+						newUpper= Term.createInteger(dtRef.term2internal(newUpper));
+						change = true;
+					}
+					newBounds[i] = new Interval(newLower, newUpper);
+				}
+				if ( change ) {
+					remList.add(ac);
+					addList.add(ac.setBounds(newBounds));
+				}
+			}
+			cdb.removeAll(remList);
+			cdb.addAll(addList);
+			
+			PlanningInterval pI = cdb.getUnique(PlanningInterval.class);
+			
+			if ( pI != null ) {
+				boolean change = false;
+				Term start = pI.getStartTime();
+				Term horizon = pI.getHorizon();
+				if ( start.isComplex()) {
+					start = Term.createInteger(dtRef.term2internal(start));
+					change = true;
+				} 
+				if ( horizon.isComplex()) {
+					horizon = Term.createInteger(dtRef.term2internal(horizon));
+					change = true;
+				}
+				if ( change ) {
+					cdb.add(new PlanningInterval(start, horizon));
+				}					
+			}
+		}
+
+	}
 	
 	/**
 	 * Merge all statements that use the same state variable and value and have an {@link AllenConstraint}

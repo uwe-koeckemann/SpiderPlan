@@ -49,6 +49,13 @@ public class SocketMessageThreadReceiver extends Thread {
 		this.verbose = verbose;
 	}
 		
+	/**
+	 * Create a new thread to receive messages from a socket
+	 * @param socket socket to listen to
+	 */
+	public SocketMessageThreadReceiver( Socket socket ) {
+		this(socket, false);
+	}
 	
 	/**
 	 * Get all messages received on the socket
