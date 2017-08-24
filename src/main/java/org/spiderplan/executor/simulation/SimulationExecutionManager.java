@@ -31,6 +31,7 @@ import org.spiderplan.executor.Reactor;
 import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
+import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.execution.Simulation;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.DateTimeReference;
@@ -59,7 +60,7 @@ public class SimulationExecutionManager extends ExecutionManager {
 		super(name);
 	}
 
-	ArrayList<Statement> simList = new ArrayList<Statement>();
+	ArrayList<Statement> onReleaseList = new ArrayList<Statement>();
 		
 	ConstraintDatabase simDB = new ConstraintDatabase();
 	
@@ -81,6 +82,8 @@ public class SimulationExecutionManager extends ExecutionManager {
 	private ConstraintDatabase addedSimDBs = new ConstraintDatabase();
 	private ConstraintDatabase addedOnReleaseDB = new ConstraintDatabase();
 	
+	long t_last_dispatch = 0;
+	
 	@Override
 	public void initialize(ConstraintDatabase cdb) {
 		simDB = new ConstraintDatabase();
@@ -91,7 +94,7 @@ public class SimulationExecutionManager extends ExecutionManager {
 			if ( simCon.getDispatchTime().toString().equals("on-release")) {
 				simDB.add(simCon.getExecutionTimeDB());
 				for ( Statement s : simCon.getExecutionTimeDB().get(Statement.class) ) {
-					simList.add(s);
+					onReleaseList.add(s);
 				}
 			} else {
 				try {
@@ -109,7 +112,7 @@ public class SimulationExecutionManager extends ExecutionManager {
 			}
 		}
 		
-		for ( Statement s : simList ) {
+		for ( Statement s : onReleaseList ) {
 			reactors.add(new ReactorPerfectSimulation(s));
 		}
 		
@@ -127,6 +130,10 @@ public class SimulationExecutionManager extends ExecutionManager {
 		if ( !simCSP.isConsistent(simDB) ) {
 			throw new IllegalStateException("Execution failure: Temporal inconsistency in simulation CDB.");
 		}
+		
+		ValueLookup vL = new ValueLookup();
+		simCSP.getPropagatedTemporalIntervals(vL);
+		System.out.println(vL);
 	}
 	
 	@Override
@@ -136,12 +143,14 @@ public class SimulationExecutionManager extends ExecutionManager {
 		/************************************************************************************************
 		 * Dispatch new information (from simulation)
 		 ************************************************************************************************/
-		if ( dispatchedDBs.get(t) != null ) {
-//			System.out.println("Dispatching: " + t);
-			if ( verbose ) Logger.msg(getName(), "Dispatching:\n" + dispatchedDBs.get(t), 1);
-			cdb.add(dispatchedDBs.get(t));
-			addedSimDBs.add(dispatchedDBs.get(t));
+		for ( Long t_dispatch : dispatchedDBs.keySet() ) {
+			if ( t_dispatch  > t_last_dispatch && t_dispatch <= t ) {
+				if ( verbose ) Logger.msg(getName(), "Dispatching:\n" + dispatchedDBs.get(t), 1);
+				cdb.add(dispatchedDBs.get(t_dispatch));
+				addedSimDBs.add(dispatchedDBs.get(t_dispatch));
+			}
 		}
+		t_last_dispatch = t;
 				
 		simDB.remove(rFuture);
 		rFuture = new AllenConstraint(Term.parse("(deadline past (interval "+(t)+" "+(t)+"))"));
@@ -155,7 +164,6 @@ public class SimulationExecutionManager extends ExecutionManager {
 				doneList.add(r.getTarget());
 				remList.add(r);
 				change = true;
-				
 			} else {
 				Collection<Expression> addedCons;
 				long EST, LST, EET, LET;
@@ -176,7 +184,7 @@ public class SimulationExecutionManager extends ExecutionManager {
 				 * Add statements and constraints from sim list.
 				 * (only from simulation constraints with "on-release" dispatch)
 				 */
-				if ( simList.contains(r.getTarget()) ) {
+				if ( onReleaseList.contains(r.getTarget()) ) {
 					if ( !addedCons.isEmpty() && !addedCons.equals(addedConstraints.get(r.getTarget())) ) {
 						if ( addedConstraints.get(r.getTarget()) != null ) {
 							cdb.removeAll(addedConstraints.get(r.getTarget()));
