@@ -407,7 +407,7 @@ public class ExecutionModuleMK2  extends Module {
 		if ( !firstUpdate ) { 
 			for ( ExecutionManager em : managerList ) {
 				if ( verbose ) {
-					Logger.msg(this.getName(), "Updating: " + em.getName(), 0);
+					Logger.msg(this.getName(), "Updating: " + em.getClass().getSimpleName(), 0);
 					Logger.depth++;
 				}
 				em.update(t, execDB);

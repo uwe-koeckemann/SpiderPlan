@@ -1,0 +1,17 @@
+(:initial-context
+	(:domain
+		(sig x boolean)	;; x is a variable with a boolean value
+	)
+	(:statement 
+		(I1 x) (I2 x) (I3 x) (I4 x)
+	)
+	(:temporal
+		(date-time-reference "YYYY-MM-DD hh:mm:ss.fff" (datetime now) (timespan (s 10)))
+		
+		(planning-interval [0 (timespan (days 100))])
+		(duration I1 [(timespan (d 2) (h 12)) (timespan (d 3))])
+		(before I1 I2 [(timespan (m 1)) inf])
+		(release I3 [(offset (datetime now) (timespan (h 01))) (offset (datetime now) (timespan (h 02)))])
+		(after I4 I2 [(timespan (days 10)) (timespan (days 20))])
+	)
+)

@@ -986,7 +986,7 @@ public class DomainParser_v4 implements DomainParser_v4Constants {
                 try {
                         String fileName = includedProgramFile.image.substring(1,includedProgramFile.image.length()-1);
 
-                        if ( fileName.startsWith("http://") ) {
+                        if ( fileName.startsWith("http://") || fileName.startsWith("https://") ) {
                                         Scanner scanner = new Scanner(new URL(fileName).openStream(), "UTF-8");
                                         String program = scanner.useDelimiter("\u005c\u005cA").next();
                                         scanner.close();
