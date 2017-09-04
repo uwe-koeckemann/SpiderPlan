@@ -62,10 +62,12 @@ import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
+import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
 import org.spiderplan.tools.Global;
 import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.logging.Logger;
+import org.spiderplan.tools.visulization.TemporalNetworkVisualizer;
 import org.spiderplan.tools.visulization.timeLineViewer.TimeLineViewer;
 
 /**
@@ -383,7 +385,7 @@ public class ExecutionModuleMK2  extends Module {
 		
 		
 		/**
-		 * TODO: This is a bit of a hack to ensure that actions are related to the current time even
+		 * TODO: This is a bit of a hack to ensureS that actions are related to the current time even
 		 * if planner is unaware of it. This should be included in planning to begin with though to find temporal
 		 * Inconsistencies when backtracking is possible and easy
 		 */
@@ -392,9 +394,13 @@ public class ExecutionModuleMK2  extends Module {
 			execDB.add(ac);
 		}
 		IncrementalSTPSolver stpSolver = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
-		stpSolver.isConsistent(execDB);		
+		ConstraintDatabase cdbCopy = execDB.copy();
+		for ( Observation o : execDB.get(Observation.class)) {
+			cdbCopy.add(o.getStatement());
+		}
+		stpSolver.isConsistent(cdbCopy);		
 		stpSolver.getPropagatedTemporalIntervals(execDB.getUnique(ValueLookup.class));
-		
+		System.out.println(execDB.getUnique(Plan.class));
 				
 		/************************************************************************************************
 		 * TODO: Re-plan on failure
@@ -404,6 +410,17 @@ public class ExecutionModuleMK2  extends Module {
 		/************************************************************************************************
 		 * Update all ExecutionManagers
 		 ************************************************************************************************/
+
+//		try {
+//			ConstraintDatabase cdbCopy = execDB.copy();
+//			for ( Observation o : execDB.get(Observation.class)) {
+//				execDB.add(o.getStatement());
+//			}
+//			TemporalNetworkTools.draw(cdbCopy, String.format("t=%d", t));
+//		} catch ( Exception e ) {
+//			
+//		}
+		
 		if ( !firstUpdate ) { 
 			for ( ExecutionManager em : managerList ) {
 				if ( verbose ) {
@@ -412,6 +429,15 @@ public class ExecutionModuleMK2  extends Module {
 				}
 				em.update(t, execDB);
 				if ( verbose ) Logger.depth--;
+				
+				
+//				stpSolver = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
+//				stpSolver.isConsistent(execDB);		
+//				stpSolver.getPropagatedTemporalIntervals(execDB.getUnique(ValueLookup.class));
+				
+				
+				
+//				System.out.println(execDB.getUnique(ValueLookup.classC));
 				//TODO: Statements can be added that are used later but without having been propagated...
 				// Might be best to only consider current information for all exec. managers?
 				// + The order is arbitrary... so they should ignore each others additions... but how to make sure?

@@ -47,6 +47,8 @@ import org.spiderplan.tools.logging.Logger;
  * in the domain definition (e.g., future incoming goals, observations,
  * activities, ...).
  * 
+ * TODO: on-release does not fix deadlines or add other constraints which may lead to unexpected behavior
+ * 
  * @author Uwe Köckemann
  *
  */

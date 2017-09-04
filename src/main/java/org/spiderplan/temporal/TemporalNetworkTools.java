@@ -477,6 +477,17 @@ public class TemporalNetworkTools {
 		TemporalNetworkVisualizer tnv = new TemporalNetworkVisualizer();
 		tnv.draw(cDB);
 	}
+	
+	/**
+	 * Draw the temporal network of a {@link ConstraintDatabase}
+	 * @param cDB A {@link ConstraintDatabase}
+	 * @param title Title of the window
+	 */
+	public static void draw( ConstraintDatabase cDB, String title ) {
+		TemporalNetworkVisualizer tnv = new TemporalNetworkVisualizer();
+		tnv.draw(cDB, title);
+	}
+	
 	/**
 	 * Dump timeline data of CDB (after temporal propagation) so it can be visualized.
 	 * To create a figure from the dumped data use the script "PlotTimelines" in main.python

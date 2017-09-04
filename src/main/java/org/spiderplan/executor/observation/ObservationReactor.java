@@ -71,6 +71,12 @@ public class ObservationReactor extends Reactor {
 					if ( vLookup.hasInterval(s.getKey()) && vLookup.getEST(s.getKey()) > latestEST ) { 					// We only care about latest start time
 						if ( appliedSub.add(target.getValue().match(s.getValue())) ) { 	// Value matches -> We found our observation
 							if ( verbose ) print("Observation detected: " + s + " substitution: " + appliedSub.toString(), 2);
+							
+							Substitution intervalSub = s.getKey().match(target.getKey());
+							if ( intervalSub != null ) {
+								appliedSub.add(intervalSub);
+							}
+							
 							latestEST = vLookup.getEST(s.getKey());
 							lastChangingStatement = s;
 							lastChangingValueSub = appliedSub;

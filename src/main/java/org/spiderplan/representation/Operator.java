@@ -931,14 +931,14 @@ public class Operator extends Expression implements Substitutable, Mutable {
 		
 		StringBuilder r = new StringBuilder();
 		
-		r.append("(operator\n\t");
+		r.append("(:operator\n\t");
 		r.append(this.getName() + "\n");
-		r.append("\t(preconditions\n");
+		r.append("\t(:preconditions\n");
 		for ( Statement a : P ) {
 			r.append("\t\t" + a.toString() + "\n");
 		}
 		r.append("\t)\n");
-		r.append("\t(effects\n");
+		r.append("\t(:effects\n");
 		for ( Statement a : E ) {
 			r.append("\t\t" + a.toString() + "\n");
 		}
@@ -971,10 +971,10 @@ public class Operator extends Expression implements Substitutable, Mutable {
 			}
 			Col.add(c);
 		}
-		r.append("\t(constraints\n");
+		r.append("\t(:constraints\n");
 		for ( String conType : typeMap.keySet() ) {
 			if ( !conType.equals(Term.createConstant("conditional"))) {
-				r.append("\t\t(");
+				r.append("\t\t(:");
 				r.append(conType);
 			}
 				
