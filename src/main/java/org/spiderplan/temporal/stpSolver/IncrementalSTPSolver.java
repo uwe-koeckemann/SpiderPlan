@@ -314,9 +314,9 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 			for ( Long[] con : addedConstraints ) {
 				isConsistent &= incrementalDistanceMatrixComputation(con[0].intValue(), con[1].intValue(), con[2], con[3]);
 				
-//				if ( debug ) {
-//					System.err.println(debugLookUp.get(con));
-//				}
+				if ( debug ) {
+					System.err.println(debugLookUp.get(con));
+				}
 				
 				if ( !isConsistent ) {
 					if ( debug ) {

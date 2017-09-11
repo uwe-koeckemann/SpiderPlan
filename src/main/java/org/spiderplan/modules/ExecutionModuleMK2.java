@@ -328,6 +328,7 @@ public class ExecutionModuleMK2  extends Module {
 	}
 	
 	boolean newInformationReleased = false;
+	int stp_counter = 0;
 
 	private void update( ) {
 		/************************************************************************************************
@@ -398,8 +399,20 @@ public class ExecutionModuleMK2  extends Module {
 		for ( Observation o : execDB.get(Observation.class)) {
 			cdbCopy.add(o.getStatement());
 		}
-		stpSolver.isConsistent(cdbCopy);		
+		
+		
+		
+		if ( !stpSolver.isConsistent(cdbCopy) ) {
+			stpSolver.debug = true;
+			stpSolver.isConsistent(cdbCopy);
+			
+			Loop.start();
+		}
 		stpSolver.getPropagatedTemporalIntervals(execDB.getUnique(ValueLookup.class));
+		
+		TemporalNetworkTools.dumbTimeLineData(cdbCopy, execDB.getUnique(ValueLookup.class), String.format("stp%d.txt", stp_counter));
+		stp_counter++;
+		
 		System.out.println(execDB.getUnique(Plan.class));
 				
 		/************************************************************************************************
@@ -430,6 +443,14 @@ public class ExecutionModuleMK2  extends Module {
 				em.update(t, execDB);
 				if ( verbose ) Logger.depth--;
 				
+				
+//				stpSolver = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
+//				cdbCopy = execDB.copy();
+//				for ( Observation o : execDB.get(Observation.class)) {
+//					cdbCopy.add(o.getStatement());
+//				}
+//				System.out.println(stpSolver.isConsistent(cdbCopy));		
+//				stpSolver.getPropagatedTemporalIntervals(execDB.getUnique(ValueLookup.class));
 				
 //				stpSolver = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
 //				stpSolver.isConsistent(execDB);		

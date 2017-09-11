@@ -43,13 +43,16 @@ public class ObservationExecutionManager extends ExecutionManager {
 	@Override
 	public void initialize( ConstraintDatabase cdb ) {
 		for ( Observation obs : cdb.get(Observation.class) ) {
-//			if ( !obs.isAsserted() ) {
-				if ( verbose ) Logger.msg(this.getName(), String.format("Creating observation reactor: %s", obs.toString()), 1);
-				ObservationReactor r = new ObservationReactor(obs.getStatement(), cdb);
-				execList.add(obs.getStatement());
-				hasReactorList.add(obs.getStatement());
-				this.reactors.add(r);
-//			}
+			if ( ! obs.isAsserted() ) {
+				if ( hasReactorList.contains(obs.getStatement() )) {
+					if ( verbose ) Logger.msg(this.getName(), String.format("Creating observation reactor: %s", obs.toString()), 1);
+					ObservationReactor r = new ObservationReactor(obs.getStatement(), cdb);
+					execList.add(obs.getStatement());
+					hasReactorList.add(obs.getStatement());
+					this.reactors.add(r);
+					obs.setAsserted(true);
+				}
+			}
 		}
 	}
 	
@@ -63,15 +66,16 @@ public class ObservationExecutionManager extends ExecutionManager {
 		 * - Call super.update() to update all existing reactors
 		 */			
 		for ( Observation obs : cdb.get(Observation.class) ) {
-//			if ( !obs.isAsserted() ) {
-				if ( !super.hasReactorList.contains(obs.getStatement()) ) {
+			if ( !obs.isAsserted() ) {
+				if ( !hasReactorList.contains(obs.getStatement()) ) {
 					if ( verbose ) Logger.msg(this.getName(), String.format("Creating observation reactor: %s", obs.toString()), 1);
 					ObservationReactor r = new ObservationReactor(obs.getStatement(), cdb);
 					execList.add(obs.getStatement());
 					hasReactorList.add(obs.getStatement());
 					this.reactors.add(r);
+					obs.setAsserted(true);
 				}
-//			}
+			}
 		}
 		
 		super.update(t, cdb);

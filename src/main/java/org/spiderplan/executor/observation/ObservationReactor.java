@@ -81,8 +81,9 @@ public class ObservationReactor extends Reactor {
 							lastChangingStatement = s;
 							lastChangingValueSub = appliedSub;
 							// This substitution cannot be undone unless we copy the previous CDB. But that should be okay.
-							execCDB.substitute(appliedSub); 							// Substitution allows to make decisions based on observed values
+							execCDB.substitute(appliedSub); // Substitution allows to make decisions based on observed values
 							target = target.substitute(appliedSub);
+							super.afterPast = (AllenConstraint) super.afterPast.substitute(appliedSub);
 						} else {
 							lastChangingStatement = null;
 							lastChangingValueSub = null;
@@ -97,8 +98,8 @@ public class ObservationReactor extends Reactor {
 		if ( lastChangingStatement != null ) {
 			print("Observed at " + t  + " [EST LST] = [" + EST + " " + LST + "]", 2);
 			target = lastChangingStatement;
-			AllenConstraint equals = new AllenConstraint(this.target.getKey(), lastChangingStatement.getKey(), TemporalRelation.Equals);
-			execCDB.add(equals);
+//			AllenConstraint equals = new AllenConstraint(this.target.getKey(), lastChangingStatement.getKey(), TemporalRelation.Equals);
+//			execCDB.add(equals);
 //			observedSub = lastChangingValueSub; //TODO: This needs to be applied to cdb in case the observed value is important.
 			return true;
 		} 
