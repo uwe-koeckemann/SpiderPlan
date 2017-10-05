@@ -21,19 +21,20 @@
  ******************************************************************************/
 package org.spiderplan.modules;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+
+import org.spiderplan.executor.ExecutionManager;
 import org.spiderplan.executor.Reactor;
-import org.spiderplan.executor.ReactorRandomSimulation;
-import org.spiderplan.executor.ReactorSoundPlaySpeech;
-import org.spiderplan.executor.ROS.ROSProxy;
-import org.spiderplan.executor.ROS.ReactorROS;
-import org.spiderplan.executor.simulation.ReactorPerfectSimulation;
+import org.spiderplan.executor.ROS.ROSExecutionManager;
+import org.spiderplan.executor.observation.ObservationExecutionManager;
+import org.spiderplan.executor.simulation.SimulationExecutionManager;
+import org.spiderplan.executor.sockets.SocketExecutionManager;
 import org.spiderplan.modules.configuration.ConfigurationManager;
 import org.spiderplan.modules.solvers.Core;
 import org.spiderplan.modules.solvers.Module;
@@ -44,28 +45,29 @@ import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.Expression;
 import org.spiderplan.representation.expressions.Statement;
 import org.spiderplan.representation.expressions.ValueLookup;
-import org.spiderplan.representation.expressions.ExpressionTypes.ROSRelation;
 import org.spiderplan.representation.expressions.ExpressionTypes.TemporalRelation;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
-import org.spiderplan.representation.expressions.domain.Substitution;
+import org.spiderplan.representation.expressions.execution.Observation;
 import org.spiderplan.representation.expressions.execution.Simulation;
 import org.spiderplan.representation.expressions.execution.ros.ROSConstraint;
 import org.spiderplan.representation.expressions.execution.ros.ROSGoal;
 import org.spiderplan.representation.expressions.execution.ros.ROSRegisterAction;
+import org.spiderplan.representation.expressions.execution.sockets.SocketExpression;
 import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
 import org.spiderplan.representation.expressions.misc.Assertion;
-import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.expressions.temporal.AllenConstraint;
+import org.spiderplan.representation.expressions.temporal.DateTimeReference;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.expressions.temporal.PlanningInterval;
 import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.plans.Plan;
 import org.spiderplan.representation.types.TypeManager;
+import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.temporal.stpSolver.IncrementalSTPSolver;
-import org.spiderplan.tools.UniqueID;
+import org.spiderplan.tools.Global;
+import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.logging.Logger;
-import org.spiderplan.tools.statistics.Statistics;
-import org.spiderplan.tools.stopWatch.StopWatch;
+import org.spiderplan.tools.visulization.TemporalNetworkVisualizer;
 import org.spiderplan.tools.visulization.timeLineViewer.TimeLineViewer;
 
 /**
@@ -73,80 +75,78 @@ import org.spiderplan.tools.visulization.timeLineViewer.TimeLineViewer;
  * 
  * TODO: simulation constraints on release not firing?	
  * TODO: constraints to enable forgetting for statements
- * TODO: interface for connecting to outside (ROS, PEIS, Simulation, Ecare)
  * 
  * @author Uwe Köckemann
- * 
  */
 public class ExecutionModule  extends Module {
 
-	long t = 0;	
+	// Planner's time
+	private long t = 0;	
+	private long tPrev;
+	// Real time (milliseconds)
+	private long tReal;
+	private long tPrevReal;
+	private long tDiffReal;
+	private long tPreferredUpdateInterval = 1000;
+	// Updates are missed when flaw resolution takes longer than preferred update interval 
+	private int missedUpdates = 0;
+	
 	long tMax = 1000;
 	
 	long t0;
 	
 	boolean useRealTime = false; //TODO: Real time does not work yet
-	boolean useForgetting = true;
-	boolean perfectSim = true;
+//	boolean useForgetting = true;
 	
 	ConstraintDatabase execDB;	
-	ConstraintDatabase simDB;	
 	
 	ConstraintDatabase initialContext;
 
 	ArrayList<Reactor> reactors = new ArrayList<Reactor>();
-	
-	ArrayList<Statement> hasReactorList = new ArrayList<Statement>();
-	ArrayList<Statement> doneList = new ArrayList<Statement>();
-	ArrayList<Statement> execList = new ArrayList<Statement>();
-	ArrayList<Statement> startedList = new ArrayList<Statement>();
-	ArrayList<Statement> simList = new ArrayList<Statement>();
-	
-	ArrayList<Operator> executedActions = new ArrayList<Operator>();
-	ArrayList<Expression> executedLinks = new ArrayList<Expression>();
-	ArrayList<Expression> reachedGoals = new ArrayList<Expression>();
+
 	ArrayList<Statement> removedStatements = new ArrayList<Statement>();
 	
 	TypeManager tM;
-	
-//	IncrementalSTPSolver execCSP;
-	IncrementalSTPSolver simCSP;
-	
+
 	Term tHorizon = Term.createConstant("time");
 	
 	Statement past = new Statement(Term.createConstant("past"), tHorizon, Term.createConstant("past") );
 	Statement future = new Statement(Term.createConstant("future"), tHorizon, Term.createConstant("future") );
 	
-	AllenConstraint rPast = new AllenConstraint(Term.parse("(release past (interval 0 0))"));
-	AllenConstraint mPastFuture = new AllenConstraint(Term.parse("(meets past future)"));
-	AllenConstraint dFuture = new AllenConstraint(Term.parse("(deadline future (interval "+(tMax-1)+" "+(tMax-1)+"))"));
-	AllenConstraint rFuture = new AllenConstraint(Term.parse("(deadline past (interval 1 1)"));
+	AllenConstraint rPast = new AllenConstraint( Term.parse("(release past (interval 0 0))"));
+	AllenConstraint mPastFuture = new AllenConstraint( Term.parse("(meets past future)"));
+	AllenConstraint dFuture = new AllenConstraint( Term.parse("(deadline future (interval "+(tMax-1)+" "+(tMax-1)+"))"));
+	AllenConstraint rFuture = new AllenConstraint( Term.parse("(deadline past (interval 1 1)"));
 	AllenConstraint mFuture;
 	
-	private Map<Statement,Collection<Expression>> addedConstraints = new HashMap<Statement, Collection<Expression>>();
-	private ConstraintDatabase addedSimDBs = new ConstraintDatabase();
-	private ConstraintDatabase addedOnReleaseDB = new ConstraintDatabase();
-	private ConstraintDatabase addedByROS = new ConstraintDatabase();
+//	private Map<Statement,Collection<Expression>> addedConstraints = new HashMap<Statement, Collection<Expression>>();
+//	private ConstraintDatabase addedSimDBs = new ConstraintDatabase();
+//	private ConstraintDatabase addedOnReleaseDB = new ConstraintDatabase();
+//	private ConstraintDatabase addedByROS = new ConstraintDatabase();
 	
-	private Set<Term> variablesObservedByROS = new HashSet<Term>();
-	
-	private Map<Long,ConstraintDatabase> dispatchedDBs = new HashMap<Long, ConstraintDatabase>();
-	
-	boolean drawTimeLines = true;
+	boolean drawTimeLines = false;
 	TimeLineViewer timeLineViewer = null;
 		
 	private String repairSolverName;
 	private Module repairSolver = null;
+//	
+//	private String fromScratchSolverName;
+//	private Module fromScratchSolver = null;
 	
-	private String fromScratchSolverName;
-	private Module fromScratchSolver = null;
-	
-	private Core testCore = new Core();
+//	private Core testCore = new Core();
 	
 	boolean firstUpdate = true;
 	
 	Plan plan;
 	Collection<Operator> O;
+	
+	List<ExecutionManager> managerList = new ArrayList<ExecutionManager>();
+	
+	List<String> execModuleNames = new ArrayList<String>();
+	
+	DateTimeReference dtRef = null;
+	
+	Runtime runtime = Runtime.getRuntime();
 	
 	/**
 	 * Create new instance by providing name and configuration manager.
@@ -161,9 +161,56 @@ public class ExecutionModule  extends Module {
 			this.repairSolver = ModuleFactory.initModule( this.repairSolverName , cM );
 		}
 		
-		if ( cM.hasAttribute(name, "fromScratchSolver") ) {
-			this.fromScratchSolverName = cM.getString(this.getName(), "fromScratchSolver" );
-			this.fromScratchSolver = ModuleFactory.initModule( this.fromScratchSolverName, cM );
+		if ( cM.hasAttribute(name, "modules") ) {
+			try {
+				this.execModuleNames = cM.getStringList(name, "modules");
+				
+				for ( String moduleClassStr : this.execModuleNames ) {
+					Class sClass = Class.forName("java.lang.String");
+					Class cdbClass = Class.forName("org.spiderplan.representation.ConstraintDatabase");
+					
+					Class moduleClass = null;
+					boolean foundClass = false;
+					
+		//			// Try default location of modules
+		//			try {
+		//				moduleClass = Class.forName("org.spiderplan.modules."+moduleClassStr);
+		//				foundClass = true;
+		//			} catch ( ClassNotFoundException e ) { }	// We still got options:
+		//			// Try external module 
+		//			if ( !foundClass ) {
+					moduleClass = Class.forName(moduleClassStr);
+		//			}
+					@SuppressWarnings("unchecked")
+					Constructor c = moduleClass.getConstructor(sClass);
+					ExecutionManager m = (ExecutionManager)c.newInstance(name);
+				
+					this.managerList.add(m);
+				}
+			
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			Loop.start();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+			Loop.start();	
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+			Loop.start();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+			Loop.start();
+		} catch (InvocationTargetException e) {
+			e.getTargetException().printStackTrace();
+			e.printStackTrace();
+			Loop.start();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			Loop.start();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+			Loop.start();
+		} 
 		}
 	}
 	
@@ -175,16 +222,13 @@ public class ExecutionModule  extends Module {
 		}
 		if ( verbose ) Logger.depth++;
 
-//		this.plan = core.getPlan();
-		this.plan = core.getContext().getUnique(Plan.class);
 		this.initialContext = core.getContext().copy();
 		
 		PlanningInterval pI = core.getContext().getUnique(PlanningInterval.class);
+//		DateTimeReference timeRef = core.getContext().getUnique(DateTimeReference.class);
 		
-		if ( useRealTime )
-			this.t0 = System.currentTimeMillis();
-		else
-			this.t0 = 0;
+		this.dtRef = core.getContext().getUnique(DateTimeReference.class);
+		this.t0 = 0;
 		
 		this.t = pI.getStartTimeValue();
 		this.tMax = pI.getHorizonValue();
@@ -192,128 +236,11 @@ public class ExecutionModule  extends Module {
 		this.tM = core.getTypeManager();
 		this.O = core.getOperators();
 		
-		doneList = new ArrayList<Statement>();
-		execList = new ArrayList<Statement>();
-		simList = new ArrayList<Statement>();
-		
 		rPast = new AllenConstraint(Term.parse("(release past (interval 0 0))"));
 		mPastFuture = new AllenConstraint(Term.parse("(meets past future)"));
 		dFuture = new AllenConstraint(Term.parse("(deadline future (interval "+(tMax-1)+" "+(tMax-1)+"))"));
 		rFuture = new AllenConstraint(Term.parse("(deadline past (interval 1 1)"));
-		
-		for ( Operator a : core.getContext().getUnique(Plan.class).getActions() ) {
-			execList.add(a.getNameStateVariable());
-		}
-			 	
-		execDB = core.getContext().copy();
-		simDB = new ConstraintDatabase();
-		
-		for ( Simulation simCon : execDB.get(Simulation.class) ) {
-			if ( simCon.getDispatchTime().toString().equals("on-release")) {
-				simDB.add(simCon.getExecutionTimeDB());
-				for ( Statement s : simCon.getExecutionTimeDB().get(Statement.class) ) {
-					simList.add(s);
-				}
-			} else {
-				try {
-					Long dispatchTime = Long.valueOf(simCon.getDispatchTime().toString());
-//					System.out.println("Got sim DB for t=" + dispatchTime);
-					ConstraintDatabase dispatchedDB = dispatchedDBs.get(dispatchTime);
-					if ( dispatchedDB == null ) {
-						dispatchedDB = new ConstraintDatabase();
-						dispatchedDBs.put(dispatchTime, dispatchedDB);
-					}
-					dispatchedDB.add(simCon.getExecutionTimeDB());
-					
-				} catch ( NumberFormatException e ) {
-					if ( verbose ) Logger.msg(getName(), "Non-ground dispatch time ignored for simulation constraint:\n" + simCon, 1);
-				}
-			}
-		}
-		
-		/**
-		 * ROS subscriptions
-		 */
-		for ( ROSConstraint rosCon : execDB.get(ROSConstraint.class) ) {
-			if ( rosCon.getRelation().equals(ROSRelation.Publish) ) {
-				ROSProxy.publishToTopic(rosCon.getTopic().toString(), rosCon.getMsg().getName());
-				this.ROSpubs.add(rosCon);
-			} else {
-				ROSProxy.subscribeToTopic(rosCon.getTopic().toString(), rosCon.getMsg().getName(), rosCon.getMsg().getArg(0).toString());
-				this.ROSsubs.add(rosCon);
-				variablesObservedByROS.add(rosCon.getVariable());
-			}
-		}
-		
-		for ( ROSRegisterAction regAction : execDB.get(ROSRegisterAction.class) ) {
-			ROSProxy.register_action(regAction.getServerID(), regAction.getActionName());
-		}
-		
-		/**
-		 * Reactors for speech
-		 */
-		for ( Statement s : execDB.get(Statement.class) ) {
-			if ( s.getVariable().getUniqueName().equals("say/1")) {
-				String text = "";
-				for ( IncludedProgram ip : execDB.get(IncludedProgram.class) ) {
-					if ( s.getVariable().getArg(0).equals(ip.getName())) {
-						text += ip.getCode();
-					}
-				}
 				
-				if ( text.isEmpty() ) {
-					text = s.getValue().toString();
-				}
-								
-				execList.add(s);
-				hasReactorList.add(s);
-				ReactorSoundPlaySpeech reactor = new ReactorSoundPlaySpeech(s,text);
-				this.reactors.add(reactor);
-			}
-		}
-		
-		/**
-		 * Reactors ROS goals
-		 */
-		for ( ROSGoal rosGoal :  execDB.get(ROSGoal.class) ) {
-			for ( Statement s : execDB.get(Statement.class) ) {
-				
-				
-				Substitution subst = rosGoal.getVariable().match(s.getVariable());
-				if ( subst != null ) {
-					if ( hasReactorList.contains(s) ) {
-						throw new IllegalStateException("Statement " + s + " has multiple reactors... This cannot be good!");
-					}
-					if ( !execList.contains(s) ) { 
-						execList.add(s);
-					}
-					hasReactorList.add(s);
-					ROSGoal goalCopy = rosGoal.copy();
-					goalCopy.substitute(subst);					
-					ReactorROS reactor = new ReactorROS(s, goalCopy);
-					this.reactors.add(reactor);
-				}
-			}
-		}
-		
-		/**
-		 * Reactors for effects linked to observations
-		 */
-		for ( Operator a : core.getContext().getUnique(Plan.class).getActions() ) {
-			for ( Statement e : a.getEffects() ) {
-				if ( variablesObservedByROS.contains(e.getVariable()) ) {
-//					ObservationReactor r = new ObservationReactor(e, lastChangingStatement);
-//					execList.add(e);
-//					hasReactorList.add(e);
-//					this.reactors.add(r);
-				}
-			}
-		}
-				
-//		execCSP = new IncrementalSTPSolver(0, tMax);
-//		execCSP = new MetaCSPAdapter(tMax);
-		simCSP = new IncrementalSTPSolver(0,tMax);
-		
 		/*
 		 * Add some new type, statements and constraints about progress of time
 		 */
@@ -322,6 +249,7 @@ public class ExecutionModule  extends Module {
 		
 		this.tM.attachTypes(tHorizon, Term.createConstant("timeReference") );
 		
+		execDB = core.getContext();
 		
 		execDB.add(past);
 		execDB.add(future);
@@ -330,56 +258,67 @@ public class ExecutionModule  extends Module {
 		execDB.add(mPastFuture);
 		execDB.add(dFuture);
 		
-		simDB.add(past);
-		simDB.add(future);
-		simDB.add(rPast);
-		simDB.add(rFuture);
-		simDB.add(mPastFuture);
-		simDB.add(dFuture);
-		
-//		if ( !execCSP.isConsistent(execDB, this.tM) ) {
-//			throw new IllegalStateException("Execution failure: Temporal inconsistency in execution CDB.");
-//		}
-		
-		if ( !simCSP.isConsistent(simDB) ) {
-			throw new IllegalStateException("Execution failure: Temporal inconsistency in simulation CDB.");
-		}
-		/*
-		 * Create simulation reactors
-		 */ 
-		for ( Statement s : execList ) {
-			if ( !hasReactorList.contains(s) ) {
-				if ( perfectSim ) reactors.add(new ReactorPerfectSimulation(s));
-				else reactors.add(new ReactorRandomSimulation(s));
-			}
-		}
-		for ( Statement s : simList ) {
-			reactors.add(new ReactorPerfectSimulation(s));
+		// Initialize externally specified managers
+		for ( ExecutionManager eM : this.managerList ) {
+			eM.setVerbose(verbose);
+			eM.setVerbosity(verbosity);
+			eM.initialize(execDB);
 		}
 		
-		testCore.setTypeManager(tM);
-		testCore.setOperators(core.getOperators());
-		testCore.getContext().add(core.getContext().getUnique(Plan.class).copy());
-		
-		while ( !this.isDone() ) {		
-			long before = 0;
-			try {
-				before = StopWatch.getLast(msg("Update"));
-			} catch ( NullPointerException e ) {
-				before = 0;
-			}
-			if ( keepTimes ) StopWatch.start(msg("Update"));
-			this.update();			
-			if ( keepTimes ) StopWatch.stop(msg("Update"));
-			if( keepTimes && keepStats ) Statistics.addLong(msg("Update"), (StopWatch.getLast(msg("Update"))-before));
-			
+		// Check if default managers are needed
+		if ( !execDB.get(ROSConstraint.class).isEmpty()
+				|| !execDB.get(ROSGoal.class).isEmpty()
+				|| !execDB.get(ROSRegisterAction.class).isEmpty() ) {
+			if ( verbose ) Logger.msg(getName(), "Found ROS constraints. Initializing ROSExecutionManager.", 1);
+			ExecutionManager rosManager = new ROSExecutionManager(this.getName());
+			rosManager.setVerbose(verbose);
+			rosManager.setVerbosity(verbosity);
+			rosManager.initialize(execDB);
+			managerList.add(rosManager);
+		} 
+		if ( !execDB.get(Simulation.class).isEmpty() ) {
+			if ( verbose ) Logger.msg(getName(), "Found simulation constraints. Initializing SimulationExecutionManager.", 1);
+			ExecutionManager simManager = new SimulationExecutionManager(this.getName());
+			simManager.setVerbose(this.verbose);
+			simManager.setVerbosity(verbosity);
+			simManager.initialize(execDB);
+			managerList.add(simManager);
+		}
+		if ( !execDB.get(SocketExpression.class).isEmpty() ) {
+			if ( verbose ) Logger.msg(getName(), "Found socket expression. Initializing SocketExecutionManager.", 1);
+			ExecutionManager socketManager = new SocketExecutionManager(this.getName());
+			socketManager.setVerbose(this.verbose);
+			socketManager.setVerbosity(verbosity);
+			socketManager.initialize(execDB);
+			managerList.add(socketManager);
+		}
+		if ( !execDB.get(Observation.class).isEmpty() ) {
+			if ( verbose ) Logger.msg(getName(), "Found observation expression. Initializing ObservationExecutionManager.", 1);
+			ExecutionManager observationManager = new ObservationExecutionManager(this.getName());
+			observationManager.setVerbose(this.verbose);
+			observationManager.setVerbosity(verbosity);
+			observationManager.initialize(execDB);
+			managerList.add(observationManager);
+		}
 
+		// Removed from master because feature is not ready
+		/*if ( !execDB.get(DatabaseExecutionExpression.class).isEmpty() ) {
+			if ( verbose ) Logger.msg(getName(), "Found database execution expressions. Initializing DatabaseExecutionManager.", 1);
+			ExecutionManager dbExecManager = new DatabaseExecutionManager(this.getName());
+			dbExecManager.setVerbose(this.verbose);
+			dbExecManager.setVerbosity(verbosity);
+			dbExecManager.initialize(execDB);
+			managerList.add(dbExecManager);
+		} */
+		
+		while ( !this.isDone() ) {	
+			this.update();			
 		}
 		
 		
 		core.setResultingState(this.getName(), State.Consistent);
 		core.setContext(execDB.copy());
-		core.getContext().add(this.plan);
+
 		if ( verbose ) Logger.depth--;		
 		return core;		
 	}
@@ -389,369 +328,161 @@ public class ExecutionModule  extends Module {
 	}
 	
 	boolean newInformationReleased = false;
-	
-	private void update( ) {
-		boolean needFromScratch = true;
-		/************************************************************************************************
-		 * Update time
-		 ************************************************************************************************/
-		if ( useRealTime ) {
-			t = System.currentTimeMillis() - t0;
-		} else {
-			t++;
-		}
+	int stp_counter = 0;
 
-		if ( verbose ) Logger.landmarkMsg(this.getName());
-		if ( verbose ) Logger.msg(getName(), "@t=" + t, 1);
-		
+	private void update( ) {
 		/************************************************************************************************
-		 * Dispatch new information (from simulation)
+		 * Update times
 		 ************************************************************************************************/
-		if ( dispatchedDBs.get(t) != null ) {
-//			System.out.println("Dispatching: " + t);
-			if ( verbose ) Logger.msg(getName(), "Dispatching:\n" + dispatchedDBs.get(t), 1);
-			execDB.add(dispatchedDBs.get(t));
-			addedSimDBs.add(dispatchedDBs.get(t));
+		tPrev = t;
+		tPrevReal = tReal;
+		tReal = System.currentTimeMillis();
+		tDiffReal = tReal - tPrevReal;
+		if ( !useRealTime ) {
+			t++;
+		} else {
+			if ( dtRef != null ) { 
+				t = dtRef.externalDateTime2internal(tReal);
+			} else {
+				t = tReal;
+			}
+		}				
+		if ( dtRef != null ) { 
+			t = dtRef.externalDateTime2internal(tReal);
+		} else {
+			t = tReal;
 		}
-				
+		if ( verbose ) {
+			Logger.landmarkMsg(this.getName() + "@t=" + t);
+			Logger.msg(this.getName(), String.format("t=%d (%d since last)", t, (t-tPrev)), 1);
+			Logger.msg(this.getName(), String.format("tReal=%d (%d since last)", tReal, tDiffReal), 1);
+//			long maxMem = runtime.maxMemory() /1024;
+//			long alocMem = runtime.totalMemory() /1024;
+//			long freeMem = runtime.freeMemory() /1024;
+			
+//			Logger.msg(this.getName(), String.format("Free memory: %dkb", freeMem), 0);
+//			Logger.msg(this.getName(), String.format("Allocated memory: %dkb", alocMem), 0);
+//			Logger.msg(this.getName(), String.format("Max memory: %dkb", maxMem), 0);
+//			Logger.msg(this.getName(), String.format("Total free memory: %dkb", (freeMem + (maxMem - alocMem))), 0);
+			Logger.msg(this.getName(), String.format("Missed updates: %d", this.missedUpdates), 0);
+		}
+						
 		execDB.remove(rFuture);
-		simDB.remove(rFuture);
 		rFuture = new AllenConstraint(Term.parse("(deadline past (interval "+(t)+" "+(t)+"))"));
 		execDB.add(rFuture);
-		simDB.add(rFuture);
 		
 		/************************************************************************************************
-		 * Check for new flaws, resolve them and update execution CDB
+		 * Resolve Flaws
 		 ************************************************************************************************/
 		Core execCore = new Core();
 		execCore.setTypeManager(tM);
 		execCore.setOperators(this.O);
 		execCore.setContext(execDB.copy());		
 		execCore.getContext().add(new Plan());
+//		execCore.getContext().add(new PlanningInterval(Term.createInteger(t), Term.createConstant("inf")));
 		execCore = repairSolver.run(execCore);
-				
-		needFromScratch = execCore.getResultingState(repairSolverName).equals(Core.State.Inconsistent);
 		
-		/************************************************************************************************
-		 * Check for new open goals
-		 ************************************************************************************************/
-		if ( !needFromScratch ) {
-			if ( verbose ) Logger.msg(getName(), "Checking for new open goals...", 1);
-			for ( OpenGoal og : execDB.get(OpenGoal.class) ) {
-				if ( !og.isAsserted() ) {
-					if ( verbose ) Logger.msg(getName(), "-> Found at least one open goal (need from scratch).", 1);
-					needFromScratch = true;
-					break;
-				}
-			}
-		}
+		execDB = execCore.getContext();
 		
-		if ( !needFromScratch ) {
-			execDB = execCore.getContext();	
-		} else {
-			if ( verbose ) Logger.msg(getName(), "Re-planning from scratch...", 1);
-			
-			ConstraintDatabase fromScratch = this.getFromScrathDB();
-			
-			IncrementalSTPSolver execCSP = new IncrementalSTPSolver(0, this.tMax);
-			if ( !execCSP.isConsistent(fromScratch) ) {
-				IncrementalSTPSolver csp = new IncrementalSTPSolver(0, this.tMax);
-				csp.useCulpritDetection = true;
-				csp.isConsistent(fromScratch);
-				
-				for ( Statement s : execDB.get(Statement.class) ) {
-					System.out.println("[S] " + s);
-				}
-				for ( AllenConstraint tc : execDB.get(AllenConstraint.class) ) {
-					System.out.println("[T] " + tc);
-				}	
-				
-				throw new IllegalStateException("This should not happen!");
-			}
-											
-			Core fromScratchCore = new Core();
-			fromScratchCore.setTypeManager(tM);
-			fromScratchCore.setOperators(this.O);
-			fromScratchCore.setContext(fromScratch.copy());
-			fromScratchCore.getContext().add(new Plan());
-							
-			fromScratchCore = fromScratchSolver.run(fromScratchCore);
-			
-			ConstraintDatabase fromScratchSolution = fromScratchCore.getContext();				
-			
-			if ( fromScratchCore.getResultingState(fromScratchSolverName).equals(Core.State.Inconsistent) ) {
-				throw new IllegalStateException("Inconsistency when planning from scratch during execution.");
-			}	
-			
-			for ( Operator a : fromScratchCore.getContext().getUnique(Plan.class).getActions() ) {
-				fromScratchSolution.add(new AllenConstraint(a.getNameStateVariable().getKey(), TemporalRelation.Release, new Interval(Term.createInteger(t), Term.createConstant("inf"))));
-			}
-	
-			execDB = fromScratchSolution;
-
-			this.plan = fromScratchCore.getContext().getUnique(Plan.class);
-			List<Reactor> remList = new ArrayList<Reactor>();
-			for ( Reactor r : reactors ) {
-				
-				if ( execList.contains(r.getTarget()) && !startedList.contains(r.getTarget()) ) {
-					remList.add(r);
-				}
-			}
-			reactors.removeAll(remList);
-			execList.clear();
-		}
-
-		/************************************************************************************************
-		 * Add reactors if needed
-		 ************************************************************************************************/
-
-		hasReactorList.clear();
-		execList.clear();
-		
-		for ( Reactor r : this.reactors ) {
-			hasReactorList.add(r.getTarget());
-			execList.add(r.getTarget());
-		}
-		
-		/* ROS goals */
-		for ( ROSGoal rosGoal :  execDB.get(ROSGoal.class) ) {
-			for ( Statement s : execDB.get(Statement.class) ) {
-				if ( !execList.contains(s) && !doneList.contains(s) && !hasReactorList.contains(s) ) {
-					if ( hasReactorList.contains(s) ) {
-						throw new IllegalStateException("Statement " + s + " has multiple reactors... This cannot be good!");
-					}
-					
-
-					Substitution subst = rosGoal.getVariable().match(s.getVariable());
-					if ( subst != null ) {
-						ROSGoal goalCopy = rosGoal.copy();
-						goalCopy.substitute(subst);
-						hasReactorList.add(s);
-						execList.add(s);
-						ReactorROS reactor = new ReactorROS(s, goalCopy);
-						this.reactors.add(reactor);
-					}
-				}
-			}
-		}
-		if ( verbose ) {
-			Logger.msg(getName(), "execList:", 1);
-			Logger.depth++;
-			for ( Statement s : execList )
-				Logger.msg(getName(), s.toString(), 1);
-			Logger.depth--;
-			Logger.msg(getName(), "doneList:", 1);
-			Logger.depth++;
-			for ( Statement s : doneList )
-				Logger.msg(getName(), s.toString(), 1);
-			Logger.depth--;
-			Logger.msg(getName(), "hasReactorList:", 1);
-			Logger.depth++;
-			for ( Statement s : hasReactorList )
-				Logger.msg(getName(), s.toString(), 1);
-			Logger.depth--;
-			
-			Logger.msg(getName(), "startedList:", 1);
-			Logger.depth++;
-			for ( Statement s : startedList )
-				Logger.msg(getName(), s.toString(), 1);
-			Logger.depth--;
-		}
 		
 		/**
-		 * TODO: necessary because otherwise past and future are ignored which will
-		 * screw over reactor timings. can we add past and future constraints to fromScratchDB to avoid propagation here?
+		 * TODO: This is a bit of a hack to ensureS that actions are related to the current time even
+		 * if planner is unaware of it. This should be included in planning to begin with though to find temporal
+		 * Inconsistencies when backtracking is possible and easy
 		 */
-		IncrementalSTPSolver execCSP = new IncrementalSTPSolver(0, this.tMax);
-		if ( !execCSP.isConsistent(execDB) ) {
-			IncrementalSTPSolver csp = new IncrementalSTPSolver(0, this.tMax);
-			csp.useCulpritDetection = true;
-			csp.isConsistent(execDB);
-			
-			for ( Statement s : execDB.get(Statement.class) ) {
-				System.out.println("[S] " + s);
-			}
-			for ( AllenConstraint tc : execDB.get(AllenConstraint.class) ) {
-				System.out.println("[T] " + tc);
-			}	
-			
-			throw new IllegalStateException("This should not happen!");
+		for ( Operator o : execDB.getUnique(Plan.class).getActions() ) {
+			AllenConstraint ac = new AllenConstraint(o.getLabel(), TemporalRelation.Release, new Interval(Term.createInteger(t), Term.createConstant("inf")));
+			execDB.add(ac);
 		}
-		ValueLookup propagatedTimes = new ValueLookup(); 
-				
-		execCSP.getPropagatedTemporalIntervals(propagatedTimes);		
+		IncrementalSTPSolver stpSolver = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
+		ConstraintDatabase cdbCopy = execDB.copy();
+		for ( Observation o : execDB.get(Observation.class)) {
+			cdbCopy.add(o.getStatement());
+		}
 		
-//		TemporalIntervalLookup propagatedTimes = execDB.get(TemporalIntervalLookup.class).get(0);
-		/* Operator reactors */
-		for ( Operator a : this.executedActions ) {
-			Statement opName = a.getNameStateVariable();
-			if ( !execList.contains(opName) && !doneList.contains(opName) && !hasReactorList.contains(opName) ) {
-				
-				if ( propagatedTimes.getLST(opName.getKey()) < t ) {
-					throw new IllegalStateException("Newly added operator " + opName + " has latest start time "+propagatedTimes.getLST(opName.getKey())+" in the past (<"+t+")");
-				}
-				
-				Reactor r;
-				if ( perfectSim ) r = new ReactorPerfectSimulation(opName);
-				else r = new ReactorRandomSimulation(opName);
-				
-				reactors.add(r);
-				if ( verbose ) Logger.msg(getName(), "@t=" + t + ": Adding reactor " + r, 1);
-				execList.add(opName);
-			}
-		}
-		/* Operator reactors */
-		for ( Operator a : this.plan.getActions() ) {
-			Statement opName = a.getNameStateVariable();
-			if ( !execList.contains(opName) && !doneList.contains(opName) && !hasReactorList.contains(opName) ) {
-				
-				if ( propagatedTimes.getLST(opName.getKey()) < t ) {
-					throw new IllegalStateException("Newly added operator " + opName + " has latest start time "+propagatedTimes.getLST(opName.getKey())+" in the past (<"+t+")");
-				}
-				
-				Reactor r;
-				if ( perfectSim ) r = new ReactorPerfectSimulation(opName);
-				else r = new ReactorRandomSimulation(opName);
-				
-				reactors.add(r);
-				if ( verbose ) Logger.msg(getName(), "@t=" + t + ": Adding reactor " + r, 1);
-				execList.add(opName);
-			}
-		}
-		/* Observable effect reactors */
-		for ( Operator a : this.plan.getActions() ) {
-			for ( Statement e : a.getEffects() ) {
-				if ( !execList.contains(e) && !doneList.contains(e) && !hasReactorList.contains(e) ) {
-					if ( variablesObservedByROS.contains(e.getVariable()) ) {
-//						ObservationReactor r = new ObservationReactor(e, lastChangingStatement);
-//						execList.add(e);
-//						hasReactorList.add(e);
-//						this.reactors.add(r);
-					}
-				}
-			}
-		}
-		/* Observable effect reactors */
-		for ( Operator a : this.executedActions ) {
-			for ( Statement e : a.getEffects() ) {
-				if ( !execList.contains(e) && !doneList.contains(e) && !hasReactorList.contains(e) ) {
-					if ( variablesObservedByROS.contains(e.getVariable()) ) {
-//						ObservationReactor r = new ObservationReactor(e, lastChangingStatement);
-//						execList.add(e);
-//						hasReactorList.add(e);
-//						this.reactors.add(r);
-					}
-				}
-			}
-		}
-		/* Speech reactors */
-		for ( Statement s : execDB.get(Statement.class) ) {
-			if ( s.getVariable().getUniqueName().equals("say/1")) {
-				if ( !execList.contains(s) && !doneList.contains(s) && !hasReactorList.contains(s) ) {
-					String text = "";
-					for ( IncludedProgram ip : execDB.get(IncludedProgram.class) ) {
-						if ( s.getVariable().getArg(0).equals(ip.getName())) {
-							text += ip.getCode();
-						}
-					}
-					
-					if ( text.isEmpty() ) {
-						text = s.getValue().toString();
-					}
-					
-					execList.add(s);
-					hasReactorList.add(s);
-					ReactorSoundPlaySpeech reactor = new ReactorSoundPlaySpeech(s,text);
-					this.reactors.add(reactor);
-				}
-			}
-		}
-		/************************************************************************************************
-		 * Check ROS
-		 ************************************************************************************************/
-		if ( !firstUpdate ) 
-			updateROS(execDB);
 		
-		/************************************************************************************************
-		 * Update all reactors 
-		 ************************************************************************************************/
-		ArrayList<Reactor> remList = new ArrayList<Reactor>();
-		boolean someoneDone = false;
-		for ( Reactor r : reactors ) {
+		
+		if ( !stpSolver.isConsistent(cdbCopy) ) {
+			stpSolver.useCulpritDetection = true;
+			stpSolver.isConsistent(cdbCopy);
 			
-			r.printSetting(name, Logger.depth, verbose);
-			if ( r.getState() == Reactor.State.Done ) {
-				doneList.add(r.getTarget());
-				remList.add(r);
-				someoneDone = true;
+			Loop.start();
+		}
+		stpSolver.getPropagatedTemporalIntervals(execDB.getUnique(ValueLookup.class));
+		
+		TemporalNetworkTools.dumbTimeLineData(cdbCopy, execDB.getUnique(ValueLookup.class), String.format("stp%d.txt", stp_counter));
+		stp_counter++;
+		
+		System.out.println(execDB.getUnique(Plan.class));
 				
-			} else {
-				Collection<Expression> addedCons;
-				long EST, LST, EET, LET;
-				
-				if ( !simList.contains(r.getTarget()) ) {
-					EST = propagatedTimes.getEST(r.getTarget().getKey());
-					LST = propagatedTimes.getLST(r.getTarget().getKey());
-					EET = propagatedTimes.getEET(r.getTarget().getKey());
-					LET = propagatedTimes.getLET(r.getTarget().getKey());
-					
-					if ( verbose ) Logger.msg(getName(), "@t=" + t + " (BEFORE) >>> " + r, 1);
-					addedCons = r.update(t, EST, LST, EET, LET, execDB);
-					if ( verbose ) Logger.msg(getName(), "@t=" + t + " (AFTER)  >>> " + r, 1);
+		/************************************************************************************************
+		 * TODO: Re-plan on failure
+		 ************************************************************************************************/
+//		needFromScratch = execCore.getResultingState(repairSolverName).equals(Core.State.Inconsistent);
 
-				} else {
-					EST = simCSP.getEST(r.getTarget().getKey());
-					LST = simCSP.getLST(r.getTarget().getKey());
-					EET = simCSP.getEET(r.getTarget().getKey());
-					LET = simCSP.getLET(r.getTarget().getKey());
-					addedCons = r.update(t, EST, LST, EET, LET, simDB);
-				}
-				
-				if ( !r.getState().equals(Reactor.State.NotStarted) && !startedList.contains(r.getTarget()) ) {
-					startedList.add(r.getTarget());
-				}
-				
-				/**
-				 * Add statements and constraints from sim list.
-				 * (only from simulation constraints with "on-release" dispatch)
-				 */
-				if ( simList.contains(r.getTarget()) ) {
-					if ( !addedCons.isEmpty() && !addedCons.equals(addedConstraints.get(r.getTarget())) ) {
-						if ( addedConstraints.get(r.getTarget()) != null ) {
-							execDB.removeAll(addedConstraints.get(r.getTarget()));
-							addedOnReleaseDB.removeAll(addedConstraints.get(r.getTarget()));
-						}
-						execDB.addAll(addedCons);
-						addedOnReleaseDB.addAll(addedCons);
-						if ( !execDB.contains(r.getTarget()) ) {
-							addedOnReleaseDB.add(r.getTarget());
-							execDB.add(r.getTarget());
-						}
-						newInformationReleased = true;
-					}
-				}
-				Collection<Expression> store = new ArrayList<Expression>();
-				store.addAll(addedCons);
-				addedConstraints.put(r.getTarget(), store);
-				
-			}
-		}
-		reactors.removeAll(remList);
+		/************************************************************************************************
+		 * Update all ExecutionManagers
+		 ************************************************************************************************/
+
+//		try {
+//			ConstraintDatabase cdbCopy = execDB.copy();
+//			for ( Observation o : execDB.get(Observation.class)) {
+//				execDB.add(o.getStatement());
+//			}
+//			TemporalNetworkTools.draw(cdbCopy, String.format("t=%d", t));
+//		} catch ( Exception e ) {
+//			
+//		}
 		
+		if ( !firstUpdate ) { 
+			for ( ExecutionManager em : managerList ) {
+				if ( verbose ) {
+					Logger.msg(this.getName(), "Updating: " + em.getClass().getSimpleName(), 0);
+					Logger.depth++;
+				}
+				em.update(t, execDB);
+				if ( verbose ) Logger.depth--;
+				
+				
+//				stpSolver = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
+//				cdbCopy = execDB.copy();
+//				for ( Observation o : execDB.get(Observation.class)) {
+//					cdbCopy.add(o.getStatement());
+//				}
+//				System.out.println(stpSolver.isConsistent(cdbCopy));		
+//				stpSolver.getPropagatedTemporalIntervals(execDB.getUnique(ValueLookup.class));
+				
+//				stpSolver = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
+//				stpSolver.isConsistent(execDB);		
+//				stpSolver.getPropagatedTemporalIntervals(execDB.getUnique(ValueLookup.class));
+				
+				
+				
+//				System.out.println(execDB.getUnique(ValueLookup.classC));
+				//TODO: Statements can be added that are used later but without having been propagated...
+				// Might be best to only consider current information for all exec. managers?
+				// + The order is arbitrary... so they should ignore each others additions... but how to make sure?
+			}			
+		}
+		
+						
 		/************************************************************************************************
 		 * Forget past
 		 ************************************************************************************************/
-		if ( someoneDone && useForgetting ) {
-			removeWrittenInStone( execDB, new HashSet<Term>() );
-		}
+//		if ( someoneDone && useForgetting ) {
+//			removeWrittenInStone( execDB, new HashSet<Term>() );
+//		}
 
 		/************************************************************************************************
 		 * Update visualization
-		 ************************************************************************************************/	
+		 ************************************************************************************************/
+
 		if ( firstUpdate && drawTimeLines ) {
 //			execCSP.isConsistent(execDB, tM);
 			firstUpdate = false;
 			this.draw();
+		} else if (firstUpdate ) {
+			firstUpdate = false;
 		}
 		if ( timeLineViewer != null ) {
 			
@@ -760,40 +491,89 @@ public class ExecutionModule  extends Module {
 					String tName = s.getVariable().toString();
 					String value = s.getValue().toString(); 
 					Term id = s.getKey();
-					long[] bounds = propagatedTimes.getBoundsArray(id);
 					
-					if ( ! timeLineViewer.hasTrack(tName) ) {
-						timeLineViewer.createTrack(tName);
+					if ( execDB.getUnique(ValueLookup.class).hasInterval(id) ) {
+						long[] bounds = execDB.getUnique(ValueLookup.class).getBoundsArray(id);
+						
+						if ( ! timeLineViewer.hasTrack(tName) ) {
+							timeLineViewer.createTrack(tName);
+						}
+						if ( ! timeLineViewer.hasValue(id.toString()) ) {
+							timeLineViewer.createValue(tName, value, id.toString(), (int)bounds[0], (int)bounds[2]);
+						} else {
+							timeLineViewer.updateValue(id.toString(), (int)bounds[0], (int)bounds[2]);
+						}		
 					}
-					
-					if ( ! timeLineViewer.hasValue(id.toString()) ) {
-						timeLineViewer.createValue(tName, value, id.toString(), (int)bounds[0], (int)bounds[2]);
-					} else {
-						timeLineViewer.updateValue(id.toString(), (int)bounds[0], (int)bounds[2]);
-					}		
-				} catch ( NullPointerException e ) {}
+				} catch ( NullPointerException e ) {
+					e.printStackTrace();
+				}
 	
 			}
 			timeLineViewer.update();
-			timeLineViewer.snapshot();
+//			timeLineViewer.snapshot(); //TODO: There is a bug where this does not terminate 
+
 		}
-		
-//		System.out.println(StopWatch.allLast2Str());
-		
+	
 		/************************************************************************************************
-		 * Force some delay - TODO: adapt when doing real time
+		 * Wait until next update or count missed updates.
 		 ************************************************************************************************/
-		try {
-			Thread.sleep(250);
-		} catch ( Exception e ) {
-			
+		long tUpdateReal = System.currentTimeMillis() - tReal;
+		if ( tUpdateReal < tPreferredUpdateInterval ) {
+			try {
+				Thread.sleep(tPreferredUpdateInterval - tUpdateReal);
+			} catch ( Exception e ) { }
+		} else if ( tUpdateReal > tPreferredUpdateInterval ) {
+			long missedUpdatesNow = tUpdateReal/tPreferredUpdateInterval;
+			missedUpdates += missedUpdatesNow;
+			Logger.msg(this.getName(), String.format("Missed %d updates (%d total).", missedUpdatesNow, missedUpdates), 0);
 		}
 	}
+		
+	/**
+	 * Draw time-lines produced by execution 
+	 */
+	public void draw() {
+		ValueLookup propagatedTimes = execDB.getUnique(ValueLookup.class);
+		
+		timeLineViewer = new TimeLineViewer();
+		for ( Statement s : execDB.get(Statement.class) ) {
+			String tName = s.getVariable().toString();
+			String value = s.getValue().toString(); 
+			Term id = s.getKey();
+			if ( propagatedTimes.hasInterval(id)) {
+				long[] bounds = propagatedTimes.getBoundsArray(id);
+				
+				if ( ! timeLineViewer.hasTrack(tName) ) {
+					timeLineViewer.createTrack(tName);
+				}
+				timeLineViewer.createValue(tName, value, id.toString(), (int)bounds[0], (int)bounds[2]);
+			}
+		}
+		timeLineViewer.update();
+		timeLineViewer.snapshot();
+	}
 	
+	/**
+	 * Only used to create from scratch databases.
+	 */
+	boolean useForgetting = true;
 	int fromScratchDBsCreated = 0;
+	Set<Expression> remList = new HashSet<Expression>();
+	Set<Statement> writtenInStoneStatements = new HashSet<Statement>();	
+	Set<Term> writtenInStone = new HashSet<Term>();
+	
+//	private Map<Statement,Collection<Expression>> addedConstraints = new HashMap<Statement, Collection<Expression>>();
+	ArrayList<Expression> executedLinks = new ArrayList<Expression>();
+	
 	private ConstraintDatabase getFromScrathDB( ) {
+		
+		ArrayList<Expression> reachedGoals = new ArrayList<Expression>();
+
 		fromScratchDBsCreated++;
 		
+		/**********************************************************************************************
+		 * Get current value lookup to have propagated bounds for temporal intervals
+		 **********************************************************************************************/
 		for ( OpenGoal og : execDB.get(OpenGoal.class) ) {
 			execDB.add(og.getStatement());
 		}
@@ -814,12 +594,7 @@ public class ExecutionModule  extends Module {
 			throw new IllegalStateException("This should not happen!");
 		}
 		ValueLookup propagatedTimes = new ValueLookup();
-		execCSP.getPropagatedTemporalIntervals(propagatedTimes); //d  execDB.get(TemporalIntervalLookup.class).get(0);
-		
-		
-				
-		Set<Term> actionIntervals = new HashSet<Term>();
-		Set<Term> nonExecutedActionIntervals = new HashSet<Term>();
+		execCSP.getPropagatedTemporalIntervals(propagatedTimes); 
 		
 		if ( verbose ) { 
 			Logger.msg(getName(), "Building from scratch CDB:", 0);
@@ -827,8 +602,14 @@ public class ExecutionModule  extends Module {
 			Logger.msg(getName(), "Checking which operators to keep...", 2);
 			Logger.depth++;
 		}
+		/**********************************************************************************************
+		 * Find actions that are or have been executed
+		 **********************************************************************************************/
+		Set<Term> actionIntervals = new HashSet<Term>();
+		ArrayList<Operator> executedActions = new ArrayList<Operator>();
+		Set<Term> nonExecutedActionIntervals = new HashSet<Term>();
 		for ( Operator a : this.plan.getActions() ) {
-			if ( !executedActions.contains(a) && (this.startedList.contains(a.getNameStateVariable()) || this.doneList.contains(a.getNameStateVariable())) ) {
+			if ( !executedActions.contains(a) && (this.isCommittedStatement(a.getNameStateVariable())) ) {
 				if ( verbose ) Logger.msg(getName(), a.getNameStateVariable().toString(), 2);
 				executedActions.add(a.copy());
 				
@@ -859,6 +640,9 @@ public class ExecutionModule  extends Module {
 			Logger.msg(getName(), "Checking which statements to keep...", 2);
 			Logger.depth++;
 		}
+		/**********************************************************************************************
+		 * Find statements with intervals that have started or ended already
+		 **********************************************************************************************/
 		for ( Statement s : execDB.get(Statement.class) ) { 
 
 			if ( !nonExecutedActionIntervals.contains(s.getKey()) &&  ((propagatedTimes.getLST(s.getKey()) < t || propagatedTimes.getLET(s.getKey()) < t)) ) {
@@ -882,10 +666,16 @@ public class ExecutionModule  extends Module {
 			}
 		}
 		
+		/**********************************************************************************************
+		 * Create planning interval
+		 **********************************************************************************************/
 		PlanningInterval pI = fromScratchDB.getUnique(PlanningInterval.class);
 		fromScratchDB.remove(pI);
 		fromScratchDB.add(new PlanningInterval(Term.createInteger(t), Term.createInteger(tMax)));
 		
+		/**********************************************************************************************
+		 * TODO: do this directly above? this seems out of place
+		 **********************************************************************************************/
 		for ( Statement s : fromScratchDB.get(Statement.class) ) {
 			actionIntervals.add(s.getKey());
 		}
@@ -896,6 +686,10 @@ public class ExecutionModule  extends Module {
 			Logger.msg(getName(), "Checking causal links that have been executed...", 2);
 			Logger.depth++;
 		}
+		
+		/**********************************************************************************************
+		 * Keep only connected AllenConstraints (TODO: What about simple distance constraints, etc.?)
+		 **********************************************************************************************/
 		for ( AllenConstraint tc : this.plan.getConstraints().get(AllenConstraint.class) ) {
 			if ( !executedLinks.contains(tc) && (actionIntervals.contains(tc.getFrom()) && actionIntervals.contains(tc.getTo())) ) {
 				if ( execDB.hasKey(tc.getFrom()) && execDB.hasKey(tc.getTo())) {
@@ -915,8 +709,10 @@ public class ExecutionModule  extends Module {
 			Logger.msg(getName(), "Checking open goals that have been achieved...", 2);
 			Logger.depth++;
 		}
+		/**********************************************************************************************
+		 * Find goals that are achieved (and keep them asserted)
+		 **********************************************************************************************/
 		for ( OpenGoal og : execDB.get(OpenGoal.class)) {
-//			System.out.println(og);
 			if ( execDB.hasKey(og.getStatement().getKey())) {
 				if ( verbose ) Logger.msg(getName(), "Goal " + og + " with " + og.getStatement().getKey() 
 																	+ " [" + propagatedTimes.getEST(og.getStatement().getKey()) 
@@ -965,6 +761,9 @@ public class ExecutionModule  extends Module {
 			Logger.msg(getName(), "Adding operators...", 2);
 			Logger.depth++;
 		}		
+		/**********************************************************************************************
+		 * Add preconditions, effects and constraints of executed operators
+		 **********************************************************************************************/
 		Collection<Operator> oRemList = new HashSet<Operator>();
 		for ( Operator a : executedActions ) {
 			if ( execDB.hasKey(a.getNameStateVariable().getKey()) ) {
@@ -982,13 +781,15 @@ public class ExecutionModule  extends Module {
 				for ( Statement p : a.getPreconditions() ) {
 					fromScratchDB.add(p);	
 				}
-//				fromScratchDB.addStatements(a.getPreconditions());
 				for ( Statement e : a.getEffects() ) {
 					fromScratchDB.add(e);	
 				}
-//				fromScratchDB.addStatements(a.getEffects());
 				fromScratchDB.addAll(a.getConstraints());
-				fromScratchDB.addAll(addedConstraints.get(a.getNameStateVariable()));
+				
+				for ( ExecutionManager eM : this.managerList ) {
+					fromScratchDB.addAll(eM.getAddedReactorExpressions(a.getNameStateVariable()));
+				}
+				
 			} else {
 				oRemList.add(a);
 			}
@@ -1001,6 +802,9 @@ public class ExecutionModule  extends Module {
 			Logger.msg(getName(), "Checking ICs that applied or have been resolved in the past", 2);
 			Logger.depth++;
 		}	
+		/**********************************************************************************************
+		 * Decide which IC resolvers to keep
+		 **********************************************************************************************/
 		for ( InteractionConstraint ic : execDB.get(InteractionConstraint.class) ) {
 			
 			if ( ic.isAsserted() ) {
@@ -1029,21 +833,24 @@ public class ExecutionModule  extends Module {
 			}
 		}
 		
+		/**********************************************************************************************
+		 * Process goal assertions (TODO: why is this here and not earlier?!?)
+		 **********************************************************************************************/
 		for ( Expression c : reachedGoals ) {
-//			if ( c instanceof Asserted ) {
-//				fromScratchDB.processAsserted((Asserted)c);			
-//			}
 			if ( c instanceof Assertion ) {
 				fromScratchDB.processAssertedTerm((Assertion)c);
 			}				
 		}
 				
 		if ( verbose ) Logger.depth--;
-		
+		/**********************************************************************************************
+		 * Add everything (TODO: make sure that things are added only after this for clarity?)
+		 **********************************************************************************************/
 		fromScratchDB.addAll(executedLinks);
-		fromScratchDB.add(addedSimDBs);
-		fromScratchDB.add(addedOnReleaseDB);
-		fromScratchDB.add(addedByROS);
+		
+		for ( ExecutionManager eM : this.managerList ) {
+			fromScratchDB.addAll(eM.getAddedExpressions());
+		}
 
 		fromScratchDB.add(past);
 		fromScratchDB.add(future);
@@ -1052,12 +859,10 @@ public class ExecutionModule  extends Module {
 		fromScratchDB.add(mPastFuture);
 		fromScratchDB.add(dFuture);
 		
-		for ( Statement s : this.startedList ) {
-			fromScratchDB.addAll(addedConstraints.get(s));
+		for ( ExecutionManager eM : this.managerList ) {
+			fromScratchDB.addAll(eM.getStartedOrDoneExpressions());
 		}
-		for ( Statement s : this.doneList ) {
-			fromScratchDB.addAll(addedConstraints.get(s));
-		}
+
 		
 		for ( Term k : nonExecutedActionIntervals ) {
 			if ( fromScratchDB.hasKey(k) ) {
@@ -1112,15 +917,28 @@ public class ExecutionModule  extends Module {
 		return fromScratchDB;
 	}
 	
+	private boolean isCommittedStatement( Statement s ) {
+		for ( ExecutionManager eM : this.managerList ) {
+			if ( eM.isCommittedStatement(s) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean isOnExecutionList( Statement s ) {
+		for ( ExecutionManager eM : this.managerList ) {
+			if ( eM.isOnExecutionList(s) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private String Interval2String( long EST, long LST, long EET, long LET) {
 		return String.format("[%d %d] [%d %d]", EST, LST, EET, LET);
 	}
-	
-	Set<Expression> remList = new HashSet<Expression>();
-	Set<Statement> writtenInStoneStatements = new HashSet<Statement>();	
-	Set<Term> writtenInStone = new HashSet<Term>();
-	
-	
+		
 	private void removeWrittenInStone( ConstraintDatabase cdb, Set<Term> doNotAdd ) {		
 		ValueLookup propagatedTimes = execDB.getUnique(ValueLookup.class);
 		
@@ -1139,7 +957,7 @@ public class ExecutionModule  extends Module {
 				long LET = propagatedTimes.getLET(s.getKey());
 				
 				if ( LET < t || t > LST ) {
-					if ( !s.getKey().toString().equals("past") && !s.getKey().toString().equals("future") && !execList.contains(s) )  {
+					if ( !s.getKey().toString().equals("past") && !s.getKey().toString().equals("future") && !isOnExecutionList(s) )  {
 						
 						cdb.add(s); 
 						Interval b1 = new Interval(EST,LST);
@@ -1248,198 +1066,5 @@ public class ExecutionModule  extends Module {
 		}
 	}
 	
-//	private ConstraintDatabase getRepairDB( ) {
-//		ArrayList<Operator> executedActions = new ArrayList<Operator>();
-//		ArrayList<Constraint> executedLinks = new ArrayList<Constraint>();
-//		Set<Term> actionIntervals = new HashSet<Term>();
-//		
-//		if ( verbose ) Logger.msg(getName(), "Building initial context...", 3);
-//		for ( Operator a : this.plan.getActions() ) {
-//			if ( this.startedList.contains(a.getNameStateVariable()) || this.doneList.contains(a.getNameStateVariable()) ) {
-//				if ( verbose ) Logger.msg(getName(), "    Adding " + a, 3);
-//				executedActions.add(a);
-//				
-//				actionIntervals.add(a.getNameStateVariable().getKey());
-//				for ( Statement p : a.getPreconditions() ) {
-//					actionIntervals.add(p.getKey());
-//				}
-//				for ( Statement e : a.getEffects() ) {
-//					actionIntervals.add(e.getKey());
-//				}
-//			} 
-//		}
-//		
-//		for ( AllenConstraint tc : this.plan.getConstraints().get(AllenConstraint.class) ) {
-//			if ( actionIntervals.contains(tc.getFrom()) && actionIntervals.contains(tc.getTo()) ) {
-//				if ( verbose ) Logger.msg(getName(), "    Keeping " + tc, 3);
-//				executedLinks.add(tc);
-//			}
-//		}
-//		
-//		ConstraintDatabase fromScratchDB = Global.initialContext.copy();
-//		
-//		if ( verbose ) Logger.msg(getName(), "Collecting achieved goals...", 3);
-//		for ( OpenGoal og : execDB.get(OpenGoal.class)) {
-//			if ( verbose ) Logger.msg(getName(), "Setting goal " + og + " as asserted.", 3);
-//			fromScratchDB.add(new Asserted(og.copy()));
-//			fromScratchDB.add(og.getStatement());
-//		}
-//		
-//		for ( Operator a : executedActions ) {
-//			fromScratchDB.add(a.getNameStateVariable());
-//			for ( Statement p : a.getPreconditions() ) {
-//				fromScratchDB.add(p);
-//			}
-////			fromScratchDB.addStatements(a.getPreconditions());
-//			for ( Statement e : a.getEffects() ) {
-//				fromScratchDB.add(e);
-//			}
-////			fromScratchDB.addStatements(a.getEffects());
-//			fromScratchDB.addAll(a.getConstraints());
-//		}
-//		fromScratchDB.addAll(executedLinks);
-//		fromScratchDB.add(addedSimDBs);
-////		fromScratchDB.addConstraints(addedConstraints);
-//		return fromScratchDB;
-//	}
-	
-	Map<Term,Statement> lastChangingStatement = new HashMap<Term, Statement>();
-	Map<Term,Expression> lastAddedDeadline = new HashMap<Term, Expression>();
-	List<ROSConstraint> ROSsubs = new ArrayList<ROSConstraint>();
-	List<ROSConstraint> ROSpubs = new ArrayList<ROSConstraint>();
-	Term rosSubInterval = Term.createVariable("?I_ROS");
-	int ROS_NumSameValuesRequired = 2;
-	int ROS_SameValueCounter = 0;
-	Term ROS_NewValue = null;
-	
-	private boolean updateROS( ConstraintDatabase execDB ) {
-		ValueLookup propagatedTimes = execDB.getUnique(ValueLookup.class);
-		
-		boolean change = false;
-		Term variable;
-		Term value;
-		Term rosMessage;
-		/*
-		 * 1) Read
-		 */
-		for ( ROSConstraint sub : ROSsubs ) {
-			variable = sub.getVariable();
-			rosMessage = ROSProxy.get_last_msg(sub.getTopic().toString());
-			
-			if ( rosMessage != null ) {
-				Substitution theta = sub.getMsg().match(rosMessage);
-				value = sub.getValue().substitute(theta);
-			} else {
-				value = null;
-			}			
-			
-			Statement s = lastChangingStatement.get(variable);
-			if ( value == null && s == null ) {
-				// nothing to do
-			} else if ( (s != null && value == null) || (s != null && s.getValue().equals(value)) ) {
-				// same as before: just update deadline
-				
-				addedByROS.remove(lastAddedDeadline.get(variable));
-				execDB.remove(lastAddedDeadline.get(variable));
-				AllenConstraint deadline = new AllenConstraint(s.getKey(), TemporalRelation.Deadline, new Interval(Term.createInteger(t+1),Term.createConstant("inf")));
-				addedByROS.add(deadline);
-				execDB.add(deadline);
-				
-				lastAddedDeadline.put(variable, deadline);
-				change = false;
-				if ( verbose ) Logger.msg(this.getName(),"[ROS] Updated existing statement: " + s, 2);
-			} else {
-				// new value
-				
-				if ( ROS_NewValue == null || !ROS_NewValue.equals(value) ) {
-					ROS_SameValueCounter = 1;
-					ROS_NewValue = value;				
-				} else {
-					ROS_SameValueCounter++;
-				}
-				
-				if ( ROS_SameValueCounter == ROS_NumSameValuesRequired ) {
-					ROS_SameValueCounter = 0;
-					
-					if ( s != null ) {
-						Statement oldAssignment = lastChangingStatement.get(variable);
-						addedByROS.remove(lastAddedDeadline.get(variable));
-						execDB.remove(lastAddedDeadline.get(variable));
-						AllenConstraint finalDeadline = new AllenConstraint(oldAssignment.getKey(), TemporalRelation.Deadline, new Interval(t,t));
-						addedByROS.add(finalDeadline);
-						execDB.add(finalDeadline);
-					}			
-
-					Term interval = rosSubInterval.makeUnique(UniqueID.getID()).makeConstant();
-					Statement newStatement = new Statement(interval,variable,value);
-					AllenConstraint release = new AllenConstraint(interval, TemporalRelation.Release, new Interval(t,t));
-					AllenConstraint deadline = new AllenConstraint(interval, TemporalRelation.Deadline, new Interval(Term.createInteger(t+1),Term.createConstant("inf")));
-					
-					lastChangingStatement.put(variable, newStatement);
-					lastAddedDeadline.put(variable, deadline);
-					
-					addedByROS.add(newStatement);
-					addedByROS.add(release);
-					addedByROS.add(deadline);
-					execDB.add(newStatement);
-					execDB.add(release);
-					execDB.add(deadline);
-					
-					change = true;
-					
-					if ( verbose ) Logger.msg(this.getName(),"[ROS] Added new Statement: " + newStatement, 2);
-				}
-			}
-		}
-		
-		/*
-		 * 3) Publish current value
-		 */
-		for ( ROSConstraint pub : ROSpubs ) {
-			variable = pub.getVariable(); 
-			Statement currentStatement = null;
-			for ( Statement s : execDB.get(Statement.class) ) {
-				if ( variable.equals(s.getVariable()) && propagatedTimes.getEST(s.getKey()) <= t && propagatedTimes.getEET(s.getKey()) >= t ) {
-					currentStatement = s;
-					break;
-				}
-			}
-			if ( currentStatement != null ) {
-				Term ourValue = currentStatement.getValue();
-				Substitution theta = pub.getValue().match(ourValue);
-				Term toSend = pub.getMsg().substitute(theta);
-				
-				ROSProxy.send_msg(pub.getTopic().toString(), toSend);
-				if ( verbose ) Logger.msg(this.getName(),"[ROS] Send message "+toSend+" to topic /"+pub.getTopic(), 2);
-			}
-		}
-		
-		
-		return change;
-	}
-	
-	/**
-	 * Draw time-lines produced by execution 
-	 */
-	public void draw() {
-		ValueLookup propagatedTimes = execDB.getUnique(ValueLookup.class);
-		
-		timeLineViewer = new TimeLineViewer();
-		for ( Statement s : execDB.get(Statement.class) ) {
-			String tName = s.getVariable().toString();
-			String value = s.getValue().toString(); 
-			Term id = s.getKey();
-			if ( propagatedTimes.hasInterval(id)) {
-				long[] bounds = propagatedTimes.getBoundsArray(id);
-				
-				if ( ! timeLineViewer.hasTrack(tName) ) {
-					timeLineViewer.createTrack(tName);
-				}
-				timeLineViewer.createValue(tName, value, id.toString(), (int)bounds[0], (int)bounds[2]);
-			}
-		}
-		timeLineViewer.update();
-		timeLineViewer.snapshot();
-	}
 }
 

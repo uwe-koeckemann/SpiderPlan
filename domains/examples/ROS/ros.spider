@@ -9,7 +9,7 @@ FlowModule main:
 	verbose=true;
 	verbosity=1;
 
-ExecutionModuleMK2 Execution:
+ExecutionModule Execution:
 	fromScratchSolver = "MainSolver";
 	repairSolver = "RepairSolver";
 	keepTimes=true;
