@@ -1045,7 +1045,6 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		Map<Term,List<Term>> possibleSubGoals = new HashMap<Term,List<Term>>();
 		for ( Goal goal : g ) {
 			for ( SingleGoal sg : goal.getSingleGoals() ) {
-				System.out.println(sg);
 				Term var = sg.getVariable();
 				Term val = sg.getValue();
 				if ( !possibleSubGoals.keySet().contains(var) ) {
