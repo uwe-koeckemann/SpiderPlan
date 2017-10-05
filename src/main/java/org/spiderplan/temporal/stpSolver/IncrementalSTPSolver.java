@@ -22,7 +22,9 @@
 package org.spiderplan.temporal.stpSolver;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -63,7 +65,7 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 	private List<List<AllenConstraint>> addedAllenConstraintsHistory;
 	private List<List<SimpleDistanceConstraint>> addedSimpleDistanceConstraintsHistory;
 	
-	private Map<Long[],AllenConstraint> debugLookUp = new HashMap<Long[], AllenConstraint>(); 
+	private Map<Long[],Object> debugLookUp = new HashMap<Long[], Object>(); 
 	
 	private long O = 0L;
 	private long H = 10;
@@ -86,8 +88,8 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 	 * individual temporal constraints and point out
 	 * when inconsistencies arise.
 	 */
-	public boolean debug = false;
-		
+	public boolean useCulpritDetection = false;
+	
 	/**
 	 * Create new solver by providing temporal origin and horizon.
 	 * @param origin the earliest considered time
@@ -125,7 +127,7 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 
 		int revertToIndex;
 		
-		if ( !debug ) {
+		if ( !useCulpritDetection ) {
 			if ( useLinearRevert ) {
 				if ( keepTimes ) StopWatch.start("[incSTP] 1) Finding revert level (linear)");
 				
@@ -280,7 +282,7 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 //		System.out.println("newStatements " + newStatements.size());
 //		System.out.println("newAllenConstraints " + newAllenConstraints.size());
 		
-		if ( debug ) {
+		if ( useCulpritDetection ) {
 			needFromScratch = true;
 		}
 		
@@ -310,33 +312,75 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 		
 		if ( keepTimes ) StopWatch.start("[incSTP] Propagation");
 		boolean isConsistent = true;
-//		if ( propagationRequired ) {
-			for ( Long[] con : addedConstraints ) {
-				isConsistent &= incrementalDistanceMatrixComputation(con[0].intValue(), con[1].intValue(), con[2], con[3]);
-				
-				if ( debug ) {
-					System.err.println(debugLookUp.get(con));
-				}
-				
-				if ( !isConsistent ) {
-					if ( debug ) {
-						System.err.println("[FAIL] " + debugLookUp.get(con));
+
+		for ( Long[] con : addedConstraints ) {
+			isConsistent &= incrementalDistanceMatrixComputation(con[0].intValue(), con[1].intValue(), con[2], con[3]);
+						
+			if ( !isConsistent ) {
+				if ( useCulpritDetection ) {
+					System.err.println("Looking for culprit...");
+					
+					List<Long[]> culprit = this.findCulprit(addedConstraints, S);
+					
+					for ( Long[] culprit_con : culprit ) {
+						System.err.println("[CULPRIT] " + debugLookUp.get(culprit_con));
 					}
-					break;
 				}
+				break;
 			}
-//		}
+		}
+
 		if ( keepTimes ) StopWatch.stop("[incSTP] Propagation");
 		
-		if ( isConsistent && propagationRequired && !debug ) {
+		if ( isConsistent && propagationRequired && !useCulpritDetection ) {
 			this.bookmark();
-		} else if ( !isConsistent && !debug && getHistorySize() > 0) {
+		} else if ( !isConsistent && !useCulpritDetection && getHistorySize() > 0) {
 			this.revert(getHistorySize()-1);
 			this.bookmark();
 		}
 //		System.out.println("RETURNING: " + isConsistent);
 		return isConsistent;
 	}	
+	
+	private List<Long[]> findCulprit( List<Long[]> addedC, List<Statement> S ) {
+		LinkedList<Long[]> C = new LinkedList<Long[]>();
+		for ( Long[] c : addedC ) {
+			C.add(c);
+		}
+		
+		boolean done = false;
+		
+		int culpritFringe = -1;
+		
+		while ( !done ) {
+			
+			this.d = null;
+			this.setupDistanceMatrix(S);
+			
+			boolean isConsistent = true;
+			
+			int i = 0;
+			
+			for ( Long[] c : C ) {
+				isConsistent &= incrementalDistanceMatrixComputation(c[0].intValue(), c[1].intValue(), c[2], c[3]);
+				
+				if ( !isConsistent ) {
+					LinkedList<Long[]> Cnew = new LinkedList<>();
+					Cnew.addFirst(c);
+					for ( int j = 0 ; j < i ; j++ ) {
+						Cnew.add(C.get(j));
+					}
+					C = Cnew;
+					culpritFringe++;
+					done = (i <= culpritFringe);					
+					break;
+				}
+				i++;
+			}
+		}
+				
+		return C;
+	}
 	
 	
 	private List<Long[]> setupDistanceMatrix( List<Statement> S ) {
@@ -416,6 +460,9 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 					dConMinDur[3] = H;
 					r.add(dConMinDur);
 					cons.add(dConMinDur);
+					if ( useCulpritDetection ) {
+						debugLookUp.put(dConMinDur, s);
+					}
 				}
 
 //				sdMap.put(s.getKey(), cons);
@@ -499,7 +546,7 @@ public class IncrementalSTPSolver { //implements TemporalReasoningInterface {
 //				this.acdMap.put(ac, addedConstraints);
 				r.addAll(addedConstraints);
 				
-				if ( debug ) {
+				if ( useCulpritDetection ) {
 					for ( Long[] con : addedConstraints ) {
 						debugLookUp.put(con, ac);
 					}

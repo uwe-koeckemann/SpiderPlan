@@ -403,7 +403,7 @@ public class ExecutionModuleMK2  extends Module {
 		
 		
 		if ( !stpSolver.isConsistent(cdbCopy) ) {
-			stpSolver.debug = true;
+			stpSolver.useCulpritDetection = true;
 			stpSolver.isConsistent(cdbCopy);
 			
 			Loop.start();
@@ -581,7 +581,7 @@ public class ExecutionModuleMK2  extends Module {
 		IncrementalSTPSolver execCSP = new IncrementalSTPSolver(0, this.tMax);
 		if ( !execCSP.isConsistent(execDB) ) {
 			IncrementalSTPSolver csp = new IncrementalSTPSolver(0, this.tMax);
-			csp.debug = true;
+			csp.useCulpritDetection = true;
 			csp.isConsistent(execDB);
 			
 			for ( Statement s : execDB.get(Statement.class) ) {

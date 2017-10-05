@@ -59,6 +59,7 @@ public class STPSolver extends Module implements SolverInterface {
 	IncrementalSTPSolver stpSolver;
 	int historySize = 100;
 	boolean calculateRigidity = true;
+	boolean findCulprit = false;
 		
 	/**
 	 * Create new instance by providing name and configuration manager.
@@ -77,6 +78,9 @@ public class STPSolver extends Module implements SolverInterface {
 		if ( cM.hasAttribute(name, "historySize") ) {
 			historySize = cM.getInt(name, "historySize");
 		}
+		if ( cM.hasAttribute(name, "findCulprit") ) {
+			findCulprit = cM.getBoolean(name, "findCulprit");
+		}
 		
 		stpSolver = new IncrementalSTPSolver(0,Global.MaxTemporalHorizon);
 		stpSolver.setKeepTimes(this.keepTimes);
@@ -84,6 +88,11 @@ public class STPSolver extends Module implements SolverInterface {
 		stpSolver.setName(this.name);
 		stpSolver.setVerbose(this.verbose);
 		stpSolver.setMaxHistorySize(historySize);
+		
+		if ( findCulprit ) {
+			stpSolver.useCulpritDetection = true;
+			stpSolver.useCulpritDetection = true;
+		}
 	}
 
 	@Override

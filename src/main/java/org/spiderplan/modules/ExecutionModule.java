@@ -456,7 +456,7 @@ public class ExecutionModule  extends Module {
 			IncrementalSTPSolver execCSP = new IncrementalSTPSolver(0, this.tMax);
 			if ( !execCSP.isConsistent(fromScratch) ) {
 				IncrementalSTPSolver csp = new IncrementalSTPSolver(0, this.tMax);
-				csp.debug = true;
+				csp.useCulpritDetection = true;
 				csp.isConsistent(fromScratch);
 				
 				for ( Statement s : execDB.get(Statement.class) ) {
@@ -565,7 +565,7 @@ public class ExecutionModule  extends Module {
 		IncrementalSTPSolver execCSP = new IncrementalSTPSolver(0, this.tMax);
 		if ( !execCSP.isConsistent(execDB) ) {
 			IncrementalSTPSolver csp = new IncrementalSTPSolver(0, this.tMax);
-			csp.debug = true;
+			csp.useCulpritDetection = true;
 			csp.isConsistent(execDB);
 			
 			for ( Statement s : execDB.get(Statement.class) ) {
@@ -801,7 +801,7 @@ public class ExecutionModule  extends Module {
 		IncrementalSTPSolver execCSP = new IncrementalSTPSolver(0, this.tMax);
 		if ( !execCSP.isConsistent(execDB) ) {
 			IncrementalSTPSolver csp = new IncrementalSTPSolver(0, this.tMax);
-			csp.debug = true;
+			csp.useCulpritDetection = true;
 			csp.isConsistent(execDB);
 			
 			for ( Statement s : execDB.get(Statement.class) ) {

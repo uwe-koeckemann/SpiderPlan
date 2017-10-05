@@ -48,7 +48,7 @@ print s
 
 data = np.genfromtxt(a, names=['variable', 'EST', 'LST', 'EET', 'LET', 'value'], dtype=None, delimiter='|')
 
-data.sort()
+#data.sort()
 
 variable, value, EST, LST, EET, LET = data['variable'], data['value'], data['EST'], data['LST'], data['EET'], data['LET']
 

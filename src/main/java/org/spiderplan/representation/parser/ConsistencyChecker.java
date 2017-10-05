@@ -491,7 +491,7 @@ public class ConsistencyChecker {
 			if ( verbose && consistent ) {
 				System.out.println("[OK]");
 			} else if ( !consistent ) {
-				csp.debug = true;
+				csp.useCulpritDetection = true;
 				csp.isConsistent(check);
 				System.out.println("[FAIL]");
 			}

@@ -58,7 +58,6 @@ import org.spiderplan.representation.plans.SequentialPlan;
 import org.spiderplan.representation.types.Type;
 import org.spiderplan.representation.types.TypeManager;
 import org.spiderplan.tools.Global;
-import org.spiderplan.tools.Loop;
 import org.spiderplan.tools.UniqueID;
 
 /**
