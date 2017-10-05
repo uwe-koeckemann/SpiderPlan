@@ -1,0 +1,3 @@
+OntologyPreprocessor main:
+	verbose=true;
+	verbosity=10;

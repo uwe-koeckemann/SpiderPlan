@@ -1,0 +1,1623 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/marjan/ontologies/2016/8/SmartHome#"
+     xml:base="http://www.semanticweb.org/marjan/ontologies/2016/8/SmartHome"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:ns="http://creativecommons.org/ns#"
+     xmlns:cpannotationschema="http://www.ontologydesignpatterns.org/schemas/cpannotationschema.owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:j.1="http://purl.oclc.org/NET/ssnx/ssn#"
+     xmlns:j.0="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#"
+     xmlns:j.3="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#"
+     xmlns:j.2="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#"
+     xmlns:j.5="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#"
+     xmlns:j.4="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl#"
+     xmlns:j.7="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#"
+     xmlns:j.6="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:terms="http://purl.org/dc/terms/"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <owl:Ontology rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl">
+        <owl:imports rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_TimeInterval.owl"/>
+        <owl:imports rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Geometry.owl"/>
+        <owl:imports rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl"/>
+        <owl:imports rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl"/>
+        <owl:imports rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Event.owl"/>
+        <owl:imports rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl"/>
+        <owl:imports rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl"/>
+        <owl:imports rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl"/>
+        <owl:imports rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/ssn.owl"/>
+        <owl:imports rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl"/>
+        <cpannotationschema:hasIntent rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The SmartHome ontology is formed as the result of importing 10 ODPs listed in the following in order to represent different aspects of a smart home environment:
+http://ontologydesignpatterns.org/wiki/Submissions:SmartHome_TimeInterval
+http://ontologydesignpatterns.org/wiki/Submissions:SmartHome_Geometry
+http://ontologydesignpatterns.org/wiki/Submissions:SmartHome_Property
+http://ontologydesignpatterns.org/wiki/Submissions:SmartHome_FeatureOfInterest
+http://ontologydesignpatterns.org/wiki/Submissions:SmartHome_Situation
+http://ontologydesignpatterns.org/wiki/Submissions:SmartHome_Sensing
+http://ontologydesignpatterns.org/wiki/Submissions:SmartHome_Place
+http://ontologydesignpatterns.org/wiki/Submissions:SmartHome_Object
+http://ontologydesignpatterns.org/wiki/Submissions:SmartHome_Network
+http://ontologydesignpatterns.org/wiki/Submissions:SmartHome_Event
+The connection between each pair of modules is accomplished by specializing at least one of the concepts’ definition.</cpannotationschema:hasIntent>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#hasBasicType -->
+
+    <owl:DatatypeProperty rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#hasBasicType">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#hasDBKey -->
+
+    <owl:DatatypeProperty rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#hasDBKey">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Bathroom -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Bathroom">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl#SmartHomeSection"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Bathroomambience -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Bathroomambience">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Chair_1 -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Chair_1">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Chair_2 -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Chair_2">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Couch -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Couch">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Heart -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Heart">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Humidity -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Humidity">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Property.owl#SmartHomeProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Kitchen -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Kitchen">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl#SmartHomeSection"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Kitchenambience -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Kitchenambience">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Livingroom -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Livingroom">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl#SmartHomeSection"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Livingroomambience -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Livingroomambience">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Loudness -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Loudness">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Property.owl#SmartHomeProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Luminosity -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Luminosity">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Property.owl#SmartHomeProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Motion -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Motion">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Property.owl#SmartHomeProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Pressure -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Pressure">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Property.owl#SmartHomeProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Rate -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Rate">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Property.owl#SmartHomeProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Stove_led -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Stove_led">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Temperature -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Temperature">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Property.owl#SmartHomeProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Tv_led -->
+
+    <owl:Class rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Tv_led">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Event.owl#EventCondition -->
+
+    <rdf:Description rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Event.owl#EventCondition">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#isObservableAt"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_TimeInterval.owl#SmartHomeTemporalDistance"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#isSettingFor"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Event.owl#Manifestation -->
+
+    <rdf:Description rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Event.owl#Manifestation">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#isEventIncludedIn"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Event.owl#SmartHomeEvent -->
+
+    <rdf:Description rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Event.owl#SmartHomeEvent">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#hasParticipant"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartHomeAgent"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#isObservableAt"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_TimeInterval.owl#SmartHomeTimeInterval"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest -->
+
+    <rdf:Description rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#isAbout"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartObject"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#NodeStation -->
+
+    <rdf:Description rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#NodeStation">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://purl.oclc.org/NET/ssnx/ssn#onPlatform"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#NodeHolder"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SmartHomeDeployment -->
+
+    <rdf:Description rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SmartHomeDeployment">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://purl.oclc.org/NET/ssnx/ssn#deployedOnPlatform"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl#SmartHome"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#NodeHolder -->
+
+    <rdf:Description rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#NodeHolder">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://purl.oclc.org/NET/ssnx/ssn#attachedSystem"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#NodeStation"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartHomeAgent -->
+
+    <rdf:Description rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartHomeAgent">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#isParticipantIn"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Event.owl#SmartHomeEvent"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartHomeObject -->
+
+    <rdf:Description rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartHomeObject">
+        <rdfs:subClassOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Geometry.owl#SmartHomeGeoFeature"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#hasLocation"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl#SmartHomeSection"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl#SmartHome -->
+
+    <rdf:Description rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl#SmartHome">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://purl.oclc.org/NET/ssnx/ssn#inDeployment"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SmartHomeDeployment"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl#SmartHomeSection -->
+
+    <rdf:Description rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl#SmartHomeSection">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#isLocationOf"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#SmartHomeObject"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor -->
+
+    <rdf:Description rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#isPartOf"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SenderNodeStation"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#hasDBKey"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensorOutput -->
+
+    <rdf:Description rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensorOutput">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#isObservableAt"/>
+                <owl:someValuesFrom rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_TimeInterval.owl#SmartHomeTimeInterval"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#bathroom -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#bathroom">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Bathroom"/>
+        <j.2:isLocationOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#bathroomambience"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#oru/home1"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#bathroomambience -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#bathroomambience">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Bathroomambience"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#loudness"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#motion"/>
+        <j.2:hasLocation rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#bathroom"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#chair_1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#chair_1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Chair_1"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#pressure"/>
+        <j.2:hasLocation rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchen"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#chair_2 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#chair_2">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Chair_2"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#pressure"/>
+        <j.2:hasLocation rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchen"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#couch -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#couch">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Couch"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#pressure"/>
+        <j.2:hasLocation rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#livingroom"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#State"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_bathroomambienceloudness -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_bathroomambienceloudness">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#loudness"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#bathroomambience"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_bathroomambienceloudness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_bathroomambiencemotion -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_bathroomambiencemotion">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#motion"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#bathroomambience"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_bathroomambiencemotion"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_chair_1pressure -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_chair_1pressure">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#pressure"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#chair_1"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_chair_1pressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_chair_2pressure -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_chair_2pressure">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#pressure"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#chair_2"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_chair_2pressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_couchpressure -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_couchpressure">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#pressure"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#couch"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_couchpressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_heartrate -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_heartrate">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#rate"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#heart"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_heartrate"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencehumidity -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencehumidity">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#humidity"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchenambience"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_kitchenambiencehumidity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambienceloudness -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambienceloudness">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#loudness"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchenambience"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_kitchenambienceloudness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencemotion -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencemotion">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#motion"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchenambience"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_kitchenambiencemotion"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencetemperature -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencetemperature">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#temperature"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchenambience"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_kitchenambiencetemperature"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_livingroomambienceloudness -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_livingroomambienceloudness">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#loudness"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#livingroomambience"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_livingroomambienceloudness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_livingroomambiencemotion -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_livingroomambiencemotion">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#motion"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#livingroomambience"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_livingroomambiencemotion"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_stove_ledluminosity -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_stove_ledluminosity">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#luminosity"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#stove_led"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_stove_ledluminosity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_tv_ledluminosity -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_tv_ledluminosity">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#SmartHomeFeatureOfInterest"/>
+        <j.1:forProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#luminosity"/>
+        <j.2:isAbout rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#tv_led"/>
+        <j.2:isDescribedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_tv_ledluminosity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#heart -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#heart">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Heart"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#rate"/>
+        <j.2:hasLocation rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#livingroom"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#humidity -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#humidity">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Humidity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchen -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchen">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Kitchen"/>
+        <j.2:isLocationOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#chair_1"/>
+        <j.2:isLocationOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#chair_2"/>
+        <j.2:isLocationOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchenambience"/>
+        <j.2:isLocationOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#stove_led"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#oru/home1"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchenambience -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchenambience">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Kitchenambience"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#humidity"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#loudness"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#motion"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#temperature"/>
+        <j.2:hasLocation rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchen"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#livingroom -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#livingroom">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Livingroom"/>
+        <j.2:isLocationOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#couch"/>
+        <j.2:isLocationOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#heart"/>
+        <j.2:isLocationOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#livingroomambience"/>
+        <j.2:isLocationOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#tv_led"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#oru/home1"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#livingroomambience -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#livingroomambience">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Livingroomambience"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#loudness"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#motion"/>
+        <j.2:hasLocation rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#livingroom"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#loudness -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#loudness">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Loudness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#luminosity -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#luminosity">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Luminosity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#motion -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#motion">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Motion"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#pressure -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#pressure">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Pressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#rate -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#rate">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Rate"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_bathroomambienceloudness -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_bathroomambienceloudness">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_bathroomambienceloudness1"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_bathroomambienceloudness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_bathroomambiencemotion -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_bathroomambiencemotion">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_bathroomambiencemotion1"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_bathroomambiencemotion2"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_bathroomambiencemotion"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_chair_1pressure -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_chair_1pressure">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_1pressure1"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_1pressure2"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_chair_1pressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_chair_2pressure -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_chair_2pressure">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_2pressure1"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_2pressure2"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_chair_2pressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_couchpressure -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_couchpressure">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_couchpressure1"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_couchpressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_heartrate -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_heartrate">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_heartrate1"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_heartrate"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_kitchenambiencehumidity -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_kitchenambiencehumidity">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencehumidity1"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencehumidity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_kitchenambienceloudness -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_kitchenambienceloudness">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambienceloudness1"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambienceloudness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_kitchenambiencemotion -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_kitchenambiencemotion">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencemotion1"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencemotion2"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencemotion"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_kitchenambiencetemperature -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_kitchenambiencetemperature">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencetemperature1"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencetemperature2"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencetemperature"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_livingroomambienceloudness -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_livingroomambienceloudness">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_livingroomambienceloudness1"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_livingroomambienceloudness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_livingroomambiencemotion -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_livingroomambiencemotion">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_livingroomambiencemotion1"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_livingroomambiencemotion2"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_livingroomambiencemotion"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_stove_ledluminosity -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_stove_ledluminosity">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_stove_ledluminosity1"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_stove_ledluminosity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_tv_ledluminosity -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensing_tv_ledluminosity">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SensingProcess"/>
+        <j.1:implementedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_tv_ledluminosity1"/>
+        <j.2:describes rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_tv_ledluminosity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_bathroomambienceloudness1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_bathroomambienceloudness1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:617c"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1973</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_bathroomambiencemotion1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_bathroomambiencemotion1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:617c"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1972</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">20</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_bathroomambiencemotion2 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_bathroomambiencemotion2">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2203"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1846</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">20</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_1pressure1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_1pressure1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2207"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1941</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">10</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_1pressure2 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_1pressure2">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2207"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1942</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">10</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_2pressure1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_2pressure1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2206"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1943</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">10</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_2pressure2 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_2pressure2">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2206"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1944</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">10</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_couchpressure1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_couchpressure1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2201"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1852</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">780</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_heartrate1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_heartrate1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Shimmer/9D19"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">2521</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">60</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencehumidity1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencehumidity1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:6203"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1960</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FLOAT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambienceloudness1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambienceloudness1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:6203"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1962</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencemotion1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencemotion1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:6203"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1961</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">20</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencemotion2 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencemotion2">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2204"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1847</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">20</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencetemperature1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencetemperature1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:6203"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1959</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FLOAT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencetemperature2 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencetemperature2">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2204"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1848</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_livingroomambienceloudness1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_livingroomambienceloudness1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:b29b"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1955</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_livingroomambiencemotion1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_livingroomambiencemotion1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:b29b"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1954</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">20</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_livingroomambiencemotion2 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_livingroomambiencemotion2">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2201"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1851</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">20</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_stove_ledluminosity1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_stove_ledluminosity1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:b22f"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1948</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1000</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_tv_ledluminosity1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_tv_ledluminosity1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#SmartHomeSensor"/>
+        <j.2:isPartOf rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:61a3"/>
+        <j.3:hasBasicType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SensorSample</j.3:hasBasicType>
+        <j.3:hasDBKey rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1966</j.3:hasDBKey>
+        <j.0:outputDataType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">INT</j.0:outputDataType>
+        <j.0:thresholdValue rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1000</j.0:thresholdValue>
+        <j.0:trueRange rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&gt;</j.0:trueRange>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_bathroomambienceloudnessfalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_bathroomambienceloudnessfalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_bathroomambienceloudness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_bathroomambienceloudnesstrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_bathroomambienceloudnesstrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_bathroomambienceloudness"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_bathroomambiencemotionfalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_bathroomambiencemotionfalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_bathroomambiencemotion"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_bathroomambiencemotiontrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_bathroomambiencemotiontrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_bathroomambiencemotion"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_chair_1pressurefalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_chair_1pressurefalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_chair_1pressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_chair_1pressuretrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_chair_1pressuretrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_chair_1pressure"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_chair_2pressurefalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_chair_2pressurefalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_chair_2pressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_chair_2pressuretrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_chair_2pressuretrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_chair_2pressure"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_couchpressurefalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_couchpressurefalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_couchpressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_couchpressuretrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_couchpressuretrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_couchpressure"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_heartratefalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_heartratefalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_heartrate"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_heartratetrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_heartratetrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_heartrate"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambiencehumidityfalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambiencehumidityfalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencehumidity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambiencehumiditytrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambiencehumiditytrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencehumidity"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambienceloudnessfalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambienceloudnessfalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambienceloudness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambienceloudnesstrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambienceloudnesstrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambienceloudness"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambiencemotionfalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambiencemotionfalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencemotion"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambiencemotiontrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambiencemotiontrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencemotion"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambiencetemperaturefalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambiencetemperaturefalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencetemperature"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambiencetemperaturetrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_kitchenambiencetemperaturetrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_kitchenambiencetemperature"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_livingroomambienceloudnessfalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_livingroomambienceloudnessfalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_livingroomambienceloudness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_livingroomambienceloudnesstrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_livingroomambienceloudnesstrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_livingroomambienceloudness"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_livingroomambiencemotionfalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_livingroomambiencemotionfalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_livingroomambiencemotion"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_livingroomambiencemotiontrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_livingroomambiencemotiontrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_livingroomambiencemotion"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_stove_ledluminosityfalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_stove_ledluminosityfalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_stove_ledluminosity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_stove_ledluminositytrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_stove_ledluminositytrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_stove_ledluminosity"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_tv_ledluminosityfalse -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_tv_ledluminosityfalse">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#false"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_tv_ledluminosity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_tv_ledluminositytrue -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#situation_tv_ledluminositytrue">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#SmartObjectSituation"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#foi_tv_ledluminosity"/>
+        <j.2:isExpressedBy rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#stove_led -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#stove_led">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Stove_led"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#luminosity"/>
+        <j.2:hasLocation rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchen"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#temperature -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#temperature">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Temperature"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#true">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#State"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#tv_led -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#tv_led">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Tv_led"/>
+        <j.1:hasProperty rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#luminosity"/>
+        <j.2:hasLocation rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#livingroom"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Shimmer/9D19 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#Shimmer/9D19">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SenderNodeStation"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_heartrate1"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:b22f -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:b22f">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SenderNodeStation"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_stove_ledluminosity1"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:b29b -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:b29b">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SenderNodeStation"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_livingroomambienceloudness1"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_livingroomambiencemotion1"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:61a3 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:61a3">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SenderNodeStation"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_tv_ledluminosity1"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:617c -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:617c">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SenderNodeStation"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_bathroomambienceloudness1"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_bathroomambiencemotion1"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:6203 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#fd00::212:4b00:60d:6203">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SenderNodeStation"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencehumidity1"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambienceloudness1"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencemotion1"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencetemperature1"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#oru/home1 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#oru/home1">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl#SmartHome"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#bathroom"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#kitchen"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#livingroom"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2201 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2201">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SenderNodeStation"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_couchpressure1"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_livingroomambiencemotion2"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2203 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2203">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SenderNodeStation"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_bathroomambiencemotion2"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2204 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2204">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SenderNodeStation"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencemotion2"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_kitchenambiencetemperature2"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2206 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2206">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SenderNodeStation"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_2pressure1"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_2pressure2"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2207 -->
+
+    <owl:NamedIndividual rdf:about="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#xbee/2207">
+        <rdf:type rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#SenderNodeStation"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_1pressure1"/>
+        <j.2:hasPart rdf:resource="http://ecareathome-ontology.mpi.aass.oru.se/SmartHome.owl#sensor_chair_1pressure2"/>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.2.6.20160910-2108) https://github.com/owlcs/owlapi -->
+

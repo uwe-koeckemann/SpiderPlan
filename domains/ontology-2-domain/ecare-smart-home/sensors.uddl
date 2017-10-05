@@ -1,0 +1,115 @@
+(:initial-context
+	(:domain 
+		(unrestricted sensor)
+		(unrestricted sensing)	
+		(unrestricted foi)
+		(unrestricted situation)
+
+		(sig (available sensor))
+		(sig (sensing sensing))
+		(sig (providing-foi foi))
+		(sig (observing situation))
+	)
+
+	(:include (sensor-ont "./SmartHome_ORU_Home1.owl"))
+
+	(:ontology sensor-ont
+		  (prefix rdf  "<http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+		  (prefix owl  "<http://www.w3.org/2002/07/owl#>")
+		  (prefix xsd  "<http://www.w3.org/2001/XMLSchema#>")
+		  (prefix rdfs  "<http://www.w3.org/2000/01/rdf-schema#>")
+
+		  (prefix smh_event  "<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Event.owl#>")
+		  (prefix smh_network   "<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#>")
+		  (prefix smh_sensing    "<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#>")
+		  (prefix smh_timeinterval  "<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_TimeInterval.owl#>")
+		  (prefix smh_situation  "<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#>")
+		  (prefix smh_place  "<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl#>")
+		  (prefix smh_object  "<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#>")
+		  (prefix smh_featureOfInterest  "<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#>")
+		  (prefix smh_geometry  "<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Geometry.owl#>")
+		  (prefix smh_property  "<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Property.owl#>")
+		  (prefix ssn "<http://purl.oclc.org/NET/ssnx/ssn#>")
+		  (prefix dul "<http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#>")
+	)
+)	
+(:operator (sense ?Sensor ?Sensing)
+	(:signature sensor sensing)
+	(:preconditions 
+    (?P (available ?Sensor))
+	)
+	(:effects 
+		(?E (sensing ?Sensing))
+	)
+	(:constraints
+	  (:temporal
+			(during ?E ?P [1 inf] [1 inf]) 
+		)
+		(:ontology sensor-ont 
+		   (triple ?Sensor "rdf:type" "smh_sensing:SmartHomeSensor")
+			 (triple ?Sensing "ssn:implementedBy" ?Sensor)
+       (triple ?Sensing "rdf:type" "smh_sensing:SensingProcess")
+   	)
+  )
+)
+
+(:operator (generate-foi ?Sensing ?FOI)
+	(:signature sensing foi)
+	(:preconditions 
+    (?P (sensing ?Sensing))
+	)
+	(:effects 
+		(?E (providing ?FOI))
+	)
+	(:constraints
+	  (:temporal
+			(during ?E ?P [1 inf] [1 inf]) 
+		)
+		(:ontology sensor-ont 
+		   (triple ?Sensing "rdf:type" "smh_sensing:SensingProcess")
+			 (triple ?Sensing "dul:describes" ?FOI)
+       (triple ?FOI "rdf:type" "smh_featureOfInterest:SmartHomeFeatureOfInterest")
+   	)
+  )
+)
+
+(:operator (observe ?FOI ?Situation)
+	(:signature foi situation)
+	(:preconditions 
+    (?P (providing ?FOI))
+	)
+	(:effects 
+		(?E (observe ?Situation))
+	)
+	(:constraints
+	  (:temporal
+			(during ?E ?P [1 inf] [1 inf]) 
+		)
+		(:ontology sensor-ont 
+       (triple ?FOI "rdf:type" "smh_featureOfInterest:SmartHomeFeatureOfInterest")
+       (triple ?Situation "rdf:type" "smh_situation:SmartObjectSituation")
+			 (triple ?Situation "dul:isExpressedBy" ?FOI)
+   	)
+  )
+)
+
+;(:operator (observe-complex ?Situation ?ComplexEvent)
+;	(:signature foi situation)
+;	(:preconditions 
+;    (?P (observe ?Situation))
+;	)
+;	(:effects 
+;		(?E (observe ?ComplexEvent))
+;	)
+;	(:constraints
+;	  (:temporal
+;			(during ?E ?P [1 inf] [1 inf])
+;			(dist (ET ?E) (ET ?P) [10 inf])
+;		)
+;		(:ontology sensor-ont 
+;       (triple ?FOI "rdf:type" "smh_featureOfInterest:SmartHomeFeatureOfInterest")
+;       (triple ?Situation "rdf:type" "smh_situation:SmartObjectSituation")
+;			 (triple ?Situation "dul:isExpressedBy" ?FOI)
+;   	)
+;  )
+;)
