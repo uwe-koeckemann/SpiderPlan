@@ -1,0 +1,35 @@
+FlowModule main:		
+	modules = "Execution";
+	rules = { 
+		Start => Execution ;
+		Execution => Execution.Consistent => Success;
+	};
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=1;
+
+ExecutionModuleMK2 Execution:
+	fromScratchSolver = "MainSolver";
+	repairSolver = "MainSolver";
+	keepTimes=true;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=5;
+	
+STPSolver Temporal:
+	useBookmarks=false;
+	keepTimes=false;
+	static=false;
+	initNumActivities=600;
+	numActivitiesInc=200;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=10;
+	
+SolverStack MainSolver:		
+	solvers = "Temporal";
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=0;

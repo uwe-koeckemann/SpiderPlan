@@ -1,0 +1,95 @@
+;; Example of ROS capabilities
+;; - Subscribe to a ROS topic and publish messages as statements in CDB
+;; - Publish statement from CDB on a ROS topic
+;; - Execute a ROS goal and substitute result into CDB
+
+;; How to run this:
+;; - Requires ROS (> hydro should work)
+;; - Requires ROS catkin workspace
+;; - Requires ROS action lib examples (fibonacci server):
+;;   - See: http://wiki.ros.org/actionlib
+;;   - See: https://github.com/ros/common_tutorials/tree/hydro-devel/actionlib_tutorials
+;; - Run roscore
+;; - cd <SpiderPlan>/ROS 
+;; - catkin_make
+;; - cd <CATKIN-WS>
+;;   		(<CATKIN-WS> contains actionlib_tutorials) 
+;; - catkin_make 
+;;      (compile fibonacci_server example, generates messages)
+;; - source <CATKIN-WS>/devel/setup.bash 
+;;      (allows spiderplan_proxy.py to see relevant ROS messages, etc.)
+;; - Run 'python <CATKIN-WS>/src/actionlib_tutorials/scripts/fibonacci_server.py'
+;;      (this starts a ROS actionlib server)
+;; - Run 'python <SpiderPlan>/ROS/src/spiderplan_proxy/src/spiderplan_proxy.py'
+;;   - This create a python ROS node that commicates with ROS execution manager of spiderplan
+
+(:initial-context
+	(:domain
+		(enum activity-type { eating sleeping watching-tv })
+		(int parameter [0 50])
+		
+		(sig (activity) activity-type)
+		(sig (fibonacci-goal parameter))
+		(sig (fibonacci-result parameter))
+	)
+	
+	(:statement
+		(A1 activity eating)
+		(A2 activity sleeping)
+		(A3 activity watching-tv)
+		
+		(RG  (fibonacci-goal 20))
+	)
+	
+
+	
+	(:temporal
+		(planning-interval [0 inf])
+		(at A1 [10 10] [20 20])
+		(at A2 [25 25] [40 40])
+		(at A3 [45 45] [60 60])
+		
+		(at RG [10 20] [10 inf])
+	)
+
+	(:ros
+		;; Create statements to show messages sent on ROS topics:
+		(subscribe 
+			switch 							 	; Variable
+			?State								; Value
+			switch 								; ROS topic name
+			(Bool s ?State) 			; ROS message
+		)
+		;; Publish values of statements to ROS topics:		
+		(publish 
+			activity					 			; Variable
+			?Activity								; Value
+			/activity_topic					; ROS topic name
+			(String m ?Activity) 		; ROS message
+		)
+		;; Connect to actionlib actionserver and execute actions on that server
+		(actionlib 
+			;; If this variable comes up in a statement an execution reactor 
+			;; will be added that submits the goal at the right time.
+			(fibonacci-goal ?X)	
+			;; Name of ROS action server:
+			/fibonacci					
+			;; Name of action lib definition
+			FibonacciAction			
+			;; ROS goal message:
+			(FibonacciGoal g (int order ?X) ) ;; Parameter set via matching
+			;; ROS goal result message:
+			;; (?R will subsituted by sequence of Fibonacci numbers when
+			;; execution has finished.)
+			(FibonacciResult done (int sequence ?R )) 
+		)
+	)
+	
+	;; This is just to demonstrate how the result of the FibonacciAction
+	;; can be used afterwards. Here we simply take a random value in the
+	;; list ?R of returned values and replace ?X by that value.
+	(:sampling
+		(random-variable ?X ?R)
+		(sample ?X)
+	)
+)
