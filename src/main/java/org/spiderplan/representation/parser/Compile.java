@@ -156,13 +156,6 @@ public class Compile {
 			nextBKB_ID = 0;
 			
 			c.setTypeManager(new TypeManager());
-
-			/**
-			 * Another default EnumType: boolean
-			 */
-			c.getTypeManager().addSimpleEnumType("boolean", "true,false");
-			
-			c.getTypeManager().addNewType(new IntervalType());
 			
 			for ( String filename : domainFilenames ) {
 				File file = new File(filename);
@@ -188,7 +181,7 @@ public class Compile {
 			
 			
 			/**
-			 * Make all keys in initial context ground
+			 * Make all keys in initial context ground (TODO: Seems like it might cause problems later)
 			 */
 			Substitution theta = new Substitution();
 			for ( Statement s : c.getContext().get(Statement.class) ) {

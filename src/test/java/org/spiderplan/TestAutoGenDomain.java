@@ -33,6 +33,7 @@ import org.spiderplan.representation.logic.Term;
 import org.spiderplan.representation.parser.Compile;
 
 // contents from imports.java will end up after this comment
+import org.spiderplan.representation.types.TypeManager;
 
 
 import junit.framework.TestCase;
@@ -41,7 +42,7 @@ import junit.framework.TestCase;
  * Automatically generated. Any changes will be overwritten the 
  * next time you run gradle.
  */
-public class TestAutoGenAssertions extends TestCase {
+public class TestAutoGenDomain extends TestCase {
 	
 	@Override
 	public void setUp() throws Exception {
@@ -52,13 +53,13 @@ public class TestAutoGenAssertions extends TestCase {
 	}
 	
 	/**
-	 * Test a single goal that has been asserted. No planning is necessary.
+	 * Tests that multiple enums for same type add up to one domain. Also checks that adding elements to a type's domain is possible later on (here by using an interaction constraint).
 	 */ 	
-	public void testGoalAssertion() {
-		String plannerFilename = "./domains/test-cases/Assertions/GoalAssertion/planner.spider";
+	public void testMultipleEnumSameType() {
+		String plannerFilename = "./domains/test-cases/Domain/MultipleEnumSameType/planner.spider";
 		
 		ArrayList<String> domainFiles = new ArrayList<String>(); 
-		domainFiles.add("./domains/test-cases/Assertions/GoalAssertion/problem.uddl");
+		domainFiles.add("./domains/test-cases/Domain/MultipleEnumSameType/problem.uddl");
 
 	
 		Compile.compile( domainFiles, plannerFilename );
@@ -69,46 +70,9 @@ public class TestAutoGenAssertions extends TestCase {
 		String resultStr = resultCore.getResultingState("main").toString();
 		assertTrue(resultStr.equals("Consistent"));
 		// Code from .java files in the test case folder will end up below (except imports.java)
-		
-	}		
-	/**
-	 * Test a single IC that has been asserted. No resolving is necessary.
-	 */ 	
-	public void testInteractionConstraintAssertion() {
-		String plannerFilename = "./domains/test-cases/Assertions/InteractionConstraintAssertion/planner.spider";
-		
-		ArrayList<String> domainFiles = new ArrayList<String>(); 
-		domainFiles.add("./domains/test-cases/Assertions/InteractionConstraintAssertion/problem.uddl");
-
-	
-		Compile.compile( domainFiles, plannerFilename );
-		ConfigurationManager oM = Compile.getPlannerConfig();
-		Module main = ModuleFactory.initModule("main", oM);
-		Core initCore = Compile.getCore();
-		Core resultCore = main.run(initCore);
-		String resultStr = resultCore.getResultingState("main").toString();
-		assertTrue(resultStr.equals("Consistent"));
-		// Code from .java files in the test case folder will end up below (except imports.java)
-		
-	}		
-	/**
-	 * Test a single IC that has been asserted. No resolving is necessary.
-	 */ 	
-	public void testPrologConstraintAssertion() {
-		String plannerFilename = "./domains/test-cases/Assertions/PrologConstraintAssertion/planner.spider";
-		
-		ArrayList<String> domainFiles = new ArrayList<String>(); 
-		domainFiles.add("./domains/test-cases/Assertions/PrologConstraintAssertion/problem.uddl");
-
-	
-		Compile.compile( domainFiles, plannerFilename );
-		ConfigurationManager oM = Compile.getPlannerConfig();
-		Module main = ModuleFactory.initModule("main", oM);
-		Core initCore = Compile.getCore();
-		Core resultCore = main.run(initCore);
-		String resultStr = resultCore.getResultingState("main").toString();
-		assertTrue(resultStr.equals("Consistent"));
-		// Code from .java files in the test case folder will end up below (except imports.java)
+		TypeManager tM = resultCore.getTypeManager();
+		assertTrue(tM.getTypeNames().size() == 3);
+		assertTrue(tM.getTypeByName(Term.createConstant("t")).generateDomain(tM).size() == 4);
 		
 	}		
 

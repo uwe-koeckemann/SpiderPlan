@@ -57,7 +57,10 @@ public class TypeManager {
 	/**
 	 * Create new type manager.
 	 */
-	public TypeManager() { }
+	public TypeManager() { 
+		this.addSimpleEnumType("boolean", "true,false");
+		this.addNewType(new IntervalType());
+	}
 	
 	/**
 	 * Collects and adds all type information from a {@link ConstraintDatabase} and 
@@ -90,7 +93,9 @@ public class TypeManager {
 							throw new IllegalArgumentException(dC + " has invalid form. Use (enum type-name { a b c }) or (enum type-name (list a b c)).");
 						}
 						for ( int i = 0 ; i < memberList.getNumArgs() ; i++ ) {
-							t.D.add( memberList.getArg(i) );
+							if ( !t.D.contains(memberList.getArg(i))) { 
+								t.D.add( memberList.getArg(i) );
+							}
 						}
 					}
 					
@@ -661,8 +666,10 @@ public class TypeManager {
 	 * @param t - The type to be added.
 	 */
 	public void addNewType( Type t ) {	
-		typeNames.add(t.name);
-		types.put(t.name, t);	
+		if ( !typeNames.contains(t.name) ) {
+			typeNames.add(t.name);
+			types.put(t.name, t);	
+		}
 		/*
 		 * In case of enumeration, go through the domain and expand non-ground objects to collections of ground objects
 		 */

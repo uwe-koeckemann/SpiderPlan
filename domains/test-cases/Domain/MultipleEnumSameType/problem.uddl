@@ -1,0 +1,16 @@
+(:initial-context
+	(:domain
+		(enum t {a})
+		(enum t {b})
+		(enum t {c})
+	)
+
+	(:ic add-values
+	  (:condition )
+		(:resolver
+			(:domain
+				(enum t {d})
+			)
+		)
+  )
+)
