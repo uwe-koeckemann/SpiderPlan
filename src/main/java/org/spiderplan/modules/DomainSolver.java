@@ -97,6 +97,10 @@ public class DomainSolver extends Module implements SolverInterface {
 		
 		TypeManager tM = core.getTypeManager();
 		
+//		TypeManager tM = new TypeManager();			
+		tM.collectTypeInformation(core.getContext());
+//		core.setTypeManager(tM);
+		
 		boolean isConsistent = true;
 		
 		for ( DomainMemberConstraint dC : core.getContext().get(DomainMemberConstraint.class) ) {

@@ -1,0 +1,3 @@
+SparQLPreprocessor main:
+	verbose=true;
+	verbosity=10;

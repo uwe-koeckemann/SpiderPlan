@@ -1,15 +1,28 @@
 (:initial-context
 	(:domain 
-		(unrestricted sensor)
-		(unrestricted sensing)	
-		(unrestricted foi)
-		(unrestricted situation)
+		(enum sensor {})
+		(enum sensing {})	
+		(enum foi {})
+		(enum situation {})
 
 		(sig (available sensor))
 		(sig (sensing sensing))
 		(sig (providing-foi foi))
 		(sig (observing situation))
 	)
+
+	(:ic (add-sensors-to-domain ?Sensor)
+		(:condition (:ontology sensor-ont (triple ?Sensor "rdf:type" "smh_sensing:SmartHomeSensor")))
+		(:resolver (:domain	(enum sensor { ?Sensor }) )))
+	(:ic (add-sensing-to-domain ?Sensing)
+		(:condition (:ontology sensor-ont (triple ?Sensing "rdf:type" "smh_sensing:SensingProcess")))
+		(:resolver (:domain	(enum sensing { ?Sensing }) )))
+	(:ic (add-foi-to-domain ?FOI)
+		(:condition (:ontology sensor-ont (triple ?FOI "rdf:type" "smh_featureOfInterest:SmartHomeFeatureOfInterest")))
+		(:resolver (:domain	(enum foi { ?FOI }) )))
+	(:ic (add-sensors-to-domain ?Situation)
+		(:condition (:ontology sensor-ont (triple ?Situation "rdf:type" "smh_situation:SmartObjectSituation")))
+		(:resolver (:domain	(enum situation { ?Situation }) )))
 
 	(:include (sensor-ont "./SmartHome_ORU_Home1.owl"))
 
@@ -32,23 +45,52 @@
 		  (prefix ssn "<http://purl.oclc.org/NET/ssnx/ssn#>")
 		  (prefix dul "<http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#>")
 	)
-)	
-(:operator (sense ?Sensor ?Sensing)
+)
+
+(:operator (sense-basic ?Sensor ?Sensing)
 	(:signature sensor sensing)
 	(:preconditions 
     (?P (available ?Sensor))
 	)
-	(:effects 
+	(:effects
 		(?E (sensing ?Sensing))
 	)
 	(:constraints
 	  (:temporal
-			(during ?E ?P [1 inf] [1 inf]) 
+			(during ?E ?P [1 inf] [1 inf])
 		)
 		(:ontology sensor-ont 
 		   (triple ?Sensor "rdf:type" "smh_sensing:SmartHomeSensor")
 			 (triple ?Sensing "ssn:implementedBy" ?Sensor)
        (triple ?Sensing "rdf:type" "smh_sensing:SensingProcess")
+			 (not ?Config "rdf:type" "smh_sensing:SensorConfiguration")
+       (not ?Config "dul:isSettingFor" ?Sensor)
+       (not ?Config "dul:isSettingFor" ?Sensing)
+   	)
+  )
+)
+
+(:operator (sense-config ?Sensor ?Sensing)
+	(:signature sensor sensing)
+	(:preconditions 
+    (?P (available ?Sensor))
+	)
+	(:effects
+		(?E1 (sensing ?Sensing))
+		(?E2 (config ?Sensor) ?Config)
+	)
+	(:constraints
+	  (:temporal
+			(during ?E1 ?P [1 inf] [1 inf])
+			(equals ?E1 ?E2)
+		)
+		(:ontology sensor-ont 
+		   (triple ?Sensor "rdf:type" "smh_sensing:SmartHomeSensor")
+			 (triple ?Sensing "ssn:implementedBy" ?Sensor)
+       (triple ?Sensing "rdf:type" "smh_sensing:SensingProcess")
+			 (triple ?Sensor "dul:hasSetting" ?Config)
+			 (triple ?Config "rdf:type" "smh_sensing:SensorConfiguration")
+			 
    	)
   )
 )
@@ -113,3 +155,5 @@
 ;   	)
 ;  )
 ;)
+
+

@@ -42,6 +42,7 @@ public class QueryManager {
 	
 	private List<Prefix> prefixes;
 	private List<Triple> triples;
+	private List<NotTriple> notTriples;
 	
 	private static String URI_ENTITY_SPLITTER = "#";
 	
@@ -89,6 +90,7 @@ public class QueryManager {
 				
 		this.prefixes = new ArrayList<>();
 		this.triples = new ArrayList<>();
+		this.notTriples = new ArrayList<>();
 	}
 	
 	/**
@@ -104,6 +106,13 @@ public class QueryManager {
 	 */
 	public void addTriple(Triple triple) {
 		triples.add(triple);
+	}
+	/**
+	 * Add a triple to the query.
+	 * @param triple
+	 */
+	public void addNotTriple(NotTriple triple) {
+		notTriples.add(triple);
 	}
 	
 	/**
@@ -129,8 +138,6 @@ public class QueryManager {
 		}
 		List<Substitution> queryResult = new ArrayList<Substitution>();
 		String sparql = getSPARQLQuery(variables);
-		
-		System.out.println(sparql);
 		
 		List <QuerySolution> solutionList = getQueryResultSet(sparql);
 		
@@ -182,6 +189,16 @@ public class QueryManager {
 			sb.append("\n");
 		}
 		
+		if ( !notTriples.isEmpty() ) {
+			sb.append(" MINUS {\n");
+		
+			for ( NotTriple not : notTriples ) {
+				sb.append(not.getSPARQLTriple());
+				sb.append("\n");
+			}
+			
+			sb.append("}");
+		}
 		// this method return 
 		sb.append("}");
 		

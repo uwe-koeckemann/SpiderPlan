@@ -32,12 +32,15 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.expressions.ValueLookup;
 import org.spiderplan.representation.expressions.causal.OpenGoal;
 import org.spiderplan.representation.expressions.causal.Task;
+import org.spiderplan.representation.expressions.domain.TypeDomainConstraint;
 import org.spiderplan.representation.parser.Compile;
 import org.spiderplan.temporal.TemporalNetworkTools;
 import org.spiderplan.tools.profiler.Profiler;
 import org.spiderplan.tools.statistics.Statistics;
 import org.spiderplan.tools.stopWatch.StopWatch;
 import org.spiderplan.tools.visulization.TemporalNetworkVisualizer;
+
+import com.hp.hpl.jena.graph.query.Domain;
 
 /**
  * Collection of static methods that run the planner on some files.
@@ -79,7 +82,7 @@ public class RunSingleProblem {
 
 		Compile.compile( domainFiles, plannerFilename );
 		
-		ConfigurationManager oM = Compile.getPlannerConfig();
+		ConfigurationManager oM = Compile.getPlannerConfig();	
 		
 		Module main = ModuleFactory.initModule("main", oM);
 		
@@ -105,6 +108,10 @@ public class RunSingleProblem {
 //		}
 		
 //		System.out.println(initCore.getContext());
+		
+		System.out.println(String.format("<Before> Number of domain constraints: %d", initCore.getContext().get(TypeDomainConstraint.class).size()));
+		System.out.println(String.format("<Before> Number of operators: %d", initCore.getOperators().size()));
+	
 		
 		StopWatch.start("[main] Running...");
 		Core result = main.run(initCore);
@@ -132,6 +139,11 @@ public class RunSingleProblem {
 //			System.out.println( stpSolver.isConsistent(res, result.getTypeManager()) );
 			
 //			System.out.println(res);
+
+			System.out.println(String.format("<After> Number of domain constraints: %d", res.get(TypeDomainConstraint.class).size()));
+			System.out.println(String.format("<After> Number of operators: %d", result.getOperators().size()));
+			
+			
 			
 			TemporalNetworkVisualizer tnv = new TemporalNetworkVisualizer();
 			tnv.draw(res);

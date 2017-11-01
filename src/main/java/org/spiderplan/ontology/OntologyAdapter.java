@@ -22,7 +22,7 @@ public class OntologyAdapter {
 	 * @param triples The query itself in form of triples
 	 * @return List of possible substitutions of variables in the query 
 	 */
-	public static List<Substitution> query( String ontologyPath, List<OntologyExpression> prefixes, List<OntologyExpression> triples ) {
+	public static List<Substitution> query( String ontologyPath, List<OntologyExpression> prefixes, List<OntologyExpression> triples, List<OntologyExpression> notTriples ) {
 		QueryManager queryGenerator = new QueryManager(ontologyPath);
 		
 		for ( OntologyExpression oE : prefixes ) { 
@@ -39,6 +39,15 @@ public class OntologyAdapter {
 			String object = expTerm.getArg(2).toString().replace("\"", "");
 			
 			queryGenerator.addTriple(new Triple(subject, predicate, object));
+		}
+		
+		for ( OntologyExpression oE : notTriples ) {
+			Term expTerm = oE.getExpression();
+			String subject = expTerm.getArg(0).toString().replace("\"", "");
+			String predicate = expTerm.getArg(1).toString().replace("\"", "");
+			String object = expTerm.getArg(2).toString().replace("\"", "");
+			
+			queryGenerator.addNotTriple(new NotTriple(subject, predicate, object));
 		}
 						
 		return queryGenerator.query();

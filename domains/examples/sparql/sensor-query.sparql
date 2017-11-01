@@ -1,0 +1,26 @@
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl:<http://www.w3.org/2002/07/owl#>
+PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX smh_event:<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Event.owl#>
+PREFIX smh_network:<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Network.owl#>
+PREFIX smh_sensing:<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Sensing.owl#>
+PREFIX smh_timeinterval:<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_TimeInterval.owl#>
+PREFIX smh_situation:<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Situation.owl#>
+PREFIX smh_place:<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Place.owl#>
+PREFIX smh_object:<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Object.owl#>
+PREFIX smh_featureOfInterest:<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_FeatureOfInterest.owl#>
+PREFIX smh_geometry:<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Geometry.owl#>
+PREFIX smh_property:<http://ecareathome-ontology.mpi.aass.oru.se/patterns/SmartHome_Property.owl#>
+PREFIX ssn:<http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX dul:<http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#>
+
+SELECT DISTINCT ?Sensor ?Sensing ?Config
+WHERE
+{
+	?Sensor rdf:type smh_sensing:SmartHomeSensor.	
+	?Sensing ssn:implementedBy ?Sensor.
+	?Sensing rdf:type smh_sensing:SensingProcess.
+	?Sensor dul:hasSetting ?Config.
+	?Config rdf:type smh_sensing:SensorConfiguration.
+}

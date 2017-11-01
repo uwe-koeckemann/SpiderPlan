@@ -35,6 +35,7 @@ import org.spiderplan.representation.ConstraintDatabase;
 import org.spiderplan.representation.Operator;
 import org.spiderplan.representation.expressions.ExpressionTypes.OntologyRelation;
 import org.spiderplan.representation.expressions.domain.Substitution;
+import org.spiderplan.representation.expressions.interaction.InteractionConstraint;
 import org.spiderplan.representation.expressions.ontology.OntologyExpression;
 import org.spiderplan.representation.expressions.programs.IncludedProgram;
 import org.spiderplan.representation.logic.Term;
@@ -112,28 +113,33 @@ public class OntologyPreprocessor extends Module {
 		
 		for ( Operator o : core.getOperators() ) {
 			if ( verbose ) Logger.msg(getName(), String.format("%s", o.getName().toString()), 1);
-			Map<Term,List<OntologyExpression>> queryLookup = new HashMap<Term, List<OntologyExpression>>();
+			Map<Term,List<OntologyExpression>> tripleLookup = new HashMap<Term, List<OntologyExpression>>();
+			Map<Term,List<OntologyExpression>> notLookup = new HashMap<Term, List<OntologyExpression>>();
 			Map<Term,List<OntologyExpression>> prefixLookup = new HashMap<Term, List<OntologyExpression>>();
 			ConstraintDatabase input = new ConstraintDatabase();
 			input.add(o);
 			
 			for ( OntologyExpression oE : o.getConstraints().get(OntologyExpression.class)) {
-				if ( !queryLookup.containsKey(oE.getOntologyID()) ) {
+				if ( !tripleLookup.containsKey(oE.getOntologyID()) ) {
 					List<OntologyExpression> prefixes = new ArrayList<OntologyExpression>();
 					List<OntologyExpression> triples = new ArrayList<OntologyExpression>();
+					List<OntologyExpression> not = new ArrayList<OntologyExpression>();
 					prefixLookup.put(oE.getOntologyID(), prefixes);
-					queryLookup.put(oE.getOntologyID(), triples);
+					tripleLookup.put(oE.getOntologyID(), triples);
+					notLookup.put(oE.getOntologyID(), not);
 				}
 				
 				if (  oE.getRelation().equals(OntologyRelation.Prefix) ) {
 					prefixLookup.get(oE.getOntologyID()).add(oE);
 				} else if ( oE.getRelation().equals(OntologyRelation.Triple) ) {
-					queryLookup.get(oE.getOntologyID()).add(oE);
+					tripleLookup.get(oE.getOntologyID()).add(oE);
+				} else if ( oE.getRelation().equals(OntologyRelation.Not) ) {
+					notLookup.get(oE.getOntologyID()).add(oE);
 				}
 			}
 			
 			for ( OntologyExpression oE : core.getContext().get(OntologyExpression.class) ) {
-				if ( queryLookup.containsKey(oE.getOntologyID())) {
+				if ( tripleLookup.containsKey(oE.getOntologyID())) {
 					if (  oE.getRelation().equals(OntologyRelation.Prefix) ) {
 						prefixLookup.get(oE.getOntologyID()).add(oE);
 					} 
@@ -145,12 +151,13 @@ public class OntologyPreprocessor extends Module {
 				Logger.depth++;
 			}
 			int numOpBefore = core.getOperators().size();
-			for ( Term ontologyID : queryLookup.keySet() ) {
+			for ( Term ontologyID : tripleLookup.keySet() ) {
 				String ontologyPath = programLookup.get(ontologyID).getPath();
 				List<OntologyExpression> prefixes = prefixLookup.get(ontologyID);
-				List<OntologyExpression> triples = queryLookup.get(ontologyID);
+				List<OntologyExpression> triples = tripleLookup.get(ontologyID);
+				List<OntologyExpression> nots = notLookup.get(ontologyID);
 				
-				List<Substitution> answer = OntologyAdapter.query(ontologyPath, prefixes, triples);
+				List<Substitution> answer = OntologyAdapter.query(ontologyPath, prefixes, triples, nots);
 				
 				if ( verbose ) {
 					Logger.msg(getName(), String.format("Ontology ID: %s", ontologyID), 1);
@@ -201,24 +208,113 @@ public class OntologyPreprocessor extends Module {
 		}
 		if ( verbose ) Logger.depth--;
 										
-//		if ( preprocessICs ) {
-//			for ( InteractionConstraint ic : core.getContext().get(InteractionConstraint.class) ) {
-//				ConstraintDatabase input = new ConstraintDatabase();
-//				input.add(ic);
-//				List<OntologyExpression> prefixes = new ArrayList<OntologyExpression>();
-//				List<OntologyExpression> triples = new ArrayList<OntologyExpression>();
-//				for ( OntologyExpression oE : ic.getCondition().get(OntologyExpression.class)) {
-//					if (  oE.getRelation().equals(OntologyRelation.Prefix) ) {
-//						prefixes.add(oE);
-//						System.out.println(oE);
-//					} else if ( oE.getRelation().equals(OntologyRelation.Triple) ) {
-//						triples.add(oE);
-//						System.out.println(oE);
-//					}
-//				}
-//				ConstraintDatabase expansion = this.queryAndExpand(input, prefixes, triples, tM);
-//			}
-//		}
+		if ( preprocessICs ) {
+			if ( verbose ) {
+				Logger.msg(getName(), "Going through interaction constraints...", 1);
+				Logger.depth++;
+			}
+			
+			List<InteractionConstraint> ICnew = new ArrayList<InteractionConstraint>();
+			
+			for ( InteractionConstraint ic : core.getContext().get(InteractionConstraint.class) ) {
+				if ( verbose ) Logger.msg(getName(), String.format("%s", ic.getName().toString()), 1);
+				Map<Term,List<OntologyExpression>> tripleLookup = new HashMap<Term, List<OntologyExpression>>();
+				Map<Term,List<OntologyExpression>> notLookup = new HashMap<Term, List<OntologyExpression>>();
+				Map<Term,List<OntologyExpression>> prefixLookup = new HashMap<Term, List<OntologyExpression>>();
+				ConstraintDatabase input = new ConstraintDatabase();
+				input.add(ic);
+				
+				for ( OntologyExpression oE : ic.getCondition().get(OntologyExpression.class)) {
+					if ( !tripleLookup.containsKey(oE.getOntologyID()) ) {
+						List<OntologyExpression> prefixes = new ArrayList<OntologyExpression>();
+						List<OntologyExpression> triples = new ArrayList<OntologyExpression>();
+						List<OntologyExpression> nots = new ArrayList<OntologyExpression>();
+						prefixLookup.put(oE.getOntologyID(), prefixes);
+						tripleLookup.put(oE.getOntologyID(), triples);
+						notLookup.put(oE.getOntologyID(), nots);
+					}
+					
+					if (  oE.getRelation().equals(OntologyRelation.Prefix) ) {
+						prefixLookup.get(oE.getOntologyID()).add(oE);
+					} else if ( oE.getRelation().equals(OntologyRelation.Triple) ) {
+						tripleLookup.get(oE.getOntologyID()).add(oE);
+					} else if ( oE.getRelation().equals(OntologyRelation.Not) ) {
+						notLookup.get(oE.getOntologyID()).add(oE);
+					}
+				}
+				
+				for ( OntologyExpression oE : core.getContext().get(OntologyExpression.class) ) {
+					if ( tripleLookup.containsKey(oE.getOntologyID())) {
+						if (  oE.getRelation().equals(OntologyRelation.Prefix) ) {
+							prefixLookup.get(oE.getOntologyID()).add(oE);
+						} 
+					}
+				}
+				
+				if ( verbose ) {
+					Logger.msg(getName(), String.format("Running queries..."), 1);
+					Logger.depth++;
+				}
+				int numICsBefore = core.getContext().get(InteractionConstraint.class).size();
+				for ( Term ontologyID : tripleLookup.keySet() ) {
+					String ontologyPath = programLookup.get(ontologyID).getPath();
+					List<OntologyExpression> prefixes = prefixLookup.get(ontologyID);
+					List<OntologyExpression> triples = tripleLookup.get(ontologyID);
+					List<OntologyExpression> nots = notLookup.get(ontologyID);
+					
+					List<Substitution> answer = OntologyAdapter.query(ontologyPath, prefixes, triples, nots);
+					
+					if ( verbose ) {
+						Logger.msg(getName(), String.format("Ontology ID: %s", ontologyID), 1);
+						Logger.depth++;
+						
+						for ( OntologyExpression pre : prefixes ) {
+							Logger.msg(getName(), String.format("%s", pre.toString()), 1);
+						}
+						for ( OntologyExpression trip : triples ) {
+							Logger.msg(getName(), String.format("%s", trip.toString()), 1);
+						}
+						
+						Logger.depth--;
+						Logger.msg(getName(), String.format("Answers:"), 1);
+						Logger.depth++;
+						for ( Substitution  sub : answer ) {
+							Logger.msg(getName(), String.format("%s", sub.toString()), 1);
+						}
+						Logger.depth--;
+					}
+					
+					if ( verbose ) {
+						Logger.msg(getName(), String.format("Base: %s", ic.getName().toString()), 3);
+						Logger.depth++;
+					}
+					
+					for ( Substitution sub : answer ) {
+						InteractionConstraint icCopy = ic.copy();
+						icCopy = (InteractionConstraint)icCopy.substitute(sub);
+						ICnew.add(icCopy);
+						if ( verbose ) Logger.msg(getName(), String.format("Created: %s", icCopy.getName().toString()), 3);
+						
+					}
+					if ( verbose ) {
+						Logger.depth--;
+					}
+				}
+				
+				if ( verbose ) Logger.depth--;
+				core.getContext().removeType(InteractionConstraint.class);
+				core.getContext().addAll(ICnew);
+				
+				int numICsAfter = core.getContext().get(InteractionConstraint.class).size();
+				if ( verbose ) {
+					Logger.msg(getName(), String.format("Done. Generated %d ICs (from %d).", numICsAfter, numICsBefore), 1);
+				}
+				
+				//ConstraintDatabase expansion = this.queryAndExpand(input, prefixes, triples, tM);
+			}
+			if ( verbose ) Logger.depth--;
+			
+		}
 		
 	
 		/**

@@ -32,7 +32,6 @@ import org.spiderplan.representation.expressions.temporal.AllenConstraint;
 import org.spiderplan.representation.expressions.temporal.Interval;
 import org.spiderplan.representation.logic.Term;
 
-import com.sun.prism.TextureMap;
 
 /**
  * Extends reactor with a simple simulation of perfect start and end times 

@@ -156,7 +156,7 @@ public class ExpressionTypes {
 	
 	public enum SocketRelation { Setup, Send, Receive };
 
-	public enum OntologyRelation { Prefix, Triple };
+	public enum OntologyRelation { Prefix, Triple, Not };
 	
 	static {
 		DomainConstraints.add("enum/2", 		"(enum t (list e1 e2 .. )) or (enum t {e1 e2 .. })", 
@@ -328,6 +328,7 @@ public class ExpressionTypes {
 		
 		OntologyExpressions.add("prefix/2", "(prefix name URI)", "Add a prefix as context for following triplets.", OntologyRelation.Prefix, OntologyExpression.class);
 		OntologyExpressions.add("triple/3", "(triple ...)", "", OntologyRelation.Triple, OntologyExpression.class);
+		OntologyExpressions.add("not/3", "(not ...)", "", OntologyRelation.Not, OntologyExpression.class);
 		//TODO
 	}
 	

@@ -1,0 +1,22 @@
+SolverStack main:		
+	solvers = "Domain,ICSolver";
+	verbose=false;
+	verbosity=5;
+	
+InteractionConstraintSolver ICSolver:
+	consistencyChecker="ICConChecker";
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=4;
+	
+SolverStack ICConChecker:		
+	solvers = "Domain";
+	keepTimes=false;
+	keepStatistics=true;
+	verbose=true;
+	verbosity=0;
+
+DomainSolver Domain:
+	verbose = false;
+	verbosity = 10;
