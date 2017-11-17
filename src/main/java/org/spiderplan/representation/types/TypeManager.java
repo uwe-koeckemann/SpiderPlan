@@ -162,7 +162,7 @@ public class TypeManager {
 					
 					if ( this.typeNames.contains(typeName) ) {
 						Type tKnown = types.get(typeName);
-						if ( tKnown instanceof IntegerType ) {
+						if ( tKnown instanceof UnrestrictedType ) {
 							t = (UnrestrictedType)tKnown;
 						} else {
 							throw new IllegalStateException("Name " + typeName + " from " + dC + " also used for " + tKnown.getClass().getSimpleName());
