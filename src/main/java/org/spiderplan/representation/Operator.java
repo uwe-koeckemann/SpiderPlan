@@ -550,7 +550,7 @@ public class Operator extends Expression implements Substitutable, Mutable {
 	 * @param usedVars set of unique names of variables that are used by this operator
 	 * @return a {@link StateVariableOperator} 
 	 */
-	public StateVariableOperator getStateVariableBasedOperator( HashSet<String> usedVars ) {
+	public StateVariableOperator getStateVariableBasedOperator( Set<String> usedVars ) {
 		StateVariableOperator o = new StateVariableOperator();
 		
 		o.setName(this.name);
