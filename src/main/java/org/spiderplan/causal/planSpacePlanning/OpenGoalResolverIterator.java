@@ -175,13 +175,9 @@ public class OpenGoalResolverIterator extends ResolverIterator {
 		if ( search.isSuccess() ) {
 			if ( verbose ) print("Success", 0);						
 //			if ( keepStats ) Statistics.setLong(msg("|\\pi|"), Long.valueOf(p.getActions().size())); 
-		
-//			System.out.println("Getting combined resolver...");
+
 			r = ((PlanSpacePlanningNode)search.getGoalNode()).getCombinedResolver();
 			
-//			System.out.println("Substitution of combined resolver: " + r.getSubstitution());
-			
-//			System.out.println(r);
 		
 //			search.done = false;
 			search.continueSearch();

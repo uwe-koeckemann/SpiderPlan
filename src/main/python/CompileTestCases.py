@@ -203,7 +203,7 @@ def complieAllCases(dirName):
 		f.write(collectionStr)
 		f.close()
 		print "\tWrote to:", outName
-	
+
 complieAllCases("./domains/test-cases/")	
 	
 	

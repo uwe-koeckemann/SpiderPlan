@@ -59,6 +59,8 @@ public class ConsistencyChecker {
 	 * Toggle console output
 	 */
 	public static boolean verbose = true;
+	
+	
 	/**
 	 * Toggle stop-watch usage
 	 */
@@ -68,6 +70,10 @@ public class ConsistencyChecker {
 	 */
 	public static boolean ignoreWarnings = false;
 	
+	/**
+	 * If <code>true</code> disconnected variables in operators will not lead to compilation failure.
+	 * This may be necessary if variables are determined in a way not visible to the operator.
+	 */
 	public static boolean ignoreDisconnectedVariables = false;
 	
 	private int numChars = 80;
@@ -406,7 +412,9 @@ public class ConsistencyChecker {
 						}
 						return false;
 					} else {
-						System.err.println( "[WARNING] Variable '" + v + "' is disconnected. Connect it by making it an argument of the operator." );
+						if ( !ignoreWarnings ) {
+							System.err.println( "[WARNING] Variable '" + v + "' is disconnected. Connect it by making it an argument of the operator." );
+						}
 					}
 				}
 				

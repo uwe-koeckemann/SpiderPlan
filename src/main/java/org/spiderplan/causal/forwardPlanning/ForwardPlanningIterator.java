@@ -408,10 +408,7 @@ public class ForwardPlanningIterator extends ResolverIterator {
 				allOps.addAll(this.transitionOperators);
 			
 				Plan p = new Plan(pPlan, allOps, planID);
-				
-//				System.out.println(p);
-
-			
+					
 //				if ( resetUniqueIDs ) UniqueID.restore();
 				
 				
@@ -578,12 +575,15 @@ public class ForwardPlanningIterator extends ResolverIterator {
 		Map<Term,Long> sEST = new HashMap<Term,Long>();
 		Map<Term,String> sESTargmax = new HashMap<Term,String>();
 		Map<Term,Statement> argmax = new HashMap<Term,Statement>();
-		
+				
 		ValueLookup tiLookup = initDB.getUnique(ValueLookup.class); 
 		
-		print("Getting latest changing statements for initial state...", 3);
+		print("Getting latest changing statements for initial state... (t0="+t0+")", 3);
 		for ( Statement s : initDB.get(Statement.class) ) {
-			if ( usedVars.contains( s.getVariable().getUniqueName() ) && !goalStatements.contains(s) ) {
+			if ( usedVars.contains( s.getVariable().getUniqueName() ) 
+					&& !goalStatements.contains(s) 
+					&& !(tiLookup.getLET(s.getKey()) < t0)
+					&& !s.getVariable().getUniqueName().equals("accept-request/0")) {
 				if ( !this.uniqueInitialState ) {
 					if ( !s0.containsKey(s.getVariable())) {
 						s0.put(s.getVariable(), new ArrayList<Term>());
@@ -591,8 +591,8 @@ public class ForwardPlanningIterator extends ResolverIterator {
 					s0.get(s.getVariable()).add(s.getValue());
 				} else {
 					if ( verbose ) {
-						print("   " + s.getVariable() + " ---> " + s + " [" + tiLookup.getEST(s.getKey()) + " " + tiLookup.getLST(s.getKey()) + "]", 3);
-						if ( argmax.get(s.getVariable()) != null ) print("   argmax:" + s.getVariable() + " ---> " + argmax.get(s.getVariable()) + " [" + tiLookup.getEST(argmax.get(s.getVariable()).getKey()) + " " + tiLookup.getLST(argmax.get(s.getVariable()).getKey()) + "]", 3);
+						print("   " + s.getVariable() + " ---> " + s + " [" + tiLookup.getEST(s.getKey()) + " " + tiLookup.getLST(s.getKey()) + "]" + " [" + tiLookup.getEET(s.getKey()) + " " + tiLookup.getLET(s.getKey()) + "]", 3);
+						if ( argmax.get(s.getVariable()) != null ) print("   argmax:" + s.getVariable() + " ---> " + argmax.get(s.getVariable()) + " [" + tiLookup.getEST(argmax.get(s.getVariable()).getKey()) + " " + tiLookup.getLST(argmax.get(s.getVariable()).getKey()) + "]" + " [" + tiLookup.getEET(argmax.get(s.getVariable()).getKey()) + " " + tiLookup.getLET(argmax.get(s.getVariable()).getKey()) + "]", 3);
 					}
 					if ( !sEST.containsKey(s.getVariable()) ) {
 						sEST.put(s.getVariable(), tiLookup.getEST(s.getKey()));
@@ -740,7 +740,6 @@ public class ForwardPlanningIterator extends ResolverIterator {
 								
 //							if ( goal1LST > goal2LST ) {
 //								if ( !goals1.getRequirements().contains(goals2) ) {
-////									System.out.println(s2 + " requires " + s1);
 //									if ( verbose ) { 
 //										super.print("Making goal " + s2 + " a requirement of "+s1+" (LET("+s2.getKey()+") < LET("+s1.getKey()+"))", 2);
 //										super.print( "Start time in ["+goal1EST+" "+goal1LST+"] end time in ["+goal1EET+" "+goal1LET+"]] for " + s1, 2);
@@ -748,13 +747,11 @@ public class ForwardPlanningIterator extends ResolverIterator {
 //									}
 //									goals1.addRequirement(goals2);
 //									if (goal2EET < goal1LST ) {
-////										System.out.println(s2 + " is a landmark");
 //										goal2.setLandmark(true);
 //									}
 //								}
 //							} else if ( goal1LST < goal2LST ) {
 //								if ( !goals2.getRequirements().contains(goals1) ) {
-////									System.out.println(s1 + " requires " + s2);
 //									if ( verbose ) {
 //										super.print("Making goal " + s1 + " a requirement of "+s2+" (LET("+s1.getKey()+") < LET("+s2.getKey()+"))", 2);
 //										super.print( "Start time in ["+goal1EST+" "+goal1LST+"] end time in ["+goal1EET+" "+goal1LET+"]] for " + s1, 2);
@@ -762,7 +759,6 @@ public class ForwardPlanningIterator extends ResolverIterator {
 //									}
 //									goals2.addRequirement(goals1);		
 //									if (goal1EET < goal2LST ) {
-////										System.out.println(s1 + " is a landmark");
 //										goal1.setLandmark(true);
 //									}
 //								}

@@ -120,7 +120,6 @@ public class TaskResolver extends Module implements SolverInterface {
 		ArrayList<Resolver> resolvers = new ArrayList<Resolver>();
 
 		for ( Operator o : O ) {
-			System.out.println(o.getName());
 			Operator oCopy = o.copy();
 			long ID = UniqueID.getID();
 			oCopy.makeUniqueVariables(ID);	

@@ -35,7 +35,6 @@ public class ForwardHeuristicWrapper implements Heuristic {
 		
 		List<StateVariableOperator> A = new ArrayList<StateVariableOperator> ();
 		for ( Operator o : O ) {
-			System.out.println(o.getName());
 			A.add(o.getStateVariableBasedOperator(usedVars));
 		}
 		
@@ -70,28 +69,7 @@ public class ForwardHeuristicWrapper implements Heuristic {
 			}
 		}
 		
-//		System.out.println("PLAN:");
-//		for ( Statement s : cDB.get(Statement.class) ) {
-//			if ( s.getVariable().getUniqueName().equals("move/3")) {
-//				System.out.println(s);
-//			}
-//		}
-		
-//		System.out.println("GOALS:");
-//		for ( Goal g : goals ) {
-//			System.out.println(g);
-//		}
-//		
-//		System.out.println("STATE:");
-//		for ( Term k : state.keySet() ) {
-//			System.out.println(k + " -> " + state.get(k));
-//		}
-		
-		
 		long heuristicValue = forwardHeuristic.calculateHeuristicValue(state, goals, new CommonDataStructures());
-		
-//		System.out.println("HEURISTIC:");
-//		System.out.println(heuristicValue);
 		
 		return heuristicValue;
 	}

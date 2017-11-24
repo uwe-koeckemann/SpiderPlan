@@ -78,7 +78,6 @@ public class ReactorSoundPlaySpeech extends Reactor {
 	    @Override
 		public void run() {
 	    	started = true;
-	    	System.out.println(string);
 	    	ExecuteSystemCommand.call("/tmp/", "rosrun sound_play say.py '"+string+"'");
 	    	ended = true;
 	    }

@@ -11,7 +11,8 @@
 		(planning-interval [0 (timespan (days 100))])
 		(duration I1 [(timespan (d 2) (h 12)) (timespan (d 3))])
 		(before I1 I2 [(timespan (m 1)) inf])
-		(release I3 [(offset (datetime now) (timespan (h 01))) (offset (datetime now) (timespan (h 02)))])
+		(release I3 [(offset (datetime now) (timespan (h 01))) (offset (datetime now) (timespan (h 01) (s 60)))])
+		(release I3 [(datetime (YYYY 2017) (MM 12) (DD 24) (hh 12) (mm 30) (ss 00))]
 		(after I4 I2 [(timespan (days 10)) (timespan (days 20))])
 	)
 )

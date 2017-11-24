@@ -379,7 +379,14 @@ public class ExecutionModule  extends Module {
 		execCore.setOperators(this.O);
 		execCore.setContext(execDB.copy());		
 		execCore.getContext().add(new Plan());
+		
+		for ( OpenGoal og : execCore.getContext().get(OpenGoal.class) ) {
+			if ( !og.isAsserted() ) {
+				execCore.getContext().add(new AllenConstraint( og.getStatement().getKey(), TemporalRelation.Release, new Interval(Term.createInteger(t+1500), Term.createConstant("inf"))) );
+			}
+		}
 //		execCore.getContext().add(new PlanningInterval(Term.createInteger(t), Term.createConstant("inf")));
+		
 		execCore = repairSolver.run(execCore);
 		
 		execDB = execCore.getContext();
@@ -390,30 +397,28 @@ public class ExecutionModule  extends Module {
 		 * if planner is unaware of it. This should be included in planning to begin with though to find temporal
 		 * Inconsistencies when backtracking is possible and easy
 		 */
-		for ( Operator o : execDB.getUnique(Plan.class).getActions() ) {
-			AllenConstraint ac = new AllenConstraint(o.getLabel(), TemporalRelation.Release, new Interval(Term.createInteger(t), Term.createConstant("inf")));
-			execDB.add(ac);
-		}
-		IncrementalSTPSolver stpSolver = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
-		ConstraintDatabase cdbCopy = execDB.copy();
-		for ( Observation o : execDB.get(Observation.class)) {
-			cdbCopy.add(o.getStatement());
-		}
-		
-		
-		
-		if ( !stpSolver.isConsistent(cdbCopy) ) {
-			stpSolver.useCulpritDetection = true;
-			stpSolver.isConsistent(cdbCopy);
-			
-			Loop.start();
-		}
-		stpSolver.getPropagatedTemporalIntervals(execDB.getUnique(ValueLookup.class));
-		
-		TemporalNetworkTools.dumbTimeLineData(cdbCopy, execDB.getUnique(ValueLookup.class), String.format("stp%d.txt", stp_counter));
-		stp_counter++;
-		
-		System.out.println(execDB.getUnique(Plan.class));
+//		for ( Operator o : execDB.getUnique(Plan.class).getActions() ) {
+//			AllenConstraint ac = new AllenConstraint(o.getLabel(), TemporalRelation.Release, new Interval(Term.createInteger(t), Term.createConstant("inf")));
+//			execDB.add(ac);
+//		}
+//		IncrementalSTPSolver stpSolver = new IncrementalSTPSolver(0, Global.MaxTemporalHorizon);
+//		ConstraintDatabase cdbCopy = execDB.copy();
+//		for ( Observation o : execDB.get(Observation.class)) {
+//			cdbCopy.add(o.getStatement());
+//		}
+//		
+//		if ( !stpSolver.isConsistent(cdbCopy) ) {
+//			stpSolver.useCulpritDetection = true;
+//			stpSolver.isConsistent(cdbCopy);
+//			
+//			Loop.start();
+//		}
+//		stpSolver.getPropagatedTemporalIntervals(execDB.getUnique(ValueLookup.class));
+//		
+//		TemporalNetworkTools.dumbTimeLineData(cdbCopy, execDB.getUnique(ValueLookup.class), String.format("stp%d.txt", stp_counter));
+//		stp_counter++;
+//		
+//		System.out.println(execDB.getUnique(Plan.class));
 				
 		/************************************************************************************************
 		 * TODO: Re-plan on failure

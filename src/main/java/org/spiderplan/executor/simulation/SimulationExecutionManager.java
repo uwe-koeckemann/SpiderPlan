@@ -135,7 +135,6 @@ public class SimulationExecutionManager extends ExecutionManager {
 		
 		ValueLookup vL = new ValueLookup();
 		simCSP.getPropagatedTemporalIntervals(vL);
-		System.out.println(vL);
 	}
 	
 	@Override

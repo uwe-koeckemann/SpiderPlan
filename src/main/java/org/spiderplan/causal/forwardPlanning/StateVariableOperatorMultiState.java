@@ -260,20 +260,6 @@ public class StateVariableOperatorMultiState {
 	
 		List<List<Substitution>> combos = cB.getCombos(matchingSubs);
 		
-//		if ( combos.size() > 37000 ) {
-//			System.out.println(s);
-//			
-//			System.out.println(this);
-//			
-//			for ( Term t : this.name.getTerms() ) {
-//				System.out.println(t + " " + t.isVariable());
-//			}
-//			System.out.println(this.getName());
-//				
-//			
-//			throw new IllegalStateException();
-//		}
-		
 		for ( List<Substitution> combo : combos ) {
 			Substitution theta = new Substitution();
 			

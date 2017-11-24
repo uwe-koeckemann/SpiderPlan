@@ -172,7 +172,6 @@ public abstract class Reactor {
 				print("Running at " + t, 2);
 				started ++;
 				
-				System.out.println(target + " started: " + started);
 				AllenConstraint r = new AllenConstraint(target.getKey(), TemporalRelation.Release, new Interval(Term.createInteger(t), Term.createConstant("inf")));//Term.createInteger(t)));
 				execDB.add(r);
 				activeConstraints.add(r);
@@ -188,7 +187,6 @@ public abstract class Reactor {
 			} else if ( s == State.Finished ) {
 				print("Finished at " + t, 2);
 				finished++;
-				System.out.println(target + " started: " + started);
 				AllenConstraint r = new AllenConstraint(Term.parse("(deadline " + target.getKey().toString() + " (interval "+t+" "+t+"))"));
 				execDB.remove(overlapsFuture);
 				activeConstraints.remove(overlapsFuture);
@@ -199,15 +197,7 @@ public abstract class Reactor {
 				change = true;
 			}
 		}
-		
-		System.out.println("===============================");
-		System.out.println(this.getClass().getSimpleName() + " " + target);
-		System.out.println("===============================");
-		for ( Expression e : activeConstraints ) {
-			System.out.println(e);
-		}
-		System.out.println("===============================");
-		
+
 		return activeConstraints;
 	}
 		

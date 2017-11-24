@@ -136,12 +136,7 @@ public class CostSolver extends Module implements SolverInterface {
 //				} else {
 //					if ( verbose ) Logger.msg(getName(), "    variable value -> ignored", 1);
 //				}
-//				System.out.println("=========================");
-//				System.out.println(valueLookup);
-//				System.out.println(valueSymbol);
-//				System.out.println(addedValueLong);
-//				System.out.println(addedValueDouble);
-				
+
 				Double currentValue = costs.get(costSymbol);
 				if ( currentValue == null ) {
 					currentValue = 0.0;

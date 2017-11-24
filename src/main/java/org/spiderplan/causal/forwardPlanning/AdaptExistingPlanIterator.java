@@ -508,15 +508,6 @@ public class AdaptExistingPlanIterator extends ResolverIterator {
 			context.add(og.getStatement());
 		}
 		
-//		System.out.println("Asserted prev");
-//		for ( Asserted a : originalContext.get(Asserted.class)) {
-//			System.out.println(a);
-//		}
-//		System.out.println("Asserted now");
-//		for ( Asserted a : context.get(Asserted.class)) {
-//			System.out.println(a);
-//		}
-		
 		if ( verbose ) {
 			super.print("===========================================", 2);
 			super.print("Adding:", 2);

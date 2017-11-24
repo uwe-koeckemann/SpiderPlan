@@ -892,11 +892,6 @@ public class TestIncrementalSTPSolver extends TestCase {
 		assertTrue(csp.getLST(I2) == 20);
 		assertTrue(csp.getEET(I2) == 25);
 		assertTrue(csp.getLET(I2) == 25);
-		
-//		System.out.println(csp.getRigidity());
-//		System.out.println(incSTP.getRigidity());
-//		
-//		System.out.println(incSTP.getDistanceMatrixString());
 			
 		assertTrue(Math.abs(csp.getRigidity() - incSTP.getRigidity()) < 0.000001);
 		
@@ -935,15 +930,6 @@ public class TestIncrementalSTPSolver extends TestCase {
 		
 		assertFalse(incSTP.isConsistent(cDB));
 	}
-//	System.out.println("EST(I1) " + incSTP.getEST(I1));
-//	System.out.println("LST(I1) " + incSTP.getLST(I1));
-//	System.out.println("EET(I1) " + incSTP.getEET(I1));
-//	System.out.println("LET(I1) " + incSTP.getLET(I1));
-//	System.out.println("EST(I2) " + incSTP.getEST(I2));
-//	System.out.println("LST(I2) " + incSTP.getLST(I2));
-//	System.out.println("EET(I2) " + incSTP.getEET(I2));
-//	System.out.println("LET(I2) " + incSTP.getLET(I2));
-
 	
 	public void test019_HistorySize() {
 		ConstraintDatabase cDB1 = new ConstraintDatabase();
