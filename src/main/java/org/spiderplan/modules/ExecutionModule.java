@@ -161,6 +161,10 @@ public class ExecutionModule  extends Module {
 			this.repairSolver = ModuleFactory.initModule( this.repairSolverName , cM );
 		}
 		
+		if ( cM.hasAttribute(name, "tPreferredUpdateInterval") ) {
+			this.tPreferredUpdateInterval = cM.getLong(this.getName(), "tPreferredUpdateInterval" );
+		}
+		
 		if ( cM.hasAttribute(name, "modules") ) {
 			try {
 				this.execModuleNames = cM.getStringList(name, "modules");

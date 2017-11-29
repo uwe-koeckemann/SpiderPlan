@@ -175,7 +175,6 @@ public class STPSolver extends Module implements SolverInterface {
 //			}
 //			stats.setLong(msg("Last #Statements"), Long.valueOf(core.getContext().getStatements().size()));
 //		}
-				
 		/** 
 		 * Run Temporal Reasoner
 		 */		
