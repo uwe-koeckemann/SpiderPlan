@@ -61,8 +61,4 @@ test {
 	}
 }
 
-task wrapper(type: Wrapper) {
-	gradleVersion = '2.10'
-}
-
 defaultTasks 'clean', 'build', 'install'
