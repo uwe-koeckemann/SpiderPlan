@@ -1,4 +1,0 @@
-<launch>	
-	<node name="spiderplan" pkg="spiderplan_proxy" type="spiderplan_proxy.py" output="screen" 	ns="/planner" >
-  </node>
-</launch>

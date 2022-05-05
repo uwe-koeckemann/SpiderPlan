@@ -1,8 +1,0 @@
-# Scaling up number of satisfied conditions for an IC with two statements in condition. 
-# The last IC that applies can never be satisfied. This causes backtracking over all previous
-# resolvers. 
-name				= "SA-NC-2INT";
-planner			= "./planner.spider";
-domain			= "./domain-2vars.uddl";
-problems		= "./bad-case";
-attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

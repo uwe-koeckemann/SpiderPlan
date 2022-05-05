@@ -1,6 +1,0 @@
-(:initial-context
-	(:math
-		(eval-int x (add 40 2))
-		(greater-than-or-equal x 50)
-	)
-)

@@ -1,1 +1,0 @@
-Simple inequality that cannot be satisfied.

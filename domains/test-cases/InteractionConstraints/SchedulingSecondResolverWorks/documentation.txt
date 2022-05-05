@@ -1,2 +1,0 @@
-Tests a simple interaction constraint with three resolvers. The second
-one works.

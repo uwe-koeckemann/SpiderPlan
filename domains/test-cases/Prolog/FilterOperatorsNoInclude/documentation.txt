@@ -1,4 +1,0 @@
-Missing knowledge base should lead to no operators being added if they
-use Prolog constraints depending on missing knowledge base. 
-This test case has been added to test for a bug where Prolog constraints 
-were ignored when no Prolog program was specified.

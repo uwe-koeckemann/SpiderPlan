@@ -1,8 +1,0 @@
-SolverStack main:		
-	solvers = "Cost";
-	verbose=false;
-	verbosity=5;
-
-CostSolver Cost:
-	verbose = false;
-	verbosity = 10;

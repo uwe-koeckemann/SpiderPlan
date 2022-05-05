@@ -1,1 +1,0 @@
-Tests that multiple enums for same type add up to one domain. Also checks that adding elements to a type's domain is possible later on (here by using an interaction constraint).

@@ -1,1 +1,0 @@
-Test a single binary resource with two overlapping usages that cannot be separated.

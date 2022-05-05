@@ -1,8 +1,0 @@
-SolverStack main:		
-	solvers = "Math";
-	verbose=false;
-	verbosity=5;
-
-MathSolver Math:
-	verbose = true;
-	verbosity = 10;

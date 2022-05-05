@@ -1,5 +1,0 @@
-(:initial-context
-	(:math
-		(eval-int x (add 2 (mult 2 (div 40 (sub 20 18)))))
-	)
-)

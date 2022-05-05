@@ -1,6 +1,0 @@
-# IC uses 3 statements and has 10 resolvers, only last resolver works
-name				= "SA-FF-3INT-10RES";
-planner			= "./planner.spider";
-domain			= "./first-fails/domain-3vars-10res.uddl";
-problems		= "./first-fails/SA-FF-3INT";
-attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

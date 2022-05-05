@@ -1,6 +1,0 @@
-# Increasing the number of satisfied conditions for an IC whose first resolver always fails.
-name				= "SA-FF-2INT";
-planner			= "./planner.spider";
-domain			= "./domain-2vars.uddl";
-problems		= "./first-fails/SA-FF-2INT";
-attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

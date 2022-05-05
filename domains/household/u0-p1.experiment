@@ -1,6 +1,0 @@
-name			= "household-u0-p1";
-planner			= "./planner-p1.spider";
-domain			= "./domain.uddl";
-problems		= "./experiment-u0";
-timeout			= 30;
-attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

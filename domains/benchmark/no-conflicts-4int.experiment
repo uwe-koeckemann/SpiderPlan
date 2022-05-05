@@ -1,6 +1,0 @@
-# Scaling up number of satisfied conditions for an IC with four statements in condition. Resolvers never fail.
-name				= "SA-NC-4INT";
-planner			= "./domains/benchmark/planner-experiment.spider";
-domain			= "./domains/benchmark/social-acceptability/domain-4vars.uddl";
-problems		= "./domains/benchmark/social-acceptability/SA-NC-4INT";
-attributes	= "problem/Problem, domain/Domain, result/Result, time/Time [Total]";

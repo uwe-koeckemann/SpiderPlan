@@ -1,2 +1,0 @@
-Three possible durations available. Only the last one will work
-due to other temporal constraints.

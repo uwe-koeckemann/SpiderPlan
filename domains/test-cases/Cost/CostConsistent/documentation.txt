@@ -1,1 +1,0 @@
-Tests a simple set of cost constraints.
