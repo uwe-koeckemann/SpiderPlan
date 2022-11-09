@@ -10,3 +10,6 @@ target/
 .classpath
 .settings/
 bin/
+
+
+*~
