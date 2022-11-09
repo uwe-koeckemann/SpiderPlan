@@ -1,0 +1,119 @@
+(#mod self org.spiderplan.test.up-problems.problem-nc)
+
+(#req EVAL org.aiddl.eval.namespace)
+
+(#nms E type-ops@EVAL)
+
+(term problem
+{
+  goal:[(G11 x:?x6) (G12 y:?x7) (G13 z:?x8) (G14 j:?x9) (G15 k:?x10)]
+  statement:[(s1 x:false) (s2 y:true) (s3 z:true) (s4 j:true) (s5 k:true)]
+  csp:
+    [
+      variables:[?x6 ?x7 ?x8 ?x9 ?x10]
+      domains:
+        [
+          ?x6:[true false]
+          ?x7:[true false]
+          ?x8:[true false]
+          ?x9:[true false]
+          ?x10:[true false]
+        ]
+
+      constraints:
+        {
+          (
+            (?x6 ?x7 ?x8 ?x9 ?x10)
+            (
+              org.aiddl.eval.lambda
+              (?x6 ?x7 ?x8 ?x9 ?x10)
+              (
+                org.aiddl.eval.logic.and
+                ?x6
+                (org.aiddl.eval.logic.and ?x7 ?x8 (org.aiddl.eval.logic.and ?x9 ?x10))
+              )
+
+            )
+
+          )
+
+        }
+
+    ]
+
+  temporal:
+    [
+      (release s1 (0 0))
+      (duration s1 (1 +INF))
+      (release s2 (0 0))
+      (duration s2 (1 +INF))
+      (release s3 (0 0))
+      (duration s3 (1 +INF))
+      (release s4 (0 0))
+      (duration s4 (1 +INF))
+      (release s5 (0 0))
+      (duration s5 (1 +INF))
+      (duration G11 (1 +INF))
+      (duration G12 (1 +INF))
+      (duration G13 (1 +INF))
+      (duration G14 (1 +INF))
+      (duration G15 (1 +INF))
+    ]
+
+  domain:{t_bool:[true false]}
+  signature:{y:t_bool k:t_bool j:t_bool x:t_bool z:t_bool a:t_bool}
+  operator:
+    {
+      (
+        name:a
+        signature:[]
+        id:?ID
+        interval:(a ?ID)
+        preconditions:
+          [((P20 ?ID) y:?x16) ((P21 ?ID) z:?x17) ((P22 ?ID) j:?x18) ((P23 ?ID) k:?x19)]
+        effects:[((E1 ?ID) x:true)]
+        constraints:
+          [
+            temporal:
+              [
+                (duration (a ?ID) (1 +INF))
+                (duration (P20 ?ID) (1 +INF))
+                (meets (P20 ?ID) (a ?ID))
+                (duration (P21 ?ID) (1 +INF))
+                (meets (P21 ?ID) (a ?ID))
+                (duration (P22 ?ID) (1 +INF))
+                (meets (P22 ?ID) (a ?ID))
+                (duration (P23 ?ID) (1 +INF))
+                (meets (P23 ?ID) (a ?ID))
+                (meets (a ?ID) (E1 ?ID))
+                (duration (E1 ?ID) (1 +INF))
+              ]
+
+            csp:
+              [
+                variables:[?x16 ?x17 ?x18 ?x19]
+                domains:
+                  [?x16:[true false] ?x17:[true false] ?x18:[true false] ?x19:[true false]]
+                constraints:
+                  {
+                    (
+                      (?x16 ?x17 ?x18 ?x19)
+                      (
+                        org.aiddl.eval.lambda
+                        (?x16 ?x17 ?x18 ?x19)
+                        (org.aiddl.eval.logic.and ?x16 (org.aiddl.eval.logic.and ?x17 ?x18 ?x19))
+                      )
+
+                    )
+
+                  }
+
+              ]
+
+          ]
+
+      )
+
+    }
+
+})

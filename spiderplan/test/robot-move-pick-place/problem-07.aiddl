@@ -1,0 +1,66 @@
+(#mod self org.spiderplan.test.robot-pick-and-place.problem-06)
+
+(#req EVAL org.aiddl.eval.namespace)
+
+(#nms E type-ops@EVAL)
+(#nms nms-local {
+  set.union:org.aiddl.eval.set.union
+ })
+
+(term D_robot { r1 r2 })
+(term D_location { loc1 loc2 loc3 loc4 })
+(term D_object { o1 o2 })
+
+(term problem
+  {
+    statement:{
+      (s0_r1 (at r1):loc1)
+      (s0_r2 (at r2):loc3)
+      (s0_o1 (object-at o1):loc2)
+      (s0_o2 (object-at o2):loc4)
+      (s0_3 (adjacent loc1 loc2):true)
+      (s0_4 (adjacent loc2 loc1):true)
+      (s0_5 (adjacent loc3 loc4):true)
+      (s0_6 (adjacent loc4 loc3):true)
+      ;;(s0_7 (adjacent loc1 loc3):true)
+      ;;(s0_8 (adjacent loc3 loc1):true)
+      ;;(s0_9 (adjacent loc4 loc2):true)
+      ;;(s0_10 (adjacent loc2 loc4):true)
+    }
+    resource.reusable.capacity:{
+        (storage ?r):{max:3}
+    }
+    temporal:{
+      (release s0_r1 (0 0))
+      (release s0_r2 (0 0))
+      (release s0_o1 (0 0))
+      (release s0_o2 (0 0))
+
+      (duration s0_r1 (1 +INF))
+      (duration s0_r2 (1 +INF))
+      (duration s0_o1 (1 +INF))      
+      (duration s0_o2 (1 +INF))
+
+      (release s0_3 (0 0))
+      (release s0_4 (0 0))
+      (release s0_5 (0 0))
+      (release s0_6 (0 0))
+      ;;(release s0_7 (0 0))
+      ;;(release s0_8 (0 0))
+      ;;(release s0_9 (0 0))
+      ;;(release s0_10 (0 0))
+      (duration s0_3 (+INF +INF))
+      (duration s0_4 (+INF +INF))
+      (duration s0_5 (+INF +INF))
+      (duration s0_6 (+INF +INF))
+      ;;(duration s0_7 (+INF +INF))
+      ;;(duration s0_8 (+INF +INF))
+      ;;(duration s0_9 (+INF +INF))
+      ;;(duration s0_10 (+INF +INF))
+    }
+    goal:{
+      (G1 (object-at o1):loc1)
+      (G2 (object-at o2):loc3)
+    }
+  }    
+)

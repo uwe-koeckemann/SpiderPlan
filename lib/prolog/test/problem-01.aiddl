@@ -1,0 +1,36 @@
+(#mod self org.spiderplan.test.robot-pick-and-place.problem-01)
+
+(#req EVAL org.aiddl.eval.namespace)
+
+(#nms E type-ops@EVAL)
+(#nms nms-local {
+  set.union:org.aiddl.eval.set.union
+ })
+
+(term D_robot { r1 })
+(term D_location { loc1 loc2 })
+(term D_object { o1 })
+
+(term problem
+  {
+    statement:{
+      (s0_1 (at r1):loc1)
+      (s0_2 (object-at o1):loc2)
+    }
+    resource.reusable.capacity:{
+        (storage ?r):{max:3}
+    }
+    temporal:{
+      (release s0_1 (0 0))
+      (release s0_2 (0 0))
+      (duration s0_1 (1 +INF))
+      (duration s0_2 (1 +INF))
+    }
+    goal:{
+      (G1 (at r1):loc1)
+    }
+    prolog:[
+      (kb topological-map (relative $self "./map.prolog")) 
+    ]
+  }    
+)

@@ -1,0 +1,34 @@
+(#mod self org.spiderplan.test.human-aware-logistics.problem-03)
+
+(#req EVAL org.aiddl.eval.namespace)
+
+(#nms E type-ops@EVAL)
+(#nms nms-local {
+  set.union:org.aiddl.eval.set.union
+ })
+
+(term D_human { h1 })
+(term D_robot { r1 })
+(term D_location { loc1 loc2 })
+(term D_object { o1 })
+
+(term problem
+  {
+    domain:{
+      t_bool:{true false}
+      t_human:$D_human
+      t_robot:$D_robot
+      t_location:$D_location
+      t_loc_or_rob:(set.union {$D_robot $D_location})
+      t_object:$D_object
+    }
+    statement:{
+      (s1 (move r1 loc1 loc2):true)
+      (s2 (move-human h1 loc1 loc2):true)
+    }
+    temporal:{
+      (at s1 (0 10) (15 20))
+      (at s2 (0 5) (6 9))
+    }
+  }    
+)

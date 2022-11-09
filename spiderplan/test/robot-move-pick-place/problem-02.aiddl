@@ -1,0 +1,55 @@
+(#mod self org.spiderplan.test.robot-pick-and-place.problem-02)
+
+(#req EVAL org.aiddl.eval.namespace)
+
+(#nms E type-ops@EVAL)
+(#nms nms-local {
+  set.union:org.aiddl.eval.set.union
+ })
+
+(term D_robot { r1 })
+(term D_location { loc1 loc2 })
+(term D_object { o1 })
+
+(term problem
+  {
+    domain:{
+      t_bool:{true false}      
+      t_robot:$D_robot
+      t_location:$D_location
+      t_loc_or_rob:(set.union {$D_robot $D_location})
+      t_object:$D_object
+    }
+    signature:{
+      (move  t_robot t_location t_location):t_bool
+      (pick  t_robot t_object t_location):t_bool
+      (place t_robot t_object t_location):t_bool      
+      (at t_robot):t_location
+      (object-at t_object):t_loc_or_rob
+      (adjacent t_location t_location):t_bool
+    }     
+    statement:{
+      (s0_1 (at r1):loc1)
+      (s0_2 (object-at o1):loc2)
+      (s0_3 (adjacent loc1 loc2):true)
+      (s0_4 (adjacent loc2 loc1):true)
+    }
+    resource.reusable.capacity:{
+        (storage ?r):{max:3}
+    }
+    temporal:{
+      (release s0_1 (0 0))
+      (release s0_2 (0 0))
+      (release s0_3 (0 0))
+      (release s0_4 (0 0))
+      (duration s0_1 (1 +INF))
+      (duration s0_2 (1 +INF))
+      (duration s0_3 (+INF +INF))
+      (duration s0_4 (+INF +INF))
+      
+    }
+    goal:{
+      (G1 (at r1):loc2)
+    }
+  }    
+)

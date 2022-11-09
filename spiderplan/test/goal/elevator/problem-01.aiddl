@@ -1,0 +1,52 @@
+(#mod self org.spiderplan.test.goal.elevator.problem-01)
+
+(#req EVAL org.aiddl.eval.namespace)
+
+(#nms E type-ops@EVAL)
+(#nms nms-local {
+  set.union:org.aiddl.eval.set.union
+ })
+
+(term D_lift { e1 })
+(term D_person { p1 p2 })
+(term D_floor { f0 f1 f2 f3 f4 })
+
+(term problem
+  {
+    domain:{
+      t_bool:{true false}
+      t_lift:$D_lift
+      t_person:$D_person
+      t_floor:$D_floor
+      t_lift_or_floor:(set.union {$D_lift $D_floor})
+    }
+    statement:{
+      (s1 (liftAt e1):f0)
+      (s2 (passengerAt p1):f4)
+      (s3 (passengerAt p2):f4)      
+      (sr1 (reachable f0 e1):true)
+      (sr2 (reachable f1 e1):true)
+      (sr3 (reachable f2 e1):true)
+      (sr4 (reachable f3 e1):true)
+      (sr5 (reachable f4 e1):true)
+    }
+    goal:{
+      (G1 (passengerAt p1):f0)
+      (G2 (passengerAt p2):f0)
+    }
+    temporal:{
+      (at s1 (0 0) (1 +INF))
+      (at s2 (0 0) (1 +INF))
+      (at s3 (0 0) (1 +INF))      
+      
+      (at sr1 (0 0) (+INF +INF))
+      (at sr2 (0 0) (+INF +INF))
+      (at sr3 (0 0) (+INF +INF))
+      (at sr4 (0 0) (+INF +INF))
+      (at sr5 (0 0) (+INF +INF))
+
+      (at G1 (0 +INF) (1 +INF))
+      (at G2 (0 +INF) (1 +INF))
+    }
+  }    
+)

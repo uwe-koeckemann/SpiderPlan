@@ -1,0 +1,134 @@
+(#mod self org.spiderplan.test.human-aware-logistics.domain)
+
+(#req EVAL org.aiddl.eval.namespace)
+
+(#nms E type-ops@EVAL)
+(#nms nms-local {
+  set.union:org.aiddl.eval.set.union
+ })
+
+(term D_robot { r1 })
+(term D_location { loc1 loc2 })
+(term D_object { o1 })
+
+(term problem
+  {
+    signature:{
+      (move  t_robot t_location t_location):t_bool
+      (pick  t_robot t_object t_location):t_bool
+      (place t_robot t_object t_location):t_bool      
+      (at t_robot):t_location
+      (object-at t_object):t_loc_or_rob
+      (adjacent t_location t_location):t_bool
+      (move-human t_human t_location t_location):t_bool
+      (apologize t_robot t_human):t_bool
+    }
+    statement.extended-eet:{
+      (at _):_
+      (object-at _):_
+    }
+    conditional:{
+      [
+        name:(excuse-me ?R ?H ?L1 ?L2 ?I1 ?I2)
+        signature:{?R:t_robot ?H:t_human ?L1:t_location ?L2:t_location}
+        id:?ID
+        condition:[
+          statement:{
+            (?I1 (move ?R ?L1 ?L2):true)
+            (?I2 (move-human ?H ?L1 ?L2):true)            
+          }
+          temporal.misc:{
+            (intersection-possible {?I1 ?I2})
+          }
+          
+        ]
+        resolvers:[
+          {temporal:{(before ?I1 ?I2 (1 +INF))}}
+          {temporal:{(after  ?I1 ?I2 (1 +INF))}}
+          {
+            statement:{((IR ?ID) (apologize ?R ?H):true)}
+            temporal:{(during (IR ?ID) ?I1 (1 +INF) (1 +INF)) (during (IR ?ID) ?I2 (1 +INF) (1 +INF))}
+          }
+        ]
+      ]
+    }
+    operator:$operators
+  }
+)
+
+(term operators {
+      ( name : (move ?r ?l1 ?l2)
+        signature : {?r:t_robot ?l1:t_location ?l2:t_location}
+        id   : ?ID
+        interval : (move ?ID)
+        preconditions : {
+          ((P1 ?ID) (at ?r):?l1)
+          ((P2 ?ID) (adjacent ?l1 ?l2):true)
+        }
+        effects : {
+          ((E1 ?ID) (at ?r):?l2)
+        }
+        constraints : {
+          temporal:
+          {
+            (duration (move ?ID) (10 10))
+            (meets (P1 ?ID) (E1 ?ID))
+            (overlaps (P1 ?ID) (move ?ID) (1 +INF))
+            (overlaps (move ?ID) (E1 ?ID) (1 +INF))
+            (during (move ?ID) (P2 ?ID) (1 +INF) (1 +INF))
+            (duration (E1 ?ID) (1 +INF))                          
+          }
+      })
+      
+      ( name : (pick ?r ?o ?l)
+        signature : {?r:t_robot ?o:t_object ?l:t_location}
+        id   : ?ID
+        interval   : (pick ?ID)
+        preconditions : {
+          ((P1 ?ID) (at ?r):?l)
+          ((P2 ?ID) (object-at ?o):?l)
+        }
+        effects : {
+          ((E1 ?ID) (object-at ?o):?r)
+        }
+        constraints : {
+          temporal:
+          {
+            (duration (pick ?ID) (10 10))
+            (meets (P2 ?ID) (E1 ?ID))
+            (during (pick ?ID) (P1 ?ID) (1 +INF) (1 +INF))
+            (overlaps (P2 ?ID) (pick ?ID) (1 +INF))
+            (overlaps (pick ?ID) (E1 ?ID) (1 +INF))
+            (duration (E1 ?ID) (1 +INF))                          
+            ;; (meets (pick ?ID) (E1 ?ID))
+          }
+          resource.reusable.usage : {
+              ((E1 ?ID) (storage ?r) 1)
+          }
+        })
+       
+      ( name : (place ?r ?o ?l)
+        signature : {?r:t_robot ?o:t_object ?l:t_location}
+        id   : ?ID
+        interval    : (place ?ID)
+        preconditions : {
+          ((P1 ?ID) (at ?r):?l)
+          ((P2 ?ID) (object-at ?o):?r)
+        }
+        effects : {
+          ((E1 ?ID) (object-at ?o):?l)
+        }
+        constraints : {
+          temporal:
+            {
+              (duration (place ?ID) (10 10))
+              (meets (P2 ?ID) (E1 ?ID))
+              (during (place ?ID) (P1 ?ID) (1 +INF) (1 +INF))
+              (overlaps (P2 ?ID) (place ?ID) (1 +INF))
+              (overlaps (place ?ID) (E1 ?ID) (1 +INF))
+              (duration (E1 ?ID) (1 +INF))              
+            }
+          }
+        )
+   }
+)

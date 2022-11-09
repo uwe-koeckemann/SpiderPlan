@@ -1,0 +1,62 @@
+(#mod self org.spiderplan.test.robot-pick-and-place.problem-01)
+
+(#req EVAL org.aiddl.eval.namespace)
+(#req Domain "domain.aiddl")
+
+(#nms E type-ops@EVAL)
+(#nms NMS-2 numerical-ops@EVAL)
+(#nms NMS-3 collection-ops@EVAL)
+(#nms NMS-4 {
+  set.union:org.aiddl.eval.set.union
+  substitute:org.aiddl.eval.substitute
+  lambda:org.aiddl.eval.lambda  
+ })
+
+
+(term distance_map {
+  {loc1 loc2}:5
+})
+
+(term D_robot { r1 })
+(term D_location { loc1 loc2 })
+(term D_object { o1 })
+
+(term problem
+  {
+    domain:{
+      t_bool:{true false}      
+      t_robot:$D_robot
+      t_location:$D_location
+      t_loc_or_rob:(set.union {$D_robot $D_location})
+      t_object:$D_object
+    }
+    statement:{
+      (s0_1 (at r1):loc1)
+      (s0_2 (object-at o1):loc2)
+      (s0_3 (adjacent loc1 loc2):true)
+      (s0_4 (adjacent loc2 loc1):true)
+    }
+    resource.reusable.capacity:{
+        (storage ?r):{max:3}
+    }
+    temporal:{
+      (release s0_1 (0 0))
+      (release s0_2 (0 0))
+      (release s0_3 (0 0))
+      (release s0_4 (0 0))
+      (duration s0_1 (1 +INF))
+      (duration s0_2 (1 +INF))
+      (duration s0_3 (+INF +INF))
+      (duration s0_4 (+INF +INF))
+      
+    }
+    goal:{
+      (G1 (at r1):loc2)
+    }
+    operator:
+      (substitute
+        operators@Domain
+        {?DIST_CON:(lambda (?l1 ?l2) (< (get-key {?l1 ?l2} $distance_map) 10))}
+      )
+  }    
+)

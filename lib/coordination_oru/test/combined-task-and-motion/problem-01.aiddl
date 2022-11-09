@@ -1,0 +1,47 @@
+(#mod self org.spiderplan.test.combined-task-and-motion.test-01)
+
+(#req EVAL org.aiddl.eval.namespace)
+
+(#nms E type-ops@EVAL)
+(#nms nms-local {
+  set.union:org.aiddl.eval.set.union
+ })
+
+(#req Domain "./domain.aiddl")
+
+(term D_robot { r1 r2 })
+(term D_location { R_2 R_5 L_2 L_4 })
+(term D_object { o1 })
+
+(term problem
+  {
+    domain:{
+      t_bool:{true false}      
+      t_robot:$D_robot
+      t_location:$D_location
+      t_loc_or_rob:(set.union {$D_robot $D_location})
+      t_object:$D_object
+    }
+    statement:{
+      (s0_1 (at r1):L_2)
+      (s0_2 (at r2):L_4)
+    }
+    resource.reusable.capacity:{
+        (storage ?r):{max:3}
+        (move r1):{max:1}
+        (move r2):{max:1}    
+    }
+    temporal:{
+      (release s0_1 (0 0))
+      (release s0_2 (0 0))
+      (duration s0_1 (1 +INF))
+      (duration s0_2 (1 +INF))
+      
+    }
+    goal:{
+      (G1 (at r1):R_2)
+      (G2 (at r2):R_5)
+    }
+    operator:operators@Domain
+  }    
+)

@@ -1,0 +1,53 @@
+(#mod self org.spiderplan.test.generic-constraints.domain)
+
+(#req EVAL org.aiddl.eval.namespace)
+
+(#nms nms-type type-ops@EVAL)
+(#nms nms-basic basic-ops@EVAL)
+(#nms nms-num numerical-ops@EVAL)
+(#nms nms-logic logic-ops@EVAL)
+(#nms nms-local {
+  set.union:org.aiddl.eval.set.union
+ })
+
+(term D_space { 1 2 3 4 })
+
+(#def abs (if (< #self 0) (* -1 #self) #self))
+
+(#def diagonal
+  (match (?X ?Y ?D) #self
+    (lambda (?X ?Y)
+      (or
+        (has-type ?X ^variable)
+        (has-type ?Y ^variable)
+        (and
+          (!= ?X ?Y)
+          (!= (call ^$abs (- ?X ?Y)) ?D))))))
+
+(term problem
+  {
+    constraint-processing:[
+      variables:[?X1 ?X2 ?X3 ?X4]
+      domains:[
+        ?X1:$D_space
+        ?X2:$D_space
+        ?X3:$D_space
+        ?X4:$D_space      
+      ]
+      constraints:{
+        ((?X1 ?X2) (call ^$diagonal (?X1 ?X2 1)))
+        ((?X1 ?X3) (call ^$diagonal (?X1 ?X3 2)))
+        ((?X1 ?X4) (call ^$diagonal (?X1 ?X4 3)))
+        ((?X2 ?X3) (call ^$diagonal (?X2 ?X3 1)))
+        ((?X2 ?X4) (call ^$diagonal (?X2 ?X4 2)))
+        ((?X3 ?X4) (call ^$diagonal (?X3 ?X4 1)))                  
+      }
+    ]
+    goals:{
+      (G1 (at 1):?X1)
+      (G2 (at 2):?X2)
+      (G3 (at 3):?X3)
+      (G4 (at 4):?X4)
+    }
+  }
+)

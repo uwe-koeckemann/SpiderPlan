@@ -1,0 +1,178 @@
+(#mod self org.spiderplan.test.combined-task-and-motion.domain)
+
+(#req EVAL org.aiddl.eval.namespace)
+
+(#nms E type-ops@EVAL)
+
+(org.aiddl.type.term
+  locations {
+    L_0  : (4.0 4.5 0.0  )
+    L_1  : (4.0 6.5 0.0  )
+    L_2  : (4.0 8.5 0.0  )
+    L_3  : (4.0 10.5 0.0 )
+    L_4  : (4.0 12.5 0.0 )
+    L_5  : (4.0 14.5 0.0 )
+    L_6  : (4.0 16.5 0.0 )
+    L_7  : (4.0 18.5 0.0 )
+    L_8  : (4.0 20.5 0.0 )
+    L_9  : (4.0 22.5 0.0 )
+    L_10 : (4.0 24.5 0.0 )
+    L_11 : (4.0 26.5 0.0 )
+    L_12 : (4.0 28.5 0.0 )
+    L_13 : (4.0 30.5 0.0 )
+    L_14 : (4.0 32.5 0.0 )
+    L_15 : (4.0 34.5 0.0 )
+    L_16 : (4.0 36.5 0.0 )
+    L_17 : (4.0 38.5 0.0 )
+    L_18 : (4.0 40.5 0.0 )
+    R_18 : (73.0 40.5 0.0)
+    R_17 : (73.0 38.5 0.0)
+    R_16 : (73.0 36.5 0.0)
+    R_15 : (73.0 34.5 0.0)
+    R_14 : (73.0 32.5 0.0)
+    R_13 : (73.0 30.5 0.0)
+    R_12 : (73.0 28.5 0.0)
+    R_11 : (73.0 26.5 0.0)
+    R_10 : (73.0 24.5 0.0)
+    R_9  : (73.0 22.5 0.0)
+    R_8  : (73.0 20.5 0.0)
+    R_7  : (73.0 18.5 0.0)
+    R_6  : (73.0 16.5 0.0)
+    R_5  : (73.0 14.5 0.0)
+    R_0  : (73.0 4.5 0.0 )
+    R_1  : (73.0 6.5 0.0 )
+    R_2  : (73.0 8.5 0.0 )
+    R_3  : (73.0 10.5 0.0)
+    R_4  : (73.0 12.5 0.0)
+  })
+
+(org.aiddl.type.term
+  frame-1
+  [
+    (-1.0 0.5)
+    (1.0 0.5)
+    (1.0 -0.5)
+    (-1.0 -0.5)
+  ]
+)
+
+(term problem
+  {
+    signature:{
+      (move  t_robot t_location t_location):t_bool
+      (pick  t_robot t_object t_location):t_bool
+      (place t_robot t_object t_location):t_bool      
+      (at t_robot):t_location
+      (follow t_robot):_
+      (object-at t_object):t_loc_or_rob
+    }
+    statement.extended-eet:{
+      (at _):_
+      (object-at _):_
+    }
+    motion:[
+      (map map-1 (relative $self "./maps/map-partial-2.yaml"))
+      (poses map-1 $locations)
+      (frame r1 $frame-1)
+      (frame r2 $frame-1)
+      ;; TODO: Robot motion model
+      (coordinate map-1
+        {
+          robots:{r1 r2}
+          extractor:((follow ?rp):?p (?rp ?p))
+          max-accel:1.0
+          max-vel:4.0
+          map:map-1
+          start-pose:{r1:L_2 r2:L_4}
+          
+        })
+    ]
+  }    
+)
+
+(term operators {
+      ( name : (move ?r ?l1 ?l2)
+        signature : [?r:t_robot ?l1:t_location ?l2:t_location]
+        id   : ?ID
+        interval : (move ?ID)
+        preconditions : {
+          ((P1 ?ID) (at ?r):?l1)
+        }
+        effects : {
+          ((E1 ?ID) (follow ?r):?path)
+          ((E2 ?ID) (at ?r):?l2)
+        }
+        constraints : {
+          motion:{
+            (path ?ID ?r ?l1 ?l2 map-1 ?path)
+          }
+          resource.reusable.usage : {
+              ((move ?ID) (busy ?r) 1)
+          }
+          temporal:
+          {
+            (duration (move ?ID) (1 +INF))
+            (before (P1 ?ID) (E1 ?ID) (1 1))
+            (before (E1 ?ID) (E2 ?ID) (1 1))
+            (overlaps (P1 ?ID) (move ?ID) (1 +INF))
+            (overlaps (move ?ID) (E2 ?ID) (1 +INF))
+            (duration (E1 ?ID) (1 +INF))                          
+            (duration (E2 ?ID) (1 +INF))                          
+          }
+      })
+      
+      ( name : (pick ?r ?o ?l)
+        signature : [?r:t_robot ?o:t_object ?l:t_location]
+        id   : ?ID
+        interval   : (pick ?ID)
+        preconditions : {
+          ((P1 ?ID) (at ?r):?l)
+          ((P2 ?ID) (object-at ?o):?l)
+        }
+        effects : {
+          ((E1 ?ID) (object-at ?o):?r)
+        }
+        constraints : {
+          temporal:
+          {
+            (duration (pick ?ID) (10 10))
+            (meets (P2 ?ID) (E1 ?ID))
+            (during (pick ?ID) (P1 ?ID) (1 +INF) (1 +INF))
+            (overlaps (P2 ?ID) (pick ?ID) (1 +INF))
+            (overlaps (pick ?ID) (E1 ?ID) (1 +INF))
+            (duration (E1 ?ID) (1 +INF))
+          }
+          resource.reusable.usage : {
+              ((E1 ?ID) (storage ?r) 1)
+              ((pick ?ID) (busy ?r) 1)
+          }
+        })
+       
+      ( name : (place ?r ?o ?l)
+        signature : {?r:t_robot ?o:t_object ?l:t_location}
+        id   : ?ID
+        interval    : (place ?ID)
+        preconditions : {
+          ((P1 ?ID) (at ?r):?l)
+          ((P2 ?ID) (object-at ?o):?r)
+        }
+        effects : {
+          ((E1 ?ID) (object-at ?o):?l)
+        }
+        constraints : {
+          temporal:
+            {
+              (duration (place ?ID) (10 10))
+              (meets (P2 ?ID) (E1 ?ID))
+              (during (place ?ID) (P1 ?ID) (1 +INF) (1 +INF))
+              (overlaps (P2 ?ID) (place ?ID) (1 +INF))
+              (overlaps (place ?ID) (E1 ?ID) (1 +INF))
+              (duration (E1 ?ID) (1 +INF))              
+            }
+          resource.reusable.usage : {
+              ((place ?ID) (busy ?r) 1)
+            }
+          }
+        )
+})
+

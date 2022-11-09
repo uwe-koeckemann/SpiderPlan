@@ -1,0 +1,95 @@
+(#mod self org.spiderplan.test.goal.elevator.domain)
+
+(#req EVAL org.aiddl.eval.namespace)
+
+(#nms E type-ops@EVAL)
+(#nms nms-local {
+  set.union:org.aiddl.eval.set.union
+ })
+
+(term problem
+  {
+    signature:{
+      (move  t_lift t_floor t_floor):t_bool
+      (board t_person t_lift t_floor):t_bool
+      (leave t_person t_lift t_floor):t_bool
+      (passengerAt t_person):t_lift_or_floor
+      (liftAt t_lift):t_floor
+      (reachable t_floor t_lift):t_bool
+    }
+    operator:$operators
+  })
+
+
+(term operators {
+      ( name : (move ?e ?f1 ?f2)
+        signature : {?e:t_lift ?f1:t_floor ?f2:t_floor}
+        id   : ?ID
+        interval : (move ?ID)
+        preconditions : {
+          ((P1 ?ID) (liftAt ?e):?f1)
+          ((P2 ?ID) (reachable ?f2 ?e):true)
+        }
+        effects : {
+          ((E1 ?ID) (liftAt ?e):?f2)
+        }
+        constraints : {
+          temporal:
+          {
+            (duration (move ?ID) (10 10))
+            (meets (P1 ?ID) (E1 ?ID))
+            (overlaps (P1 ?ID) (move ?ID) (1 +INF))
+            (overlaps (move ?ID) (E1 ?ID) (1 +INF))
+            (during (move ?ID) (P2 ?ID) (1 +INF) (1 +INF))
+            (duration (E1 ?ID) (1 +INF))                          
+          }
+      })
+      
+      ( name : (board ?p ?e ?f)
+        signature : {?p:t_person ?e:t_lift ?f:t_floor}
+        id   : ?ID
+        interval   : (board ?ID)
+        preconditions : {
+          ((P1 ?ID) (passengerAt ?p):?f)
+          ((P2 ?ID) (liftAt ?e):?f)
+        }
+        effects : {
+          ((E1 ?ID) (passengerAt ?p):?e)
+        }
+        constraints : {
+          temporal:
+          {
+            (duration (board ?ID) (5 5))
+            (meets (P1 ?ID) (E1 ?ID))
+            (overlaps (P1 ?ID) (board ?ID) (1 +INF))
+            (overlaps (board ?ID) (E1 ?ID) (1 +INF))
+            (during (board ?ID) (P2 ?ID) (1 +INF) (1 +INF))
+            (duration (E1 ?ID) (1 +INF))             
+          }
+        })
+       
+      ( name : (leave ?p ?e ?f)
+        signature : {?p:t_person ?e:t_lift ?f:t_floor}
+        id   : ?ID
+        interval    : (leave ?ID)
+        preconditions : {
+          ((P1 ?ID) (passengerAt ?p):?e)
+          ((P2 ?ID) (liftAt ?e):?f)
+        }
+        effects : {
+          ((E1 ?ID) (passengerAt ?p):?f)
+        }
+        constraints : {
+          temporal:
+            {
+              (duration (leave ?ID) (5 5))
+              (meets (P1 ?ID) (E1 ?ID))
+              (overlaps (P1 ?ID) (leave ?ID) (1 +INF))
+              (overlaps (leave ?ID) (E1 ?ID) (1 +INF))
+              (during (leave ?ID) (P2 ?ID) (1 +INF) (1 +INF))
+              (duration (E1 ?ID) (1 +INF))           
+            }
+          }
+        )
+   }
+)

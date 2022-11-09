@@ -1,0 +1,128 @@
+(#mod self org.spiderplan.test.matchcellar.test-01)
+
+(org.aiddl.type.term problem
+{
+  temporal:
+    [
+      (release s1 (0 0))
+      (duration s1 (1 +INF))
+      (release s2 (0 0))
+      (duration s2 (1 +INF))
+      (release s3 (0 0))
+      (duration s3 (1 +INF))
+      (release s4 (0 0))
+      (duration s4 (1 +INF))
+      (release s5 (0 0))
+      (duration s5 (1 +INF))
+      (release s6 (0 0))
+      (duration s6 (1 +INF))
+      (release s7 (0 0))
+      (duration s7 (1 +INF))
+      (release s8 (0 0))
+      (duration s8 (1 +INF))
+      (duration G9 (1 +INF))
+      (duration G10 (1 +INF))
+      (duration G11 (1 +INF))
+    ]
+
+  domain:{Match:[m1 m2 m3] t_bool:[true false] Fuse:[f1 f2 f3]}
+  signature:
+    {
+      light:t_bool
+      (light_match Match):t_bool
+      handfree:t_bool
+      (fuse_mended Fuse):t_bool
+      (mend_fuse Fuse):t_bool
+      (match_used Match):t_bool
+    }
+
+  goal:
+    [
+      (G9 (fuse_mended f1):true)
+      (G10 (fuse_mended f2):true)
+      (G11 (fuse_mended f3):true)
+    ]
+
+  statement:
+    [
+      (s1 light:false)
+      (s2 handfree:true)
+      (s3 (match_used m1):false)
+      (s4 (match_used m2):false)
+      (s5 (match_used m3):false)
+      (s6 (fuse_mended f1):false)
+      (s7 (fuse_mended f2):false)
+      (s8 (fuse_mended f3):false)
+    ]
+
+  operator:
+    {
+      (
+        name:(light_match ?m)
+        signature:[?m:Match]
+        id:?ID
+        interval:(light_match ?ID)
+        preconditions:[((P12 ?ID) (match_used ?m):false)]
+        effects:
+          [
+            ((E13 ?ID) (match_used ?m):true)
+            ((E14 ?ID) light:true)
+            ((E15 ?ID) light:false)
+          ]
+
+        constraints:
+          [
+            temporal:
+              [
+                (duration (light_match ?ID) (1 +INF))
+                (duration (P12 ?ID) (1 +INF))
+                (overlaps (P12 ?ID) (light_match ?ID) (0 +INF))
+                (started-by (E13 ?ID) (light_match ?ID) (0 0))
+                (duration (E13 ?ID) (1 +INF))
+                (started-by (E14 ?ID) (light_match ?ID) (0 0))
+                (duration (E14 ?ID) (1 +INF))
+                (before (light_match ?ID) (E15 ?ID) (0 0))
+                (duration (E15 ?ID) (1 +INF))
+              ]
+
+          ]
+
+      )
+
+      (
+        name:(mend_fuse ?f)
+        signature:[?f:Fuse]
+        id:?ID
+        interval:(mend_fuse ?ID)
+        preconditions:[((P16 ?ID) handfree:true) ((P17 ?ID) light:true)]
+        effects:
+          [
+            ((E18 ?ID) handfree:false)
+            ((E19 ?ID) (fuse_mended ?f):true)
+            ((E20 ?ID) handfree:true)
+          ]
+
+        constraints:
+          [
+            temporal:
+              [
+                (duration (mend_fuse ?ID) (1 +INF))
+                (duration (P16 ?ID) (1 +INF))
+                (overlaps (P16 ?ID) (mend_fuse ?ID) (0 +INF))
+                (duration (P17 ?ID) (1 +INF))
+                (contains (P17 ?ID) (mend_fuse ?ID) (1 +INF) (1 +INF))
+                (started-by (E18 ?ID) (mend_fuse ?ID) (0 0))
+                (duration (E18 ?ID) (1 +INF))
+                (before (mend_fuse ?ID) (E19 ?ID) (0 0))
+                (duration (E19 ?ID) (1 +INF))
+                (before (mend_fuse ?ID) (E20 ?ID) (0 0))
+                (duration (E20 ?ID) (1 +INF))
+              ]
+
+          ]
+
+      )
+
+    }
+}
+)
