@@ -21,7 +21,7 @@ class OperatorCdb2Svp extends Function {
       val pre = SetTerm(preIn.asCol.map( p => p(1) ).toSet)
       val eff = SetTerm(effIn.asCol.map( e => e(1) ).toSet)
 
-      val oOut = Tuple(
+      val oOut = ListTerm(
         KeyVal(Name, name),
         KeyVal(Signature, signature),
         KeyVal(Preconditions, pre),

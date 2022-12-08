@@ -1,10 +1,10 @@
 package org.spiderplan.solver
 
-import org.aiddl.common.scala.planning.state_variable.heuristic.CausalGraphHeuristic
+import org.aiddl.common.scala.planning.state_variable.heuristic.{CausalGraphHeuristic, FastForwardHeuristic}
 import org.aiddl.core.scala.function
 import org.aiddl.core.scala.representation.*
 import org.spiderplan.solver.Solver.{FlawResolver, Propagator}
-import org.spiderplan.solver.causal.{ForwardOpenGoalResolver, OperatorGrounderFull}
+import org.spiderplan.solver.causal.{ForwardOpenGoalResolver, OperatorGrounder}
 import org.spiderplan.solver.causal.heuristic.{ForwardHeuristicWrapper, HAddReuse}
 import org.spiderplan.solver.causal.psp.{OpenGoalResolver, OpenGoalResolverSingleFlaw}
 import org.spiderplan.solver.conditional.ConditionalConstraintResolver
@@ -36,11 +36,11 @@ object SpiderPlanFactory {
     }
 
     val spider = new SpiderPlanGraphSearch {
-      //this.includePathLength = true
+      this.includePathLength = true
       override val preprocessors: Vector[function.Function] = Vector(
         new TemporalConstraintSolver,
         new CspPreprocessor { logSetName("CSP Preprocessor") },
-        new OperatorGrounderFull
+        new OperatorGrounder
       )
 
       override val propagators: Vector[Propagator] = Vector(
@@ -56,7 +56,7 @@ object SpiderPlanFactory {
 
       override val heuristics: Vector[Heuristic] = Vector(
         //new HAddReuse //{ setVerbose(verbosityLevel) }
-        new ForwardHeuristicWrapper(new CausalGraphHeuristic)
+        new ForwardHeuristicWrapper(new FastForwardHeuristic)
       )
     }
     spider.logSetName("SpiderPlan")
@@ -85,8 +85,9 @@ object SpiderPlanFactory {
     }
 
     val spider = new SpiderPlanTreeSearch {
+
       override val preprocessors: Vector[function.Function] = Vector(
-        new OperatorGrounderFull
+        new OperatorGrounder
       )
       override val propagators: Vector[Propagator] = Vector(
         new DomainConstraintSolver,
