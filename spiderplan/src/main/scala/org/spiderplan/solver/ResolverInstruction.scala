@@ -1,6 +1,7 @@
 package org.spiderplan.solver
 
-import org.aiddl.core.scala.representation._
+import org.aiddl.common.scala.search.Reasoned
+import org.aiddl.core.scala.representation.*
 import org.spiderplan.solver.SpiderPlan.Instruction
 
 object ResolverInstruction {
@@ -26,16 +27,11 @@ enum ResolverInstruction {
 
 object Resolver {
   def apply( instructions: Seq[ResolverInstruction] ): Resolver = new Resolver(instructions, resolverReason = None)
-  def apply( instructions: Seq[ResolverInstruction], reason: => Option[String]  ): Resolver = new Resolver(instructions, reason)
+  def apply( instructions: Seq[ResolverInstruction], reason: => Option[() => String]  ): Resolver = new Resolver(instructions, reason)
 }
 
-class Resolver(val instructions: Seq[ResolverInstruction], resolverReason: => Option[String] ) extends Seq[ResolverInstruction] {
-  lazy val reason: Option[String] = resolverReason
-
-  def reasonStr: String = reason match {
-    case Some(s) => s
-    case None => "None"
-  }
+class Resolver(val instructions: Seq[ResolverInstruction], resolverReason: Option[() => String] ) extends Seq[ResolverInstruction] with Reasoned {
+  override lazy val reason = resolverReason
 
   def apply(cdb: CollectionTerm): CollectionTerm = {
     import ResolverInstruction._

@@ -48,7 +48,7 @@ class OpenGoalResolver extends FlawResolver with Verbose {
               AddAll(ClosedGoal, SetTerm(goal(0))),
               Replace(GoalOrderingKey, ListTerm(goalOrder.tail)),
               Substitute(sub.asTerm)
-            ), Some(s"${statement} achieves ${goal}"))
+            ), Some(() => s"${statement} achieves ${goal}"))
           }
           case _ => Resolver(Nil)
         }
@@ -86,7 +86,7 @@ class OpenGoalResolver extends FlawResolver with Verbose {
                 AddAll(Temporal, SetTerm(Tuple(Equals, eff(0)\subLocal, goal(0)))),
                 Substitute(sub.asTerm),
                 Replace(GoalOrderingKey, ListTerm(goalOrder.tail))
-              ), Some(s"${oSub(Name)} achieves ${goal}"))
+              ), Some(() => s"${oSub(Name)} achieves ${goal}"))
               logger.info(s"Operator resolver: ${oSub(Name)}")
               r
             }

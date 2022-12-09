@@ -35,8 +35,9 @@ object SpiderPlanFactory {
       )
     }
 
-    val spider = new SpiderPlanGraphSearch {
-      this.includePathLength = true
+    val spider = new SpiderPlanGraphSearch(Vector((new ForwardHeuristicWrapper(new FastForwardHeuristic), Num(1)))) {
+      self : SpiderPlanGraphSearch =>
+
       override val preprocessors: Vector[function.Function] = Vector(
         new TemporalConstraintSolver,
         new CspPreprocessor { logSetName("CSP Preprocessor") },
@@ -50,13 +51,11 @@ object SpiderPlanFactory {
 
       override val solvers: Vector[FlawResolver] = Vector(
         new CspResolver { logSetName("CSP") },
-        new ForwardOpenGoalResolver(heuristic=None) {logSetName("GoalResolver") },
+        new ForwardOpenGoalResolver(heuristic=None) {
+          logSetName("GoalResolver")
+          setSeenList(self.seenList)
+        },
         new ConditionalConstraintResolver(subSolver) { logSetName("Conditional") }
-      )
-
-      override val heuristics: Vector[Heuristic] = Vector(
-        //new HAddReuse //{ setVerbose(verbosityLevel) }
-        new ForwardHeuristicWrapper(new FastForwardHeuristic)
       )
     }
     spider.logSetName("SpiderPlan")

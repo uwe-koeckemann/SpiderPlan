@@ -46,7 +46,7 @@ class TemporalConstraintSolver extends Propagator with Function {
           }
         })
         if ( miscCon )
-          Propagator.Result.ConsistentWith(Resolver(List(PutAll(PropagatedValue, propVals.asCol)), Some("Temporal propagation")))
+          Propagator.Result.ConsistentWith(Resolver(List(PutAll(PropagatedValue, propVals.asCol)), Some(() => "Temporal propagation")))
         else {
           Propagator.Result.Inconsistent
         }

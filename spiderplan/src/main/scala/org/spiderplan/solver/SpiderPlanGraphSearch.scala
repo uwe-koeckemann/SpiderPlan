@@ -15,13 +15,13 @@ import org.aiddl.core.scala.representation.conversion.given_Conversion_Term_Num
 
 import scala.language.implicitConversions
 
-trait SpiderPlanGraphSearch extends GenericGraphSearch[Resolver, CollectionTerm] with SpiderPlan {
+trait SpiderPlanGraphSearch(heuristics: Vector[(Heuristic, Num)]) extends GenericGraphSearch[Resolver, CollectionTerm] with SpiderPlan {
   val preprocessors: Vector[Function]
   val solvers: Vector[FlawResolver]
   val propagators: Vector[Propagator]
-  val heuristics: Vector[Heuristic]
+  //val heuristics: Vector[(Heuristic, Num)]
 
-  logger.name = this.getClass.getSimpleName
+  this.heuristics.foreach((_, o) => super.addHeuristic(o))
 
   override def logGetVerboseSubComponents: List[Verbose] = {
     (preprocessors.withFilter(_.isInstanceOf[Verbose]).map(_.asInstanceOf[Verbose])
@@ -39,17 +39,6 @@ trait SpiderPlanGraphSearch extends GenericGraphSearch[Resolver, CollectionTerm]
     }).asCol
     this.init(List(preCdb))
     search.flatMap( rs => Some(SpiderPlan.applyResolverSeq(preCdb, rs)))
-
-  override def h(cdb: CollectionTerm): Num =
-    if ( heuristics.isEmpty ) Num(0)
-    else {
-      heuristics.map(h => {
-        StopWatch.start(s"[Heuristic] ${this.nameOf(h)}")
-        val value = h(cdb)
-        StopWatch.stop(s"[Heuristic] ${this.nameOf(h)}")
-        value
-      }).reduce(_ + _)
-    }
 
   override def propagate(n: CollectionTerm): Option[(CollectionTerm, Option[Resolver])] = {
     assert(currentNode == n)
@@ -73,18 +62,17 @@ trait SpiderPlanGraphSearch extends GenericGraphSearch[Resolver, CollectionTerm]
     }
   }
 
-  override def f(n: CollectionTerm): Num = {
-    val r = super.f(n)
-    r
-  }
-
   var currentNode: CollectionTerm = _
   var propagationEdge: Option[(Resolver, CollectionTerm)] = None
   var flawResolvers: Option[Seq[Resolver]] = None
+  logger.name = this.getClass.getSimpleName
+
 
   private def nameOf( p: Any ): String = {
     if (p.isInstanceOf[Verbose]) p.asInstanceOf[Verbose].logName else p.getClass.getSimpleName
   }
+
+  override def h(i: Int, n: CollectionTerm): Num = this.heuristics(i)._1(n)
 
   override def isGoal(n: CollectionTerm): Boolean = {
     // isGoal is called before expand and propagate and requires their results
@@ -95,7 +83,7 @@ trait SpiderPlanGraphSearch extends GenericGraphSearch[Resolver, CollectionTerm]
     propagationEdge = None
     flawResolvers = None
 
-    var propChanges: Resolver = Resolver(Nil, Some(""))
+    var propChanges: Resolver = Resolver(Nil, Some(() => ""))
     var cdb = n
     var propList: List[Propagator.Result] = Nil
 
@@ -112,7 +100,7 @@ trait SpiderPlanGraphSearch extends GenericGraphSearch[Resolver, CollectionTerm]
         }
         case Propagator.Result.ConsistentWith(changes) =>
           cdb = SpiderPlan.applyResolver(cdb, changes)
-          propChanges = Resolver(propChanges ++ changes, Some("Propagation"))
+          propChanges = Resolver(propChanges ++ changes, Some(() => "Propagation"))
           true
       }
     })
@@ -155,103 +143,5 @@ trait SpiderPlanGraphSearch extends GenericGraphSearch[Resolver, CollectionTerm]
     } else {
       false
     }
-  }
-
-  def graph: Term = {
-    var id: Long = 0L
-    var nodeIds: Map[Term, Term] = Map.empty
-    var nodes: Set[Term] = Set.empty
-    var edges: Set[Term] = Set.empty
-    var nodeContent: Map[Term, Term] = Map.empty
-    var nodeAttributes: Map[Term, Set[Term]] = Map.empty.withDefaultValue(Set.empty)
-    var edgeAttributes: Map[Term, Set[Term]] = Map.empty.withDefaultValue(Set.empty)
-
-    var edgeLabels: Set[Term] = Set.empty
-
-    var done: Set[Term] = Set.empty
-
-    def processNode( node: CollectionTerm, shape: Sym, style: Sym ): Term = {
-
-      if (!done(node)) {
-        done = done + node
-        val nodeId = nodeIds.getOrElse(node, {
-          id += 1
-          Sym(s"n$id")
-          Str(s"${this.tDiscovery(node)}/${this.tClosed.getOrElse(node,"-")}")
-        })
-
-        nodes = nodes + nodeId
-        nodeContent = nodeContent.updated(nodeId, node)
-        nodeIds = nodeIds.updated(node, nodeId)
-
-        if (this.predecessor.contains(node)) {
-          val preNode = this.predecessor(node)
-          val preNodeId = nodeIds.getOrElse(preNode, {
-            id += 1
-            Sym(s"n$id")
-            Str(s"${this.tDiscovery(preNode)}/${this.tClosed.getOrElse(preNode,"-")}")
-          })
-          nodeIds = nodeIds.updated(preNode, preNodeId)
-          val edge = Tuple(preNodeId, nodeId)
-          edges += edge
-
-          val reason = this.edges(node).reasonStr
-          if ( !reason.isEmpty ) {
-            edgeLabels = edgeLabels + KeyVal(edge, Str(reason))
-          }
-        }
-        val currentAtts = nodeAttributes(nodeId)
-        nodeAttributes = nodeAttributes.updated(nodeId, currentAtts ++ Set(KeyVal(Sym("shape"), shape), KeyVal(Sym("style"), style)))
-        nodeId
-      } else {
-        nodeIds(node)
-      }
-
-    }
-
-
-    for ( node <- this.prunedList ) {
-      val id = processNode(node, Sym("box"), Sym("filled"))
-      val reasonNodeId = Tuple(Sym("reason"), id)
-      val edge = Tuple(id, reasonNodeId)
-      nodes = nodes + reasonNodeId
-      edges = edges + edge
-      nodeAttributes = nodeAttributes.updated(reasonNodeId, Set(
-        KeyVal(Sym("shape"), Sym("note")),
-        KeyVal(Sym("label"), Str(this.prunedReason(node)))
-      ))
-
-    }
-    for ( node <- this.closedList ) {
-      processNode(node, Sym("circle"), Sym("solid"))
-    }
-    for ((_, node) <- this.openList) {
-      processNode(node, Sym("circle"), Sym("dotted"))
-    }
-    for ( node <- this.goalList) {
-      processNode(node, Sym("circle"), Sym("filled"))
-      var curNode = node
-      var preNode = this.predecessor.get(node)
-      while { preNode != None } do {
-        val edge = Tuple(nodeIds(preNode.get), nodeIds(curNode))
-
-        val currentAtts = edgeAttributes(edge)
-        edgeAttributes = edgeAttributes.updated(edge, currentAtts ++ Set(KeyVal(Sym("style"), Sym("dashed"))))
-
-        curNode = preNode.get
-        preNode = predecessor.get(curNode)
-      }
-    }
-    val nodeAttsTerm = SetTerm(nodeAttributes.map( (k, v) => KeyVal(k, SetTerm(v)) ).toSet)
-    val edgeAttsTerm = SetTerm(edgeAttributes.map( (k, v) => KeyVal(k, SetTerm(v)) ).toSet)
-
-
-    ListTerm(
-      KeyVal(Sym("V"), SetTerm(nodes)),
-      KeyVal(Sym("E"), SetTerm(edges)),
-      KeyVal(Sym("node-attributes"), nodeAttsTerm),
-      KeyVal(Sym("edge-attributes"), edgeAttsTerm),
-      KeyVal(Sym("labels"), SetTerm(edgeLabels))
-    )
   }
 }

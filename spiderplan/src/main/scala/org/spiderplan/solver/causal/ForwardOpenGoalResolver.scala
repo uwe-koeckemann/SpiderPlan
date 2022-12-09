@@ -13,10 +13,9 @@ import org.spiderplan.solver.Solver.FlawResolver
 import org.spiderplan.solver.Solver.FlawResolver.Result
 import org.spiderplan.solver.SpiderPlan.Type.*
 import org.spiderplan.solver.causal.state_space.{GoalCdb2Svp, OperatorCdb2Svp, StateCdb2Svp}
-import org.spiderplan.solver.{Resolver, ResolverInstruction}
+import org.spiderplan.solver.{Resolver, ResolverInstruction, SpiderPlan}
 
 import scala.collection.{immutable, mutable}
-
 import org.aiddl.core.scala.representation.conversion.given_Conversion_Term_KeyVal
 
 import scala.language.implicitConversions
@@ -28,6 +27,10 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
   val expansion = new Expansion
 
   var nextId = 0L
+
+  var seenList: Option[mutable.HashSet[CollectionTerm]] = None
+
+  def setSeenList( seen: mutable.HashSet[CollectionTerm] ) = Some(this.seenList)
 
   override def resolve(cdb: CollectionTerm): FlawResolver.Result = {
     val goal = extractGoal(cdb).asCol
@@ -52,7 +55,7 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
         FlawResolver.Result.Search(List(Resolver(List(
           AddAll(Temporal, SetTerm(constraints)),
           AddAll(ClosedGoal, SetTerm(closedGoals)),
-        ), Some("Linking goals"))))
+        ), Some(() => "Linking goals"))))
         //    Else:
         //    -> expand state and create resolvers that link preconditions of chosen operators to most recent statement
       } else {
@@ -75,7 +78,7 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
           case None => edges
         }
 
-        val resolvers: Seq[Resolver] = edges.map( (action, _) => {
+        var resolvers: Seq[Resolver] = edges.map( (action, _) => {
           val actionName = action
           var spiderOp = extractOperators.getSpiderPlanOperator(actionName)
 
@@ -109,7 +112,7 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
             AddAll(Statement, spiderOp(Effects).asCol),
             AddAll(Statement, spiderOp(Preconditions).asCol),
             AddAll(Temporal, SetTerm(oConsPre)),
-          ), Some(s"${action}"))
+          ), Some(() => s"${action}"))
           r
         })
 
@@ -118,6 +121,15 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
           FlawResolver.Result.Inconsistent
         }
         else {
+          if seenList.isDefined then {
+            resolvers = resolvers.filter( r => {
+              val nextState = SpiderPlan.applyResolver(cdb, r)
+              val s_next = extractState(nextState)
+              !seenList.get.exists( n => extractState(n) == s_next )
+            })
+          }
+
+
           this.logger.info("Adding resolvers.")
           FlawResolver.Result.Search(resolvers)
         }
