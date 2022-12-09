@@ -78,7 +78,7 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
           case None => edges
         }
 
-        var resolvers: Seq[Resolver] = edges.map( (action, _) => {
+        var resolvers: Seq[Resolver] = edges.map( (action, s_next) => {
           val actionName = action
           var spiderOp = extractOperators.getSpiderPlanOperator(actionName)
 
@@ -112,6 +112,7 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
             AddAll(Statement, spiderOp(Effects).asCol),
             AddAll(Statement, spiderOp(Preconditions).asCol),
             AddAll(Temporal, SetTerm(oConsPre)),
+            Replace(CurrentState, s_next.asCol),
           ), Some(() => s"${action}"))
           r
         })
@@ -124,7 +125,7 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
           if seenList.isDefined then {
             resolvers = resolvers.filter( r => {
               val nextState = SpiderPlan.applyResolver(cdb, r)
-              val s_next = extractState(nextState)
+              val s_next = nextState(CurrentState)
               !seenList.get.exists( n => extractState(n) == s_next )
             })
           }

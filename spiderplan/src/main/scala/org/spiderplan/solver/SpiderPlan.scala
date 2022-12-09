@@ -18,6 +18,7 @@ object SpiderPlan {
     val PropagatedValue = Sym("propagated-value")
     val OpenGoal = Sym("goal")
     val ClosedGoal = Sym("goal.sat")
+    val CurrentState = Sym("goal.state.latest")
     val Operator = Sym("operator")
     val ResourceReusableUsage = Sym("resource.reusable.usage")
     val ResourceReusableCapacity = Sym("resource.reusable.capacity")

@@ -11,8 +11,8 @@ import org.spiderplan.solver.SpiderPlan.Type.*
 import org.spiderplan.solver.causal.state_space.{GoalCdb2Svp, OperatorCdb2Svp, StateCdb2Svp}
 import org.spiderplan.solver.temporal.TemporalConstraintSolver
 import org.spiderplan.solver.{Heuristic, Resolver, SpiderPlan, SpiderPlanTreeSearch}
-
 import org.aiddl.core.scala.representation.conversion.given_Conversion_Term_Num
+import org.aiddl.core.scala.util.StopWatch
 
 import scala.language.implicitConversions
 
@@ -25,17 +25,17 @@ class ForwardHeuristicWrapper[F <: Function with Initializable](svpHeuristic: F)
   var lastSeenGoal: Term = NIL
   var lastSeenOperators: Term = NIL
 
-  def apply( x: CollectionTerm ): Num = {
-    val cdb = propagateTime(x)
+  def apply( cdb: CollectionTerm ): Num = {
     val goal = extractGoal(cdb).asCol
-    if ( goal.isEmpty || !goal.isGround ) {
+    if ( goal.isEmpty || !goal.isGround || !cdb.containsKey(CurrentState) ) {
       Num(0)
     } else {
       val ops = extractOperators(cdb).asCol
-      val state = extractState(cdb).asCol
+      val state = cdb(CurrentState)
 
       val needReInit = {
-        lastSeenGoal != goal || lastSeenOperators != ops
+        val r = lastSeenGoal != goal || lastSeenOperators != ops
+        r
       }
       if (needReInit) {
         lastSeenGoal = goal
@@ -48,7 +48,6 @@ class ForwardHeuristicWrapper[F <: Function with Initializable](svpHeuristic: F)
         )
         svpHeuristic.init(problem)
       }
-
       svpHeuristic.apply(state).asNum
     }
   }

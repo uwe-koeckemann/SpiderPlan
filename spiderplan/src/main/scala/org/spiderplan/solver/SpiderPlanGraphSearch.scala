@@ -3,7 +3,7 @@ package org.spiderplan.solver
 import org.aiddl.common.scala.Common.NIL
 import org.aiddl.common.scala.search.GenericGraphSearch
 import org.aiddl.core.scala.representation.CollectionTerm
-import org.aiddl.core.java.tools.StopWatch
+import org.aiddl.core.scala.util.StopWatch
 import org.aiddl.core.scala.function.{Function, Verbose}
 import org.aiddl.core.scala.representation.*
 import org.aiddl.core.scala.util.logger.Logger
@@ -30,7 +30,7 @@ trait SpiderPlanGraphSearch(heuristics: Vector[(Heuristic, Num)]) extends Generi
       ++ heuristics.withFilter(_.isInstanceOf[Verbose]).map(_.asInstanceOf[Verbose])).toList
   }
 
-  override def solve( cdb: CollectionTerm): Option[CollectionTerm] =
+  override def solve( cdb: CollectionTerm) : Option[CollectionTerm] =
     val preCdb = preprocessors.foldLeft(cdb: Term)( (c, f) => {
       StopWatch.start(s"[Preprocessor] ${this.nameOf(f)}")
       val r = f(c)
@@ -72,7 +72,12 @@ trait SpiderPlanGraphSearch(heuristics: Vector[(Heuristic, Num)]) extends Generi
     if (p.isInstanceOf[Verbose]) p.asInstanceOf[Verbose].logName else p.getClass.getSimpleName
   }
 
-  override def h(i: Int, n: CollectionTerm): Num = this.heuristics(i)._1(n)
+  override def h(i: Int, n: CollectionTerm): Num = {
+    StopWatch.start(s"[Heuristic] h_${i}")
+    val h_val = this.heuristics(i)._1(n)
+    StopWatch.stop(s"[Heuristic] h_${i}")
+    h_val
+  }
 
   override def isGoal(n: CollectionTerm): Boolean = {
     // isGoal is called before expand and propagate and requires their results
