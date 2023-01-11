@@ -5,6 +5,7 @@ import org.aiddl.common.scala.Common.NIL
 import org.aiddl.common.scala.reasoning.resource.{FlexibilityOrdering, LinearMcsSampler}
 import org.aiddl.common.scala.reasoning.temporal.Timepoint.{ET, ST}
 import org.aiddl.common.scala.reasoning.temporal.{AllenInterval2Stp, StpSolver}
+import org.aiddl.core.scala.util.StopWatch
 import org.aiddl.core.scala.function.{Function, Verbose}
 import org.aiddl.core.scala.representation.*
 import org.spiderplan.solver.ResolverInstruction.*
@@ -31,7 +32,10 @@ class TemporalConstraintSolver extends Propagator with Function {
   override def propagate(cdb: CollectionTerm): Propagator.Result =
     val acs = cdb.getOrElse(Temporal, SetTerm.empty)
     val misc = cdb.getOrElse(Sym("temporal.misc"), SetTerm.empty).asCol
-    val r = stpSolver(ac2stp(acs))
+
+    val stp = ac2stp(acs)
+    val r = stpSolver(stp)
+
     r match {
       case NIL => Propagator.Result.Inconsistent
       case propVals => {

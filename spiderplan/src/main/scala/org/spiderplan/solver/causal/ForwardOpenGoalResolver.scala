@@ -2,7 +2,7 @@ package org.spiderplan.solver.causal
 
 import org.aiddl.common.scala.Common.NIL
 import org.aiddl.common.scala.planning.PlanningTerm.*
-import org.aiddl.common.scala.planning.state_variable.Expansion
+import org.aiddl.common.scala.planning.state_variable.{Expansion, NoEffectVariableFilter}
 import org.aiddl.common.scala.reasoning.resource.{FlexibilityOrdering, LinearMcsSampler}
 import org.aiddl.common.scala.reasoning.temporal.AllenConstraint.Equals
 import org.aiddl.core.scala.function.{Function, Initializable, Verbose}
@@ -27,10 +27,10 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
   val expansion = new Expansion
 
   var nextId = 0L
-
   var seenList: Option[mutable.HashSet[CollectionTerm]] = None
+  def setSeenList( seen: mutable.HashSet[CollectionTerm] ) = this.seenList = Some(seen)
 
-  def setSeenList( seen: mutable.HashSet[CollectionTerm] ) = Some(this.seenList)
+  //var ops: CollectionTerm = SetTerm.empty
 
   override def resolve(cdb: CollectionTerm): FlawResolver.Result = {
     val goal = extractGoal(cdb).asCol
@@ -39,7 +39,16 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
       Result.Consistent
     } else {
       this.logger.info(s"Trying to reach: ${goal.mkString(", ")}")
-      val state = extractState(cdb).asCol
+
+      val ops = extractOperators(cdb).asCol
+
+      val state = {
+        if cdb.containsKey(CurrentState) then cdb(CurrentState).asCol
+        else {
+          val s = extractState(cdb).asCol
+          SetTerm(s.asCol.filter( sva => goal.contains(sva) || ops.exists(o => o(Preconditions).asCol.contains(sva) ) ).toSet)
+        }
+      }
       if ( state.containsAll(goal) ) {
         // If goal reached:
         //    -> link to effects and mark goals as satisfied
@@ -61,7 +70,7 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
       } else {
         //    Else:
         //    -> expand state and create resolvers that link preconditions of chosen operators to most recent statement
-        val ops = extractOperators(cdb).asCol
+        //val ops = extractOperators(cdb).asCol
         expansion.init(ops)
         var edges = expansion.expand(state)
 
@@ -126,7 +135,7 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
             resolvers = resolvers.filter( r => {
               val nextState = SpiderPlan.applyResolver(cdb, r)
               val s_next = nextState(CurrentState)
-              !seenList.get.exists( n => extractState(n) == s_next )
+              !seenList.get.exists( n => n.containsKey(CurrentState) && n(CurrentState) == s_next )
             })
           }
 

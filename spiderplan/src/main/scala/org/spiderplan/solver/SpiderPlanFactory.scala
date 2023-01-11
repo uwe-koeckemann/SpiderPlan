@@ -35,7 +35,8 @@ object SpiderPlanFactory {
       )
     }
 
-    val spider = new SpiderPlanGraphSearch(Vector((new ForwardHeuristicWrapper(new FastForwardHeuristic), Num(1)))) {
+    val spider = new SpiderPlanGraphSearch(Vector((
+      new ForwardHeuristicWrapper(new FastForwardHeuristic) { useReInit = true } , Num(0.5) ))) {
       self : SpiderPlanGraphSearch =>
 
       override val preprocessors: Vector[function.Function] = Vector(

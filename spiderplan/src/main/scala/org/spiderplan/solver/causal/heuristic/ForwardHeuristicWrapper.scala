@@ -3,7 +3,8 @@ package org.spiderplan.solver.causal.heuristic
 import org.aiddl.common.scala.Common
 import org.aiddl.common.scala.Common.NIL
 import org.aiddl.common.scala.planning.PlanningTerm.*
-import org.aiddl.common.scala.planning.state_variable.heuristic.CausalGraphHeuristic
+import org.aiddl.common.scala.planning.state_variable.{ForwardSearchPlanIterator, NoEffectVariableFilter}
+import org.aiddl.common.scala.planning.state_variable.heuristic.{CausalGraphHeuristic, FastForwardHeuristic}
 import org.aiddl.core.scala.function.{Function, Initializable}
 import org.aiddl.core.scala.representation.*
 import org.spiderplan.solver.ResolverInstruction.AddAll
@@ -17,38 +18,60 @@ import org.aiddl.core.scala.util.StopWatch
 import scala.language.implicitConversions
 
 class ForwardHeuristicWrapper[F <: Function with Initializable](svpHeuristic: F) extends Heuristic {
-  val propagateTime = new TemporalConstraintSolver
-  val extractState = new StateCdb2Svp
   val extractGoal = new GoalCdb2Svp
   val extractOperators = new OperatorCdb2Svp
 
   var lastSeenGoal: Term = NIL
   var lastSeenOperators: Term = NIL
 
+  private var first = true
+  var useReInit = false
+
   def apply( cdb: CollectionTerm ): Num = {
     val goal = extractGoal(cdb).asCol
     if ( goal.isEmpty || !goal.isGround || !cdb.containsKey(CurrentState) ) {
       Num(0)
     } else {
-      val ops = extractOperators(cdb).asCol
-      val state = cdb(CurrentState)
-
-      val needReInit = {
-        val r = lastSeenGoal != goal || lastSeenOperators != ops
-        r
+      val ops = {
+        if (useReInit) {
+          extractOperators(cdb).asCol
+        } else if (first) {
+          extractOperators(cdb).asCol
+        } else {
+          lastSeenOperators
+        }
       }
-      if (needReInit) {
+
+      var state = cdb(CurrentState)
+      val needReInit = useReInit && (lastSeenGoal != goal || lastSeenOperators != ops)
+
+      if (first || needReInit) {
+        first = false
+
         lastSeenGoal = goal
         lastSeenOperators = ops
+        //val filter = new NoEffectVariableFilter
 
         val problem = SetTerm(
           KeyVal(InitialState, state),
           KeyVal(Goal, goal),
           KeyVal(Operators, ops),
-        )
+        ).asCol
+
+        //val opsFiltered = problem(Operators).asCol
+        state = problem(InitialState)
+
+        lastSeenOperators = ops
+
         svpHeuristic.init(problem)
       }
-      svpHeuristic.apply(state).asNum
+
+      //println(s"|s| ${state.length} |O| ${ops.length} |g| ${goal.length} ${state.asSet.length}")
+
+      StopWatch.start("HC")
+      val h = svpHeuristic.apply(state).asNum
+      StopWatch.stop("HC")
+      h
     }
   }
 }
