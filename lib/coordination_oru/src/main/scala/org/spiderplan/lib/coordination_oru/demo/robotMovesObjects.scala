@@ -45,7 +45,9 @@ import java.nio.file.{Files, Paths}
   /**
    * Create planner
    */
-  val spiderPlan: SpiderPlanGraphSearch = new SpiderPlanGraphSearch {
+  val spiderPlan: SpiderPlanGraphSearch = new SpiderPlanGraphSearch(
+    Vector((new ForwardHeuristicWrapper(new CausalGraphHeuristic), Num(1)))
+  ) {
     override val preprocessors: Vector[function.Function] = Vector(
       new OperatorGrounderFull
     )
@@ -57,9 +59,6 @@ import java.nio.file.{Files, Paths}
     override val solvers: Vector[FlawResolver] = Vector(
       new ReusableResourceResolver,
       new ForwardOpenGoalResolver(heuristic=None),
-    )
-    override val heuristics: Vector[Heuristic] = Vector(
-      new ForwardHeuristicWrapper(new CausalGraphHeuristic)
     )
   }
 

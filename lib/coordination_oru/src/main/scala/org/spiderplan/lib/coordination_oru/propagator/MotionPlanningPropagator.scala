@@ -58,6 +58,6 @@ class MotionPlanningPropagator extends Propagator with Verbose {
 
     if !consistent then Propagator.Result.Inconsistent
     else if pathSub.isEmpty then Propagator.Result.Consistent
-    else Propagator.Result.ConsistentWith(Resolver(List(Substitute(pathSub.asTerm)), Some("Adding Path")))
+    else Propagator.Result.ConsistentWith(Resolver(List(Substitute(pathSub.asTerm)), Some(() => {"Adding Path"})))
   }
 }
