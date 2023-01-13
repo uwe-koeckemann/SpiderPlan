@@ -9,6 +9,9 @@ import org.aiddl.external.scala.prolog.QuerySolver
 import org.spiderplan.solver.Solver.Propagator
 import org.spiderplan.solver.ResolverInstruction.Substitute
 
+/**
+ * Propagate Prolog constraints
+ */
 class PrologPropagator extends Propagator with Verbose {
   val solver = new QuerySolver
 
@@ -32,7 +35,13 @@ class PrologPropagator extends Propagator with Verbose {
       val kb = if ( kb_term.isInstanceOf[Sym] ) kbs(kb_term.asSym) else kb_term.asCol
       val answer = solver(Tuple(q, kb))
 
-      answer != Common.NIL
+      answer match {
+        case Common.NIL => false
+        case o => {
+
+          true
+        }
+      }
     })
 
     logger.info(s"$cs")
