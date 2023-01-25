@@ -1,5 +1,4 @@
 import org.aiddl.common.scala.Common.NIL
-import org.aiddl.core.java.tools.StopWatch
 import org.aiddl.core.scala.container.{Container, Entry}
 import org.aiddl.core.scala.parser.Parser
 import org.aiddl.core.scala.representation.*
