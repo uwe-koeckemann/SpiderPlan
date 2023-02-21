@@ -16,10 +16,13 @@ import org.spiderplan.solver.ResolverInstruction.Substitute
 class MotionPlanningPropagator extends Propagator with Verbose {
   val parser = new Parser(new Container())
 
+
+
   val planner = MotionPlannerFactory.fromAiddl(parser.str("[\n" +
-    "type:ReedsSheppCarPlanner\n" +
-    "algorithm:RRTConnect\n" +
-    "radius:0.2\n" +
+    "model:ReedsSheppCar\n" +
+    "algorithm:RRTstar\n" +  // RRTConnect, RRTstar, TRRT, SST, LBTRRT, PRMstar, SPARS, pRRT, LazyRRT
+    "footprint:[(-1.0 0.5) (1.0 0.5) (1.0 -0.5) (-1.0 -0.5)]\n" +
+    "radius:1.0\n" +
     "turning-radius:4.0\n" +
     "distance-between-path-points:0.5\n" +
     "]"))
@@ -31,13 +34,14 @@ class MotionPlanningPropagator extends Propagator with Verbose {
 
     val pathSub = new Substitution()
 
-    val (frames, maps, poses) = MotionPlanner.extract(cs)
+    val (frames, maps, poses, robots, plannerCfg) = MotionPlanner.extract(cs)
 
     val consistent = cs.forall(c => c match {
       case Tuple(Sym("path"), id, r, l1, l2, map, pathVar: Var) if (!l1.isInstanceOf[Var] && !l2.isInstanceOf[Var]) =>
+        val plannerConfig = plannerCfg(map)
+        val planner = MotionPlannerFactory.fromPlannerAndRobotCfg(plannerConfig, robots(map)(r))
         logger.info(s"Planning for: $c")
         planner.setMap(maps(map))
-        planner.setFootprint(frames(r)*)
         planner.setStart(term2pose(poses(map)(l1)))
         planner.setGoals(term2pose(poses(map)(l2)))
         if !planner.plan() then false
@@ -51,7 +55,7 @@ class MotionPlanningPropagator extends Propagator with Verbose {
       case Tuple(Sym("frame"), _, _: ListTerm) => true
       case Tuple(Sym("poses"), _, _: CollectionTerm) => true
       case Tuple(Sym("coordinate"), _, _) => true
-      case _ => throw new IllegalArgumentException(s"Unknown motion expression: $c")
+      case _ => true //throw new IllegalArgumentException(s"Unknown motion expression: $c")
     })
 
     logger.info(s"Consistent? $consistent Paths: ${pathSub.toString()}")
