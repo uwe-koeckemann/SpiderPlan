@@ -53,7 +53,7 @@ class ReusableResourceResolver extends FlawResolver {
     else {
       val valueOrdering = new FlexibilityOrdering
       val resolvers = valueOrdering(Tuple(peaks, intervalDomains)).asList.map( r => {
-        Resolver(List(AddAll(Temporal, SetTerm(r))), Some(() => s"$r resolves reusable resource peak"))
+        Resolver(List(AddAll(Temporal, SetTerm(r))), Some(() => s"$r resolves resource peak"))
       })
 
       FlawResolver.Result.Search(resolvers)

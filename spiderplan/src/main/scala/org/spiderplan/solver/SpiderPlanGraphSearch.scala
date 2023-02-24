@@ -21,6 +21,8 @@ trait SpiderPlanGraphSearch(heuristics: Vector[(Heuristic, Num)]) extends Generi
   val propagators: Vector[Propagator]
   //val heuristics: Vector[(Heuristic, Num)]
 
+  var dumpGraphDuringSearch = false
+
   this.heuristics.foreach((_, o) => super.addHeuristic(o))
 
   override def logGetVerboseSubComponents: List[Verbose] = {
@@ -88,6 +90,10 @@ trait SpiderPlanGraphSearch(heuristics: Vector[(Heuristic, Num)]) extends Generi
     propagationEdge = None
     flawResolvers = None
 
+    if (dumpGraphDuringSearch) {
+      this.searchGraph2File("search.dot")
+    }
+
     var propChanges: Resolver = Resolver(Nil, Some(() => ""))
     var cdb = n
     var propList: List[Propagator.Result] = Nil
@@ -105,7 +111,16 @@ trait SpiderPlanGraphSearch(heuristics: Vector[(Heuristic, Num)]) extends Generi
         }
         case Propagator.Result.ConsistentWith(changes) =>
           cdb = SpiderPlan.applyResolver(cdb, changes)
-          propChanges = Resolver(propChanges ++ changes, Some(() => "Propagation"))
+          propChanges = Resolver(propChanges ++ changes, Some(() => {
+            val sb = new StringBuilder
+            sb.append("Propagation")
+            if (p.isInstanceOf[Explainable]) {
+              sb.append(":\n")
+              sb.append(p.asInstanceOf[Explainable].explain)
+            }
+
+            sb.toString()
+          }))
           true
       }
     })

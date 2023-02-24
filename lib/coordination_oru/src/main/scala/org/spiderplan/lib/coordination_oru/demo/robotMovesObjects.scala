@@ -5,13 +5,13 @@ import org.aiddl.common.scala.execution.Actor
 import org.aiddl.common.scala.execution.Actor.ActionInstanceId
 import org.aiddl.common.scala.execution.dispatch.PartialOrderDispatcher
 import org.aiddl.common.scala.math.graph.Graph2Dot
-import org.aiddl.common.scala.planning.state_variable.heuristic.CausalGraphHeuristic
+import org.aiddl.common.scala.planning.state_variable.heuristic.{CausalGraphHeuristic, FastForwardHeuristic}
 import org.aiddl.common.scala.reasoning.temporal.Timepoint.ST
 import org.aiddl.core.scala.container.{Container, Entry}
 import org.aiddl.core.scala.parser.Parser
 import org.aiddl.core.scala.representation.*
 import org.aiddl.core.scala.util.logger.Logger
-import org.spiderplan.solver.causal.OperatorGrounderFull
+import org.spiderplan.solver.causal.{ForwardOpenGoalResolver, OperatorGrounder, OperatorGrounderFull}
 import org.spiderplan.solver.causal.psp.OpenGoalResolverGraphSearch
 import org.spiderplan.solver.causal.heuristic.ForwardHeuristicWrapper
 import org.spiderplan.lib.coordination_oru.motion.MotionPlanner
@@ -23,9 +23,10 @@ import org.spiderplan.solver.SpiderPlan.Type.*
 import org.spiderplan.solver.{Heuristic, SpiderPlan, SpiderPlanFactory, SpiderPlanGraphSearch, SpiderPlanTreeSearch}
 import org.aiddl.core.scala.function
 import org.aiddl.common.scala.math.graph.GraphType
-import org.spiderplan.solver.causal.ForwardOpenGoalResolver
+import org.spiderplan.solver.csp.CspPreprocessor
 import org.spiderplan.solver.resource.ReusableResourceResolver
 
+import java.util.logging.Level
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 
@@ -45,10 +46,14 @@ import java.nio.file.{Files, Paths}
    * Create planner
    */
   val spiderPlan: SpiderPlanGraphSearch = new SpiderPlanGraphSearch(
-    Vector((new ForwardHeuristicWrapper(new CausalGraphHeuristic), Num(1)))
+    Vector((new ForwardHeuristicWrapper(new FastForwardHeuristic), Num(1)))
   ) {
     override val preprocessors: Vector[function.Function] = Vector(
-      new OperatorGrounderFull
+      new TemporalConstraintSolver,
+      new CspPreprocessor {
+        logSetName("CSP Preprocessor")
+      },
+      new OperatorGrounder
     )
     override val propagators: Vector[Propagator] = Vector(
       new DomainConstraintSolver,
@@ -60,6 +65,9 @@ import java.nio.file.{Files, Paths}
       new ForwardOpenGoalResolver(heuristic=None),
     )
   }
+
+  spiderPlan.logConfigRecursive(level=Level.INFO)
+  spiderPlan.dumpGraphDuringSearch = true
 
   /**
    * Solve problem and match against answer

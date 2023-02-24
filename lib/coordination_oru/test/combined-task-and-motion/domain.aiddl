@@ -89,7 +89,7 @@
         ])
       (planner map-1
         [
-          algorithm:LazyRRT ;; RRTstar ;; RRTstar
+          algorithm:LazyRRT ;; RRTConnect, RRTstar, TRRT, SST, LBTRRT, PRMstar, SPARS, pRRT, LazyRRT
           radius:0.1
           distance-between-path-points:0.5
         ]
@@ -133,8 +133,8 @@
             (duration (move ?ID) (1 +INF))
             (before (P1 ?ID) (E1 ?ID) (1 1))
             (before (E1 ?ID) (E2 ?ID) (1 1))
-            (overlaps (P1 ?ID) (move ?ID) (1 +INF))
-            (overlaps (move ?ID) (E2 ?ID) (1 +INF))
+            (meets (P1 ?ID) (move ?ID))
+            (meets (move ?ID) (E2 ?ID))
             (duration (E1 ?ID) (1 +INF))                          
             (duration (E2 ?ID) (1 +INF))                          
           }
@@ -155,10 +155,9 @@
           temporal:
           {
             (duration (pick ?ID) (10 10))
-            (meets (P2 ?ID) (E1 ?ID))
             (during (pick ?ID) (P1 ?ID) (1 +INF) (1 +INF))
-            (overlaps (P2 ?ID) (pick ?ID) (1 +INF))
-            (overlaps (pick ?ID) (E1 ?ID) (1 +INF))
+            (meets (P2 ?ID) (pick ?ID))
+            (meets (pick ?ID) (E1 ?ID))
             (duration (E1 ?ID) (1 +INF))
           }
           resource.reusable.usage : {
@@ -182,10 +181,9 @@
           temporal:
             {
               (duration (place ?ID) (10 10))
-              (meets (P2 ?ID) (E1 ?ID))
               (during (place ?ID) (P1 ?ID) (1 +INF) (1 +INF))
-              (overlaps (P2 ?ID) (place ?ID) (1 +INF))
-              (overlaps (place ?ID) (E1 ?ID) (1 +INF))
+              (meets (P2 ?ID) (place ?ID))
+              (meets (place ?ID) (E1 ?ID))
               (duration (E1 ?ID) (1 +INF))              
             }
           resource.reusable.usage : {

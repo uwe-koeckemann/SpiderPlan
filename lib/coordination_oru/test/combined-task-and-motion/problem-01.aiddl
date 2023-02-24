@@ -27,9 +27,9 @@
       (s0_2 (at r2):L_4)
     }
     resource.reusable.capacity:{
-        (storage ?r):{max:3}
-        (move r1):{max:1}
-        (move r2):{max:1}    
+        (storage _):{max:3}
+        (busy r1):{max:1}
+        (busy r2):{max:1}    
     }
     temporal:{
       (release s0_1 (0 0))

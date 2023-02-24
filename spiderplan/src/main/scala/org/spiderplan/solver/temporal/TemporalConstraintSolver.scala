@@ -4,7 +4,7 @@ import org.aiddl.common.scala.Common
 import org.aiddl.common.scala.Common.NIL
 import org.aiddl.common.scala.reasoning.resource.{FlexibilityOrdering, LinearMcsSampler}
 import org.aiddl.common.scala.reasoning.temporal.Timepoint.{ET, ST}
-import org.aiddl.common.scala.reasoning.temporal.{AllenInterval2Stp, StpSolver}
+import org.aiddl.common.scala.reasoning.temporal.{AllenInterval2Stp, MinimalInconsistentStpFinder, StpSolver}
 import org.aiddl.core.scala.util.StopWatch
 import org.aiddl.core.scala.function.{Function, Verbose}
 import org.aiddl.core.scala.representation.*
@@ -12,11 +12,11 @@ import org.spiderplan.solver.ResolverInstruction.*
 import org.spiderplan.solver.Solver.Propagator
 import org.spiderplan.solver.Solver.Propagator.Result
 import org.spiderplan.solver.SpiderPlan.Type.{PropagatedValue, Temporal}
-import org.spiderplan.solver.{Resolver, SpiderPlan}
+import org.spiderplan.solver.{Explainable, Resolver, SpiderPlan}
 
 import scala.collection.{immutable, mutable}
 
-class TemporalConstraintSolver extends Propagator with Function {
+class TemporalConstraintSolver extends Propagator with Function with Explainable {
   val ac2stp = new AllenInterval2Stp
   val stpSolver = new StpSolver
 
@@ -26,8 +26,6 @@ class TemporalConstraintSolver extends Propagator with Function {
       case Result.Inconsistent => Common.NIL //cdb
       case Result.ConsistentWith(r) => SpiderPlan.applyResolver(cdb.asCol, r)
     }
-
-
 
   override def propagate(cdb: CollectionTerm): Propagator.Result =
     val acs = cdb.getOrElse(Temporal, SetTerm.empty)
@@ -56,4 +54,12 @@ class TemporalConstraintSolver extends Propagator with Function {
         }
       }
     }
+
+  override def explain(cdb: CollectionTerm): String = {
+    val acs = cdb.getOrElse(Temporal, SetTerm.empty)
+    val stp = ac2stp(acs)
+    val minInconsistentFinder = new MinimalInconsistentStpFinder
+    val minStpCs = minInconsistentFinder(stp)
+    minStpCs.toString
+  }
 }

@@ -20,7 +20,7 @@ object MotionPlanner {
   val parser = new Parser(new Container())
   val defaultPlannerCfg = parser.str("[\n" +
     "model:ReedsSheppCar\n" +
-    "algorithm:RRTConnect\n" +  // RRTConnect, RRTstar, TRRT, SST, LBTRRT, PRMstar, SPARS, pRRT, LazyRRT
+    "algorithm:RRTstar\n" +  // RRTConnect, RRTstar, TRRT, SST, LBTRRT, PRMstar, SPARS, pRRT, LazyRRT
     "radius:0.1\n" +
     "turning-radius:4.0\n" +
     "distance-between-path-points:0.5\n" +
@@ -51,7 +51,7 @@ object MotionPlanner {
   }
 
   def createCoordinators(cs: CollectionTerm): List[CoordinationActor] = {
-    val (frames, maps, poses, robots, planner) = MotionPlanner.extract(cs)
+    val (frames, maps, poses, robots, plannerConfig) = MotionPlanner.extract(cs)
     var actors: List[CoordinationActor] = Nil
 
     cs.foreach( c => c match {
@@ -83,8 +83,9 @@ object MotionPlanner {
         var robotIds: List[Int] = Nil
         var nextId = 1
         cfg(Sym("robots")).asCol.foreach( r => {
-          val planner = MotionPlannerFactory.fromAiddl(defaultPlannerCfg)
-          planner.setFootprint(frames(r)*)
+          val planner = MotionPlannerFactory.fromPlannerAndRobotCfg(plannerConfig(cfg(MapKey)), robots(cfg(MapKey))(r))
+          //val planner = MotionPlannerFactory.fromAiddl(defaultPlannerCfg)
+          //planner.setFootprint(frames(r)*)
 
           map match {
             case Some(yamlFile) => planner.setMap(yamlFile)
