@@ -39,8 +39,8 @@ class MotionPlanningPropagator extends Propagator with Verbose {
     val consistent = cs.forall(c => c match {
       case Tuple(Sym("path"), id, r, l1, l2, map, pathVar: Var) if (!l1.isInstanceOf[Var] && !l2.isInstanceOf[Var]) =>
         val plannerConfig = plannerCfg(map)
-        val planner = MotionPlannerFactory.fromPlannerAndRobotCfg(plannerConfig, robots(map)(r))
-        logger.info(s"Planning for: $c with ${robots(map)(r)} and $plannerConfig")
+        val planner = MotionPlannerFactory.fromPlannerAndRobotCfg(plannerConfig, robots(r))
+        logger.info(s"Planning for: $c with ${robots(r)} and $plannerConfig")
         planner.setMap(maps(map))
         planner.setStart(term2pose(poses(map)(l1)))
         planner.setGoals(term2pose(poses(map)(l2)))

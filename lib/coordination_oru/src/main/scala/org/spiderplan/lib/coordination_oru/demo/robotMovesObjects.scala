@@ -37,7 +37,7 @@ import java.nio.file.{Files, Paths}
   val c = new Container()
   val parser = new Parser(c)
   val mDomain = parser.parseFile("./test/combined-task-and-motion/domain.aiddl")
-  val mProblem01 = parser.parseFile("./test/combined-task-and-motion/problem-02.aiddl")
+  val mProblem01 = parser.parseFile("./test/combined-task-and-motion/problem-01.aiddl")
   val domainCdb = c.getProcessedValueOrPanic(mDomain, Sym("problem")).asCol
   val problemCdb = c.getProcessedValueOrPanic(mProblem01, Sym("problem")).asCol
   val cdb = domainCdb.putAll(problemCdb)

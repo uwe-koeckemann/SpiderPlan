@@ -73,14 +73,14 @@
     motion:[
       (map map-1 (relative $self "./maps/map-partial-2.yaml"))
       (poses map-1 $locations)
-      (robot r1 map-1
+      (robot r1 
         [ name:r1
           model:ReedsSheppCar
           turning-radius:4.0
           footprint:$frame-1
           start-pose:(get L_2 $locations)
         ])
-      (robot r2 map-1
+      (robot r2 
         [ name:r2
           model:ReedsSheppCar
           turning-radius:4.0

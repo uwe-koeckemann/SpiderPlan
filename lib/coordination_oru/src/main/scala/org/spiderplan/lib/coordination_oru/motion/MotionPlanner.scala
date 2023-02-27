@@ -20,15 +20,15 @@ object MotionPlanner {
   val parser = new Parser(new Container())
   val defaultPlannerCfg = parser.str("[\n" +
     "model:ReedsSheppCar\n" +
-    "algorithm:RRTstar\n" +  // RRTConnect, RRTstar, TRRT, SST, LBTRRT, PRMstar, SPARS, pRRT, LazyRRT
+    "algorithm:LazyRRT\n" +  // RRTConnect, RRTstar, TRRT, SST, LBTRRT, PRMstar, SPARS, pRRT, LazyRRT
     "radius:0.1\n" +
     "turning-radius:4.0\n" +
     "distance-between-path-points:0.5\n" +
     "]").asCol
 
-  def extract(cs: CollectionTerm): (Map[Term, Array[Coordinate]], Map[Term, String], Map[Term, CollectionTerm], Map[Term, Map[Term, CollectionTerm]], Map[Term, CollectionTerm]) = {
+  def extract(cs: CollectionTerm): (Map[Term, Array[Coordinate]], Map[Term, String], Map[Term, CollectionTerm], Map[Term, CollectionTerm], Map[Term, CollectionTerm]) = {
     var frames: Map[Term, Array[Coordinate]] = Map.empty
-    var robots: Map[Term, Map[Term, CollectionTerm]] = Map.empty.withDefaultValue(Map.empty)
+    var robots: Map[Term, CollectionTerm] = Map.empty
     var maps: Map[Term, String] = Map.empty
     var poses: Map[Term, CollectionTerm] = Map.empty
     var planner: Map[Term, CollectionTerm] = Map.empty.withDefaultValue(defaultPlannerCfg)
@@ -39,8 +39,8 @@ object MotionPlanner {
         maps = maps.updated(name, yamlFile)
       case Tuple(Sym("frame"), id, f: ListTerm) =>
         frames = frames.updated(id, term2frame(f))
-      case Tuple(Sym("robot"), id, map, cfg) =>
-        robots = robots.updated(map, robots(map).updated(id, cfg.asCol))
+      case Tuple(Sym("robot"), id, cfg) =>
+        robots = robots.updated(id, cfg.asCol)
       case Tuple(Sym("planner"), mapId, cfg) =>
         planner = planner.updated(mapId, cfg.asCol)
       case Tuple(Sym("poses"), map, p: CollectionTerm) =>
@@ -83,7 +83,7 @@ object MotionPlanner {
         var robotIds: List[Int] = Nil
         var nextId = 1
         cfg(Sym("robots")).asCol.foreach( r => {
-          val planner = MotionPlannerFactory.fromPlannerAndRobotCfg(plannerConfig(cfg(MapKey)), robots(cfg(MapKey))(r))
+          val planner = MotionPlannerFactory.fromPlannerAndRobotCfg(plannerConfig(cfg(MapKey)), robots(r))
           //val planner = MotionPlannerFactory.fromAiddl(defaultPlannerCfg)
           //planner.setFootprint(frames(r)*)
 
