@@ -75,7 +75,7 @@ class GoalResolverSuit extends AnyFunSuite {
 
     assert(answer match {
       case Some(cdb) => {
-        println(Logger.prettyPrint(cdb, 0))
+        //println(Logger.prettyPrint(cdb, 0))
         true
       }
       case None => false

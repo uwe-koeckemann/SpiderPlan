@@ -89,6 +89,7 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
         }
 
         var resolvers: Seq[Resolver] = edges.map( (action, s_next) => {
+          val planLatest = cdb.getOrElse(Sym("goal.plan.latest"), ListTerm.empty).asList.add(action)
           val actionName = action
           var spiderOp = extractOperators.getSpiderPlanOperator(actionName)
 
@@ -117,12 +118,14 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
             case c => throw new IllegalArgumentException(s"Unsupported constraint entry $c.\nPLease use format type:collection")
           }.toSeq
 
+
           val r = Resolver(oConsRes ++ List(
             AddAll(Statement, SetTerm(Tuple(spiderOp(Interval), KeyVal(spiderOp(Name), Bool(true))))),
             AddAll(Statement, spiderOp(Effects).asCol),
             AddAll(Statement, spiderOp(Preconditions).asCol),
             AddAll(Temporal, SetTerm(oConsPre)),
             Replace(CurrentState, s_next.asCol),
+            Replace(Sym("goal.plan.latest"), planLatest)
           ), Some(() => s"${action}"))
           r
         })
