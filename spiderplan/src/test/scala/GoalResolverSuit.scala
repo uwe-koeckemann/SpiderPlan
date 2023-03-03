@@ -74,7 +74,10 @@ class GoalResolverSuit extends AnyFunSuite {
     val answer = spiderPlan.solve(cdb)
 
     assert(answer match {
-      case Some(cdb) => true
+      case Some(cdb) => {
+        println(Logger.prettyPrint(cdb, 0))
+        true
+      }
       case None => false
     })
   }

@@ -11,8 +11,6 @@ class StateCdb2Svp extends Function {
 
   var intervalMap: Map[Term, Term] = Map.empty
 
-  val propagateTime = new TemporalConstraintSolver
-
   override def apply(x: Term): Term = {
     val propVals = x.asCol.getOrPanic(SpiderPlan.Type.PropagatedValue).asCol
     val statements = x.asCol(SpiderPlan.Type.Statement).asCol
@@ -25,6 +23,7 @@ class StateCdb2Svp extends Function {
       est(s(0))
     } ).foreach(
       s => {
+        //println(s"${est(s(0))} $s")
         val svx = s(1).asKvp
         lastChange = lastChange.updated(svx.key, svx.value)
         intervalMap = intervalMap.updated(svx.key, s(0))

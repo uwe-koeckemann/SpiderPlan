@@ -50,6 +50,7 @@ class ForwardOpenGoalResolver[F <: Function with Initializable](heuristic: Optio
         }
       }
       if ( state.containsAll(goal) ) {
+        extractState(cdb)
         // If goal reached:
         //    -> link to effects and mark goals as satisfied
         var closedGoals: Set[Term] = Set.empty
