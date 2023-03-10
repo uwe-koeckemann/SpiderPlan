@@ -10,13 +10,15 @@ import org.aiddl.external.scala.coordination_oru.factory.MotionPlannerFactory
 import org.aiddl.external.scala.coordination_oru.util.Convert.{poseSteering2term, term2frame, term2pose}
 import org.spiderplan.lib.coordination_oru.motion.MotionPlanner
 import org.spiderplan.solver.Solver.Propagator
-import org.spiderplan.solver.Resolver
+import org.spiderplan.solver.{PruneRuleGenerator, Resolver}
 import org.spiderplan.solver.ResolverInstruction.Substitute
+import org.spiderplan.solver.ResolverInstruction.Replace
+import org.spiderplan.solver.SpiderPlan.Type.Operator
 
-class MotionPlanningPropagator extends Propagator with Verbose {
+class MotionPlanningPropagator extends Propagator with Verbose with PruneRuleGenerator {
   val parser = new Parser(new Container())
 
-
+  var pruneRule: Option[CollectionTerm => Option[Resolver]] = None
 
   val planner = MotionPlannerFactory.fromAiddl(parser.str("[\n" +
     "model:ReedsSheppCar\n" +
@@ -29,12 +31,13 @@ class MotionPlanningPropagator extends Propagator with Verbose {
 
   override def propagate(cdb: CollectionTerm): Propagator.Result = {
     val cs = cdb.getOrElse(Sym("motion"), SetTerm.empty).asCol
-
+    pruneRule = None
     logger.info(s"$cs")
 
     val pathSub = new Substitution()
 
     val (frames, maps, poses, robots, plannerCfg) = MotionPlanner.extract(cs)
+    var failureCon: Option[Term] = None
 
     val consistent = cs.forall(c => c match {
       case Tuple(Sym("path"), id, r, l1, l2, map, pathVar: Var) if (!l1.isInstanceOf[Var] && !l2.isInstanceOf[Var]) =>
@@ -44,7 +47,10 @@ class MotionPlanningPropagator extends Propagator with Verbose {
         planner.setMap(maps(map))
         planner.setStart(term2pose(poses(map)(l1)))
         planner.setGoals(term2pose(poses(map)(l2)))
-        if !planner.plan() then false
+        if !planner.plan() then {
+          failureCon = Some(c)
+          false
+        }
         else {
           val path = ListTerm(planner.getPath.map(p => poseSteering2term(p)).toVector)
           pathSub.add(pathVar, path)
@@ -60,8 +66,28 @@ class MotionPlanningPropagator extends Propagator with Verbose {
 
     logger.info(s"Consistent? $consistent Paths: ${pathSub.toString()}")
 
+    if (!consistent) { // Remember pruning rule so spider-plan can add it to a pruning propagator
+      failureCon match {
+        case Some(failCon) => {
+          this.pruneRule = Some((cdb: CollectionTerm) => {
+            val ops = SetTerm(cdb(Operator).asCol.filterNot( o =>
+              o.asCol.getOrElse(Sym("motion"), SetTerm.empty).asCol.contains(failCon)
+            ).toSet)
+            Some(Resolver(List(
+              Replace(Operator, ops)
+            )))
+          })
+        }
+        case None => {}
+      }
+
+    }
+
     if !consistent then Propagator.Result.Inconsistent
     else if pathSub.isEmpty then Propagator.Result.Consistent
     else Propagator.Result.ConsistentWith(Resolver(List(Substitute(pathSub.asTerm)), Some(() => {"Adding Path"})))
   }
+
+  override def getRuleFromLastFailure: Option[CollectionTerm => Option[Resolver]] = this.pruneRule
+
 }

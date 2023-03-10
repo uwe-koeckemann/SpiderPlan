@@ -4,6 +4,8 @@ import org.aiddl.common.scala.search.Reasoned
 import org.aiddl.core.scala.representation.*
 import org.spiderplan.solver.SpiderPlan.Instruction
 
+import scala.annotation.targetName
+
 object ResolverInstruction {
   def from(t: Term): ResolverInstruction = {
     t match {
@@ -26,6 +28,7 @@ enum ResolverInstruction {
 //type Resolver = Seq[ResolverInstruction]
 
 object Resolver {
+  def empty: Resolver = new Resolver(List.empty, resolverReason = None)
   def apply( instructions: Seq[ResolverInstruction] ): Resolver = new Resolver(instructions, resolverReason = None)
   def apply( instructions: Seq[ResolverInstruction], reason: => Option[() => String]  ): Resolver = new Resolver(instructions, reason)
 }
@@ -48,6 +51,11 @@ class Resolver(val instructions: Seq[ResolverInstruction], resolverReason: Optio
   }
 
   override def apply(i: Int): ResolverInstruction = instructions(i)
+  
+  @targetName("add")
+  def +(r: Resolver): Resolver = {
+    Resolver(this.instructions ++ r.instructions)
+  }
 
   override def length: Int = instructions.length
 

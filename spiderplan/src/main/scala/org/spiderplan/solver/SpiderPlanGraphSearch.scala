@@ -10,8 +10,8 @@ import org.aiddl.core.scala.util.logger.Logger
 import org.spiderplan.solver.Solver.Propagator
 import org.spiderplan.solver.Solver.FlawResolver
 import org.spiderplan.solver.ResolverInstruction.*
-
 import org.aiddl.core.scala.representation.conversion.given_Conversion_Term_Num
+import org.spiderplan.solver.pruning.PruningPropagator
 
 import scala.language.implicitConversions
 
@@ -22,6 +22,11 @@ trait SpiderPlanGraphSearch(heuristics: Vector[(Heuristic, Num)]) extends Generi
   //val heuristics: Vector[(Heuristic, Num)]
 
   var dumpGraphDuringSearch = false
+
+  private var pruningPropagator: Option[PruningPropagator] =
+    propagators
+      .find(p => p.isInstanceOf[PruningPropagator])
+      .flatMap(r => Some(r.asInstanceOf[PruningPropagator]))
 
   this.heuristics.foreach((_, o) => super.addHeuristic(o))
 
@@ -107,6 +112,18 @@ trait SpiderPlanGraphSearch(heuristics: Vector[(Heuristic, Num)]) extends Generi
         case Propagator.Result.Consistent => true
         case Propagator.Result.Inconsistent => {
           logger.info(s"Rejected by propagator: ${this.nameOf(p)}")
+          this.pruningPropagator match { // If we have a pruning propagator and there is a new rule, remember it
+            case Some(pruneProp) => {
+              if (p.isInstanceOf[PruneRuleGenerator]) {
+                p.asInstanceOf[PruneRuleGenerator].getRuleFromLastFailure match {
+                  case Some(rule) => pruneProp.pruningRules = rule :: pruneProp.pruningRules
+                  case None => {}
+                }
+              }
+            }
+            case None => {}
+          }
+
           false
         }
         case Propagator.Result.ConsistentWith(changes) =>
