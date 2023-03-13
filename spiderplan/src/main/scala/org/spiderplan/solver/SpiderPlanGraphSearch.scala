@@ -23,12 +23,17 @@ trait SpiderPlanGraphSearch(heuristics: Vector[(Heuristic, Num)]) extends Generi
 
   var dumpGraphDuringSearch = false
 
-  private var pruningPropagator: Option[PruningPropagator] =
-    propagators
-      .find(p => p.isInstanceOf[PruningPropagator])
-      .flatMap(r => Some(r.asInstanceOf[PruningPropagator]))
+  private var pruningPropagator: Option[PruningPropagator] = None
+
 
   this.heuristics.foreach((_, o) => super.addHeuristic(o))
+
+  override def init(args: Iterable[CollectionTerm]): Unit = {
+    super.init(args)
+    this.pruningPropagator = this.propagators
+      .find(p => p.isInstanceOf[PruningPropagator])
+      .flatMap(r => Some(r.asInstanceOf[PruningPropagator]))
+  }
 
   override def logGetVerboseSubComponents: List[Verbose] = {
     (preprocessors.withFilter(_.isInstanceOf[Verbose]).map(_.asInstanceOf[Verbose])
@@ -116,7 +121,10 @@ trait SpiderPlanGraphSearch(heuristics: Vector[(Heuristic, Num)]) extends Generi
             case Some(pruneProp) => {
               if (p.isInstanceOf[PruneRuleGenerator]) {
                 p.asInstanceOf[PruneRuleGenerator].getRuleFromLastFailure match {
-                  case Some(rule) => pruneProp.pruningRules = rule :: pruneProp.pruningRules
+                  case Some(rule) => {
+                    logger.info(s"Adding pruning rule")
+                    pruneProp.pruningRules = rule :: pruneProp.pruningRules
+                  }
                   case None => {}
                 }
               }
