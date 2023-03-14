@@ -139,10 +139,10 @@ trait SpiderPlanGraphSearch(heuristics: Vector[(Heuristic, Num)]) extends Generi
           propChanges = Resolver(propChanges ++ changes, Some(() => {
             val sb = new StringBuilder
             sb.append("Propagation")
-            if (p.isInstanceOf[Explainable]) {
+            /*if (p.isInstanceOf[Explainable]) {
               sb.append(":\n")
               sb.append(p.asInstanceOf[Explainable].explain(cdb))
-            }
+            }*/
 
             sb.toString()
           }))
