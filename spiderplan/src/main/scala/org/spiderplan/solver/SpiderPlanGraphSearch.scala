@@ -141,7 +141,7 @@ trait SpiderPlanGraphSearch(heuristics: Vector[(Heuristic, Num)]) extends Generi
             sb.append("Propagation")
             if (p.isInstanceOf[Explainable]) {
               sb.append(":\n")
-              sb.append(p.asInstanceOf[Explainable].explain)
+              sb.append(p.asInstanceOf[Explainable].explain(cdb))
             }
 
             sb.toString()
