@@ -22,7 +22,7 @@ class MotionPlanningPropagator extends Propagator with Verbose with PruneRuleGen
 
   val planner = MotionPlannerFactory.fromAiddl(parser.str("[\n" +
     "model:ReedsSheppCar\n" +
-    "algorithm:RRTstar\n" +  // RRTConnect, RRTstar, TRRT, SST, LBTRRT, PRMstar, SPARS, pRRT, LazyRRT
+    "algorithm:RRTConnect\n" +  // RRTConnect, RRTstar, TRRT, SST, LBTRRT, PRMstar, SPARS, pRRT, LazyRRT
     "footprint:[(-1.0 0.5) (1.0 0.5) (1.0 -0.5) (-1.0 -0.5)]\n" +
     "radius:1.0\n" +
     "turning-radius:4.0\n" +

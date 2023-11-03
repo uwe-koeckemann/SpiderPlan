@@ -20,7 +20,7 @@ object MotionPlanner {
   val parser = new Parser(new Container())
   val defaultPlannerCfg = parser.str("[\n" +
     "model:ReedsSheppCar\n" +
-    "algorithm:RRTstar\n" +  // RRTConnect, RRTstar, TRRT, SST, LBTRRT, PRMstar, SPARS, pRRT, LazyRRT
+    "algorithm:RRTConnect\n" +  // RRTConnect, RRTstar, TRRT, SST, LBTRRT, PRMstar, SPARS, pRRT, LazyRRT
     "radius:0.1\n" +
     "turning-radius:4.0\n" +
     "distance-between-path-points:0.5\n" +
