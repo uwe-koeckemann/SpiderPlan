@@ -1,0 +1,27 @@
+(#mod self org.spiderplan.test.resource.test-01)
+
+(org.aiddl.type.term problem
+{
+  temporal:
+    [
+      (release i1 (0 0))
+      (duration i1 (10 +INF))
+      (release i2 (5 +INF))
+      (duration i2 (10 +INF))
+    ]
+
+  statement:
+    [
+      (i1 (a 1):true)
+      (i2 (a 2):true)
+    ]
+
+  resource.reusable.usage:[
+    (i1 r1 1)
+    (i2 r1 1)
+  ]
+
+  resource.reusable.capacity:[
+    r1:{max:1}
+  ]
+})
