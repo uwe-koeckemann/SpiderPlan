@@ -1,0 +1,7 @@
+version: "3.3"
+services:
+  web:
+    container_name: spiderplan-grpc-server
+    build: .
+    ports:
+      - "8061:8061"
